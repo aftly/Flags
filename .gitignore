@@ -1,0 +1,52 @@
+# Gradle files
+.gradle
+build/
+
+# Java class files
+*.class
+
+# Local configuration property files
+local.properties
+
+# Log files
+*.log
+
+# Android Studio generated files and folders
+*.apk
+*.ap_
+.navigation/
+.externalNativeBuild
+.cxx
+bin/
+gen/
+out/
+output.json
+captures/
+
+# Intellij
+*.iml
+/.idea
+app/.idea/
+.idea/assetWizardSettings.xml
+.idea/caches
+.idea/dictionaries
+.idea/gradle.xml
+.idea/libraries
+.idea/modules.xml
+.idea/navEditor.xml
+.idea/tasks.xml
+.idea/workspace.xml
+misc.xml
+deploymentTargetDropDown.xml
+render.experimental.xml
+
+# Mac
+.DS_Store
+
+# Keystore files
+*.jks
+*.keystore
+
+# Android profiling & AI
+*.hprof
+.aiexclude
