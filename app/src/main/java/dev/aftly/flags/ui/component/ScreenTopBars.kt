@@ -1,0 +1,190 @@
+package dev.aftly.flags.ui.component
+
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MediumTopAppBar
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.lerp
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
+import dev.aftly.flags.navigation.Screen
+import dev.aftly.flags.ui.theme.Dimens
+import dev.aftly.flags.ui.theme.FlagsTheme
+
+
+// Expandable/collapsable top bar, such as for ListFlagsScreen()
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ExpandableTopAppBar(
+    modifier: Modifier = Modifier,
+    currentScreen: Screen,
+    scrollBehaviour: TopAppBarScrollBehavior,
+    canNavigateBack: Boolean,
+    onNavigateUp: () -> Unit,
+) {
+    // Ensures the navigationIcon in topBar survives throughout the (nav animation) lifecycle
+    val canNavigateBackStatic by remember { mutableStateOf(canNavigateBack) }
+
+    // Managing TitleStyle transition from expanded (start) -> collapsed (stop) topBar
+    val currentTitleStyle = lerp(
+        start = MaterialTheme.typography.headlineLarge,
+        stop = MaterialTheme.typography.headlineSmall,
+        fraction = scrollBehaviour.state.collapsedFraction
+    )
+
+    // Managing Title padding for same (as above) transition (for proper alignment in context)
+    val currentTitlePadding = lerp(
+        start = 20.dp,
+        stop = Dimens.canNavigateBack0,
+        fraction = scrollBehaviour.state.collapsedFraction
+    )
+
+
+    MediumTopAppBar(
+        title = {
+            if (currentScreen.title != null) {
+                Text(
+                    text = stringResource(currentScreen.title),
+                    style = currentTitleStyle,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(start = currentTitlePadding),
+                )
+            }
+        },
+        modifier = modifier,
+        navigationIcon = {
+            if (canNavigateBackStatic) {
+                IconButton(onClick = onNavigateUp) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                        contentDescription = "back",
+                    )
+                }
+            }
+        },
+        scrollBehavior = scrollBehaviour,
+        colors = TopAppBarDefaults.topAppBarColors(
+            scrolledContainerColor = MaterialTheme.colorScheme.surface
+        ),
+    )
+}
+
+
+// Simple top bar that dynamically adjusts it's features for a given screen
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun StaticTopAppBar(
+    modifier: Modifier = Modifier,
+    currentScreen: Screen,
+    canNavigateBack: Boolean = false,
+    canNavigateBackTitlePadding: Dp = Dimens.canNavigateBack0,
+    onNavigateUp: () -> Unit,
+    onAction: (Screen) -> Unit,
+) {
+    // Ensures the navigationIcon in topBar survives throughout the (nav animation) lifecycle
+    val canNavigateBackStatic by remember { mutableStateOf(canNavigateBack) }
+
+    TopAppBar(
+        title = {
+            if (currentScreen.title != null) {
+                Text(
+                    text = stringResource(currentScreen.title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(start = canNavigateBackTitlePadding),
+                )
+            }
+        },
+        modifier = modifier,
+        navigationIcon = {
+            if (canNavigateBackStatic) {
+                IconButton(onClick = onNavigateUp) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                        contentDescription = "back",
+                    )
+                }
+            }
+        },
+        actions = {
+            when (currentScreen) {
+                Screen.StartMenu -> {
+                    // TODO: Implement InfoScreen() for "about app" info
+                    IconButton(
+                        onClick = { /*TODO*/ }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = "about"
+                        )
+                    }
+                    // TODO: Implement SettingsScreen()
+                    IconButton(
+                        onClick = { /* onAction(Screen.Settings) */ }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "settings"
+                        )
+                    }
+                }
+                Screen.Flag -> {
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(
+                            imageVector = Icons.Default.FavoriteBorder,
+                            contentDescription = "make favorite",
+                        )
+                    }
+                }
+                else -> { }
+            }
+        },
+    )
+}
+
+
+// Preview screen in Android Studio
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(
+    showBackground = true,
+    showSystemUi = true)
+@Composable
+fun AppBarPreview() {
+    FlagsTheme(
+        //darkTheme = true
+    ) {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            topBar = {
+                ExpandableTopAppBar (
+                    currentScreen = Screen.List,
+                    scrollBehaviour = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
+                    canNavigateBack = false,
+                    onNavigateUp = { },
+                )
+            },
+        ) { }
+    }
+}
