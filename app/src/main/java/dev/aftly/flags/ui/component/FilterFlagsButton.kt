@@ -49,10 +49,6 @@ import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Shapes
 import dev.aftly.flags.ui.theme.Timings
 
-// TODO: Make containerColor1 MaterialTheme secondary &
-//     make containerColor2 secondary.copy(+ white/black values depending on light/dark mode)
-
-// TODO: Animate text start padding and down arrow end padding after sub menu expand
 
 @Composable
 fun FilterFlagsButton(
@@ -86,7 +82,6 @@ fun FilterFlagsButton(
                 .padding(bottom = Dimens.small8)
                 .height(Dimens.filterButtonRowHeight30),
             shape = MaterialTheme.shapes.large,
-            //colors = buttonColors1, // TODO: Re-enable after TODO color task done
             colors = buttonColors2,
             contentPadding = PaddingValues(Dimens.extraSmall4),
         ) {
@@ -98,11 +93,11 @@ fun FilterFlagsButton(
         AnimatedVisibility(
             visible = buttonExpanded,
             enter = expandVertically(
-                animationSpec = tween(durationMillis = Timings.menuExpand),
+                animationSpec = tween(durationMillis = Timings.MENU_EXPAND),
                 expandFrom = Alignment.Top,
             ),
             exit = shrinkVertically(
-                animationSpec = tween(durationMillis = Timings.menuCollapse),
+                animationSpec = tween(durationMillis = Timings.MENU_COLLAPSE),
                 shrinkTowards = Alignment.Top,
             ),
         ) {
@@ -176,6 +171,7 @@ fun FilterFlagsButton(
     }
 }
 
+
 @Composable
 private fun MenuItemStatic(
     modifier: Modifier = Modifier,
@@ -203,6 +199,7 @@ private fun MenuItemStatic(
         }
     }
 }
+
 
 @Composable
 private fun MenuItemExpandable(
@@ -283,11 +280,11 @@ private fun MenuItemExpandable(
         AnimatedVisibility(
             visible = menuExpanded,
             enter = expandVertically(
-                animationSpec = tween(durationMillis = Timings.menuExpand),
+                animationSpec = tween(durationMillis = Timings.MENU_EXPAND),
                 expandFrom = Alignment.Top,
             ),
             exit = shrinkVertically(
-                animationSpec = tween(durationMillis = Timings.menuExpand),
+                animationSpec = tween(durationMillis = Timings.MENU_EXPAND),
                 shrinkTowards = Alignment.Top,
             )
         ) {
@@ -332,6 +329,7 @@ private fun MenuItemExpandable(
         }
     }
 }
+
 
 @Composable
 private fun MenuSuperItem(
@@ -396,11 +394,11 @@ private fun MenuSuperItem(
             AnimatedVisibility(
                 visible = parentExpanded,
                 enter = expandVertically(
-                    animationSpec = tween(durationMillis = Timings.menuExpand),
+                    animationSpec = tween(durationMillis = Timings.MENU_EXPAND),
                     expandFrom = Alignment.Top,
                 ),
                 exit = shrinkVertically(
-                    animationSpec = tween(durationMillis = Timings.menuExpand),
+                    animationSpec = tween(durationMillis = Timings.MENU_EXPAND),
                     shrinkTowards = Alignment.Top,
                 )
             ) {
@@ -432,128 +430,3 @@ private fun MenuSuperItem(
         }
     }
 }
-
-
-/* Button + aligned DropdownMenu() for displaying each FlagSuperCategory. Indicates current
- * selection. Upon click of a different category, passes up events to update selection. */
-/*
-@Composable
-fun FilterFlagsDropDown(
-    modifier: Modifier = Modifier,
-    buttonColors: ButtonColors = ButtonDefaults.buttonColors(
-        containerColor = MaterialTheme.colorScheme.secondary
-    ),
-    currentSuperCategory: FlagSuperCategory,
-    onCategorySelect: (FlagSuperCategory) -> Unit,
-) {
-    // TODO: Refactor to animated LazyColumn() with support for nested drop down & multi select
-    var expanded by rememberSaveable { mutableStateOf(value = false) }
-    var buttonWidthPx by rememberSaveable { mutableIntStateOf(value = 0) }
-    val density = LocalDensity.current
-    val buttonWidthDp = with(density) { buttonWidthPx.toDp() }
-
-
-    Button(
-        onClick = { expanded = !expanded },
-        modifier = modifier.onGloballyPositioned { layoutCoordinates ->
-            buttonWidthPx = layoutCoordinates.size.width
-        },
-        shape = MaterialTheme.shapes.large,
-        colors = buttonColors,
-        contentPadding = PaddingValues(Dimens.extraSmall4),
-    ) {
-        // Wrap inside a row if want to implement alignment
-        Text(
-            text = stringResource(currentSuperCategory.title), // Replace with first item of list
-            style = MaterialTheme.typography.titleMedium,
-        )
-    }
-
-
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = { expanded = false },
-        modifier = Modifier.width(buttonWidthDp),
-        offset = DpOffset(
-            x = Dimens.marginHorizontal24,
-            y = Dimens.extraSmall6,
-        ),
-        shape = MaterialTheme.shapes.large,
-        containerColor = buttonColors.containerColor,
-    ) {
-        // In order of the superCategoryList
-        superCategoryList.forEach { superCategory ->
-            // If selectable category
-            if (superCategory != FlagSuperCategory.Political) {
-
-                // If currently selected category: Highlight item + "Check" trailing icon
-                if (superCategory == currentSuperCategory) {
-                    Box(
-                        modifier = Modifier
-                            .wrapContentSize()
-                            .background(Color.White.copy(alpha = 0.2f))
-                    ) {
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = stringResource(superCategory.title),
-                                    modifier = Modifier.padding(start = Dimens.extraSmall4),
-                                    color = buttonColors.contentColor
-                                )
-                            },
-                            onClick = { /* Do nothing */ },
-                            trailingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = "selected",
-                                    tint = buttonColors.contentColor,
-                                )
-                            },
-                        )
-                    }
-                }
-                // If not currently selected category: Apply padding to start
-                else {
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = stringResource(superCategory.title),
-                                modifier = Modifier.padding(start = Dimens.large24),
-                                color = buttonColors.contentColor,
-                            )
-                        },
-                        onClick = {
-                            expanded = false
-                            onCategorySelect(superCategory)
-                        },
-                    )
-                }
-            // For dropdown category: Bold fontweight + Down arrow trailing icon
-            } else {
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = stringResource(superCategory.title),
-                            modifier = Modifier.padding(start = Dimens.extraSmall4),
-                            color = buttonColors.contentColor.copy(
-                                red = buttonColors.contentColor.red - 0.2f,
-                                green = buttonColors.contentColor.green - 0.2f,
-                                blue = buttonColors.contentColor.blue - 0.2f,
-                            ),
-                            fontWeight = FontWeight.Bold,
-                        )
-                    },
-                    onClick = { /*TODO after refactoring DropdownMenu to animated LazyColumn()*/ },
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowDown,
-                            contentDescription = "expand",
-                            tint = buttonColors.contentColor,
-                        )
-                    },
-                )
-            }
-        }
-    }
-}
- */

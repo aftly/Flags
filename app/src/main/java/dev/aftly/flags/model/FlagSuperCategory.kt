@@ -3,11 +3,10 @@ package dev.aftly.flags.model
 import androidx.annotation.StringRes
 import dev.aftly.flags.R
 
-// TODO: Export titles to string resources
+
 sealed class FlagSuperCategory(
     @StringRes val title: Int,
     val subCategories: List<Any>,
-    val expandable: Boolean = false,
 ) {
     data object All : FlagSuperCategory(
         title = R.string.category_super_all,
@@ -24,7 +23,7 @@ sealed class FlagSuperCategory(
         subCategories = listOf(
             FlagCategory.FREE_ASSOCIATION,
             FlagCategory.AUTONOMOUS_REGION,
-            FlagCategory.DEVOLVED_GOVERNMENT,
+            FlagCategory.DEVOLVED_GOVERNMENT
             //FlagCategory.INDIGENOUS_TERRITORY
         ),
     )
@@ -95,7 +94,7 @@ sealed class FlagSuperCategory(
         ),
     )
 
-    /* FlagSuperCategory "sub-categories" for use in "Political" super-category in UI menus: */
+    /* Below FlagSuperCategory-s for use as subCategories for above FlagSuperCategory-s */
 
     data object TerritorialDistributionOfAuthority : FlagSuperCategory(
         title = R.string.category_sub_territorial_power_distribution,
@@ -146,6 +145,7 @@ sealed class FlagSuperCategory(
             FlagCategory.DICTATORSHIP
         ),
     )
+
     data object IdeologicalOrientation : FlagSuperCategory(
         title = R.string.category_sub_ideological_orientation,
         subCategories = listOf(
@@ -158,23 +158,7 @@ sealed class FlagSuperCategory(
     )
 
     private data object NonAdministrative : FlagSuperCategory(
-        title = R.string.category_non_administrative_political, //
+        title = R.string.category_non_administrative_political,
         subCategories = listOf(FlagCategory.POLITICAL),
     )
 }
-
-
-/*
-@Preview(
-    showBackground = true
-)
-@Composable
-fun previewSomething() {
-    Column {
-        MenuCategory.All.subCategories.forEach() { category ->
-            Text(text = category.toString())
-        }
-    }
-}
-
- */

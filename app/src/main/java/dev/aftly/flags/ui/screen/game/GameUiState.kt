@@ -13,7 +13,7 @@ data class GameUiState(
     @StringRes val currentCategoryTitle: Int = currentSuperCategory.title,
 
     val totalFlagCount: Int = 0,
-    val currentFlag: FlagResources = nullFlag, // TODO: Change to flagResource with actual resources?
+    val currentFlag: FlagResources = nullFlag,
     val currentFlagStrings: List<String> = emptyList(),
 
     val correctGuessCount: Int = 0,

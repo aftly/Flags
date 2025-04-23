@@ -3,17 +3,15 @@ package dev.aftly.flags.model
 import androidx.annotation.StringRes
 import dev.aftly.flags.R
 
-// TODO: Add titles (from string resources) so that filter button & flag page can display category info?
-// TODO: Write README for category explanations and intentions
 
-// List of categories for use in flag list filtering and flag page descriptions
+/* List of categories for use in flag list filtering and flag page descriptions */
 enum class FlagCategory(
     @StringRes val title: Int,
     @StringRes val string: Int
 ) {
     /* ENTITY CATEGORIES: */
 
-    // Top level (de jure and recognised) state
+    /* Top level (de jure and recognised) state */
     SOVEREIGN_STATE (title = R.string.category_sovereign_state_title, string = R.string.category_sovereign_state_string),
 
     /* Autonomous or devolved but de jure dependent territories. Having special provisions over
@@ -24,7 +22,7 @@ enum class FlagCategory(
     DEVOLVED_GOVERNMENT (title = R.string.category_devolved_government_title, string = R.string.category_devolved_government_string),
     INDIGENOUS_TERRITORY (title = R.string.category_indigenous_territory_title, string = R.string.category_indigenous_territory_string),
 
-    // Administrative units within a sovereign state (eg. federated state or unitary region)
+    /* Administrative units within a sovereign state (eg. federated state or unitary region) */
     CANTON (title = R.string.category_canton_title, string = R.string.category_canton_string),
     COLLECTIVITY (title = R.string.category_collectivity_title, string = R.string.category_collectivity_string),
     COMMUNITY (title = R.string.category_community_title, string = R.string.category_community_string),
@@ -47,11 +45,11 @@ enum class FlagCategory(
     STATE (title = R.string.category_state_title, string = R.string.category_state_string),
     TERRITORY (title = R.string.category_territory_title, string = R.string.category_territory_string),
 
-    // Supranational & international polities
+    /* Supranational & international polities */
     SUPRANATIONAL_UNION (title = R.string.category_supranational_union_title, string = R.string.category_supranational_union_string),
     INTERNATIONAL_ORGANIZATION (title = R.string.category_international_organization_title, string = R.string.category_international_organization_string),
 
-    // No longer existent
+    /* For entities that don't exist anymore */
     HISTORICAL (title = R.string.category_historical_title, string = R.string.category_historical_string),
 
 
@@ -71,7 +69,6 @@ enum class FlagCategory(
 
     /* Legal constraint on head(s) of state & government */
     CONSTITUTIONAL (title = R.string.category_constitutional_title, string = R.string.category_constitutional_string),
-    // nominal- OR extra-: When leaders actions are not constrained by a constitution
     NOMINAL_EXTRA_CONSTITUTIONAL (title = R.string.category_nominal_extra_constitutional_title, string = R.string.category_nominal_extra_constitutional_string),
 
     /* Modes of power derivation */
@@ -83,12 +80,12 @@ enum class FlagCategory(
     PROVISIONAL_GOVERNMENT (title = R.string.category_provisional_government_title, string = R.string.category_provisional_government_string),
 
     /* Modes of political order */
-    // Regime type
+    /* Regime type */
     DEMOCRACY(title = R.string.category_democracy_title, string = R.string.category_democracy_string),
     AUTHORITARIAN (title = R.string.category_authoritarian_title, string = R.string.category_authoritarian_string),
     TOTALITARIAN (title = R.string.category_totalitarian_title, string = R.string.category_totalitarian_string),
     DICTATORSHIP (title = R.string.category_dictatorship_title, string = R.string.category_dictatorship_string),
-    // Ideological orientation
+    /* Ideological orientation */
     LIBERAL (title = R.string.category_liberal_title, string = R.string.category_liberal_string),
     ILLIBERAL (title = R.string.category_illiberal_title, string = R.string.category_illiberal_string),
     THEOCRATIC (title = R.string.category_theocratic_title, string = R.string.category_theocratic_string),
@@ -99,26 +96,7 @@ enum class FlagCategory(
     /* NON-ADMINISTRATIVE ENTITIES */
     ETHNIC (title = R.string.category_ethnic_title, string = R.string.category_ethnic_string),
     SOCIAL (title = R.string.category_social_title, string = R.string.category_social_string),
-    // (for non-administrative political parties or movements)
     POLITICAL (title = R.string.category_political_title, string = R.string.category_political_string),
     RELIGIOUS (title = R.string.category_religious_title, string = R.string.category_religious_string),
     REGIONAL (title = R.string.category_regional_title, string = R.string.category_regional_string),
 }
-
-
-/*
- * https://en.wikipedia.org/wiki/Sovereign_state
- *
- * https://en.wikipedia.org/wiki/Autonomous_administrative_division
- * https://en.wikipedia.org/wiki/List_of_autonomous_areas_by_country
- *
- * https://en.wikipedia.org/wiki/Federation
- * https://en.wikipedia.org/wiki/Unitary_state
- *
- * https://en.wikipedia.org/wiki/Federated_state
- * https://en.wikipedia.org/wiki/Regional_state
- *
- * https://en.wikipedia.org/wiki/Supranational_union
- * https://en.wikipedia.org/wiki/International_organization
- *
- */

@@ -16,7 +16,6 @@ import dev.aftly.flags.ui.screen.flag.FlagScreen
 import dev.aftly.flags.ui.screen.game.GameScreen
 import dev.aftly.flags.ui.screen.list.ListFlagsScreen
 import dev.aftly.flags.ui.screen.search.SearchScreen
-import dev.aftly.flags.ui.screen.settings.SettingsScreen
 import dev.aftly.flags.ui.screen.startmenu.StartMenuScreen
 import dev.aftly.flags.ui.theme.Timings
 
@@ -25,8 +24,8 @@ import dev.aftly.flags.ui.theme.Timings
 fun AppNavHost(
     navController: NavHostController = rememberNavController()
 ) {
-    /* currentBackStackEntryAsState() triggers recomposition upon changes to navigation
-     * which ensures dynamic AppTopBar updates and scrollBehaviour works after nav changes */
+    /* currentBackStackEntryAsState() triggers recomposition after navigation events which ensures
+     * (dynamic) ScreenTopBars update and scrollBehaviour in screens works after navigation(s) */
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val startDestination = Screen.StartMenu.route
 
@@ -35,31 +34,31 @@ fun AppNavHost(
         startDestination = startDestination,
         enterTransition = {
             slideInHorizontally(
-                animationSpec = tween(durationMillis = Timings.screenNav700),
+                animationSpec = tween(durationMillis = Timings.SCREEN_NAV),
                 initialOffsetX = { it },
             )
         },
         exitTransition = {
             slideOutHorizontally(
-                animationSpec = tween(durationMillis = Timings.screenNav700),
+                animationSpec = tween(durationMillis = Timings.SCREEN_NAV),
                 targetOffsetX = { -it },
             )
         },
         popEnterTransition = {
             slideInHorizontally(
-                animationSpec = tween(durationMillis = Timings.screenNav700),
+                animationSpec = tween(durationMillis = Timings.SCREEN_NAV),
                 initialOffsetX = { -it },
             )
         },
         popExitTransition = {
             slideOutHorizontally(
-                animationSpec = tween(durationMillis = Timings.screenNav700),
+                animationSpec = tween(durationMillis = Timings.SCREEN_NAV),
                 targetOffsetX = { it },
             )
         },
     ) {
 
-        // StartMenuScreen NavGraph
+        /* StartMenuScreen NavGraph */
         composable(
             route = Screen.StartMenu.route
         ) {
@@ -76,7 +75,7 @@ fun AppNavHost(
             )
         }
 
-        // ListFlagsScreen NavGraph
+        /* ListFlagsScreen NavGraph */
         composable(
             route = Screen.List.route
         ) {
@@ -92,7 +91,7 @@ fun AppNavHost(
             )
         }
 
-        // FlagScreen NavGraph
+        /* FlagScreen NavGraph */
         composable(
             route = "${Screen.Flag.route}/{flag}",
             arguments = listOf(
@@ -101,13 +100,13 @@ fun AppNavHost(
         ) { backStackEntry ->
             val flagArgument = backStackEntry.arguments?.getString("flag")
 
-            // Handling null error navigation to FlagScreen() by popping back to current ?: home
+            /* Handling null error navigation to FlagScreen() by popping back to current ?: home */
             val onNullError: () -> Unit = {
                 navController.popBackStack(
                     route = currentBackStackEntry?.destination?.route ?: startDestination,
                     inclusive = false,
                 )
-            } // TODO: Replace with navigation to FlagScreen with error argument/page
+            }
 
             FlagScreen(
                 navArgFlagId = flagArgument,
@@ -118,7 +117,7 @@ fun AppNavHost(
             )
         }
 
-        // SearchScreen NavGraph
+        /* SearchScreen NavGraph */
         composable(route = Screen.Search.route) {
             SearchScreen(
                 currentScreen = Screen.Search,
@@ -132,7 +131,7 @@ fun AppNavHost(
             )
         }
 
-        // GameScreen NavGraph
+        /* GameScreen NavGraph */
         composable(route = Screen.Game.route) {
             GameScreen(
                 currentScreen = Screen.Game,
@@ -141,7 +140,8 @@ fun AppNavHost(
             )
         }
 
-        // SettingsScreen NavGraph
+        /* SettingsScreen NavGraph */
+        /*
         composable(route = Screen.Settings.route) {
             SettingsScreen(
                 currentScreen = Screen.Settings,
@@ -149,23 +149,6 @@ fun AppNavHost(
                 navigateUp = { navController.navigateUp() },
             )
         }
+         */
     }
 }
-
-/*
-private fun navigateUpWithOptionalArgument(
-    navController: NavHostController,
-    queryParameter: String,
-    argument: String?,
-) {
-    val previousRouteClean = navController.previousBackStackEntry?.destination?.route
-        ?.substringBefore(delimiter = "?")
-
-    if (previousRouteClean != null) {
-        navController.navigateUp()
-        navController.navigate(
-            route = "$previousRouteClean?$queryParameter=$argument"
-        ) { launchSingleTop = true }
-    } else { /* function is to be used when previousBackStackEntry is not null */ }
-}
- */

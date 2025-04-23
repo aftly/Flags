@@ -13,6 +13,7 @@ import dev.aftly.flags.model.FlagCategory.THEOCRATIC
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 
+
 fun getFlagsByCategory(
     superCategory: FlagSuperCategory?,
     subCategory: FlagCategory?,
@@ -42,6 +43,7 @@ fun getFlagsByCategory(
         }
     } else superCategory?.subCategories ?: exceptionCategories
 
+
     /* Search for flags that contain any category(s) from categories and add to list,
      * unless it's superCategory has historical exception */
     for (flag in allFlags) {
@@ -68,6 +70,7 @@ fun getFlagsByCategory(
     return flags.toList()
 }
 
+
 fun getParentSuperCategory(
     superCategory: FlagSuperCategory?,
     subCategory: FlagCategory?,
@@ -85,6 +88,7 @@ fun getParentSuperCategory(
         superCategory ?: exceptionCategory
     }
 }
+
 
 fun getCategoryTitle(
     superCategory: FlagSuperCategory?,

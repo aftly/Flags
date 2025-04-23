@@ -6,13 +6,6 @@ import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 
 
-// TODO: Remove id now that LazyColumn items() uses indexes as key
-// TODO: Add ISO codes to alt lists
-// TODO: Priority: Get all de jure sovereign state flags.
-// TODO: Next: Get flags for all overseas territories, de facto sovereign states and non-sovereign nations.
-// TODO: Add official names in native language to flagOfOfficial lists OR main name in native language to new property
-// Source: https://commons.wikimedia.org/wiki/Flag
-
 data object DataSource {
     val superCategoryList = listOf(
         FlagSuperCategory.All,
@@ -8187,8 +8180,3 @@ data object DataSource {
 
     val allFlagsList = flagsMap.values.toList()
 }
-
-/*
-val historicalSubCategoryExceptions: List<FlagCategory> = historicalSuperCategoryExceptions
-    .flatMap { it.subCategories.filterIsInstance<FlagCategory>() }
- */

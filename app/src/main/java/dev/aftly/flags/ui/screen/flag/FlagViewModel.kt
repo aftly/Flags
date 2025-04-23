@@ -36,6 +36,7 @@ class FlagViewModel(application: Application) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow(FlagUiState())
     val uiState: StateFlow<FlagUiState> = _uiState.asStateFlow()
 
+
     fun initialiseUiState(argFlagId: String?) {
         if (argFlagId != null) {
             val flag = flagsMap.getValue(argFlagId)
@@ -48,6 +49,7 @@ class FlagViewModel(application: Application) : AndroidViewModel(application) {
             updateDescriptionString()
         }
     }
+
 
     /* Convert the @StringRes list into a legible string
      * Also for execution upon locale/language configuration changes */
@@ -341,14 +343,3 @@ class FlagViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 }
-
-/*
-val description = stringResIds.fold(initial = "") { string, resId ->
-    if (stringResIds.indexOf(resId) == 0 || resId in noWhitespace) {
-        string + appResources.getString(resId)
-    } else {
-        string + appResources.getString(R.string.string_whitespace) +
-            appResources.getString(resId)
-    }
-}
- */

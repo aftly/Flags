@@ -5,7 +5,7 @@ import android.content.Intent
 import androidx.annotation.StringRes
 
 
-// Create a ShareSheet text intent
+/* Create a ShareSheet text intent (ie. native Android Share feature for text) */
 fun shareText(
     context: Context,
     @StringRes subject: Int,

@@ -19,9 +19,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 
-// TODO: Control animation object indicating correct guess
-// TODO: Accept flag guesses without spaces
-
 class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
@@ -46,6 +43,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun resetGame() {
         guessedFlags = mutableSetOf()
         skippedFlags = mutableListOf()
+        userGuess = ""
 
         val newFlag = getRandomFlag()
         val newFlagStrings = getStringsList(flag = newFlag)
@@ -157,7 +155,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    // For LaunchedEffect() when language configuration changes
+    /* For LaunchedEffect() when language configuration changes */
     fun setFlagStrings() {
         val currentFlag = uiState.value.currentFlag
         val currentFlagStrings = getStringsList(flag = currentFlag)
@@ -171,20 +169,20 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         val currentFlag: FlagResources = uiState.value.currentFlag
 
         /* Manage skipped and guessed flags lists depending on args & game conditions */
-        if (isSkip) { // If user skip & no un-skipped flags remain, add flag to skip list
+        if (isSkip) { /* If user skip & no un-skipped flags remain, add flag to skip list */
             if (!isSkipMax()) skippedFlags.add(currentFlag)
 
-        } else { // If user guess, add flag to guessed set
+        } else { /* If user guess, add flag to guessed set */
             guessedFlags.add(currentFlag)
 
-            // If flag in skippedList, remove it
+            /* If flag in skippedList, remove it */
             if (currentFlag in skippedFlags) skippedFlags.remove(currentFlag)
         }
 
-        // If all flags guessed, end the game
+        /* If all flags guessed, end the game */
         if (guessedFlags.size == uiState.value.currentFlags.size) return endGame()
 
-        // If no un-skipped flags remain get skipped flag, else get random flag
+        /* If no un-skipped flags remain get skipped flag, else get random flag */
         val newFlag = if (isSkipMax()) getSkippedFlag() else getRandomFlag()
         val newFlagStrings = getStringsList(newFlag)
 
@@ -205,7 +203,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private fun getRandomFlag(): FlagResources {
         val newFlag = uiState.value.currentFlags.random()
 
-        // Recurs until (random) newFlag not currentFlag or in guessedFlags or in skippedFlags
+        /* Recurs until (random) newFlag not currentFlag or in guessedFlags or in skippedFlags */
         return if (newFlag == uiState.value.currentFlag ||
             newFlag in guessedFlags || newFlag in skippedFlags) getRandomFlag() else newFlag
     }
@@ -266,76 +264,3 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             .replace(regex = Regex(pattern = "\\s"), replacement = "")
     }
 }
-
-/* // Alternate getNormalizedString that keeps single whitespaces to separate words
-private fun getNormalizedString(string: String): String {
-    /* normalizeString() normalizes special alphabetic characters */
-    return normalizeString(string = string).lowercase()
-        /* Remove all characters not a-z, whitespace, or short and long dash */
-        .replace(regex = Regex(pattern = "[^a-z—\\s-]"), replacement = "")
-        /* Replace all whitespace and short and long dashes with single whitespace */
-        .replace(regex = Regex(pattern = "[—\\s-]+"), replacement = " ")
-        /* Remove any usages of the word "the" */
-        .replace(regex = Regex(pattern = "\\bthe\\b"), replacement = "")
-        /* Remove leading or trailing whitespace (since 2nd replace() may result in either) */
-        .trim()
-}
- */
-
-
-
-
-/*
-        // If nextFlagInSkipped is no
-        if (skippedFlags.indexOf(uiState.value.nextFlagInSkipped) == -1) {
-
-        }
-
-        // If skipCounter at end of list, reset it to 0, else, increment it by 1
-        if (skipCounter < skippedFlags.size) {
-            _uiState.update { it.copy(currentFlagFromSkippedCounter = skipCounter.inc()) }
-            return skippedFlags[skipCounter]
-
-        } else {
-            _uiState.update { it.copy(currentFlagFromSkippedCounter = 0) }
-            return skippedFlags[0]
-        }
-         */
-
-
-/* Updates state with a new FlagSuperCategory and flags list derived from the new category
-     * Also resets game */
-/*
-fun updateCurrentSuperCategory(newSuperCategory: FlagSuperCategory) {
-    if (newSuperCategory == FlagSuperCategory.All) {
-        _uiState.value = GameUiState()
-        resetGame()
-
-    } else {
-        /* Using nested loops: For each subcategory in newSuperCategory -> For each flagResource
-         * in allFlagsList -> If subcategory in flagResource -> If flagResource not already in
-         * MutableList -> add flagResource to MutableList. Then: Update state with .toList() */
-        val mutableFlagsList: MutableList<FlagResources> = mutableListOf()
-
-        for (category in newSuperCategory.subCategories) {
-            for (flagResource in uiState.value.allFlags) {
-                if (newSuperCategory in DataSource.historicalSuperCategoryExceptions &&
-                    HISTORICAL in flagResource.categories) {
-                    continue
-                }
-                if (category in flagResource.categories) {
-                    if (flagResource !in mutableFlagsList) {
-                        mutableFlagsList.add(flagResource)
-                    }
-                    continue
-                }
-            }
-        }
-        _uiState.value = GameUiState(
-            currentSuperCategory = newSuperCategory,
-            currentFlags = mutableFlagsList.toList(),
-        )
-        resetGame()
-    }
-}
- */

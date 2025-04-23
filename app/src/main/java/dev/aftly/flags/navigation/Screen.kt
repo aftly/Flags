@@ -39,23 +39,10 @@ sealed class Screen(
         description = R.string.flag_game_description,
     )
 
+    /*
     data object Settings : Screen(
         route = "settings_screen",
         title = R.string.settings_title,
     )
-
-
-    // Eg. For use in returning the corresponding data object from a backStackEntry route query
-    companion object {
-        fun findRoute(route: String?): Screen {
-            return when (route) {
-                List.route -> List
-                Flag.route -> Flag
-                Search.route -> Search
-                Game.route -> Game
-                Settings.route -> Settings
-                else -> StartMenu
-            }
-        }
-    }
+     */
 }

@@ -47,7 +47,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.model.FlagCategory
@@ -57,16 +56,12 @@ import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.ExpandableTopAppBar
 import dev.aftly.flags.ui.component.FilterFlagsButton
 import dev.aftly.flags.ui.theme.Dimens
-import dev.aftly.flags.ui.theme.FlagsTheme
 import dev.aftly.flags.ui.theme.Timings
-import dev.aftly.flags.ui.util.getFlagNavArgument
-import kotlinx.coroutines.delay
+import dev.aftly.flags.ui.util.getFlagNavArg
 import kotlinx.coroutines.launch
 
-// TODO: Make titles one line and cut off at picture?
-// TODO: Get ISO codes for flag IDs
 
-// Displays a list of flags. Upon click, pass event for that flag to open it's page.
+/* Displays list of flags. Upon flag select, pass up it's navArg and navigate to FlagScreen() */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListFlagsScreen(
@@ -96,7 +91,7 @@ fun ListFlagsScreen(
         onCategorySelect = { newSuperCategory: FlagSuperCategory?, newSubCategory: FlagCategory? ->
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
         },
-        onFlagSelect = { onNavigateDetails(getFlagNavArgument(flag = it)) },
+        onFlagSelect = { onNavigateDetails(getFlagNavArg(flag = it)) },
     )
 }
 
@@ -118,15 +113,16 @@ private fun ListFlagsScaffold(
     /* Controls FilterFlagsButton menu expansion */
     var buttonExpanded by rememberSaveable { mutableStateOf(value = false) }
 
-    /* For use in setting scroll position to 0 when category is selected in FilterFlagsButton */
+    /* For setting scroll position to 0 when category is selected in FilterFlagsButton */
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-    /* So that FilterFlagsButton can access Scaffold() padding */
+    /* So FilterFlagsButton can access Scaffold() padding */
     var scaffoldTopPadding by remember { mutableStateOf(value = 0.dp) }
     var scaffoldBottomPadding by remember { mutableStateOf(value = 0.dp) }
 
 
+    /* Scaffold within box so FilterFlagsButton & it's associated surface can overlay it */
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             modifier = modifier,
@@ -161,8 +157,8 @@ private fun ListFlagsScaffold(
         /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */
         AnimatedVisibility(
             visible = buttonExpanded,
-            enter = fadeIn(animationSpec = tween(durationMillis = Timings.menuExpand)),
-            exit = fadeOut(animationSpec = tween(durationMillis = Timings.menuExpand)),
+            enter = fadeIn(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
+            exit = fadeOut(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize()
@@ -301,6 +297,7 @@ private fun ListItem(
 
 
 // Preview screen in Android Studio
+/*
 @Preview(
     showBackground = true,
     showSystemUi = true)
@@ -317,3 +314,4 @@ fun ListFlagsScreenPreview() {
         )
     }
 }
+ */

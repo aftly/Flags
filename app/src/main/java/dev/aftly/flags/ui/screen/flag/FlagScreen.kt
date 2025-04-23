@@ -30,7 +30,6 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.R
@@ -39,7 +38,6 @@ import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.theme.Dimens
-import dev.aftly.flags.ui.theme.FlagsTheme
 
 
 @Composable
@@ -53,7 +51,7 @@ fun FlagScreen(
 ) {
     viewModel.initialiseUiState(navArgFlagId)
     val uiState by viewModel.uiState.collectAsState()
-    // TODO: Give null flag properties and show to user?
+
     if (uiState.flag == DataSource.nullFlag) onNavigateError()
 
     /* Update flag description string when language configuration changes */
@@ -68,7 +66,6 @@ fun FlagScreen(
         description = uiState.description,
         boldWordPositions = uiState.descriptionBoldWordIndexes,
     )
-
 }
 
 
@@ -180,7 +177,8 @@ private fun FlagContent(
 }
 
 
-// Preview screen in Android Studio
+/* Preview screen in Android Studio */
+/*
 @Preview(
     showBackground = true,
     showSystemUi = true)
@@ -198,3 +196,4 @@ fun FlagScreenPreview() {
         )
     }
 }
+ */

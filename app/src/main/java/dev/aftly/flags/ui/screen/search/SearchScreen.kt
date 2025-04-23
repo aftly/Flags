@@ -53,7 +53,7 @@ import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timings
-import dev.aftly.flags.ui.util.getFlagNavArgument
+import dev.aftly.flags.ui.util.getFlagNavArg
 
 
 @Composable
@@ -78,7 +78,7 @@ fun SearchScreen(
         searchResults = searchResults,
         onUserSearchChange = { viewModel.onSearchQueryChange(it) },
         onNavigateUp = onNavigateUp,
-        onFlagSelect = { onNavigateDetails(getFlagNavArgument(flag = it)) }
+        onFlagSelect = { onNavigateDetails(getFlagNavArg(flag = it)) }
     )
 }
 
@@ -136,11 +136,11 @@ private fun SearchContent(
 
     val animatedTextFieldContainerColor by animateColorAsState(
         targetValue = if (isUserSearch) surfaceColor else textFieldColors.focusedContainerColor,
-        animationSpec = tween(durationMillis = Timings.menuExpand / 2),
+        animationSpec = tween(durationMillis = Timings.MENU_EXPAND / 2),
     )
     val animatedTextFieldIndicatorColor by animateColorAsState(
         targetValue = if (isUserSearch) surfaceColor else textFieldColors.focusedIndicatorColor,
-        animationSpec = tween(durationMillis = Timings.menuExpand / 2),
+        animationSpec = tween(durationMillis = Timings.MENU_EXPAND / 2),
     )
 
     /* Search content */
@@ -192,11 +192,11 @@ private fun SearchContent(
         AnimatedVisibility(
             visible = isUserSearch,
             enter = expandVertically(
-                animationSpec = tween(durationMillis = Timings.menuExpand),
+                animationSpec = tween(durationMillis = Timings.MENU_EXPAND),
                 expandFrom = Alignment.Top,
             ),
             exit = shrinkVertically(
-                animationSpec = tween(durationMillis = Timings.menuExpand),
+                animationSpec = tween(durationMillis = Timings.MENU_EXPAND),
                 shrinkTowards = Alignment.Top,
             ),
         ) {
@@ -319,5 +319,5 @@ fun NoResultsFoundContent(
 }
 
 
-// Preview screen in Android Studio
-// TODO
+/* Preview screen in Android Studio */
+/* TODO */

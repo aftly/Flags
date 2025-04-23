@@ -18,11 +18,18 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
+
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
 
-    val appResources = getApplication<Application>().applicationContext.resources
+    var searchQuery by mutableStateOf(value = "")
+        private set
+
+    var isSearchQuery by mutableStateOf(value = false)
+        private set
+
+    private val appResources = getApplication<Application>().applicationContext.resources
 
     private val flagsFlow = flowOf(uiState.value.allFlags)
     val searchResults: StateFlow<List<FlagResources>> =
@@ -49,15 +56,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000)
             )
 
-    var searchQuery by mutableStateOf(value = "")
-        private set
-
-    var isSearchQuery by mutableStateOf(value = false)
-        private set
 
     init {
         sortFlagsAlphabetically()
     }
+
 
     fun sortFlagsAlphabetically() {
         _uiState.update { currentState ->
@@ -68,6 +71,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             )
         }
     }
+
 
     fun onSearchQueryChange(newQuery: String) {
         searchQuery = newQuery

@@ -2,7 +2,6 @@ package dev.aftly.flags.ui.screen.game
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -55,7 +54,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.R
@@ -67,41 +65,10 @@ import dev.aftly.flags.ui.component.FilterFlagsButton
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.component.shareText
 import dev.aftly.flags.ui.theme.Dimens
-import dev.aftly.flags.ui.theme.FlagsTheme
 import dev.aftly.flags.ui.theme.Timings
 import dev.aftly.flags.ui.theme.successLight
 import kotlinx.coroutines.delay
 
-
-/*
- * Notes/ideas:
- * Flag + "???" + "Running counter" in card
- * Guess field + Submit button + Skip button under card
- * Hint button: Shows flag name? or shows categories?
- * Logic for skip. Skip adds flags to (mutable)list which returns, in order, after non-skipped flags
- * Score/correct number of guessed flags
- * End/Reset/Finish game button (text button) next to hint button? underneath skip button?
- * End/Finish game shows pop up? With share activity like unscrambled?
- */
-
-// TODO: Revert to isError on OutlinedTextField to solve animationColor issues?
-
-// TODO: Tapping off keyboard, minimises keyboard
-
-// TODO: Add incorrect guess counter
-// TODO: For flags not guessed in endgame dialogue have option to show flags not guessed?
-
-// TODO: Add time/timer functions/modes to Game
-
-// TODO: When persistent data: Make scoreboard history with game mode, score, incorrect guess count, time and date.
-// TODO: When persistent data: Make feature to import other user's scores. Export feature asks for username? Or import feature does. Or both?
-// TODO: When persistent data: In settings, add strict spelling mode where guessed strings are not normalized
-
-// TODO: Sort out scaling for GameCard on screens with different/wide aspect ratios
-// TODO idea: calculate aspect ratio of screen dynamically with local context, for portrait aspect ratio have layout X, for landscape have layout Y? (Using conditional)
-
-// TODO: Make keyboard action button trigger onSubmit()
-// TODO: add "correct guess" message to user
 
 @Composable
 fun GameScreen(
@@ -117,7 +84,7 @@ fun GameScreen(
     val currentLocale = context.resources.configuration.locales[0]
     LaunchedEffect(currentLocale) { viewModel.setFlagStrings() }
 
-    // When the game is over show game over pop-up
+    /* Show pop-up when game over */
     if (uiState.isGameOver) {
         GameOverDialog(
             finalScore = uiState.correctGuessCount,
@@ -146,7 +113,6 @@ fun GameScreen(
         currentCategoryTitle = uiState.currentCategoryTitle,
         currentSuperCategory = uiState.currentSuperCategory,
         currentFlag = uiState.currentFlag,
-        //currentFlagStrings = uiState.currentFlagStrings,
         userGuess = viewModel.userGuess,
         onUserGuessChange = { viewModel.updateUserGuess(it) },
         isGuessCorrect = uiState.isGuessedFlagCorrect,
@@ -175,7 +141,6 @@ private fun GameScaffold(
     @StringRes currentCategoryTitle: Int,
     currentSuperCategory: FlagSuperCategory,
     currentFlag: FlagResources,
-    //currentFlagStrings: List<String>,
     userGuess: String,
     onUserGuessChange: (String) -> Unit,
     isGuessCorrect: Boolean,
@@ -197,6 +162,7 @@ private fun GameScaffold(
     var scaffoldBottomPadding by remember { mutableStateOf(value = 0.dp) }
 
 
+    /* Scaffold within box so that FilterFlagsButton & it's associated surface can overlay it */
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             modifier = modifier.fillMaxSize(),
@@ -217,7 +183,6 @@ private fun GameScaffold(
                 totalFlagCount = totalFlagCount,
                 correctGuessCount = correctGuessCount,
                 currentFlag = currentFlag,
-                //currentFlagStrings = currentFlagStrings,
                 userGuess = userGuess,
                 onUserGuessChange = onUserGuessChange,
                 isGuessCorrect = isGuessCorrect,
@@ -235,8 +200,8 @@ private fun GameScaffold(
         /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */
         AnimatedVisibility(
             visible = expanded,
-            enter = fadeIn(animationSpec = tween(durationMillis = Timings.menuExpand)),
-            exit = fadeOut(animationSpec = tween(durationMillis = Timings.menuExpand)),
+            enter = fadeIn(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
+            exit = fadeOut(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize()
@@ -272,7 +237,6 @@ private fun GameContent(
     totalFlagCount: Int,
     correctGuessCount: Int,
     currentFlag: FlagResources,
-    //currentFlagStrings: List<String>,
     userGuess: String,
     onUserGuessChange: (String) -> Unit,
     isGuessCorrect: Boolean,
@@ -347,7 +311,7 @@ private fun GameCard(
     val focusedContainerColor: Color = MaterialTheme.colorScheme.surface
 
     val animationSpecEnter = tween<Color>(durationMillis = 0)
-    val animationSpecExit = tween<Color>(durationMillis = Timings.guessStateExit)
+    val animationSpecExit = tween<Color>(durationMillis = Timings.GUESS_STATE_EXIT)
     var animationSpecSuccess by remember { mutableStateOf(value = animationSpecEnter) }
     var animationSpecError by remember { mutableStateOf(value = animationSpecEnter) }
 
@@ -365,10 +329,6 @@ private fun GameCard(
         animationSpec = animationSpecError,
     )
 
-    /* Variables for animated label */
-    val animationSpecLabelGuess = tween<Float>(durationMillis = 0)
-    val animationSpecLabelDefault = tween<Float>(durationMillis = Timings.guessStateExit)
-
     val labelDefault = stringResource(R.string.flag_game_guess_field_label)
     val labelSuccess = stringResource(R.string.flag_game_guess_field_label_success)
     val labelError = stringResource(R.string.flag_game_guess_field_label_error)
@@ -381,10 +341,12 @@ private fun GameCard(
             animationSpecSuccess = animationSpecEnter
             isSuccessColor = true
             labelState = labelSuccess
-            delay(timeMillis = Timings.guessStateDuration.toLong())
 
+            delay(timeMillis = Timings.GUESS_STATE_DURATION.toLong())
             animationSpecSuccess = animationSpecExit
             isSuccessColor = false
+
+            delay(timeMillis = Timings.GUESS_STATE_EXIT.toLong())
             /* If other LaunchedEffect is triggered before this one finishes, don't reset label */
             labelState = if (labelState == labelError) labelError else labelDefault
         }
@@ -394,10 +356,12 @@ private fun GameCard(
             animationSpecError = animationSpecEnter
             isErrorColor = true
             labelState = labelError
-            delay(timeMillis = Timings.guessStateDuration.toLong())
 
+            delay(timeMillis = Timings.GUESS_STATE_DURATION.toLong())
             animationSpecError = animationSpecExit
             isErrorColor = false
+
+            delay(timeMillis = Timings.GUESS_STATE_EXIT.toLong())
             /* If other LaunchedEffect is triggered before this one finishes, don't reset label */
             labelState = if (labelState == labelSuccess) labelSuccess else labelDefault
         }
@@ -406,7 +370,7 @@ private fun GameCard(
 
     /* Game Card content */
     Card(
-        // Set width, affecting landscape orientation
+        /* Width affects landscape orientation */
         modifier = modifier.width(450.dp),
         shape = MaterialTheme.shapes.large,
     ) {
@@ -416,7 +380,7 @@ private fun GameCard(
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Top row in card
+            /* Top row in card */
             Row(
                 modifier = Modifier.fillMaxWidth()
                     .padding(bottom = Dimens.medium16),
@@ -449,12 +413,8 @@ private fun GameCard(
             }
 
             Image(
-                // Force aspect ratio to keep game card shape consistent
+                /* Force aspect ratio to keep game card shape consistent */
                 modifier = Modifier.aspectRatio(ratio = 3f / 2f),
-                //painter = painterResource(DataSource.flagsMap.getValue("switzerland").image),
-                //painter = painterResource(DataSource.flagsMap.getValue("vaticanCity").image),
-                //painter = painterResource(DataSource.flagsMap.getValue("belgium").image),
-                //painter = painterResource(DataSource.flagsMap.getValue("unitedStates").image),
                 painter = painterResource(currentFlag.image),
                 contentDescription = "flag of ${stringResource(currentFlag.flagOf)}",
                 contentScale = ContentScale.Inside,
@@ -466,14 +426,7 @@ private fun GameCard(
                 modifier = Modifier.fillMaxWidth()
                     .padding(top = Dimens.small10),
                 label = {
-                    Crossfade(
-                        targetState = labelState,
-                        animationSpec = when (labelState) {
-                            labelSuccess -> animationSpecLabelGuess
-                            labelError -> animationSpecLabelGuess
-                            else -> animationSpecLabelDefault
-                        },
-                    ) { Text(text = it) }
+                    Text(text = labelState)
                 },
                 isError = isGuessWrong,
                 keyboardOptions = KeyboardOptions.Default.copy(
@@ -485,7 +438,6 @@ private fun GameCard(
                 singleLine = true,
                 shape = MaterialTheme.shapes.large,
                 colors = OutlinedTextFieldDefaults.colors(
-                    //unfocusedBorderColor = focusedColorDefault,
                     unfocusedContainerColor = focusedContainerColor,
                     focusedContainerColor = focusedContainerColor,
                     errorContainerColor = focusedContainerColor,
@@ -495,7 +447,6 @@ private fun GameCard(
                     errorBorderColor = animatedErrorColor,
                     errorCursorColor = animatedErrorColor,
                     errorLabelColor = animatedErrorColor,
-                    //errorContainerColor = animatedErrorContainerColor,
                 )
             )
         }
@@ -551,6 +502,7 @@ private fun GameOverDialog(
 
 
 // Preview screen in Android Studio
+/*
 @Preview(
     showBackground = true,
     showSystemUi = true)
@@ -564,26 +516,6 @@ fun GameScreenPreview() {
             canNavigateBack = true,
             onNavigateUp = { },
         )
-    }
-}
-
-
-/* Ad hoc tool to print contents of currentFlagStrings (for testing correctness due to updating
- * the state from the composable itself which can lead to some weirdness due to recomposition */
-/*
-currentFlagStrings.forEach { string ->
-    Text(text = string, style = MaterialTheme.typography.bodySmall)
-}
- */
-
-
-/* Injecting the strings for the currentFlagStrings list state here because stringResource()
- * is a @Compose function */
-// Having conditional here instead of in the viewModel function results in less computations
-/*
-if (uiState.currentFlagStrings.size < uiState.currentFlagStringResIds.size) {
-    uiState.currentFlagStringResIds.forEach { stringResId ->
-        viewModel.updateCurrentFlagStrings(stringResource(stringResId))
     }
 }
  */

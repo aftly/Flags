@@ -4,18 +4,15 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 
 data class FlagResources(
-    // TODO: Add ISO codes? (get from WikiData)
-    val id: Int, // TODO: Remove now that LazyColumn items() uses list index as key
+    val id: Int, // For LazyColumn's items() key param
     @DrawableRes val image: Int,
-    @DrawableRes val imagePreview: Int,
-    @StringRes val flagOf: Int,
+    @DrawableRes val imagePreview: Int, // Smaller image for lists (if relevant)
+    @StringRes val flagOf: Int, // flagOf<> params are for common, official & alt names (of entity)
     @StringRes val flagOfOfficial: Int,
     @StringRes val flagOfAlternate: List<Int>?,
-    //@StringRes val flagOfNativeLanguages: List<Int>,
-    //@StringRes val flagName: Int?,
-    val isFlagOfThe: Boolean,
+    val isFlagOfThe: Boolean, // if flagOf is preceded by "the" (same for below param)
     val isFlagOfOfficialThe: Boolean,
-    val sovereignState: String?, // if applicable, references it's sovereign state's flagsMap key. Info about the sovereign is shown in parts of the app
-    val associatedState: String?, // for states in a Compact of Free Association, references flagsMap key of Associated State
+    val sovereignState: String?, // If applicable, flagsMap key string of it's sovereign entity
+    val associatedState: String?, // Like above but for states in a Compact of Free Association
     val categories: List<FlagCategory>,
 )

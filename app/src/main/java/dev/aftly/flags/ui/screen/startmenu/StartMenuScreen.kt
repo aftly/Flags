@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -17,17 +16,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import dev.aftly.flags.R
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.theme.Dimens
-import dev.aftly.flags.ui.theme.FlagsTheme
 
-// TODO: Setup navigation so that navBack to StartMenu from ListFlags doesn't pop ListFlags, and subsequent navs to ListFlags returns?
-// TODO cont.. to it's backStackEntry. Also ensure navBacks to StartMenu are LaunchSingleTop/single instance in the backStack.
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StartMenuScreen(
     currentScreen: Screen,
@@ -61,7 +55,7 @@ private fun StartMenuScaffold(
             StaticTopAppBar(
                 currentScreen = currentScreen,
                 canNavigateBack = canNavigateBack,
-                // Padding for when can't navigate back
+                /* Padding for when can't navigate back */
                 canNavigateBackTitlePadding = when (canNavigateBack) {
                     false -> Dimens.small8
                     true -> Dimens.canNavigateBack0
@@ -127,7 +121,6 @@ private fun ScreenCard(
             .padding(bottom = Dimens.medium16),
     ) {
         Box() {
-            // TODO: Image()
             Column(modifier = Modifier.padding(Dimens.medium16)) {
                 Text(
                     text = stringResource(screen.title_long ?: 0),
@@ -148,6 +141,7 @@ private fun ScreenCard(
 
 
 // Preview screen in Android Studio
+/*
 @Preview(
     showBackground = true,
     showSystemUi = true)
@@ -164,3 +158,4 @@ fun StartMenuScreenPreview() {
         ) { }
     }
 }
+ */

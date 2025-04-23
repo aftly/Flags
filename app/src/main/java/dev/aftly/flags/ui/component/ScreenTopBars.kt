@@ -1,6 +1,5 @@
 package dev.aftly.flags.ui.component
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -12,7 +11,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -25,16 +23,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.lerp
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.theme.Dimens
-import dev.aftly.flags.ui.theme.FlagsTheme
 
 
-// Expandable/collapsable top bar, such as for ListFlagsScreen()
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpandableTopAppBar(
@@ -44,17 +39,17 @@ fun ExpandableTopAppBar(
     canNavigateBack: Boolean,
     onNavigateUp: () -> Unit,
 ) {
-    // Ensures the navigationIcon in topBar survives throughout the (nav animation) lifecycle
+    /* Ensures navigationIcon persists throughout the lifecycle */
     val canNavigateBackStatic by remember { mutableStateOf(canNavigateBack) }
 
-    // Managing TitleStyle transition from expanded (start) -> collapsed (stop) topBar
+    /* Manage TitleStyle transition between expanded (start) and collapsed (stop) TopBar title */
     val currentTitleStyle = lerp(
         start = MaterialTheme.typography.headlineLarge,
         stop = MaterialTheme.typography.headlineSmall,
         fraction = scrollBehaviour.state.collapsedFraction
     )
 
-    // Managing Title padding for same (as above) transition (for proper alignment in context)
+    /* Manage padding transition between expanded (start) and collapsed (stop) TopBar title */
     val currentTitlePadding = lerp(
         start = 20.dp,
         stop = Dimens.canNavigateBack0,
@@ -92,7 +87,7 @@ fun ExpandableTopAppBar(
 }
 
 
-// Simple top bar that dynamically adjusts it's features for a given screen
+/* Simple top bar with differing properties depending on Screen */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StaticTopAppBar(
@@ -103,7 +98,7 @@ fun StaticTopAppBar(
     onNavigateUp: () -> Unit,
     onAction: (Screen) -> Unit,
 ) {
-    // Ensures the navigationIcon in topBar survives throughout the (nav animation) lifecycle
+    /* Ensures navigationIcon persists throughout the lifecycle */
     val canNavigateBackStatic by remember { mutableStateOf(canNavigateBack) }
 
     TopAppBar(
@@ -151,6 +146,7 @@ fun StaticTopAppBar(
                     }
                 }
                 Screen.Flag -> {
+                    // TODO: Implement (persistent) Favourites list
                     IconButton(onClick = { /*TODO*/ }) {
                         Icon(
                             imageVector = Icons.Default.FavoriteBorder,
@@ -165,7 +161,8 @@ fun StaticTopAppBar(
 }
 
 
-// Preview screen in Android Studio
+/* Preview screen in Android Studio */
+/*
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(
     showBackground = true,
@@ -188,3 +185,4 @@ fun AppBarPreview() {
         ) { }
     }
 }
+ */
