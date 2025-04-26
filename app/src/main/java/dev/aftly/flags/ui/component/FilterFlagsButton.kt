@@ -65,12 +65,16 @@ fun FilterFlagsButton(
     currentSuperCategory: FlagSuperCategory,
     onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
 ) {
+    /* Manage button title & exceptions */
     val buttonTitle = when (currentSuperCategory) {
         FlagSuperCategory.SovereignCountry -> stringResource(R.string.category_super_sovereign_country_title)
         FlagSuperCategory.Political -> stringResource(currentCategoryTitle) +
                 stringResource(R.string.button_title_state_flags)
+        FlagSuperCategory.International -> stringResource(R.string.category_international_organization_title) +
+                stringResource(R.string.button_title_flags)
         else -> stringResource(currentCategoryTitle) + stringResource(R.string.button_title_flags)
     }
+
     var expandMenu by remember { mutableStateOf<FlagSuperCategory?>(value = null) }
 
 

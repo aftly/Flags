@@ -60,7 +60,7 @@ sealed class FlagSuperCategory(
     data object International : FlagSuperCategory(
         title = R.string.category_super_international,
         subCategories = listOf(
-            FlagCategory.SUPRANATIONAL_UNION,
+            //FlagCategory.SUPRANATIONAL_UNION,
             FlagCategory.INTERNATIONAL_ORGANIZATION
         ),
     )
