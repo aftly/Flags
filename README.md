@@ -6,16 +6,16 @@
 </p>
 <p align="center">
   <a href="https://github.com/aftly/Flags" style="text-decoration:none" area-label="Android">
-    <img src="https://img.shields.io/badge/Android-Platform?label=Platform&color=67b200">
+    <img src="https://img.shields.io/badge/Android-Platform?label=Platform&color=62a900">
   </a>
   <a href="https://github.com/aftly/Flags" style="text-decoration:none" area-label="Min API: 21">
-    <img src="https://img.shields.io/badge/24-minSdkVersion-24?label=minSdkVersion&color=67b200">
+    <img src="https://img.shields.io/badge/24-minSdkVersion?label=minSdkVersion&color=62a900">
   </a>
   <a href="https://github.com/aftly/Flags/releases" style="text-decoration:none" area-label="GitHub Releases">
-    <img src="https://img.shields.io/badge/Download-GitHub_Releases?label=Download&color=67b200">
+    <img src="https://img.shields.io/badge/GitHub_Releases-Download?label=Download&color=62a900">
   </a>
   <a href="https://github.com/aftly/Flags/releases" style="text-decoration:none" area-label="Latest release version">
-    <img src="https://img.shields.io/github/v/release/aftly/Flags?include_prereleases">
+    <img src="https://img.shields.io/github/v/release/aftly/Flags?include_prereleases&color=dc5d18">
   </a>
   <a href="https://github.com/aftly/Flags/blob/main/LICENSE" style="text-decoration:none" area-label="License: MPL 2.0">
     <img src="https://img.shields.io/badge/license-MPL%202.0-blue.svg">
