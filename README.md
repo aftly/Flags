@@ -31,7 +31,7 @@
 ## Features
 - List flags
 - View flag and description of it's entity from it's categories
-- Search page
+- Search screen
 - Flag Game
 - Button/menu for filtering flags by category(s)
 <br>
