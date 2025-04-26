@@ -23,9 +23,9 @@
 </p>
 
 ## About
-*This app is currently in alpha and is feature incomplete. Feedback is welcome, please submit feature requests and issues via [GitHub Issues](https://github.com/aftly/Flags/issues).*
+- *This app is currently in alpha and is feature incomplete. Feedback is welcome, please submit feature requests and issues via [GitHub Issues](https://github.com/aftly/Flags/issues).*
 
-**Flags** is a free and open source Android app for displaying various flags of the world with categorisation for descriptions and user sorting, and a flag guessing game.
+- **Flags** is a free and open source Android app for displaying various flags of the world with categorisation for descriptions and user sorting, and a flag guessing game.
 <br>
 
 ## Features
@@ -72,7 +72,7 @@ Flag category info is derived more manually, by filtering from broader categorie
 <br>
 
 ## 📱 Screenshots
--**-- TODO --**
+- **-- TODO --**
 <br>
 
 ## ❤️ Acknowledgements 
