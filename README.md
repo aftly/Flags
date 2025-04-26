@@ -26,8 +26,7 @@
 *This app is currently in alpha and feature incomplete. Feedback is welcome, please submit feature requests and issues via [GitHub Issues](https://github.com/aftly/Flags/issues).*
 
 **Flags** is a free and open source Android app for displaying various flags of the world with categorisation for descriptions and user sorting. It also includes a flag guessing game.
-
-
+<br>
 ## Features
 - List flags
 - Button/menu for filtering flags by category(s)
@@ -46,8 +45,7 @@
 - [ ] Optimise app for different screen resolutions and aspect ratios
 - [ ] Language translations
 - [ ] Release app on the Google Play Store
-
-
+<br>
 ## 📱 Installation
 [<img src="assets/badge_github.png" 
     alt="Get it on GitHub" 
@@ -60,23 +58,20 @@
 ```
 dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:01:CD:62:C8:DD:E2:F5:5F:3B:71:6C
 ```
-
-
+<br>
 ## 🛠 Design
 Built with Jetpack Compose in Kotlin, following architecture best practises described on Android Developers such as SSOT, UDF, ViewModels for managing general state (with UI-only state kept within it's local Composable scope).
 
 Flag data is local, originally sourced from Wikipedia via a series of Python scripts (I wrote) for getting flag images, common name, official name and alternate names.
 Flag categories are derived more manually, by filtering from broader categories such as on https://en.wikipedia.org/wiki/List_of_countries_by_system_of_government and other Wikipedia lists.
-
-
+<br>
 ## 📱 Screenshots
 **TODO**
 
 
 ## ❤️ Acknowledgements 
  - Flag information sourced from [Wikipedia](https://en.wikipedia.org/wiki/Main_Page)
-
-
+<br>
 # 🔖 License 
 ```
 Licensed under the Mozilla Public License, Version 2.0.
