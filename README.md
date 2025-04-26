@@ -59,7 +59,7 @@
     height="80">](https://github.com/aftly/Flags/releases)
 
 **Verification info**:
-- Package & APK Signing Certificate hash (SHA-256) *(such as for use with [AppVerifier](https://github.com/soupslurpr/AppVerifier))*: 
+- Package & APK Signing Certificate hash (SHA-256) - *(such as for use with [AppVerifier](https://github.com/soupslurpr/AppVerifier))*: 
 ```
 dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:01:CD:62:C8:DD:E2:F5:5F:3B:71:6C
 ```
