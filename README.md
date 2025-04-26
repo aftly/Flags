@@ -22,30 +22,30 @@
   </a>
 </p>
 
-##❔ About
+## ❔ About
 - **Flags** is a free and open source Android app for displaying various flags of the world with categorisation for descriptions and user sorting, and a flag guessing game.
 
 - *This app is currently in alpha and is feature incomplete. Feedback is welcome, please submit feature requests and issues via [GitHub Issues](https://github.com/aftly/Flags/issues).*
 <br>
 
-##📸 Screenshots
+## 📸 Screenshots
 - **TODO**
 <br>
 
-##📱 Installation
+## 📱 Installation
 [<img src="assets/badge_github.png" 
     alt="Get it on GitHub" 
     height="80">](https://github.com/aftly/Flags/releases)
 
 **Verification info**:
 - Package & APK Signing Certificate hash (SHA-256):
-  - *(Such as for use with [AppVerifier](https://github.com/soupslurpr/AppVerifier))*
+  - *(such as for use with [AppVerifier](https://github.com/soupslurpr/AppVerifier))*
 ```
 dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:01:CD:62:C8:DD:E2:F5:5F:3B:71:6C
 ```
 <br>
 
-##⭐ Features
+## ⭐ Features
 - List flags
 - View flag and description of it's entity from it's categories
 - Search screen
@@ -53,7 +53,7 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - Button/menu for filtering flags by category(s)
 <br>
 
-**📌 TODO for version 1.0:**
+ **📌 TODO for version 1.0:**
 - [ ] Add more flags (to less populated categories)
 - [ ] Full screen view option on flag image
 - [ ] Implement regime type categories for political flags from OurWorldInData
@@ -72,18 +72,18 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [ ] Release app on the Google Play Store
 <br>
 
-##🛠 Design
+## 🛠 Design
 - Built with Jetpack Compose in Kotlin, following architecture best practises described on Android Developers, such as SSOT, UDF, ViewModels for managing state and business logic. (UI-only state is kept in local scope.)
 
 - Flag info uses local data, originally sourced from Wikipedia via a collection of Python scripts for getting flag images, common names, official names and alternate names.
 Flag category info is derived more manually, by filtering from broader categories such as on [countries by system of government](https://en.wikipedia.org/wiki/List_of_countries_by_system_of_government) and other Wikipedia lists.
 <br>
 
-##❤️ Acknowledgements 
+## ❤️ Acknowledgements 
  - Flag information sourced from [Wikipedia](https://en.wikipedia.org/wiki/Main_Page)
 <br>
 
-##🔖 License 
+## 🔖 License 
 ```
 Licensed under the Mozilla Public License, Version 2.0.
 ```
