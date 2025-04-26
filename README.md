@@ -9,13 +9,14 @@
     <img src="https://img.shields.io/badge/Platform-Android-green.svg">
   </a>
   <a href="https://github.com/aftly/Flags" style="text-decoration:none" area-label="Min API: 21">
-    <img src="https://img.shields.io/badge/minSdkVersion-21-green.svg">
+    <img src="https://img.shields.io/badge/minSdkVersion-24-green.svg">
   </a>
   <a href="https://github.com/aftly/Flags/releases" style="text-decoration:none" area-label="GitHub Releases">
     <img src="https://img.shields.io/badge/Download-GitHub_Releases-green.svg">
   </a>
   <a href="https://github.com/aftly/Flags/releases" style="text-decoration:none" area-label="Latest release version">
-    <img src="https://img.shields.io/github/v/release/aftly/Flags">
+    <img src="https://img.shields.io/github/v/release/aftly/Flags?include_prereleases
+">
   </a>
   <a href="https://github.com/aftly/Flags/blob/main/LICENSE" style="text-decoration:none" area-label="License: MPL 2.0">
     <img src="https://img.shields.io/badge/license-MPL%202.0-blue.svg">
