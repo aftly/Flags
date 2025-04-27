@@ -10,7 +10,7 @@ data class FlagResources(
     @StringRes val flagOf: Int, // flagOf<> params are for common, official & alt names (of entity)
     @StringRes val flagOfOfficial: Int,
     @StringRes val flagOfAlternate: List<Int>?,
-    val isFlagOfThe: Boolean, // if flagOf is preceded by "the" (same for below param)
+    val isFlagOfThe: Boolean, // <>The params are for if name is preceded by "the"
     val isFlagOfOfficialThe: Boolean,
     val sovereignState: String?, // If applicable, flagsMap key string of it's sovereign entity
     val associatedState: String?, // Like above but for states in a Compact of Free Association
