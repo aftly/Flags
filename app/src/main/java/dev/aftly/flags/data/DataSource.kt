@@ -189,7 +189,7 @@ data object DataSource {
             associatedState = null,
             categories = listOf(
                 FlagCategory.AUTONOMOUS_REGION,
-                FlagCategory.DEVOLVED_GOVERNMENT
+                FlagCategory.REGION
             ),
         ),
 
@@ -641,8 +641,8 @@ data object DataSource {
             categories = listOf(
                 FlagCategory.HISTORICAL,
                 FlagCategory.AUTONOMOUS_REGION,
-                FlagCategory.THEOCRATIC,
-                FlagCategory.PROVISIONAL_GOVERNMENT
+                FlagCategory.REGION,
+                FlagCategory.THEOCRATIC
             ),
         ),
 
@@ -1790,7 +1790,7 @@ data object DataSource {
             associatedState = "newZealand",
             categories = listOf(
                 FlagCategory.AUTONOMOUS_REGION,
-                FlagCategory.FREE_ASSOCIATION
+                FlagCategory.REGION
             ),
         ),
 
@@ -5206,7 +5206,7 @@ data object DataSource {
             associatedState = "newZealand",
             categories = listOf(
                 FlagCategory.AUTONOMOUS_REGION,
-                FlagCategory.FREE_ASSOCIATION
+                FlagCategory.REGION
             ),
         ),
 
