@@ -7,17 +7,16 @@ import dev.aftly.flags.R
 sealed class Screen(
     val route: String,
     @StringRes val title: Int? = null,
-    @StringRes val title_long: Int? = null,
-    @StringRes val description: Int? = null
+    @StringRes val description: Int? = null,
 ) {
     data object StartMenu : Screen(
         route = "start_menu_screen",
+        title = R.string.start_menu_title,
     )
 
     data object List : Screen(
         route = "list_screen",
         title = R.string.flag_list_title,
-        title_long = R.string.flag_list_title,
         description = R.string.flag_list_description,
     )
 
@@ -28,14 +27,12 @@ sealed class Screen(
     data object Search : Screen(
         route = "search_screen",
         title = R.string.flag_search_title,
-        title_long = R.string.flag_search_title_long,
         description = R.string.flag_search_description,
     )
 
     data object Game : Screen(
         route = "game_screen",
-        title = R.string.flag_game_title_short,
-        title_long = R.string.flag_game_title,
+        title = R.string.flag_game_title,
         description = R.string.flag_game_description,
     )
 

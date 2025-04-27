@@ -14,8 +14,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import dev.aftly.flags.R
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.StaticTopAppBar
@@ -67,6 +70,7 @@ private fun StartMenuScaffold(
     ) { scaffoldPadding ->
         StartMenuContent (
             modifier = Modifier.padding(scaffoldPadding),
+            currentScreen = currentScreen,
             onNavigateDetails = onNavigateDetails,
         )
     }
@@ -76,8 +80,30 @@ private fun StartMenuScaffold(
 @Composable
 private fun StartMenuContent(
     modifier: Modifier = Modifier,
+    currentScreen: Screen,
     onNavigateDetails: (Screen) -> Unit,
 ) {
+    val annotatedTitle = if (currentScreen.title != null) {
+        buildAnnotatedString {
+            val title = stringResource(currentScreen.title)
+            val flags = stringResource(R.string.flags)
+            val whitespace = stringResource(R.string.string_whitespace)
+            val words: List<String> = title.split(whitespace)
+
+            words.forEachIndexed { index, word ->
+                if (word.contains(flags, ignoreCase = true)) {
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(text = word)
+                    }
+                } else {
+                    append(text = word)
+                }
+                if (index < words.size - 1) append(text = whitespace)
+            }
+        }
+    } else buildAnnotatedString { append(text = "") }
+
+
     Column(
         modifier = modifier.fillMaxSize()
             .padding(
@@ -87,10 +113,15 @@ private fun StartMenuContent(
             .verticalScroll(rememberScrollState()),
     ) {
         Text(
-            text = stringResource(R.string.start_menu_title),
-            modifier = Modifier.padding(vertical = Dimens.large24),
-            style = MaterialTheme.typography.displayMedium
+            text = annotatedTitle,
+            modifier = Modifier.padding(
+                start = Dimens.extraSmall4,
+                top = Dimens.large24,
+                bottom = Dimens.large24,
+            ),
+            style = MaterialTheme.typography.displaySmall,
         )
+
         ScreenCard(
             screen = Screen.List,
             selectScreen = onNavigateDetails,
@@ -120,10 +151,10 @@ private fun ScreenCard(
             }
             .padding(bottom = Dimens.medium16),
     ) {
-        Box() {
+        Box {
             Column(modifier = Modifier.padding(Dimens.medium16)) {
                 Text(
-                    text = stringResource(screen.title_long ?: 0),
+                    text = stringResource(screen.title ?: 0),
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,

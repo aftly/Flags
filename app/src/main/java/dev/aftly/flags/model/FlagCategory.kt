@@ -7,7 +7,7 @@ import dev.aftly.flags.R
 /* List of categories for use in flag list filtering and flag page descriptions */
 enum class FlagCategory(
     @StringRes val title: Int,
-    @StringRes val string: Int
+    @StringRes val string: Int,
 ) {
     /* ENTITY CATEGORIES: */
 

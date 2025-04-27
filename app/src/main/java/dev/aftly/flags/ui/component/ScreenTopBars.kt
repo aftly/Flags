@@ -1,5 +1,6 @@
 package dev.aftly.flags.ui.component
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -42,15 +43,21 @@ fun ExpandableTopAppBar(
     /* Ensures navigationIcon persists throughout the lifecycle */
     val canNavigateBackStatic by remember { mutableStateOf(canNavigateBack) }
 
+    @StringRes val title = when (currentScreen) {
+        Screen.List -> Screen.StartMenu.title
+        Screen.StartMenu -> null
+        else -> currentScreen.title
+    }
+
     /* Manage TitleStyle transition between expanded (start) and collapsed (stop) TopBar title */
-    val currentTitleStyle = lerp(
+    val titleStyle = lerp(
         start = MaterialTheme.typography.headlineLarge,
         stop = MaterialTheme.typography.headlineSmall,
         fraction = scrollBehaviour.state.collapsedFraction
     )
 
     /* Manage padding transition between expanded (start) and collapsed (stop) TopBar title */
-    val currentTitlePadding = lerp(
+    val titlePadding = lerp(
         start = 20.dp,
         stop = Dimens.canNavigateBack0,
         fraction = scrollBehaviour.state.collapsedFraction
@@ -59,12 +66,12 @@ fun ExpandableTopAppBar(
 
     MediumTopAppBar(
         title = {
-            if (currentScreen.title != null) {
+            title?.let {
                 Text(
-                    text = stringResource(currentScreen.title),
-                    style = currentTitleStyle,
+                    text = stringResource(it),
+                    style = titleStyle,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(start = currentTitlePadding),
+                    modifier = Modifier.padding(start = titlePadding),
                 )
             }
         },
@@ -101,11 +108,16 @@ fun StaticTopAppBar(
     /* Ensures navigationIcon persists throughout the lifecycle */
     val canNavigateBackStatic by remember { mutableStateOf(canNavigateBack) }
 
+    @StringRes val title = when (currentScreen) {
+        Screen.StartMenu -> null
+        else -> currentScreen.title
+    }
+
     TopAppBar(
         title = {
-            if (currentScreen.title != null) {
+            title?.let {
                 Text(
-                    text = stringResource(currentScreen.title),
+                    text = stringResource(it),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(start = canNavigateBackTitlePadding),

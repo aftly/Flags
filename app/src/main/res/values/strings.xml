@@ -160,9 +160,8 @@
     <string name="error">Error</string>
     <string name="flag">flag</string>
     <string name="flags">flags</string>
-    <string name="flag_game_title">Flag Game</string>
-    <string name="flag_game_title_short">Game</string>
-    <string name="flag_game_description">Guess flags from their pictures</string>
+    <string name="flag_game_title">Game</string>
+    <string name="flag_game_description">Guess names of flags from their pictures</string>
     <string name="flag_game_guess_field_label">Your guess</string>
     <string name="flag_game_guess_field_label_error">Incorrect</string>
     <string name="flag_game_guess_field_label_success">Correct!</string>
@@ -175,10 +174,9 @@
     <string name="flag_game_over_play_again_button">Replay</string>
     <string name="flag_game_over_share_subject">Flag game score</string>
     <string name="flag_game_over_share_text">I just guessed %d/%d flags in the \"Flags\" app game on the \"%s\" game mode.\n\nDownload the app *here* and see if you can beat me…</string>
-    <string name="flag_list_title">Flags of the World</string>
-    <string name="flag_list_description">Display list</string>
+    <string name="flag_list_title">View</string>
+    <string name="flag_list_description">Display lists of flags by category</string>
     <string name="flag_search_title">Search</string>
-    <string name="flag_search_title_long">Flag Search</string>
     <string name="flag_search_description">Find a flag by it\'s names (eg. \"United Kingdom\" or \"Britain\")</string>
     <string name="flag_search_bar_placeholder">Search all flags</string>
     <string name="flag_search_clear">Clear search</string>
@@ -186,7 +184,7 @@
     <string name="flag_search_no_results_description">Queries will match common &amp; official names</string>
     <string name="flag_search_no_results_description_2">(Matches are special character agnostic)</string>
     <string name="settings_title">"Settings"</string>
-    <string name="start_menu_title">"Welcome!"</string>
+    <string name="start_menu_title">"Flags of the World"</string>
     <string name="string_a">a</string>
     <string name="string_and">and</string>
     <string name="string_and_a">and a</string>
