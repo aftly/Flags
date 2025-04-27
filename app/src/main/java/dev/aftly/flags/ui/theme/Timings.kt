@@ -5,6 +5,6 @@ object Timings {
     const val SCREEN_NAV: Int = 700
     const val MENU_EXPAND: Int = 500
     const val MENU_COLLAPSE: Int = 375
-    const val GUESS_STATE_DURATION: Int = 2000
-    const val GUESS_STATE_EXIT: Int = 1000
+    const val GUESS_STATE_DURATION: Int = 1300
+    const val GUESS_STATE_EXIT: Int = 700
 }
