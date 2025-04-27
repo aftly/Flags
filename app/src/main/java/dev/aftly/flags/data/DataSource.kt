@@ -5968,7 +5968,6 @@ data object DataSource {
                 FlagCategory.SOVEREIGN_STATE,
                 FlagCategory.FEDERAL,
                 FlagCategory.SEMI_PRESIDENTIAL,
-                FlagCategory.CONSTITUTIONAL,
                 FlagCategory.REPUBLIC
             ),
         ),
