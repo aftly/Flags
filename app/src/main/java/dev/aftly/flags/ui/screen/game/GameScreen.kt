@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -50,10 +52,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.R
@@ -248,15 +253,58 @@ private fun GameContent(
     onSkip: () -> Unit,
     onEndGame: () -> Unit,
 ) {
+    /* Properties for if card image height greater than content column height, eg. in landscape
+     * orientation, make image height modifier value of column height, else value of image height
+     * Also limits game card width in landscape orientation */
+    var columnHeight by remember { mutableStateOf(value = 0.dp) }
+    var imageHeight by remember { mutableStateOf(value = 0.dp) }
+    var imageWidth by remember { mutableStateOf(value = 0.dp) }
+    var imageHeightModifier by remember { mutableStateOf<Modifier>(value = Modifier) }
+    var cardWidthModifier by remember { mutableStateOf<Modifier>(value = Modifier) }
+    val density = LocalDensity.current.density
+    val contentTopPadding = Dimens.filterButtonRowHeight30 / 2
+
+
     /* Center arranged column with Game content */
     Column(
         modifier = modifier.fillMaxSize()
-            .padding(horizontal = Dimens.marginHorizontal24)
-            .verticalScroll(rememberScrollState()),
+            .padding(
+                /* Top padding so that content scroll disappears into FilterFlagsButton */
+                top = Dimens.filterButtonRowHeight30 / 2,
+                start = Dimens.marginHorizontal24,
+                end = Dimens.marginHorizontal24,
+            )
+            .onSizeChanged { size ->
+                columnHeight = (size.height.toFloat() / density).dp - contentTopPadding
+
+                /* Set image height modifier */
+                if (columnHeight - contentTopPadding < imageHeight) {
+                    imageHeightModifier = Modifier.height(height = columnHeight)
+                    cardWidthModifier = Modifier.width(width = (imageWidth.value * 1.25).dp)
+                } else {
+                    imageHeightModifier = Modifier.height(height = imageHeight)
+                    cardWidthModifier = Modifier.fillMaxWidth()
+                }
+            }.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        /* Spacer to make content start below FilterFlags button */
+        Spacer(modifier = Modifier.fillMaxWidth()
+            .height(Dimens.filterButtonRowHeight30 / 2 + Dimens.small8)
+        )
+
         GameCard(
+            density = density,
+            contentColumnHeight = columnHeight,
+            cardImageWidth = imageWidth,
+            onCardImageWidthChange = { imageWidth = it },
+            cardImageHeight = imageHeight,
+            onCardImageHeightChange = { imageHeight = it },
+            cardImageHeightModifier = imageHeightModifier,
+            onCardImageHeightModifierChange = { imageHeightModifier = it },
+            cardWidthModifier = cardWidthModifier,
+            onCardWidthModifierChange = { cardWidthModifier = it },
             totalFlagCount = totalFlagCount,
             correctGuessCount = correctGuessCount,
             currentFlag = currentFlag,
@@ -294,6 +342,16 @@ private fun GameContent(
 @Composable
 private fun GameCard(
     modifier: Modifier = Modifier,
+    density: Float,
+    contentColumnHeight: Dp,
+    cardImageWidth: Dp,
+    onCardImageWidthChange: (Dp) -> Unit,
+    cardImageHeight: Dp,
+    onCardImageHeightChange: (Dp) -> Unit,
+    cardImageHeightModifier: Modifier,
+    onCardImageHeightModifierChange: (Modifier) -> Unit,
+    cardWidthModifier: Modifier,
+    onCardWidthModifierChange: (Modifier) -> Unit,
     totalFlagCount: Int,
     correctGuessCount: Int,
     currentFlag: FlagResources,
@@ -370,13 +428,11 @@ private fun GameCard(
 
     /* Game Card content */
     Card(
-        /* Width affects landscape orientation */
-        modifier = modifier.width(450.dp),
+        modifier = modifier,
         shape = MaterialTheme.shapes.large,
     ) {
         Column(
-            modifier = Modifier.fillMaxSize()
-                .padding(Dimens.medium16),
+            modifier = cardWidthModifier.padding(Dimens.medium16),
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -413,11 +469,38 @@ private fun GameCard(
             }
 
             Image(
-                /* Force aspect ratio to keep game card shape consistent */
-                modifier = Modifier.aspectRatio(ratio = 3f / 2f),
+                modifier = Modifier
+                    .onSizeChanged { size ->
+                        onCardImageHeightChange(
+                            (size.height.toFloat() / density).dp
+                        )
+                        onCardImageWidthChange(
+                            (size.width.toFloat() / density).dp
+                        )
+
+                        /* Set image height modifier */
+                        if (contentColumnHeight < cardImageHeight) {
+                            onCardImageHeightModifierChange(
+                                Modifier.height(height = contentColumnHeight)
+                            )
+                            onCardWidthModifierChange(
+                                Modifier.width(width = (cardImageWidth.value * 1.25).dp)
+                            )
+                        } else {
+                            onCardImageHeightModifierChange(
+                                Modifier.height(height = cardImageHeight)
+                            )
+                            onCardWidthModifierChange(
+                                Modifier.fillMaxWidth()
+                            )
+                        }
+                    } /* concatenate height modifier after onSizeChanged */
+                    .then(cardImageHeightModifier)
+                    /* Force aspect ratio to keep game card shape consistent */
+                    .aspectRatio(ratio = 3f / 2f),
                 painter = painterResource(currentFlag.image),
                 contentDescription = "flag of ${stringResource(currentFlag.flagOf)}",
-                contentScale = ContentScale.Inside,
+                contentScale = ContentScale.Fit,
             )
 
             OutlinedTextField(

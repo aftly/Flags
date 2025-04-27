@@ -204,9 +204,7 @@ private fun ListFlagsContent(
     Column(modifier = modifier) {
         /* Spacer half the height of the FilterFlagsButton Row() so that LazyColumn scroll
          * disappears into it's centre */
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
+        Spacer(modifier = Modifier.fillMaxWidth()
                 .height(Dimens.filterButtonRowHeight30 / 2)
         )
 

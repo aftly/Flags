@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -16,11 +18,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -30,6 +39,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.R
@@ -107,9 +117,29 @@ private fun FlagContent(
     description: List<String>,
     boldWordPositions: List<Int>,
 ) {
+    /* Properties for if image height greater than column height, eg. in landscape orientation,
+     * make image height modifier value of column height, else value of image height */
+    var columnHeight by remember { mutableIntStateOf(value = 0) }
+    var imageHeight by remember { mutableIntStateOf(value = 0) }
+    var imageHeightModifier by remember { mutableStateOf<Modifier>(value = Modifier) }
+    val density = LocalDensity.current.density
+
+
+    /* Flag Content */
     Column(
         modifier = modifier.fillMaxSize()
-            .padding(horizontal = Dimens.medium16),
+            .padding(horizontal = Dimens.medium16)
+            .onSizeChanged { size ->
+                columnHeight = size.height
+
+                /* Set image height modifier */
+                imageHeightModifier = if (columnHeight < imageHeight) {
+                    Modifier.height(height = (columnHeight / density).dp)
+                } else {
+                    Modifier.height(height = (imageHeight / density).dp)
+                }
+            }
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -159,6 +189,16 @@ private fun FlagContent(
         ) {
             Image(
                 painter = painterResource(flag.image),
+                modifier = Modifier.onSizeChanged { size ->
+                    imageHeight = size.height
+
+                    /* Set image height modifier */
+                    imageHeightModifier = if (columnHeight < imageHeight) {
+                        Modifier.height(height = (columnHeight / density).dp)
+                    } else {
+                        Modifier.height(height = (imageHeight / density).dp)
+                    }
+                }.then(imageHeightModifier), /* concatenate height modifier after onSizeChanged */
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
             )
