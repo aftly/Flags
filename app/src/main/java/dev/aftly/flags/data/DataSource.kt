@@ -60,7 +60,10 @@ data object DataSource {
             isFlagOfOfficialThe = true,
             sovereignState = "georgia",
             associatedState = null,
-            categories = listOf(FlagCategory.AUTONOMOUS_REGION),
+            categories = listOf(
+                FlagCategory.AUTONOMOUS_REGION,
+                FlagCategory.REGION
+            ),
         ),
 
         "adjara" to FlagResources(
@@ -189,7 +192,8 @@ data object DataSource {
             associatedState = null,
             categories = listOf(
                 FlagCategory.AUTONOMOUS_REGION,
-                FlagCategory.REGION
+                FlagCategory.REGION,
+                FlagCategory.DEVOLVED_GOVERNMENT
             ),
         ),
 
@@ -502,7 +506,8 @@ data object DataSource {
             associatedState = null,
             categories = listOf(
                 FlagCategory.HISTORICAL,
-                FlagCategory.AUTONOMOUS_REGION
+                FlagCategory.AUTONOMOUS_REGION,
+                FlagCategory.REGION
             ),
         ),
 
@@ -642,7 +647,8 @@ data object DataSource {
                 FlagCategory.HISTORICAL,
                 FlagCategory.AUTONOMOUS_REGION,
                 FlagCategory.REGION,
-                FlagCategory.THEOCRATIC
+                FlagCategory.THEOCRATIC,
+                FlagCategory.PROVISIONAL_GOVERNMENT
             ),
         ),
 
@@ -693,7 +699,10 @@ data object DataSource {
             isFlagOfOfficialThe = true,
             sovereignState = "portugal",
             associatedState = null,
-            categories = listOf(FlagCategory.AUTONOMOUS_REGION),
+            categories = listOf(
+                FlagCategory.AUTONOMOUS_REGION,
+                FlagCategory.REGION
+            ),
         ),
 
         "bahrain" to FlagResources(
@@ -1109,7 +1118,10 @@ data object DataSource {
             isFlagOfOfficialThe = true,
             sovereignState = "papuaNewGuinea",
             associatedState = null,
-            categories = listOf(FlagCategory.AUTONOMOUS_REGION),
+            categories = listOf(
+                FlagCategory.AUTONOMOUS_REGION,
+                FlagCategory.REGION
+            ),
         ),
 
         "brazil" to FlagResources(
@@ -1790,7 +1802,8 @@ data object DataSource {
             associatedState = "newZealand",
             categories = listOf(
                 FlagCategory.AUTONOMOUS_REGION,
-                FlagCategory.REGION
+                FlagCategory.REGION,
+                FlagCategory.FREE_ASSOCIATION
             ),
         ),
 
@@ -1860,7 +1873,10 @@ data object DataSource {
             isFlagOfOfficialThe = true,
             sovereignState = "ukraine",
             associatedState = null,
-            categories = listOf(FlagCategory.AUTONOMOUS_REGION),
+            categories = listOf(
+                FlagCategory.AUTONOMOUS_REGION,
+                FlagCategory.REGION
+            ),
         ),
 
         "croatia" to FlagResources(
@@ -3823,7 +3839,10 @@ data object DataSource {
             isFlagOfOfficialThe = false,
             sovereignState = "iraq",
             associatedState = null,
-            categories = listOf(FlagCategory.AUTONOMOUS_REGION),
+            categories = listOf(
+                FlagCategory.AUTONOMOUS_REGION,
+                FlagCategory.REGION
+            ),
         ),
 
         "kuwait" to FlagResources(
@@ -4278,7 +4297,10 @@ data object DataSource {
             isFlagOfOfficialThe = true,
             sovereignState = "portugal",
             associatedState = null,
-            categories = listOf(FlagCategory.AUTONOMOUS_REGION),
+            categories = listOf(
+                FlagCategory.AUTONOMOUS_REGION,
+                FlagCategory.REGION
+            ),
         ),
 
         "madridCommunity" to FlagResources(
@@ -5206,7 +5228,8 @@ data object DataSource {
             associatedState = "newZealand",
             categories = listOf(
                 FlagCategory.AUTONOMOUS_REGION,
-                FlagCategory.REGION
+                FlagCategory.REGION,
+                FlagCategory.FREE_ASSOCIATION
             ),
         ),
 
@@ -5310,7 +5333,10 @@ data object DataSource {
             isFlagOfOfficialThe = true,
             sovereignState = "cyprus",
             associatedState = null,
-            categories = listOf(FlagCategory.AUTONOMOUS_REGION),
+            categories = listOf(
+                FlagCategory.AUTONOMOUS_REGION,
+                FlagCategory.REGION
+            ),
         ),
 
         "northernIreland" to FlagResources(
@@ -6697,7 +6723,10 @@ data object DataSource {
             isFlagOfOfficialThe = true,
             sovereignState = "somalia",
             associatedState = null,
-            categories = listOf(FlagCategory.AUTONOMOUS_REGION),
+            categories = listOf(
+                FlagCategory.AUTONOMOUS_REGION,
+                FlagCategory.REGION
+            ),
         ),
 
         "southAfrica" to FlagResources(
@@ -6807,7 +6836,10 @@ data object DataSource {
             isFlagOfOfficialThe = true,
             sovereignState = "georgia",
             associatedState = null,
-            categories = listOf(FlagCategory.AUTONOMOUS_REGION),
+            categories = listOf(
+                FlagCategory.AUTONOMOUS_REGION,
+                FlagCategory.REGION
+            ),
         ),
 
         "southSudan" to FlagResources(
@@ -7424,7 +7456,10 @@ data object DataSource {
             isFlagOfOfficialThe = true,
             sovereignState = "moldova",
             associatedState = null,
-            categories = listOf(FlagCategory.AUTONOMOUS_REGION),
+            categories = listOf(
+                FlagCategory.AUTONOMOUS_REGION,
+                FlagCategory.REGION
+            ),
         ),
 
         "trinidadAndTobago" to FlagResources(
@@ -8147,7 +8182,10 @@ data object DataSource {
             isFlagOfOfficialThe = false,
             sovereignState = "tanzania",
             associatedState = null,
-            categories = listOf(FlagCategory.AUTONOMOUS_REGION),
+            categories = listOf(
+                FlagCategory.AUTONOMOUS_REGION,
+                FlagCategory.REGION
+            ),
         ),
 
         "zimbabwe" to FlagResources(
