@@ -10,6 +10,7 @@ import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
 import dev.aftly.flags.model.FlagCategory.DEVOLVED_GOVERNMENT
+import dev.aftly.flags.model.FlagCategory.OBLAST
 import dev.aftly.flags.model.FlagCategory.SUPRANATIONAL_UNION
 import dev.aftly.flags.model.FlagCategory.INTERNATIONAL_ORGANIZATION
 import dev.aftly.flags.model.FlagCategory.HISTORICAL
@@ -272,6 +273,10 @@ class FlagViewModel(application: Application) : AndroidViewModel(application) {
                         element = R.string.category_autonomous_region_in_description_sans_region_an
                     )
                 } else stringIds.add(element = R.string.category_autonomous_region_in_description_an)
+                whitespaceExceptions.add(element = stringIds.lastIndex)
+
+            } else if (category == OBLAST) {
+                stringIds.add(element = R.string.category_oblast_string_in_description_an)
                 whitespaceExceptions.add(element = stringIds.lastIndex)
 
             } else if (category == DEVOLVED_GOVERNMENT) {

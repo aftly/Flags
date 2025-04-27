@@ -68,6 +68,7 @@
     <string name="category_municipality_string">municipality</string>
     <string name="category_oblast_title">Oblast</string>
     <string name="category_oblast_string">oblast</string>
+    <string name="category_oblast_string_in_description_an">n oblast</string>
     <string name="category_okrug_title">Okrug</string>
     <string name="category_okrug_string">okrug</string>
     <string name="category_province_title">Province</string>
