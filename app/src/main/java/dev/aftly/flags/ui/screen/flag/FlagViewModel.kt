@@ -118,6 +118,7 @@ class FlagViewModel(application: Application) : AndroidViewModel(application) {
             .any { it in allNonCulturalCategories }
         val isCulturalCategoriesInFlag = categories.any { it in allCulturalCategories }
 
+
         /* Add non-cultural description @StringRes ids to list */
         if (isNonCulturalCategoriesInFlag) {
             /* Start with flag name */
@@ -183,13 +184,10 @@ class FlagViewModel(application: Application) : AndroidViewModel(application) {
             whitespaceExceptionIndexes.add(element = stringIds.lastIndex)
         }
 
+
         /* Add cultural description @StringRes ids to list */
         if (isCulturalCategoriesInFlag) {
             val categoriesCultural = categories.filter { it in allCulturalCategories }
-            val size = categoriesCultural.size
-            val firstCategory = categoriesCultural[0]
-            val penultimateCategory = if (size > 2) categoriesCultural[size - 2] else firstCategory
-            val lastCategory = categoriesCultural[size - 1]
 
             /* Make new paragraph if non-culture description precedes */
             if (isNonCulturalCategoriesInFlag) {
@@ -216,42 +214,24 @@ class FlagViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             /* Loop through categories and add appropriate @StringRes ids to list */
-            for (category in categoriesCultural) {
-                if (category == ETHNIC) {
-                    stringIds.add(element = R.string.category_ethnic_in_description)
-                    whitespaceExceptionIndexes.add(element = stringIds.lastIndex)
-                }
-                if (category == SOCIAL) stringIds.add(element = R.string.category_social_in_description)
-                if (category == POLITICAL) stringIds.add(element = R.string.category_political_in_description)
-                if (category == RELIGIOUS) stringIds.add(element = R.string.category_religious_in_description)
-                if (category == REGIONAL) stringIds.add(element = R.string.category_regional_in_description)
-
-                if (size > 2 && category !in listOf(penultimateCategory, lastCategory)) {
-                    stringIds.add(element = R.string.string_comma)
-                    stringIds.add(element = R.string.string_a)
-                    whitespaceExceptionIndexes.add(element = stringIds.lastIndex)
-
-                } else if (category != lastCategory) {
-                    stringIds.add(element = R.string.string_and_a)
-
-                } else { // End of loop condition
-                    stringIds.add(element = R.string.string_period)
-                    whitespaceExceptionIndexes.add(element = stringIds.lastIndex)
-                }
-            }
+            iterateOverCulturalCategories(
+                categories = categoriesCultural,
+                stringIds = stringIds,
+                whitespaceExceptions = whitespaceExceptionIndexes,
+            )
         }
+
         /* Update state with whitespaceExceptionIndexes */
         _uiState.update { currentState ->
             currentState.copy(
                 descriptionIdsWhitespaceExceptions = whitespaceExceptionIndexes.toList()
             )
         }
-
         return stringIds.toList()
     }
 
 
-    /* Loop through non-cultural categories and add it's string or alternate strings depending on
+    /* Loop over non-cultural categories and add it's string or alternate strings depending on
      * legibility to resIds list */
     private fun iterateOverNonCulturalCategories(
         categories: List<FlagCategory>,
@@ -344,6 +324,44 @@ class FlagViewModel(application: Application) : AndroidViewModel(application) {
 
             } else {
                 stringIds.add(element = category.string)
+            }
+        }
+    }
+
+
+    /* Loop over cultural categories and add it's string or alternate strings depending on
+     * legibility to resIds list */
+    private fun iterateOverCulturalCategories(
+        categories: List<FlagCategory>,
+        stringIds: MutableList<Int>,
+        whitespaceExceptions: MutableList<Int>,
+    ) {
+        val size = categories.size
+        val firstCategory = categories[0]
+        val penultimateCategory = if (size > 2) categories[size - 2] else firstCategory
+        val lastCategory = categories[size - 1]
+
+        for (category in categories) {
+            if (category == ETHNIC) {
+                stringIds.add(element = R.string.category_ethnic_in_description)
+                whitespaceExceptions.add(element = stringIds.lastIndex)
+            }
+            if (category == SOCIAL) stringIds.add(element = R.string.category_social_in_description)
+            if (category == POLITICAL) stringIds.add(element = R.string.category_political_in_description)
+            if (category == RELIGIOUS) stringIds.add(element = R.string.category_religious_in_description)
+            if (category == REGIONAL) stringIds.add(element = R.string.category_regional_in_description)
+
+            if (size > 2 && category !in listOf(penultimateCategory, lastCategory)) {
+                stringIds.add(element = R.string.string_comma)
+                stringIds.add(element = R.string.string_a)
+                whitespaceExceptions.add(element = stringIds.lastIndex)
+
+            } else if (category != lastCategory) {
+                stringIds.add(element = R.string.string_and_a)
+
+            } else { // End of loop condition
+                stringIds.add(element = R.string.string_period)
+                whitespaceExceptions.add(element = stringIds.lastIndex)
             }
         }
     }
