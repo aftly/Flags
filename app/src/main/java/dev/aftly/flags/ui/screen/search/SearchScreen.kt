@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -138,10 +137,7 @@ private fun SearchContent(
         targetValue = if (isUserSearch) surfaceColor else textFieldColors.focusedContainerColor,
         animationSpec = tween(durationMillis = Timings.MENU_EXPAND / 2),
     )
-    val animatedTextFieldIndicatorColor by animateColorAsState(
-        targetValue = if (isUserSearch) surfaceColor else textFieldColors.focusedIndicatorColor,
-        animationSpec = tween(durationMillis = Timings.MENU_EXPAND / 2),
-    )
+
 
     /* Search content */
     Column(
@@ -177,17 +173,10 @@ private fun SearchContent(
                 }
             },
             colors = TextFieldDefaults.colors(
-                unfocusedIndicatorColor = if (isUserSearch) surfaceColor
-                else textFieldColors.unfocusedIndicatorColor,
-                focusedIndicatorColor = animatedTextFieldIndicatorColor,
                 focusedContainerColor = animatedTextFieldContainerColor,
                 unfocusedContainerColor = animatedTextFieldContainerColor,
             )
         )
-
-        if (isUserSearch) {
-            HorizontalDivider()
-        }
 
         AnimatedVisibility(
             visible = isUserSearch,
