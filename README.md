@@ -2,7 +2,6 @@
     <img src="assets/icon_round.png" width="128" height="128">
 </div>
 
-
 <div align="center">
 
 # 🏳️ Flags 🌍
