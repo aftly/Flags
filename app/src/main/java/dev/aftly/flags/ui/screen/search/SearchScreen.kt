@@ -179,7 +179,7 @@ private fun SearchContent(
 
     /* Search content */
     Column(
-        modifier = modifier.padding(horizontal = Dimens.marginHorizontal24),
+        modifier = modifier.padding(horizontal = Dimens.marginHorizontal16),
         verticalArrangement = Arrangement.Center
     ) {
         TextField(

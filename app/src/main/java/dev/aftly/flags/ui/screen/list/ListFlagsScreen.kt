@@ -159,8 +159,8 @@ private fun ListFlagsScaffold(
                 modifier = Modifier.fillMaxSize()
                     .padding(
                         top = scaffoldPadding.calculateTopPadding(),
-                        start = Dimens.marginHorizontal24,
-                        end = Dimens.marginHorizontal24,
+                        start = Dimens.marginHorizontal16,
+                        end = Dimens.marginHorizontal16,
                     ),
                 scaffoldPadding = scaffoldPadding,
                 scrollBehaviour = scrollBehaviour,
@@ -192,8 +192,8 @@ private fun ListFlagsScaffold(
                 .padding(
                     top = scaffoldTopPadding,
                     bottom = scaffoldBottomPadding,
-                    start = Dimens.marginHorizontal24,
-                    end = Dimens.marginHorizontal24,
+                    start = Dimens.marginHorizontal16,
+                    end = Dimens.marginHorizontal16,
                 ),
             buttonExpanded = buttonExpanded,
             onButtonExpand = { buttonExpanded = !buttonExpanded },

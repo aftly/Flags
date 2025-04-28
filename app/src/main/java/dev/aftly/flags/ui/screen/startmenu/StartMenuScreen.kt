@@ -107,8 +107,8 @@ private fun StartMenuContent(
     Column(
         modifier = modifier.fillMaxSize()
             .padding(
-                start = Dimens.marginHorizontal24,
-                end = Dimens.marginHorizontal24,
+                start = Dimens.marginHorizontal16,
+                end = Dimens.marginHorizontal16,
             )
             .verticalScroll(rememberScrollState()),
     ) {

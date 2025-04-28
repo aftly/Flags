@@ -58,7 +58,7 @@ fun ExpandableTopAppBar(
 
     /* Manage padding transition between expanded (start) and collapsed (stop) TopBar title */
     val titlePadding = lerp(
-        start = 20.dp,
+        start = 12.dp,
         stop = Dimens.canNavigateBack0,
         fraction = scrollBehaviour.state.collapsedFraction
     )

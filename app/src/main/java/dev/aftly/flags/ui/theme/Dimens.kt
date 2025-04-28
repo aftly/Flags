@@ -14,7 +14,7 @@ object Dimens {
     val large24: Dp = 24.dp
     val extraLarge32: Dp = 32.dp
 
-    val marginHorizontal24: Dp = 24.dp
+    val marginHorizontal16: Dp = 16.dp
     val canNavigateBack0: Dp = 0.dp
     val listItemHeight48: Dp = 48.dp
     val listItemHeight64: Dp = 64.dp

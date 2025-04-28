@@ -21,8 +21,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -223,8 +221,8 @@ private fun GameScaffold(
                 .padding(
                     top = scaffoldTopPadding,
                     bottom = scaffoldBottomPadding,
-                    start = Dimens.marginHorizontal24,
-                    end = Dimens.marginHorizontal24,
+                    start = Dimens.marginHorizontal16,
+                    end = Dimens.marginHorizontal16,
                 ),
             buttonExpanded = expanded,
             onButtonExpand = { expanded = !expanded },
@@ -271,8 +269,8 @@ private fun GameContent(
             .padding(
                 /* Top padding so that content scroll disappears into FilterFlagsButton */
                 top = Dimens.filterButtonRowHeight30 / 2,
-                start = Dimens.marginHorizontal24,
-                end = Dimens.marginHorizontal24,
+                start = Dimens.marginHorizontal16,
+                end = Dimens.marginHorizontal16,
             )
             .onSizeChanged { size ->
                 columnHeight = (size.height.toFloat() / density).dp - contentTopPadding
