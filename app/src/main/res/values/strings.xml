@@ -30,9 +30,7 @@
     <string name="category_free_association_in_description">in free association with</string>
     <string name="category_autonomous_region_title">Autonomous region</string>
     <string name="category_autonomous_region_string">autonomous region</string>
-    <string name="category_autonomous_region_in_description_an">n autonomous region</string>
-    <string name="category_autonomous_region_in_description_sans_region_an">n autonomous</string>
-    <string name="category_autonomous_region_in_description_sans_region">autonomous</string>
+    <string name="category_autonomous_region_in_description_an">n autonomous</string>
     <string name="category_devolved_government_title">Devolved government</string>
     <string name="category_devolved_government_string">devolved government</string>
     <string name="category_devolved_government_in_description">with a devolved government</string>

@@ -248,16 +248,16 @@ class FlagViewModel(application: Application) : AndroidViewModel(application) {
                 stringIds.add(element = R.string.category_sovereign_state_in_description)
 
             } else if (category == AUTONOMOUS_REGION) {
-                if (isWithSubUnit == true) {
-                    stringIds.add(
-                        element = R.string.category_autonomous_region_in_description_sans_region_an
-                    )
-                } else stringIds.add(element = R.string.category_autonomous_region_in_description_an)
+                stringIds.add(element = R.string.category_autonomous_region_in_description_an)
                 whitespaceExceptions.add(element = stringIds.lastIndex)
 
             } else if (category == OBLAST) {
-                stringIds.add(element = R.string.category_oblast_string_in_description_an)
-                whitespaceExceptions.add(element = stringIds.lastIndex)
+                if (AUTONOMOUS_REGION !in categories) {
+                    stringIds.add(element = R.string.category_oblast_string_in_description_an)
+                    whitespaceExceptions.add(element = stringIds.lastIndex)
+                } else {
+                    stringIds.add(element = category.string)
+                }
 
             } else if (category == DEVOLVED_GOVERNMENT) {
                 stringIds.add(element = R.string.category_devolved_government_in_description)

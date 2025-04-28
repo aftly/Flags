@@ -31,7 +31,6 @@ sealed class FlagSuperCategory(
     data object Regional : FlagSuperCategory(
         title = R.string.category_super_regional,
         subCategories = listOf(
-            FlagCategory.AUTONOMOUS_REGION,
             //FlagCategory.CANTON,
             FlagCategory.COLLECTIVITY,
             FlagCategory.COMMUNITY,
