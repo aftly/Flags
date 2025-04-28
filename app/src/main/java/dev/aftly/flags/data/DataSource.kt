@@ -3531,7 +3531,7 @@ data object DataSource {
                 R.string.ivory_coast_alt_13,
                 R.string.ivory_coast_alt_14
             ),
-            isFlagOfThe = false,
+            isFlagOfThe = true,
             isFlagOfOfficialThe = true,
             sovereignState = null,
             associatedState = null,
