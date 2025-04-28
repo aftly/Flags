@@ -112,8 +112,6 @@ class FlagViewModel(application: Application) : AndroidViewModel(application) {
 
         /* Description varies based on the following conditions */
         val isConstitutional = CONSTITUTIONAL in categories
-        val isWithSubUnit = categories.filterNot { it == AUTONOMOUS_REGION }
-            .any { it in FlagSuperCategory.Regional.subCategories }
         val isNonCulturalCategoriesInFlag = categories.filterNot { it == HISTORICAL }
             .any { it in allNonCulturalCategories }
         val isCulturalCategoriesInFlag = categories.any { it in allCulturalCategories }
@@ -138,7 +136,6 @@ class FlagViewModel(application: Application) : AndroidViewModel(application) {
                 categories = categories.filterNot { it in allCulturalCategories },
                 stringIds = stringIds,
                 whitespaceExceptions = whitespaceExceptionIndexes,
-                isWithSubUnit = isWithSubUnit,
                 isConstitutional = isConstitutional,
             )
 
@@ -175,7 +172,6 @@ class FlagViewModel(application: Application) : AndroidViewModel(application) {
                     categories = sovereign.categories.filterNot { it in allCulturalCategories },
                     stringIds = stringIds,
                     whitespaceExceptions = whitespaceExceptionIndexes,
-                    isWithSubUnit = null,
                     isConstitutional = isSovereignConstitutional,
                 )
             }
@@ -237,7 +233,6 @@ class FlagViewModel(application: Application) : AndroidViewModel(application) {
         categories: List<FlagCategory>,
         stringIds: MutableList<Int>,
         whitespaceExceptions: MutableList<Int>,
-        isWithSubUnit: Boolean?,
         isConstitutional: Boolean,
     ) {
         for (category in categories) {
