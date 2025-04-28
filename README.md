@@ -2,7 +2,9 @@
     <img src="assets/icon_round.png" width="128" height="128">
 </div>
 
+
 <div align="center">
+
 # 🏳️ Flags 🌍
 
 [![Android](https://img.shields.io/badge/Android-Platform?label=Platform&color=62a900)](https://www.android.com/)
@@ -10,6 +12,7 @@
 [![GitHub Releases](https://img.shields.io/badge/GitHub_Releases-Download?label=Download&color=62a900)](https://github.com/aftly/Flags/releases)
 [![Latest release version](https://img.shields.io/github/v/release/aftly/Flags?include_prereleases&color=dc5d18)](https://github.com/aftly/Flags/releases)
 [![License: MPL 2.0](https://img.shields.io/badge/license-MPL%202.0-blue.svg)](https://github.com/aftly/Flags/blob/main/LICENSE)
+
 </div>
 
 ## ❔ About
