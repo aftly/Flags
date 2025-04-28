@@ -33,6 +33,7 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +56,7 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.ExpandableTopAppBar
 import dev.aftly.flags.ui.component.FilterFlagsButton
+import dev.aftly.flags.ui.component.ScrollToTopButton
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timings
 import dev.aftly.flags.ui.util.getFlagNavArg
@@ -103,6 +105,8 @@ private fun ListFlagsScaffold(
     currentScreen: Screen,
     scrollBehaviour: TopAppBarScrollBehavior,
     canNavigateBack: Boolean,
+    containerColor1: Color = MaterialTheme.colorScheme.onSecondaryContainer,
+    containerColor2: Color = MaterialTheme.colorScheme.secondary,
     @StringRes currentCategoryTitle: Int,
     currentSuperCategory: FlagSuperCategory,
     currentFlagsList: List<FlagResources>,
@@ -113,9 +117,15 @@ private fun ListFlagsScaffold(
     /* Controls FilterFlagsButton menu expansion */
     var buttonExpanded by rememberSaveable { mutableStateOf(value = false) }
 
-    /* For setting scroll position to 0 when category is selected in FilterFlagsButton */
+    /* Properties for resetting scroll position when category is selected in FilterFlagsButton or
+     * ScrollToTopButton clicked */
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    val isAtTop by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0
+        }
+    }
 
     /* So FilterFlagsButton can access Scaffold() padding */
     var scaffoldTopPadding by remember { mutableStateOf(value = 0.dp) }
@@ -134,6 +144,13 @@ private fun ListFlagsScaffold(
                     onNavigateUp = onNavigateUp,
                 )
             },
+            floatingActionButton = {
+                ScrollToTopButton(
+                    isVisible = !isAtTop,
+                    containerColor = containerColor2,
+                    onClick = { coroutineScope.launch { listState.animateScrollToItem(index = 0) } }
+                )
+            }
         ) { scaffoldPadding ->
             scaffoldTopPadding = scaffoldPadding.calculateTopPadding()
             scaffoldBottomPadding = scaffoldPadding.calculateBottomPadding()
@@ -180,6 +197,8 @@ private fun ListFlagsScaffold(
                 ),
             buttonExpanded = buttonExpanded,
             onButtonExpand = { buttonExpanded = !buttonExpanded },
+            containerColor1 = containerColor1,
+            containerColor2 = containerColor2,
             currentCategoryTitle = currentCategoryTitle,
             currentSuperCategory = currentSuperCategory,
             onCategorySelect = { flagSuperCategory, flagSubCategory ->

@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
@@ -31,9 +33,11 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -49,10 +53,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.R
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.navigation.Screen
+import dev.aftly.flags.ui.component.ScrollToTopButton
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timings
 import dev.aftly.flags.ui.util.getFlagNavArg
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -94,6 +101,28 @@ private fun SearchScaffold(
     onNavigateUp: () -> Unit,
     onFlagSelect: (FlagResources) -> Unit,
 ) {
+    /* Properties for ScrollToTopButton */
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+    val isAtTop by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0
+        }
+    }
+    /* Reset scroll state after clearing user search & LazyColumn animation finishes */
+    LaunchedEffect(isUserSearch) {
+        if (!isUserSearch && !isAtTop) {
+            delay(timeMillis = Timings.MENU_EXPAND.toLong())
+            coroutineScope.launch { listState.scrollToItem(index = 0) }
+        }
+    }
+    /* Reset scroll state after each userSearch character entry unless empty */
+    LaunchedEffect(userSearch) {
+        if (isUserSearch && !isAtTop) {
+            coroutineScope.launch { listState.scrollToItem(index = 0) }
+        }
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -103,12 +132,20 @@ private fun SearchScaffold(
                 onNavigateUp = onNavigateUp,
                 onAction = { },
             )
+        },
+        floatingActionButton = {
+            ScrollToTopButton(
+                isVisible = !isAtTop,
+                containerColor = MaterialTheme.colorScheme.secondary,
+                onClick = { coroutineScope.launch { listState.animateScrollToItem(index = 0) } }
+            )
         }
     ) { scaffoldPadding ->
         SearchContent(
             modifier = Modifier.fillMaxSize()
                 .padding(top = scaffoldPadding.calculateTopPadding()),
             scaffoldPadding = scaffoldPadding,
+            listState = listState,
             userSearch = userSearch,
             isUserSearch = isUserSearch,
             searchResults = searchResults,
@@ -123,6 +160,7 @@ private fun SearchScaffold(
 private fun SearchContent(
     modifier: Modifier = Modifier,
     scaffoldPadding: PaddingValues,
+    listState: LazyListState,
     surfaceColor: Color = MaterialTheme.colorScheme.surface,
     userSearch: String,
     isUserSearch: Boolean,
@@ -196,6 +234,7 @@ private fun SearchContent(
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
+                    state = listState,
                     contentPadding = PaddingValues(
                         top = Dimens.small8,
                         bottom = scaffoldPadding.calculateBottomPadding()

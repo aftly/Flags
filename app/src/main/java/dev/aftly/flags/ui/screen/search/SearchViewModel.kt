@@ -48,13 +48,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                                 .contains(normalizeString(searchQuery), ignoreCase = true)
                         } ?: false
                     }
-                    else -> flags
+                    else -> searchResultsProxy.value /* Maintains list after clearing searchQuery */
                 }
             }.stateIn(
                 scope = viewModelScope,
                 initialValue = emptyList(),
                 started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000)
             )
+    private val searchResultsProxy = searchResults
 
 
     init {

@@ -7,4 +7,5 @@ object Timings {
     const val MENU_COLLAPSE: Int = 375
     const val GUESS_STATE_DURATION: Int = 1300
     const val GUESS_STATE_EXIT: Int = 700
+    const val SCROLL_BUTTON: Int = 275
 }
