@@ -1,26 +1,16 @@
-<p align="center">
-  <a href="https://github.com/aftly/Flags">
+<div align="center">
     <img src="assets/icon_round.png" width="128" height="128">
-    <h1 align="center">🏳️ Flags 🌍</h1>
-  </a>
-</p>
-<p align="center">
-  <a href="https://www.android.com/" style="text-decoration:none" area-label="Android">
-    <img src="https://img.shields.io/badge/Android-Platform?label=Platform&color=62a900">
-  </a>
-  <a href="https://developer.android.com/tools/releases/platforms#7.0" style="text-decoration:none" area-label="Min API: 24">
-    <img src="https://img.shields.io/badge/24-minSdkVersion?label=minSdkVersion&color=62a900">
-  </a>
-  <a href="https://github.com/aftly/Flags/releases" style="text-decoration:none" area-label="GitHub Releases">
-    <img src="https://img.shields.io/badge/GitHub_Releases-Download?label=Download&color=62a900">
-  </a>
-  <a href="https://github.com/aftly/Flags/releases" style="text-decoration:none" area-label="Latest release version">
-    <img src="https://img.shields.io/github/v/release/aftly/Flags?include_prereleases&color=dc5d18">
-  </a>
-  <a href="https://github.com/aftly/Flags/blob/main/LICENSE" style="text-decoration:none" area-label="License: MPL 2.0">
-    <img src="https://img.shields.io/badge/license-MPL%202.0-blue.svg">
-  </a>
-</p>
+</div>
+
+<div align="center">
+# 🏳️ Flags 🌍
+
+[![Android](https://img.shields.io/badge/Android-Platform?label=Platform&color=62a900)](https://www.android.com/)
+[![Min API: 24](https://img.shields.io/badge/24-minSdkVersion?label=minSdkVersion&color=62a900)](https://developer.android.com/tools/releases/platforms#7.0)
+[![GitHub Releases](https://img.shields.io/badge/GitHub_Releases-Download?label=Download&color=62a900)](https://github.com/aftly/Flags/releases)
+[![Latest release version](https://img.shields.io/github/v/release/aftly/Flags?include_prereleases&color=dc5d18)](https://github.com/aftly/Flags/releases)
+[![License: MPL 2.0](https://img.shields.io/badge/license-MPL%202.0-blue.svg)](https://github.com/aftly/Flags/blob/main/LICENSE)
+</div>
 
 ## ❔ About
 - **Flags** is a free and open source Android app for displaying various flags of the world with categorisation for descriptions and user sorting and a flag guessing game.
@@ -74,7 +64,7 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 <br>
 
 ## 🛠 Design
-- Built with Jetpack Compose in Kotlin, following architecture best practises described on Android Developers, such as SSOT, UDF, ViewModels for managing state and business logic. (UI-only state is kept in local scope.)
+- Built with Jetpack Compose in Kotlin, following architecture best practises described on Android Developers, such as UDF, SSOT, ViewModels for managing state and business logic. (UI-only state is kept in local scope.)
 
 - Flag info uses local data, originally sourced from Wikipedia via a collection of Python scripts for getting flag images, common names, official names and alternate names.
 Flag category info is derived more manually, by filtering from broader categories such as on [countries by system of government](https://en.wikipedia.org/wiki/List_of_countries_by_system_of_government) and other Wikipedia lists.
