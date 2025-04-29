@@ -75,6 +75,7 @@ fun FullScreenImage(
     Box(
         modifier = Modifier.fillMaxSize()
             .background(color = Color.Black)
+            .clickable { isSystemBars = !isSystemBars }
     ) {
         /* Flag image */
         Image(
@@ -84,14 +85,6 @@ fun FullScreenImage(
                 .align(alignment = Alignment.Center),
             contentScale = ContentScale.Fit,
         )
-
-
-        /* Surface for tapping to show/hide system bars */
-        Surface(
-            modifier = Modifier.fillMaxSize()
-                .clickable { isSystemBars = !isSystemBars },
-            color = Color.Transparent,
-        ) { }
 
 
         /* Back button which tracks user interaction with system bars visibility */

@@ -1,6 +1,5 @@
 package dev.aftly.flags.ui.screen.flag
 
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -43,15 +42,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import dev.aftly.flags.ui.component.LocalOrientationController
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.FullScreenImage
+import dev.aftly.flags.ui.component.LocalOrientationController
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.theme.Dimens
 
