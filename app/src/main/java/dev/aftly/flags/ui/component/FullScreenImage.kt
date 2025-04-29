@@ -52,8 +52,6 @@ fun FullScreenImage(
         WindowInsetsControllerCompat(activity.window, activity.window.decorView)
     } else null
 
-    val coroutineScope = rememberCoroutineScope()
-
     BackHandler { onExitFullScreen() }
 
     LaunchedEffect(isSystemBars) {
@@ -62,10 +60,10 @@ fun FullScreenImage(
             isExitButton = true
         } else {
             windowInsetsController?.hide(WindowInsetsCompat.Type.systemBars())
-            coroutineScope.launch {
-                delay(timeMillis = Timings.SYSTEM_BARS_HANG.toLong())
-                if (!isSystemBars) isExitButton = false
-            }
+            
+            /* Delay disabling isExitButton to sync with system bars hide delay */
+            delay(timeMillis = Timings.SYSTEM_BARS_HANG.toLong())
+            if (!isSystemBars) isExitButton = false
         }
     }
 
