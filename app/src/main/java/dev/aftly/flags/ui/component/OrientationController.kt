@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
 
-/* Custom controller for managing orientation (such as for enter fullscreen view functionality) */
+/* For controlling screen orientation (eg. for when entering fullscreen view) */
 class OrientationController(val activity: ComponentActivity) {
     fun setLandscapeOrientation() {
         activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
