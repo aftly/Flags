@@ -1,6 +1,7 @@
 package dev.aftly.flags.ui.component
 
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -30,6 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timings
@@ -40,20 +43,30 @@ import kotlinx.coroutines.launch
 @Composable
 fun FullScreenImage(
     flag: FlagResources,
-    onShowSystemBars: () -> Unit,
-    onHideSystemBars: () -> Unit,
     onExitFullScreen: () -> Unit,
 ) {
-    var isInitialised by rememberSaveable { mutableStateOf(value = true) }
     var isSystemBars by rememberSaveable { mutableStateOf(value = false) }
+    var isExitButton by rememberSaveable { mutableStateOf(value = true) }
+
+    val activity = LocalActivity.current
+    val windowInsetsController = if (activity != null) {
+        WindowInsetsControllerCompat(activity.window, activity.window.decorView)
+    } else null
+
     val coroutineScope = rememberCoroutineScope()
 
     BackHandler { onExitFullScreen() }
 
-    LaunchedEffect(isInitialised) {
-        coroutineScope.launch {
-            delay(timeMillis = Timings.SYSTEM_BARS.toLong() / 2)
-            isInitialised = false
+    LaunchedEffect(isSystemBars) {
+        if (isSystemBars) {
+            windowInsetsController?.show(WindowInsetsCompat.Type.systemBars())
+            isExitButton = true
+        } else {
+            windowInsetsController?.hide(WindowInsetsCompat.Type.systemBars())
+            coroutineScope.launch {
+                delay(timeMillis = Timings.SYSTEM_BARS_HANG.toLong())
+                if (!isSystemBars) isExitButton = false
+            }
         }
     }
 
@@ -75,52 +88,15 @@ fun FullScreenImage(
 
         /* Surface for tapping to show/hide system bars */
         Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .clickable {
-                    if (!isSystemBars) onShowSystemBars() else onHideSystemBars()
-
-                    if (isSystemBars) {
-                        coroutineScope.launch {
-                            delay(timeMillis = Timings.SYSTEM_BARS_HANG.toLong())
-                            if (isSystemBars) isSystemBars = false
-                        }
-                    } else {
-                        isSystemBars = true
-                    }
-                },
+            modifier = Modifier.fillMaxSize()
+                .clickable { isSystemBars = !isSystemBars },
             color = Color.Transparent,
         ) { }
 
 
-        /* Initial back button whose visibility tracks initial system bars visibility */
-        AnimatedVisibility(
-            visible = isInitialised,
-            enter = fadeIn(animationSpec = tween(durationMillis = 0)),
-            exit = fadeOut(animationSpec = tween(durationMillis = Timings.SYSTEM_BARS)),
-        ) {
-            IconButton(
-                onClick = { onExitFullScreen() },
-                modifier = Modifier.padding(
-                    top = Dimens.large24,
-                    start = Dimens.small8,
-                ),
-                colors = IconButtonDefaults.iconButtonColors(
-                    containerColor = Color.Black.copy(alpha = 0.5f)
-                )
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = "back",
-                    tint = MaterialTheme.colorScheme.surface,
-                )
-            }
-        }
-
-
         /* Back button which tracks user interaction with system bars visibility */
         AnimatedVisibility(
-            visible = isSystemBars,
+            visible = isExitButton,
             enter = fadeIn(animationSpec = tween(durationMillis = Timings.SYSTEM_BARS)),
             exit = fadeOut(animationSpec = tween(durationMillis = Timings.SYSTEM_BARS)),
         ) {

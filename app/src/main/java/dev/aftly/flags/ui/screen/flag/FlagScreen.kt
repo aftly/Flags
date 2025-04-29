@@ -98,14 +98,6 @@ private fun FlagScaffold(
     /* Managing state and configuration for full screen flag view */
     var isFullScreen by rememberSaveable { mutableStateOf(value = false) }
     val orientationController = LocalOrientationController.current
-    val activity = LocalActivity.current
-    val windowInsetsController = if (activity != null) {
-        WindowInsetsControllerCompat(activity.window, activity.window.decorView)
-    } else null
-
-    LaunchedEffect(isFullScreen) {
-        if (isFullScreen) windowInsetsController?.hide(WindowInsetsCompat.Type.systemBars())
-    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -134,12 +126,6 @@ private fun FlagScaffold(
         } else {
             FullScreenImage(
                 flag = flag,
-                onShowSystemBars = {
-                    windowInsetsController?.show(WindowInsetsCompat.Type.systemBars())
-                },
-                onHideSystemBars = {
-                    windowInsetsController?.hide(WindowInsetsCompat.Type.systemBars())
-                },
                 onExitFullScreen = {
                     orientationController.unsetLandscapeOrientation()
                     isFullScreen = false
