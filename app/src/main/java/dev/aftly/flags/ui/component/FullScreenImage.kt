@@ -17,8 +17,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,6 +34,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timings
+import dev.aftly.flags.ui.theme.surfaceLight
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -106,7 +105,7 @@ fun FullScreenImage(
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
                     contentDescription = "back",
-                    tint = MaterialTheme.colorScheme.surface,
+                    tint = surfaceLight,
                 )
             }
         }
