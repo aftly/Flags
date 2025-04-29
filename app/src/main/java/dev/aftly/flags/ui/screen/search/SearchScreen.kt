@@ -60,6 +60,7 @@ import dev.aftly.flags.ui.theme.Timings
 import dev.aftly.flags.ui.util.getFlagNavArg
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.compose.ui.platform.LocalConfiguration
 
 
 @Composable
@@ -73,7 +74,7 @@ fun SearchScreen(
     val searchResults by viewModel.searchResults.collectAsStateWithLifecycle()
 
     /* Update (alphabetical) order of flag lists when language changes */
-    val currentLocale = LocalContext.current.resources.configuration.locales[0]
+    val currentLocale = LocalConfiguration.current.locales[0]
     LaunchedEffect(currentLocale) { viewModel.sortFlagsAlphabetically() }
 
     SearchScaffold(

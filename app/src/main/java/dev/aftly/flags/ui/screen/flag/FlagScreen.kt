@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -42,12 +43,14 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.aftly.flags.LocalOrientationController
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.theme.Dimens
+import androidx.compose.ui.platform.LocalConfiguration
 
 
 @Composable
@@ -65,7 +68,7 @@ fun FlagScreen(
     if (uiState.flag == DataSource.nullFlag) onNavigateError()
 
     /* Update flag description string when language configuration changes */
-    val currentLocale = LocalContext.current.resources.configuration.locales[0]
+    val currentLocale = LocalConfiguration.current.locales[0]
     LaunchedEffect(currentLocale) { viewModel.updateDescriptionString() }
 
     FlagScaffold(
@@ -175,6 +178,7 @@ private fun FlagContent(
                 } else append(text = string)
             }
         }
+        
 
         Text(
             text = annotatedName,

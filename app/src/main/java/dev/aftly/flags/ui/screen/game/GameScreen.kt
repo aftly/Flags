@@ -51,6 +51,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -84,7 +85,7 @@ fun GameScreen(
 
     val context = LocalContext.current
     /* When language configuration changes, update strings in uiState */
-    val currentLocale = context.resources.configuration.locales[0]
+    val currentLocale = LocalConfiguration.current.locales[0]
     LaunchedEffect(currentLocale) { viewModel.setFlagStrings() }
 
     /* Show pop-up when game over */

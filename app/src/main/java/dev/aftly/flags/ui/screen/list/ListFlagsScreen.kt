@@ -61,6 +61,7 @@ import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timings
 import dev.aftly.flags.ui.util.getFlagNavArg
 import kotlinx.coroutines.launch
+import androidx.compose.ui.platform.LocalConfiguration
 
 
 /* Displays list of flags. Upon flag select, pass up it's navArg and navigate to FlagScreen() */
@@ -79,7 +80,7 @@ fun ListFlagsScreen(
         .exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     /* Update (alphabetical) order of flag lists when language changes */
-    val currentLocale = LocalContext.current.resources.configuration.locales[0]
+    val currentLocale = LocalConfiguration.current.locales[0]
     LaunchedEffect(currentLocale) { viewModel.sortFlagsAlphabetically() }
 
     ListFlagsScaffold(
