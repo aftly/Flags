@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.CompositionLocalProvider
 import dev.aftly.flags.navigation.AppNavHost
 import dev.aftly.flags.ui.theme.FlagsTheme
 
@@ -13,8 +14,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            FlagsTheme {
-                AppNavHost()
+            val orientationController = OrientationController(activity = this)
+
+            CompositionLocalProvider(
+                value = LocalOrientationController provides orientationController
+            ) {
+                FlagsTheme {
+                    AppNavHost()
+                }
             }
         }
     }

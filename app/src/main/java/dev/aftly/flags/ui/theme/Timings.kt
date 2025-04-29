@@ -8,4 +8,6 @@ object Timings {
     const val GUESS_STATE_DURATION: Int = 1300
     const val GUESS_STATE_EXIT: Int = 700
     const val SCROLL_BUTTON: Int = 275
+    const val SYSTEM_BARS: Int = 1050
+    const val SYSTEM_BARS_HANG: Int = 600
 }

@@ -1,16 +1,17 @@
 package dev.aftly.flags.ui.screen.flag
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -19,17 +20,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -42,15 +43,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.LocalOrientationController
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.navigation.Screen
+import dev.aftly.flags.ui.component.FullScreenImage
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.theme.Dimens
-import androidx.compose.ui.platform.LocalConfiguration
 
 
 @Composable
@@ -92,23 +95,57 @@ private fun FlagScaffold(
     description: List<String>,
     boldWordPositions: List<Int>,
 ) {
+    /* Managing state and configuration for full screen flag view */
+    var isFullScreen by rememberSaveable { mutableStateOf(value = false) }
+    val orientationController = LocalOrientationController.current
+    val activity = LocalActivity.current
+    val windowInsetsController = if (activity != null) {
+        WindowInsetsControllerCompat(activity.window, activity.window.decorView)
+    } else null
+
+    LaunchedEffect(isFullScreen) {
+        if (isFullScreen) windowInsetsController?.hide(WindowInsetsCompat.Type.systemBars())
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
-            StaticTopAppBar(
-                currentScreen = currentScreen,
-                canNavigateBack = canNavigateBack,
-                onNavigateUp = navigateUp,
-                onAction = { },
-            )
+            if (!isFullScreen) {
+                StaticTopAppBar(
+                    currentScreen = currentScreen,
+                    canNavigateBack = canNavigateBack,
+                    onNavigateUp = navigateUp,
+                    onAction = { },
+                )
+            }
         }
     ) { scaffoldPadding ->
-        FlagContent(
-            modifier = Modifier.padding(scaffoldPadding),
-            flag = flag,
-            description = description,
-            boldWordPositions = boldWordPositions,
-        )
+        if (!isFullScreen) {
+            FlagContent(
+                modifier = Modifier.padding(scaffoldPadding),
+                flag = flag,
+                description = description,
+                boldWordPositions = boldWordPositions,
+                onFlagClick = {
+                    isFullScreen = true
+                    orientationController.setLandscapeOrientation()
+                },
+            )
+        } else {
+            FullScreenImage(
+                flag = flag,
+                onShowSystemBars = {
+                    windowInsetsController?.show(WindowInsetsCompat.Type.systemBars())
+                },
+                onHideSystemBars = {
+                    windowInsetsController?.hide(WindowInsetsCompat.Type.systemBars())
+                },
+                onExitFullScreen = {
+                    orientationController.unsetLandscapeOrientation()
+                    isFullScreen = false
+                },
+            )
+        }
     }
 }
 
@@ -119,6 +156,7 @@ private fun FlagContent(
     flag: FlagResources,
     description: List<String>,
     boldWordPositions: List<Int>,
+    onFlagClick: () -> Unit,
 ) {
     /* Properties for if image height greater than column height, eg. in landscape orientation,
      * make image height modifier value of column height, else value of image height */
@@ -130,7 +168,8 @@ private fun FlagContent(
 
     /* Flag Content */
     Column(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
             .padding(horizontal = Dimens.medium16)
             .onSizeChanged { size ->
                 columnHeight = size.height
@@ -178,7 +217,7 @@ private fun FlagContent(
                 } else append(text = string)
             }
         }
-        
+
 
         Text(
             text = annotatedName,
@@ -186,26 +225,32 @@ private fun FlagContent(
             textAlign = TextAlign.Center,
         )
 
-        Surface(
-            modifier = Modifier.wrapContentSize()
+        Box(
+            modifier = Modifier
                 .padding(vertical = Dimens.extraLarge32)
-                .shadow(Dimens.extraSmall4),
+                .clickable { onFlagClick() }
         ) {
-            Image(
-                painter = painterResource(flag.image),
-                modifier = Modifier.onSizeChanged { size ->
-                    imageHeight = size.height
+            Surface(
+                modifier = Modifier.shadow(Dimens.extraSmall4),
+            ) {
+                Image(
+                    painter = painterResource(flag.image),
+                    modifier = Modifier
+                        .onSizeChanged { size ->
+                            imageHeight = size.height
 
-                    /* Set image height modifier */
-                    imageHeightModifier = if (columnHeight < imageHeight) {
-                        Modifier.height(height = (columnHeight / density).dp)
-                    } else {
-                        Modifier.height(height = (imageHeight / density).dp)
-                    }
-                }.then(imageHeightModifier), /* concatenate height modifier after onSizeChanged */
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-            )
+                            /* Set image height modifier */
+                            imageHeightModifier = if (columnHeight < imageHeight) {
+                                Modifier.height(height = (columnHeight / density).dp)
+                            } else {
+                                Modifier.height(height = (imageHeight / density).dp)
+                            }
+                        }
+                        .then(imageHeightModifier), /* concatenate height modifier after onSizeChanged */
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                )
+            }
         }
 
         Text(
