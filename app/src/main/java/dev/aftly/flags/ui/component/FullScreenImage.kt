@@ -36,7 +36,6 @@ import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timings
 import dev.aftly.flags.ui.theme.surfaceLight
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 
 @Composable
@@ -60,7 +59,7 @@ fun FullScreenImage(
             isExitButton = true
         } else {
             windowInsetsController?.hide(WindowInsetsCompat.Type.systemBars())
-            
+
             /* Delay disabling isExitButton to sync with system bars hide delay */
             delay(timeMillis = Timings.SYSTEM_BARS_HANG.toLong())
             if (!isSystemBars) isExitButton = false

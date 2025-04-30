@@ -47,6 +47,7 @@ import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.navigation.Screen
+import dev.aftly.flags.ui.component.FullScreenButton
 import dev.aftly.flags.ui.component.FullScreenImage
 import dev.aftly.flags.ui.component.LocalOrientationController
 import dev.aftly.flags.ui.component.StaticTopAppBar
@@ -115,7 +116,7 @@ private fun FlagScaffold(
                 flag = flag,
                 description = description,
                 boldWordPositions = boldWordPositions,
-                onFlagClick = {
+                onFullscreen = {
                     isFullScreen = true
                     orientationController.setLandscapeOrientation()
                 },
@@ -139,7 +140,7 @@ private fun FlagContent(
     flag: FlagResources,
     description: List<String>,
     boldWordPositions: List<Int>,
-    onFlagClick: () -> Unit,
+    onFullscreen: () -> Unit,
 ) {
     /* Properties for if image height greater than column height, eg. in landscape orientation,
      * make image height modifier value of column height, else value of image height */
@@ -147,6 +148,8 @@ private fun FlagContent(
     var imageHeight by remember { mutableIntStateOf(value = 0) }
     var imageHeightModifier by remember { mutableStateOf<Modifier>(value = Modifier) }
     val density = LocalDensity.current.density
+
+    var isFullScreenButton by rememberSaveable { mutableStateOf(value = false) }
 
 
     /* Flag Content */
@@ -202,16 +205,19 @@ private fun FlagContent(
         }
 
 
+        /* Flag official name */
         Text(
             text = annotatedName,
             style = nameStyle,
             textAlign = TextAlign.Center,
         )
 
+        /* Image and fullscreen button contents */
         Box(
             modifier = Modifier
                 .padding(vertical = Dimens.extraLarge32)
-                .clickable { onFlagClick() }
+                .clickable { isFullScreenButton = !isFullScreenButton },
+            contentAlignment = Alignment.BottomEnd
         ) {
             Surface(
                 modifier = Modifier.shadow(Dimens.extraSmall4),
@@ -234,8 +240,15 @@ private fun FlagContent(
                     contentScale = ContentScale.Fit,
                 )
             }
+
+            FullScreenButton(
+                visible = isFullScreenButton,
+                onInvisible = { isFullScreenButton = false },
+                onFullScreen = onFullscreen,
+            )
         }
 
+        /* Natural language description of flag entity from it's categories */
         Text(
             text = annotatedDescription,
             fontSize = 24.sp,
