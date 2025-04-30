@@ -20,7 +20,7 @@ import dev.aftly.flags.ui.theme.surfaceLight
 import kotlinx.coroutines.delay
 
 @Composable
-fun FullScreenButton(
+fun FullscreenButton(
     visible: Boolean,
     onInvisible: () -> Unit,
     onFullScreen: () -> Unit,

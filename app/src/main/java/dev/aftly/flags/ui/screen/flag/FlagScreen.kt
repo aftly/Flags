@@ -47,8 +47,8 @@ import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.navigation.Screen
-import dev.aftly.flags.ui.component.FullScreenButton
-import dev.aftly.flags.ui.component.FullScreenImage
+import dev.aftly.flags.ui.component.FullscreenButton
+import dev.aftly.flags.ui.component.FullscreenImage
 import dev.aftly.flags.ui.component.LocalOrientationController
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.theme.Dimens
@@ -122,7 +122,7 @@ private fun FlagScaffold(
                 },
             )
         } else {
-            FullScreenImage(
+            FullscreenImage(
                 flag = flag,
                 onExitFullScreen = {
                     orientationController.unsetLandscapeOrientation()
@@ -241,7 +241,7 @@ private fun FlagContent(
                 )
             }
 
-            FullScreenButton(
+            FullscreenButton(
                 visible = isFullScreenButton,
                 onInvisible = { isFullScreenButton = false },
                 onFullScreen = onFullscreen,
