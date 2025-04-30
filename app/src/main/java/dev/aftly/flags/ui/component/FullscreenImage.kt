@@ -5,14 +5,20 @@ import android.view.WindowInsetsController
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.EaseOutCubic
+import androidx.compose.animation.core.EaseOutExpo
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -52,6 +58,7 @@ fun FullscreenImage(
 
     val window = LocalActivity.current?.window
     val windowInsetsController = window?.let { WindowInsetsControllerCompat(it, it.decorView) }
+    windowInsetsController?.isAppearanceLightStatusBars = false /* Makes top bar icons white */
 
     /* Configure animation timings depending on API version due to different behaviors */
     val systemBarsExitDelay = if (isApi30) 0 else Timings.SYSTEM_BARS_HANG.toLong()
@@ -119,6 +126,31 @@ fun FullscreenImage(
                     tint = surfaceLight,
                 )
             }
+        }
+
+        /* Box for semi-translucent background behind top status bar */
+        AnimatedVisibility(
+            visible = isExitButton,
+            enter = expandVertically(
+                animationSpec = tween(
+                    durationMillis = exitButtonAnimationTiming,
+                    easing = EaseOutExpo,
+                ),
+                expandFrom = Alignment.Top,
+            ),
+            exit = shrinkVertically(
+                animationSpec = tween(
+                    durationMillis = exitButtonAnimationTiming,
+                    easing = EaseOutCubic,
+                ),
+                shrinkTowards = Alignment.Top,
+            ),
+        ) {
+            Box(modifier = Modifier.fillMaxWidth()
+                //.height(Dimens.large24)
+                .height(Dimens.large24)
+                .background(Color.Black.copy(alpha = 0.3f))
+            )
         }
     }
 }
