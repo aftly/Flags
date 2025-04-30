@@ -66,6 +66,9 @@ import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.FilterFlagsButton
+import dev.aftly.flags.ui.component.FullscreenButton
+import dev.aftly.flags.ui.component.FullscreenImage
+import dev.aftly.flags.ui.component.LocalOrientationController
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.component.shareText
 import dev.aftly.flags.ui.theme.Dimens
@@ -165,72 +168,98 @@ private fun GameScaffold(
     var scaffoldTopPadding by remember { mutableStateOf(value = 0.dp) }
     var scaffoldBottomPadding by remember { mutableStateOf(value = 0.dp) }
 
+    /* Managing state and screen orientation for fullscreen flag view */
+    var isFullScreen by rememberSaveable { mutableStateOf(value = false) }
+    val orientationController = LocalOrientationController.current
+
 
     /* Scaffold within box so that FilterFlagsButton & it's associated surface can overlay it */
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             modifier = modifier.fillMaxSize(),
             topBar = {
-                StaticTopAppBar(
-                    currentScreen = currentScreen,
-                    canNavigateBack = canNavigateBack,
-                    onNavigateUp = onNavigateUp,
-                    onAction = { },
-                )
+                if (!isFullScreen) {
+                    StaticTopAppBar(
+                        currentScreen = currentScreen,
+                        canNavigateBack = canNavigateBack,
+                        onNavigateUp = onNavigateUp,
+                        onAction = { },
+                    )
+                }
             }
         ) { scaffoldPadding ->
             scaffoldTopPadding = scaffoldPadding.calculateTopPadding()
             scaffoldBottomPadding = scaffoldPadding.calculateBottomPadding()
 
-            GameContent(
-                modifier = Modifier.padding(scaffoldPadding),
-                totalFlagCount = totalFlagCount,
-                correctGuessCount = correctGuessCount,
-                currentFlag = currentFlag,
-                userGuess = userGuess,
-                onUserGuessChange = onUserGuessChange,
-                isGuessCorrect = isGuessCorrect,
-                isGuessCorrectEvent = isGuessCorrectEvent,
-                isGuessWrong = isGuessWrong,
-                isGuessWrongEvent = isGuessWrongEvent,
-                onKeyboardDoneAction = onKeyboardDoneAction,
-                onSubmit = onSubmit,
-                onSkip = onSkip,
-                onEndGame = onEndGame,
+            if (!isFullScreen) {
+                GameContent(
+                    modifier = Modifier.padding(scaffoldPadding),
+                    totalFlagCount = totalFlagCount,
+                    correctGuessCount = correctGuessCount,
+                    currentFlag = currentFlag,
+                    userGuess = userGuess,
+                    onUserGuessChange = onUserGuessChange,
+                    isGuessCorrect = isGuessCorrect,
+                    isGuessCorrectEvent = isGuessCorrectEvent,
+                    isGuessWrong = isGuessWrong,
+                    isGuessWrongEvent = isGuessWrongEvent,
+                    onKeyboardDoneAction = onKeyboardDoneAction,
+                    onSubmit = onSubmit,
+                    onSkip = onSkip,
+                    onEndGame = onEndGame,
+                    onFullscreen = {
+                        isFullScreen = true
+                        orientationController.setLandscapeOrientation()
+                    },
+                )
+            } else {
+                FullscreenImage(
+                    flag = currentFlag,
+                    onExitFullScreen = {
+                        orientationController.unsetLandscapeOrientation()
+                        isFullScreen = false
+                    },
+                )
+            }
+        }
+
+
+        /* Show FilterFlagsButton components when not in fullscreen view */
+        if (!isFullScreen) {
+
+            /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */
+            AnimatedVisibility(
+                visible = expanded,
+                enter = fadeIn(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
+                exit = fadeOut(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
+            ) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable { expanded = !expanded },
+                    color = Color.Black.copy(alpha = 0.35f),
+                ) { }
+            }
+
+
+            /* Custom quasi-DropdownMenu elevated above screen content with animated nested menus for
+             * selecting super or sub category to filter flags by */
+            FilterFlagsButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        top = scaffoldTopPadding,
+                        bottom = scaffoldBottomPadding,
+                        start = Dimens.marginHorizontal16,
+                        end = Dimens.marginHorizontal16,
+                    ),
+                buttonExpanded = expanded,
+                onButtonExpand = { expanded = !expanded },
+                currentCategoryTitle = currentCategoryTitle,
+                currentSuperCategory = currentSuperCategory,
+                onCategorySelect = onCategorySelect,
             )
         }
-
-
-        /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */
-        AnimatedVisibility(
-            visible = expanded,
-            enter = fadeIn(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
-            exit = fadeOut(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
-        ) {
-            Surface(
-                modifier = Modifier.fillMaxSize()
-                    .clickable { expanded = !expanded },
-                color = Color.Black.copy(alpha = 0.35f),
-            ) { }
-        }
-
-
-        /* Custom quasi-DropdownMenu elevated above screen content with animated nested menus for
-         * selecting super or sub category to filter flags by */
-        FilterFlagsButton(
-            modifier = Modifier.fillMaxWidth()
-                .padding(
-                    top = scaffoldTopPadding,
-                    bottom = scaffoldBottomPadding,
-                    start = Dimens.marginHorizontal16,
-                    end = Dimens.marginHorizontal16,
-                ),
-            buttonExpanded = expanded,
-            onButtonExpand = { expanded = !expanded },
-            currentCategoryTitle = currentCategoryTitle,
-            currentSuperCategory = currentSuperCategory,
-            onCategorySelect = onCategorySelect,
-        )
     }
 }
 
@@ -251,6 +280,7 @@ private fun GameContent(
     onSubmit: () -> Unit,
     onSkip: () -> Unit,
     onEndGame: () -> Unit,
+    onFullscreen: () -> Unit,
 ) {
     /* Properties for if card image height greater than content column height, eg. in landscape
      * orientation, make image height modifier value of column height, else value of image height
@@ -266,7 +296,8 @@ private fun GameContent(
 
     /* Center arranged column with Game content */
     Column(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
             .padding(
                 /* Top padding so that content scroll disappears into FilterFlagsButton */
                 top = Dimens.filterButtonRowHeight30 / 2,
@@ -284,12 +315,14 @@ private fun GameContent(
                     imageHeightModifier = Modifier.height(height = imageHeight)
                     cardWidthModifier = Modifier.fillMaxWidth()
                 }
-            }.verticalScroll(rememberScrollState()),
+            }
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         /* Spacer to make content start below FilterFlags button */
-        Spacer(modifier = Modifier.fillMaxWidth()
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
             .height(Dimens.filterButtonRowHeight30 / 2 + Dimens.small8)
         )
 
@@ -315,11 +348,13 @@ private fun GameContent(
             isGuessWrongEvent = isGuessWrongEvent,
             onKeyboardDoneAction = onKeyboardDoneAction,
             onEndGame = onEndGame,
+            onFullscreen = onFullscreen,
         )
 
         Button(
             onClick = onSubmit,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(top = Dimens.extraLarge32),
         ) {
             Text(text = "Submit")
@@ -327,7 +362,8 @@ private fun GameContent(
 
         OutlinedButton(
             onClick = onSkip,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(top = Dimens.medium16),
         ) {
             Text(text = "Skip")
@@ -362,8 +398,9 @@ private fun GameCard(
     isGuessWrongEvent: Boolean,
     onKeyboardDoneAction: () -> Unit,
     onEndGame: () -> Unit,
+    onFullscreen: () -> Unit,
 ) {
-    /* Variables for animated colors */
+    /* State variables for animated colors */
     val focusedColorDefault = OutlinedTextFieldDefaults.colors().focusedIndicatorColor
     val focusedContainerColor: Color = MaterialTheme.colorScheme.surface
 
@@ -424,6 +461,8 @@ private fun GameCard(
         }
     }
 
+    var isFullScreenButton by rememberSaveable { mutableStateOf(value = false) }
+
 
     /* Game Card content */
     Card(
@@ -437,13 +476,15 @@ private fun GameCard(
         ) {
             /* Top row in card */
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(bottom = Dimens.medium16),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = "$correctGuessCount/$totalFlagCount",
-                    modifier = Modifier.clip(MaterialTheme.shapes.medium)
+                    modifier = Modifier
+                        .clip(MaterialTheme.shapes.medium)
                         .background(MaterialTheme.colorScheme.primary)
                         .padding(vertical = Dimens.extraSmall4, horizontal = Dimens.small10),
                     color = MaterialTheme.colorScheme.onPrimary,
@@ -467,45 +508,57 @@ private fun GameCard(
                 }
             }
 
-            Image(
-                modifier = Modifier
-                    .onSizeChanged { size ->
-                        onCardImageHeightChange(
-                            (size.height.toFloat() / density).dp
-                        )
-                        onCardImageWidthChange(
-                            (size.width.toFloat() / density).dp
-                        )
+            Box(
+                modifier = Modifier.clickable { isFullScreenButton = !isFullScreenButton },
+                contentAlignment = Alignment.BottomEnd,
+            ) {
+                Image(
+                    modifier = Modifier
+                        .onSizeChanged { size ->
+                            onCardImageHeightChange(
+                                (size.height.toFloat() / density).dp
+                            )
+                            onCardImageWidthChange(
+                                (size.width.toFloat() / density).dp
+                            )
 
-                        /* Set image height modifier */
-                        if (contentColumnHeight < cardImageHeight) {
-                            onCardImageHeightModifierChange(
-                                Modifier.height(height = contentColumnHeight)
-                            )
-                            onCardWidthModifierChange(
-                                Modifier.width(width = (cardImageWidth.value * 1.25).dp)
-                            )
-                        } else {
-                            onCardImageHeightModifierChange(
-                                Modifier.height(height = cardImageHeight)
-                            )
-                            onCardWidthModifierChange(
-                                Modifier.fillMaxWidth()
-                            )
-                        }
-                    } /* concatenate height modifier after onSizeChanged */
-                    .then(cardImageHeightModifier)
-                    /* Force aspect ratio to keep game card shape consistent */
-                    .aspectRatio(ratio = 3f / 2f),
-                painter = painterResource(currentFlag.image),
-                contentDescription = "flag of ${stringResource(currentFlag.flagOf)}",
-                contentScale = ContentScale.Fit,
-            )
+                            /* Set image height modifier */
+                            if (contentColumnHeight < cardImageHeight) {
+                                onCardImageHeightModifierChange(
+                                    Modifier.height(height = contentColumnHeight)
+                                )
+                                onCardWidthModifierChange(
+                                    Modifier.width(width = (cardImageWidth.value * 1.25).dp)
+                                )
+                            } else {
+                                onCardImageHeightModifierChange(
+                                    Modifier.height(height = cardImageHeight)
+                                )
+                                onCardWidthModifierChange(
+                                    Modifier.fillMaxWidth()
+                                )
+                            }
+                        } /* concatenate height modifier after onSizeChanged */
+                        .then(cardImageHeightModifier)
+                        /* Force aspect ratio to keep game card shape consistent */
+                        .aspectRatio(ratio = 3f / 2f),
+                    painter = painterResource(currentFlag.image),
+                    contentDescription = "flag of ${stringResource(currentFlag.flagOf)}",
+                    contentScale = ContentScale.Fit,
+                )
+
+                FullscreenButton(
+                    visible = isFullScreenButton,
+                    onInvisible = { isFullScreenButton = false },
+                    onFullScreen = onFullscreen,
+                )
+            }
 
             OutlinedTextField(
                 value = userGuess,
                 onValueChange = onUserGuessChange,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(top = Dimens.small10),
                 label = {
                     Text(text = labelState)
