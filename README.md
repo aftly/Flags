@@ -48,7 +48,7 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
  **📌 TODO for version 1.0:**
 - [ ] Add more flags (to less populated categories)
 - [x] Add scroll to top button on list and search screens
-- [ ] Full screen view option on flag image
+- [x] Full screen view option on flag image
 - [ ] Implement regime type categories for political flags from OurWorldInData
 - [ ] Add Python scripts to repo
 - [ ] Make searches filterable
