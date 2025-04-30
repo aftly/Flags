@@ -93,7 +93,7 @@ private fun FlagScaffold(
     description: List<String>,
     boldWordPositions: List<Int>,
 ) {
-    /* Managing state and configuration for full screen flag view */
+    /* Managing state and screen orientation for full screen flag view */
     var isFullScreen by rememberSaveable { mutableStateOf(value = false) }
     val orientationController = LocalOrientationController.current
 
