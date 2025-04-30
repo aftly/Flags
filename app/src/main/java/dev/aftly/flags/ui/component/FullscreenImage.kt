@@ -1,5 +1,7 @@
 package dev.aftly.flags.ui.component
 
+import android.os.Build
+import android.view.WindowInsetsController
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
@@ -42,25 +44,38 @@ fun FullscreenImage(
     flag: FlagResources,
     onExitFullScreen: () -> Unit,
 ) {
-    var isSystemBars by rememberSaveable { mutableStateOf(value = false) }
+    BackHandler { onExitFullScreen() }
+
+    val isApi30 = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+    var isSystemBars by rememberSaveable { mutableStateOf(value = isApi30) }
     var isExitButton by rememberSaveable { mutableStateOf(value = true) }
 
-    val activity = LocalActivity.current
-    val windowInsetsController = if (activity != null) {
-        WindowInsetsControllerCompat(activity.window, activity.window.decorView)
-    } else null
+    val window = LocalActivity.current?.window
+    val windowInsetsController = window?.let { WindowInsetsControllerCompat(it, it.decorView) }
 
-    BackHandler { onExitFullScreen() }
+    /* Configure animation timings depending on API version due to different behaviors */
+    val systemBarsExitDelay = if (isApi30) 0 else Timings.SYSTEM_BARS_HANG.toLong()
+    val exitButtonAnimationTiming = if (isApi30) Timings.SYSTEM_BARS / 2 else Timings.SYSTEM_BARS
+
+    /* Following feature requires SDK version 30+ (app minimum SDK version is 24) */
+    if (isApi30) {
+        window?.insetsController?.apply {
+            systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+    }
 
     LaunchedEffect(isSystemBars) {
         if (isSystemBars) {
             windowInsetsController?.show(WindowInsetsCompat.Type.systemBars())
             isExitButton = true
+
+            /* Auto disable system bars and exit button after delay */
+            delay(timeMillis = Timings.SYSTEM_BARS.toLong() * 2)
+            isSystemBars = false
         } else {
             windowInsetsController?.hide(WindowInsetsCompat.Type.systemBars())
 
-            /* Delay disabling isExitButton to sync with system bars hide delay */
-            delay(timeMillis = Timings.SYSTEM_BARS_HANG.toLong())
+            delay(timeMillis = systemBarsExitDelay)
             if (!isSystemBars) isExitButton = false
         }
     }
@@ -85,8 +100,8 @@ fun FullscreenImage(
         /* Back button which tracks user interaction with system bars visibility */
         AnimatedVisibility(
             visible = isExitButton,
-            enter = fadeIn(animationSpec = tween(durationMillis = Timings.SYSTEM_BARS)),
-            exit = fadeOut(animationSpec = tween(durationMillis = Timings.SYSTEM_BARS)),
+            enter = fadeIn(animationSpec = tween(durationMillis = exitButtonAnimationTiming)),
+            exit = fadeOut(animationSpec = tween(durationMillis = exitButtonAnimationTiming)),
         ) {
             IconButton(
                 onClick = { onExitFullScreen() },

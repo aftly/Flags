@@ -29,7 +29,7 @@ fun FullscreenButton(
         /* Disable fullscreen button automatically when not clicked */
         if (visible) {
             delay(timeMillis = Timings.SYSTEM_BARS_HANG.toLong() * 4)
-            if (visible) onInvisible()
+            onInvisible()
         }
     }
 
