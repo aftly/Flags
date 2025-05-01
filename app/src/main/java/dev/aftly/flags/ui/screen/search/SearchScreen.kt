@@ -38,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -276,11 +277,11 @@ fun SearchItem(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
             ),
         ) {
-            val rowHeight = remember { mutableStateOf(Dimens.listItemHeight48) }
+            var rowHeight by remember { mutableStateOf(Dimens.listItemHeight48) }
 
             Row(
                 modifier = modifier
-                    .height(rowHeight.value)
+                    .height(rowHeight)
                     .padding(
                         vertical = Dimens.small8,
                         horizontal = Dimens.small10,
@@ -297,7 +298,7 @@ fun SearchItem(
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                         onTextLayout = { textLayoutResult ->
                             if (textLayoutResult.lineCount > 1) {
-                                rowHeight.value = Dimens.listItemHeight64
+                                rowHeight = Dimens.listItemHeight64
                             }
                         },
                     )

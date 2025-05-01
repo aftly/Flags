@@ -62,6 +62,7 @@ import dev.aftly.flags.ui.theme.Timings
 import dev.aftly.flags.ui.util.getFlagNavArg
 import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.Dp
 
 
 /* Displays list of flags. Upon flag select, pass up it's navArg and navigate to FlagScreen() */
@@ -274,11 +275,11 @@ private fun ListItem(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
             ),
         ) {
-            val rowHeight = remember { mutableStateOf(Dimens.listItemHeight48) }
+            var rowHeight by remember { mutableStateOf(value = Dimens.listItemHeight48) }
 
             Row(
                 modifier = modifier
-                    .height(rowHeight.value)
+                    .height(rowHeight)
                     .padding(
                         vertical = Dimens.small8,
                         horizontal = Dimens.small10,
@@ -295,7 +296,7 @@ private fun ListItem(
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                         onTextLayout = { textLayoutResult ->
                             if (textLayoutResult.lineCount > 1) {
-                                rowHeight.value = Dimens.listItemHeight64
+                                rowHeight = Dimens.listItemHeight64
                             }
                         },
                     )
