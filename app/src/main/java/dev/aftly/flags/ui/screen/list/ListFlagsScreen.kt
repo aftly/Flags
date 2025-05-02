@@ -45,7 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -61,8 +61,6 @@ import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timings
 import dev.aftly.flags.ui.util.getFlagNavArg
 import kotlinx.coroutines.launch
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.unit.Dp
 
 
 /* Displays list of flags. Upon flag select, pass up it's navArg and navigate to FlagScreen() */
@@ -81,8 +79,8 @@ fun ListFlagsScreen(
         .exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     /* Update (alphabetical) order of flag lists when language changes */
-    val currentLocale = LocalConfiguration.current.locales[0]
-    LaunchedEffect(currentLocale) { viewModel.sortFlagsAlphabetically() }
+    val locale = LocalConfiguration.current.locales[0]
+    LaunchedEffect(locale) { viewModel.sortFlagsAlphabetically() }
 
     ListFlagsScaffold(
         currentScreen = currentScreen,
@@ -291,7 +289,8 @@ private fun ListItem(
                 Box(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(flag.flagOf),
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(end = Dimens.small8), // So text doesn't border image
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                         onTextLayout = { textLayoutResult ->

@@ -69,8 +69,8 @@ fun FlagScreen(
     if (uiState.flag == DataSource.nullFlag) onNavigateError()
 
     /* Update flag description string when language configuration changes */
-    val currentLocale = LocalConfiguration.current.locales[0]
-    LaunchedEffect(currentLocale) { viewModel.updateDescriptionString() }
+    val locale = LocalConfiguration.current.locales[0]
+    LaunchedEffect(locale) { viewModel.updateDescriptionString() }
 
     FlagScaffold(
         currentScreen = currentScreen,

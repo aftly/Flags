@@ -88,8 +88,8 @@ fun GameScreen(
 
     val context = LocalContext.current
     /* When language configuration changes, update strings in uiState */
-    val currentLocale = LocalConfiguration.current.locales[0]
-    LaunchedEffect(currentLocale) { viewModel.setFlagStrings() }
+    val locale = LocalConfiguration.current.locales[0]
+    LaunchedEffect(locale) { viewModel.setFlagStrings() }
 
     /* Show pop-up when game over */
     if (uiState.isGameOver) {
