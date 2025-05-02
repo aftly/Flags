@@ -87,8 +87,10 @@ fun GameScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+
     /* When language configuration changes, update strings in uiState */
-    val locale = LocalConfiguration.current.locales[0]
+    val locale = configuration.locales[0]
     LaunchedEffect(locale) { viewModel.setFlagStrings() }
 
     /* Show pop-up when game over */
@@ -115,6 +117,7 @@ fun GameScreen(
     GameScaffold(
         currentScreen = currentScreen,
         canNavigateBack = canNavigateBack,
+        fontScale = configuration.fontScale,
         totalFlagCount = uiState.totalFlagCount,
         correctGuessCount = uiState.correctGuessCount,
         currentCategoryTitle = uiState.currentCategoryTitle,
@@ -143,6 +146,7 @@ private fun GameScaffold(
     modifier: Modifier = Modifier,
     currentScreen: Screen,
     canNavigateBack: Boolean,
+    fontScale: Float,
     totalFlagCount: Int,
     correctGuessCount: Int,
     @StringRes currentCategoryTitle: Int,
@@ -161,8 +165,9 @@ private fun GameScaffold(
     onNavigateUp: () -> Unit,
     onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
 ) {
-    /* Controls FilterFlagsButton menu expansion */
+    /* Controls FilterFlagsButton menu expansion and tracks button height */
     var expanded by rememberSaveable { mutableStateOf(value = false) }
+    var buttonHeight by remember { mutableStateOf(value = 0.dp) }
 
     /* So that FilterFlagsButton can access Scaffold() padding */
     var scaffoldTopPadding by remember { mutableStateOf(value = 0.dp) }
@@ -194,6 +199,7 @@ private fun GameScaffold(
             if (!isFullScreen) {
                 GameContent(
                     modifier = Modifier.padding(scaffoldPadding),
+                    filterButtonHeight = buttonHeight,
                     totalFlagCount = totalFlagCount,
                     correctGuessCount = correctGuessCount,
                     currentFlag = currentFlag,
@@ -253,8 +259,10 @@ private fun GameScaffold(
                         start = Dimens.marginHorizontal16,
                         end = Dimens.marginHorizontal16,
                     ),
+                onButtonHeightChange = { buttonHeight = it },
                 buttonExpanded = expanded,
                 onButtonExpand = { expanded = !expanded },
+                fontScale = fontScale,
                 currentCategoryTitle = currentCategoryTitle,
                 currentSuperCategory = currentSuperCategory,
                 onCategorySelect = onCategorySelect,
@@ -267,6 +275,7 @@ private fun GameScaffold(
 @Composable
 private fun GameContent(
     modifier: Modifier = Modifier,
+    filterButtonHeight: Dp,
     totalFlagCount: Int,
     correctGuessCount: Int,
     currentFlag: FlagResources,
@@ -291,7 +300,7 @@ private fun GameContent(
     var imageHeightModifier by remember { mutableStateOf<Modifier>(value = Modifier) }
     var cardWidthModifier by remember { mutableStateOf<Modifier>(value = Modifier) }
     val density = LocalDensity.current.density
-    val contentTopPadding = Dimens.filterButtonRowHeight30 / 2
+    val contentTopPadding = Dimens.defaultFilterButtonHeight30 / 2
 
 
     /* Center arranged column with Game content */
@@ -300,7 +309,7 @@ private fun GameContent(
             .fillMaxSize()
             .padding(
                 /* Top padding so that content scroll disappears into FilterFlagsButton */
-                top = Dimens.filterButtonRowHeight30 / 2,
+                top = filterButtonHeight / 2,
                 start = Dimens.marginHorizontal16,
                 end = Dimens.marginHorizontal16,
             )
@@ -323,7 +332,7 @@ private fun GameContent(
         /* Spacer to make content start below FilterFlags button */
         Spacer(modifier = Modifier
             .fillMaxWidth()
-            .height(Dimens.filterButtonRowHeight30 / 2 + Dimens.small8)
+            .height(filterButtonHeight / 2 + Dimens.small8)
         )
 
         GameCard(

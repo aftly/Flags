@@ -31,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.superCategoryList
@@ -53,6 +55,7 @@ import dev.aftly.flags.ui.theme.Timings
 @Composable
 fun FilterFlagsButton(
     modifier: Modifier = Modifier,
+    onButtonHeightChange: (Dp) -> Unit,
     buttonExpanded: Boolean,
     onButtonExpand: () -> Unit,
     containerColor1: Color = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -61,10 +64,27 @@ fun FilterFlagsButton(
     cardColors2: CardColors = CardDefaults.cardColors(containerColor = containerColor2),
     buttonColors1: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor1),
     buttonColors2: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor2),
+    fontScale: Float,
     @StringRes currentCategoryTitle: Int,
     currentSuperCategory: FlagSuperCategory,
     onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
 ) {
+    /* Determines the expanded menu */
+    var expandMenu by remember { mutableStateOf<FlagSuperCategory?>(value = null) }
+
+    /* Manage button height */
+    val oneLineButtonHeight = Dimens.defaultFilterButtonHeight30 * fontScale
+    val twoLineButtonHeight = Dimens.defaultFilterButtonHeight50 * fontScale
+    var buttonHeight by remember {
+        mutableStateOf(value = Dimens.defaultFilterButtonHeight30 * fontScale)
+    }
+    LaunchedEffect(buttonHeight) {
+        when (buttonHeight) {
+            oneLineButtonHeight -> onButtonHeightChange(oneLineButtonHeight)
+            twoLineButtonHeight -> onButtonHeightChange(twoLineButtonHeight)
+        }
+    }
+
     /* Manage button title & exceptions */
     val buttonTitle = when (currentSuperCategory) {
         FlagSuperCategory.SovereignCountry -> stringResource(R.string.category_super_sovereign_country_title)
@@ -75,25 +95,31 @@ fun FilterFlagsButton(
         else -> stringResource(currentCategoryTitle) + stringResource(R.string.button_title_flags)
     }
 
-    var expandMenu by remember { mutableStateOf<FlagSuperCategory?>(value = null) }
-
 
     Column(modifier = modifier) {
         Button(
             onClick = { onButtonExpand() },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = Dimens.small8)
-                .height(Dimens.filterButtonRowHeight30),
+                .padding(bottom = Dimens.small8) /* Separate Button from Menu */
+                .height(buttonHeight),
             shape = MaterialTheme.shapes.large,
             colors = buttonColors2,
-            contentPadding = PaddingValues(Dimens.extraSmall4),
+            contentPadding = PaddingValues(horizontal = Dimens.medium16),
         ) {
             Text(
                 text = buttonTitle,
                 style = MaterialTheme.typography.titleMedium,
+                onTextLayout = { textLayoutResult ->
+                    if (textLayoutResult.lineCount > 1) {
+                        buttonHeight = twoLineButtonHeight
+                    } else if (buttonHeight != oneLineButtonHeight) {
+                        buttonHeight = oneLineButtonHeight
+                    }
+                }
             )
         }
+
         AnimatedVisibility(
             visible = buttonExpanded,
             enter = expandVertically(
@@ -410,7 +436,8 @@ private fun MenuSuperItem(
                     shape = Shapes.large,
                     colors = cardColors2,
                 ) {
-                    Column(modifier = Modifier.fillMaxWidth()
+                    Column(modifier = Modifier
+                        .fillMaxWidth()
                         .padding(bottom = Dimens.small10)
                     ) {
                         parentSuperCategory.subCategories.forEach { superCategory ->

@@ -16,9 +16,9 @@ object Dimens {
 
     val marginHorizontal16: Dp = 16.dp
     val canNavigateBack0: Dp = 0.dp
-    val listItemHeight48: Dp = 48.dp
-    val listItemHeight64: Dp = 64.dp
-    val filterButtonRowHeight30: Dp = 30.dp
+    val defaultListItemHeight48: Dp = 48.dp
+    val defaultFilterButtonHeight30: Dp = 30.dp
+    val defaultFilterButtonHeight50: Dp = 50.dp
     val bottomSpacer30: Dp = 30.dp
     val bottomSpacer80: Dp = 80.dp
 }

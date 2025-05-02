@@ -35,10 +35,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -73,13 +71,16 @@ fun SearchScreen(
 ) {
     val searchResults by viewModel.searchResults.collectAsStateWithLifecycle()
 
+    val configuration = LocalConfiguration.current
+
     /* Update (alphabetical) order of flag lists when language changes */
-    val locale = LocalConfiguration.current.locales[0]
+    val locale = configuration.locales[0]
     LaunchedEffect(locale) { viewModel.sortFlagsAlphabetically() }
 
     SearchScaffold(
         currentScreen = currentScreen,
         canNavigateBack = canNavigateBack,
+        fontScale = configuration.fontScale,
         userSearch = viewModel.searchQuery,
         isUserSearch = viewModel.isSearchQuery,
         searchResults = searchResults,
@@ -95,6 +96,7 @@ private fun SearchScaffold(
     modifier: Modifier = Modifier,
     currentScreen: Screen,
     canNavigateBack: Boolean,
+    fontScale: Float,
     userSearch: String,
     isUserSearch: Boolean,
     searchResults: List<FlagResources>,
@@ -147,6 +149,7 @@ private fun SearchScaffold(
                 .padding(top = scaffoldPadding.calculateTopPadding()),
             scaffoldPadding = scaffoldPadding,
             listState = listState,
+            fontScale = fontScale,
             userSearch = userSearch,
             isUserSearch = isUserSearch,
             searchResults = searchResults,
@@ -163,6 +166,7 @@ private fun SearchContent(
     scaffoldPadding: PaddingValues,
     listState: LazyListState,
     surfaceColor: Color = MaterialTheme.colorScheme.surface,
+    fontScale: Float,
     userSearch: String,
     isUserSearch: Boolean,
     searchResults: List<FlagResources>,
@@ -249,6 +253,7 @@ private fun SearchContent(
 
                         SearchItem(
                             modifier = Modifier.fillMaxWidth(),
+                            fontScale = fontScale,
                             flag = flag,
                             onFlagSelect = { onFlagSelect(flag) }
                         )
@@ -263,9 +268,14 @@ private fun SearchContent(
 @Composable
 fun SearchItem(
     modifier: Modifier = Modifier,
+    fontScale: Float,
     flag: FlagResources,
     onFlagSelect: (FlagResources) -> Unit,
 ) {
+    /* Equivalent to item height when line count of 1 */
+    val dynamicHeight = Dimens.defaultListItemHeight48 * fontScale
+    val verticalPadding = Dimens.small8
+
     Column(modifier = modifier) {
         FilledTonalButton(
             modifier = modifier,
@@ -276,13 +286,10 @@ fun SearchItem(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
             ),
         ) {
-            var rowHeight by remember { mutableStateOf(Dimens.listItemHeight48) }
-
             Row(
                 modifier = modifier
-                    .height(rowHeight)
                     .padding(
-                        vertical = Dimens.small8,
+                        vertical = verticalPadding,
                         horizontal = Dimens.small10,
                     ),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -292,26 +299,23 @@ fun SearchItem(
                 Box(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(flag.flagOf),
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth()
+                            /* Separate text from image */
+                            .padding(end = Dimens.small8),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        onTextLayout = { textLayoutResult ->
-                            if (textLayoutResult.lineCount > 1) {
-                                rowHeight = Dimens.listItemHeight64
-                            }
-                        },
                     )
                 }
                 Image(
                     painter = painterResource(id = flag.imagePreview),
                     contentDescription = null,
-                    /* Make standard image height == standard button height - height padding */
-                    modifier = Modifier.height(Dimens.listItemHeight48 - Dimens.small8 * 2),
+                    /* Limit image height to dynamicHeight minus item padding */
+                    modifier = Modifier.height(dynamicHeight - verticalPadding * 2),
                     contentScale = ContentScale.Fit,
                 )
             }
         }
-        Spacer(modifier = modifier.height(Dimens.small8))
+        Spacer(modifier = modifier.height(verticalPadding))
     }
 }
 

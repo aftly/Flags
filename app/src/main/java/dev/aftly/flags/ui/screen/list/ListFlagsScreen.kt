@@ -48,6 +48,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.model.FlagCategory
@@ -78,14 +79,17 @@ fun ListFlagsScreen(
     val scrollBehaviour = TopAppBarDefaults
         .exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
+    val configuration = LocalConfiguration.current
+
     /* Update (alphabetical) order of flag lists when language changes */
-    val locale = LocalConfiguration.current.locales[0]
+    val locale = configuration.locales[0]
     LaunchedEffect(locale) { viewModel.sortFlagsAlphabetically() }
 
     ListFlagsScaffold(
         currentScreen = currentScreen,
         scrollBehaviour = scrollBehaviour,
         canNavigateBack = canNavigateBack,
+        fontScale = configuration.fontScale,
         currentCategoryTitle = uiState.currentCategoryTitle,
         currentSuperCategory = uiState.currentSuperCategory,
         currentFlagsList = uiState.currentFlags,
@@ -107,6 +111,7 @@ private fun ListFlagsScaffold(
     canNavigateBack: Boolean,
     containerColor1: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     containerColor2: Color = MaterialTheme.colorScheme.secondary,
+    fontScale: Float,
     @StringRes currentCategoryTitle: Int,
     currentSuperCategory: FlagSuperCategory,
     currentFlagsList: List<FlagResources>,
@@ -114,8 +119,9 @@ private fun ListFlagsScaffold(
     onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onFlagSelect: (FlagResources) -> Unit,
 ) {
-    /* Controls FilterFlagsButton menu expansion */
+    /* Controls FilterFlagsButton menu expansion amd tracks current button height */
     var buttonExpanded by rememberSaveable { mutableStateOf(value = false) }
+    var buttonHeight by remember { mutableStateOf(0.dp) }
 
     /* Properties for resetting scroll position when category is selected in FilterFlagsButton or
      * ScrollToTopButton clicked */
@@ -162,9 +168,11 @@ private fun ListFlagsScaffold(
                         start = Dimens.marginHorizontal16,
                         end = Dimens.marginHorizontal16,
                     ),
+                filterButtonHeight = buttonHeight,
                 scaffoldPadding = scaffoldPadding,
                 scrollBehaviour = scrollBehaviour,
                 listState = listState,
+                fontScale = fontScale,
                 currentFlagsList = currentFlagsList,
                 onFlagSelect = onFlagSelect,
             )
@@ -195,10 +203,12 @@ private fun ListFlagsScaffold(
                     start = Dimens.marginHorizontal16,
                     end = Dimens.marginHorizontal16,
                 ),
+            onButtonHeightChange = { buttonHeight = it },
             buttonExpanded = buttonExpanded,
             onButtonExpand = { buttonExpanded = !buttonExpanded },
             containerColor1 = containerColor1,
             containerColor2 = containerColor2,
+            fontScale = fontScale,
             currentCategoryTitle = currentCategoryTitle,
             currentSuperCategory = currentSuperCategory,
             onCategorySelect = { flagSuperCategory, flagSubCategory ->
@@ -214,17 +224,21 @@ private fun ListFlagsScaffold(
 @Composable
 private fun ListFlagsContent(
     modifier: Modifier = Modifier,
+    filterButtonHeight: Dp,
     scaffoldPadding: PaddingValues,
     scrollBehaviour: TopAppBarScrollBehavior,
     listState: LazyListState,
+    fontScale: Float,
     currentFlagsList: List<FlagResources>,
     onFlagSelect: (FlagResources) -> Unit,
 ) {
+    val listItemVerticalPadding = Dimens.small8
+
     Column(modifier = modifier) {
-        /* Spacer half the height of the FilterFlagsButton Row() so that LazyColumn scroll
-         * disappears into it's centre */
-        Spacer(modifier = Modifier.fillMaxWidth()
-                .height(Dimens.filterButtonRowHeight30 / 2)
+        /* To make LazyColumn scroll disappear into center of FilterFlagsButton */
+        Spacer(
+            modifier = Modifier.fillMaxWidth()
+                .height(filterButtonHeight / 2)
         )
 
         /* Flags list */
@@ -235,7 +249,7 @@ private fun ListFlagsContent(
             state = listState,
             contentPadding = PaddingValues(
                 bottom = scaffoldPadding.calculateBottomPadding(),
-                top = Dimens.large24,
+                top = filterButtonHeight / 2 + listItemVerticalPadding,
             ),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start,
@@ -248,6 +262,8 @@ private fun ListFlagsContent(
 
                 ListItem(
                     modifier = Modifier.fillMaxWidth(),
+                    fontScale = fontScale,
+                    verticalPadding = listItemVerticalPadding,
                     flag = flag,
                     onFlagSelect = onFlagSelect,
                 )
@@ -260,9 +276,13 @@ private fun ListFlagsContent(
 @Composable
 private fun ListItem(
     modifier: Modifier = Modifier,
+    fontScale: Float,
+    verticalPadding: Dp,
     flag: FlagResources,
     onFlagSelect: (FlagResources) -> Unit,
 ) {
+    val dynamicHeight = Dimens.defaultListItemHeight48 * fontScale
+
     Column(modifier = modifier) {
         FilledTonalButton(
             modifier = modifier,
@@ -273,13 +293,10 @@ private fun ListItem(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
             ),
         ) {
-            var rowHeight by remember { mutableStateOf(value = Dimens.listItemHeight48) }
-
             Row(
                 modifier = modifier
-                    .height(rowHeight)
                     .padding(
-                        vertical = Dimens.small8,
+                        vertical = verticalPadding,
                         horizontal = Dimens.small10,
                     ),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -290,26 +307,22 @@ private fun ListItem(
                     Text(
                         text = stringResource(flag.flagOf),
                         modifier = Modifier.fillMaxWidth()
-                            .padding(end = Dimens.small8), // So text doesn't border image
+                            /* Separate text from image */
+                            .padding(end = Dimens.small8),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        onTextLayout = { textLayoutResult ->
-                            if (textLayoutResult.lineCount > 1) {
-                                rowHeight = Dimens.listItemHeight64
-                            }
-                        },
                     )
                 }
                 Image(
                     painter = painterResource(id = flag.imagePreview),
                     contentDescription = null,
-                    /* Make standard image height == standard button height - height padding */
-                    modifier = Modifier.height(Dimens.listItemHeight48 - Dimens.small8 * 2),
+                    /* Limit image height to dynamicHeight minus item padding */
+                    modifier = Modifier.height(dynamicHeight - verticalPadding * 2),
                     contentScale = ContentScale.Fit,
                 )
             }
         }
-        Spacer(modifier = modifier.height(Dimens.small8))
+        Spacer(modifier = modifier.height(verticalPadding))
     }
 }
 
