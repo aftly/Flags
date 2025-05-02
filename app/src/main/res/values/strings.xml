@@ -24,7 +24,6 @@
     <string name="category_non_administrative_political">Non-Administrative:</string>
     <string name="category_sovereign_state_title">Sovereign State</string>
     <string name="category_sovereign_state_string">sovereign state</string>
-    <string name="category_sovereign_state_in_description">(sovereign)</string>
     <string name="category_free_association_title">Free Association</string>
     <string name="category_free_association_string">free association</string>
     <string name="category_free_association_in_description">in free association with</string>
@@ -43,7 +42,7 @@
     <string name="category_community_title">Community</string>
     <string name="category_community_string">community</string>
     <string name="category_country_title">Constituent Country</string>
-    <string name="category_country_string">(constituent) country</string>
+    <string name="category_country_string">country</string>
     <string name="category_county_title">County</string>
     <string name="category_county_string">county</string>
     <string name="category_city_title">City</string>
@@ -152,9 +151,8 @@
     <string name="category_religious_title">Religious</string>
     <string name="category_religious_string">religious</string>
     <string name="category_religious_in_description">religious entity</string>
-    <string name="category_regional_title">Regional</string>
-    <string name="category_regional_string">regional</string>
-    <string name="category_regional_in_description">geographical region</string>
+    <string name="category_regional_title">Geographical Region</string>
+    <string name="category_regional_string">geographical region</string>
     <string name="end_game">Finish game</string>
     <string name="error">Error</string>
     <string name="flag">flag</string>

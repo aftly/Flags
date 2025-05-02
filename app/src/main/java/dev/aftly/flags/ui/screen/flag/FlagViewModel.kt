@@ -239,9 +239,6 @@ class FlagViewModel(application: Application) : AndroidViewModel(application) {
             if (category == HISTORICAL || category == FREE_ASSOCIATION) {
                 continue
 
-            } else if (category == SOVEREIGN_STATE) {
-                stringIds.add(element = R.string.category_sovereign_state_in_description)
-
             } else if (category == AUTONOMOUS_REGION) {
                 stringIds.add(element = R.string.category_autonomous_region_in_description_an)
                 whitespaceExceptions.add(element = stringIds.lastIndex)
@@ -344,7 +341,7 @@ class FlagViewModel(application: Application) : AndroidViewModel(application) {
             if (category == SOCIAL) stringIds.add(element = R.string.category_social_in_description)
             if (category == POLITICAL) stringIds.add(element = R.string.category_political_in_description)
             if (category == RELIGIOUS) stringIds.add(element = R.string.category_religious_in_description)
-            if (category == REGIONAL) stringIds.add(element = R.string.category_regional_in_description)
+            if (category == REGIONAL) stringIds.add(element = R.string.category_regional_string)
 
             if (size > 2 && category !in listOf(penultimateCategory, lastCategory)) {
                 stringIds.add(element = R.string.string_comma)
