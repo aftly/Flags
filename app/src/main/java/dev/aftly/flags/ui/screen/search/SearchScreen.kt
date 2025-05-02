@@ -249,13 +249,11 @@ private fun SearchContent(
                         count = searchResults.size,
                         key = { index -> searchResults[index].id }
                     ) { index ->
-                        val flag = searchResults[index]
-
                         SearchItem(
                             modifier = Modifier.fillMaxWidth(),
                             fontScale = fontScale,
-                            flag = flag,
-                            onFlagSelect = { onFlagSelect(flag) }
+                            flag = searchResults[index],
+                            onFlagSelect = onFlagSelect
                         )
                     }
                 }

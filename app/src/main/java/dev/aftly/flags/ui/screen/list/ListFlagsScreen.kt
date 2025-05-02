@@ -258,13 +258,11 @@ private fun ListFlagsContent(
                 count = currentFlagsList.size,
                 key = { index -> currentFlagsList[index].id }
             ) { index ->
-                val flag = currentFlagsList[index]
-
                 ListItem(
                     modifier = Modifier.fillMaxWidth(),
                     fontScale = fontScale,
                     verticalPadding = listItemVerticalPadding,
-                    flag = flag,
+                    flag = currentFlagsList[index],
                     onFlagSelect = onFlagSelect,
                 )
             }
