@@ -326,13 +326,12 @@ private fun GameContent(
                 }
             }
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         /* Spacer to make content start below FilterFlags button */
         Spacer(modifier = Modifier
             .fillMaxWidth()
-            .height(filterButtonHeight / 2 + Dimens.small8)
+            .height(filterButtonHeight / 2 + Dimens.medium16)
         )
 
         GameCard(
@@ -364,7 +363,7 @@ private fun GameContent(
             onClick = onSubmit,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = Dimens.extraLarge32),
+                .padding(top = Dimens.medium16),
         ) {
             Text(text = "Submit")
         }
@@ -479,7 +478,7 @@ private fun GameCard(
         shape = MaterialTheme.shapes.large,
     ) {
         Column(
-            modifier = cardWidthModifier.padding(Dimens.medium16),
+            modifier = cardWidthModifier.padding(Dimens.large24),
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
