@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import dev.aftly.flags.data.DataSource.flagsMap
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.ui.util.normalizeString
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,6 +38,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             .combine(flagsFlow) { searchQuery, flags ->
                 when {
                     searchQuery.isNotEmpty() -> flags.filter { flag ->
+                        /* Handle search queries matching info of a flag's primary info */
                         flag.flagOf.let {
                             normalizeString(string = appResources.getString(it))
                                 .contains(normalizeString(searchQuery), ignoreCase = true)
@@ -49,6 +51,53 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                             other = flag.flagOfAlternate?.any {
                                 normalizeString(string = appResources.getString(it))
                                     .contains(normalizeString(searchQuery), ignoreCase = true)
+                            } ?: false
+                        ).or(
+                            /* Handle search queries matching info of a flag's sovereign state */
+                            other = flag.sovereignState?.let { sovereign ->
+                                val sov = flagsMap.getValue(sovereign)
+
+                                sov.let {
+                                    normalizeString(string = appResources.getString(it.flagOf))
+                                        .contains(normalizeString(searchQuery), ignoreCase = true)
+                                }.or(
+                                    other = normalizeString(
+                                        string = appResources.getString(sov.flagOfOfficial)
+                                    ).contains(normalizeString(searchQuery), ignoreCase = true)
+                                ).or(
+                                    other = sov.flagOfAlternate?.any {
+                                        normalizeString(string = appResources.getString(it))
+                                            .contains(
+                                                normalizeString(searchQuery),
+                                                ignoreCase = true
+                                            )
+                                    } ?: false
+                                )
+                            } ?: false
+                        ).or(
+                            /* Handle search queries matching info of a flag's associated state */
+                            other = flag.associatedState?.let { associated ->
+                                val ass = flagsMap.getValue(associated)
+
+                                ass.let {
+                                    normalizeString(string = appResources.getString(it.flagOf))
+                                        .contains(
+                                            normalizeString(searchQuery),
+                                            ignoreCase = true
+                                        )
+                                }.or(
+                                    other = normalizeString(
+                                        string = appResources.getString(ass.flagOfOfficial)
+                                    ).contains(normalizeString(searchQuery), ignoreCase = true)
+                                ).or(
+                                    other = ass.flagOfAlternate?.any {
+                                        normalizeString(string = appResources.getString(it))
+                                            .contains(
+                                                normalizeString(searchQuery),
+                                                ignoreCase = true,
+                                            )
+                                    } ?: false
+                                )
                             } ?: false
                         )
                     }
