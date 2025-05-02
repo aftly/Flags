@@ -59,6 +59,9 @@ fun ExpandableTopAppBar(
         else -> currentScreen.title
     }
 
+    var titleBoxWidth by remember { mutableIntStateOf(value = 0) }
+    var titleTextWidth by remember { mutableIntStateOf(value = 0) }
+
     /* Manage TitleStyle transition between expanded (start) and collapsed (stop) TopBar title */
     val titleStyle = lerp(
         start = MaterialTheme.typography.headlineLarge,
@@ -73,15 +76,10 @@ fun ExpandableTopAppBar(
         fraction = scrollBehaviour.state.collapsedFraction,
     )
 
-    var titleBoxWidth by remember { mutableIntStateOf(value = 0) }
-    var titleTextWidth by remember { mutableIntStateOf(value = 0) }
-
-    val horiztonalOffset by animateIntAsState(
-        targetValue = lerp(
-            start = 0,
-            stop = - (titleBoxWidth - titleTextWidth) / 2,
-            fraction = scrollBehaviour.state.collapsedFraction,
-        )
+    val horizontalOffset = lerp(
+        start = 0,
+        stop = - (titleBoxWidth - titleTextWidth) / 2,
+        fraction = scrollBehaviour.state.collapsedFraction,
     )
 
 
@@ -103,7 +101,7 @@ fun ExpandableTopAppBar(
                             .onSizeChanged { size ->
                                 titleTextWidth = size.width
                             }
-                            .offset { IntOffset(x = horiztonalOffset, y = 0) }
+                            .offset { IntOffset(x = horizontalOffset, y = 0) }
                             .padding(start = titleStartPadding),
                     )
                 }
