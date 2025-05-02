@@ -235,8 +235,10 @@ class FlagViewModel(application: Application) : AndroidViewModel(application) {
         whitespaceExceptions: MutableList<Int>,
         isConstitutional: Boolean,
     ) {
+        val skipCategories = listOf(SOVEREIGN_STATE, FREE_ASSOCIATION, HISTORICAL)
+
         for (category in categories) {
-            if (category == HISTORICAL || category == FREE_ASSOCIATION) {
+            if (category in skipCategories) {
                 continue
 
             } else if (category == AUTONOMOUS_REGION) {
