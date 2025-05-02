@@ -37,16 +37,20 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             .combine(flagsFlow) { searchQuery, flags ->
                 when {
                     searchQuery.isNotEmpty() -> flags.filter { flag ->
-                        normalizeString(string = appResources.getString(flag.flagOf))
-                            .contains(normalizeString(searchQuery), ignoreCase = true)
-
-                        normalizeString(string = appResources.getString(flag.flagOfOfficial))
-                            .contains(normalizeString(searchQuery), ignoreCase = true)
-
-                        flag.flagOfAlternate?.any { alt ->
-                            normalizeString(string = appResources.getString(alt))
+                        flag.flagOf.let {
+                            normalizeString(string = appResources.getString(it))
                                 .contains(normalizeString(searchQuery), ignoreCase = true)
-                        } ?: false
+                        }.or(
+                            other = flag.flagOfOfficial.let {
+                                normalizeString(string = appResources.getString(it))
+                                    .contains(normalizeString(searchQuery), ignoreCase = true)
+                            }
+                        ).or(
+                            other = flag.flagOfAlternate?.any {
+                                normalizeString(string = appResources.getString(it))
+                                    .contains(normalizeString(searchQuery), ignoreCase = true)
+                            } ?: false
+                        )
                     }
                     else -> searchResultsProxy.value /* Maintains list after clearing searchQuery */
                 }
