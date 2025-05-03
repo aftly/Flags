@@ -8,6 +8,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.data.DataSource.flagsMap
+import dev.aftly.flags.data.DataSource.reverseFlagsMap
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.ui.util.normalizeString
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -99,6 +100,40 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                                     } ?: false
                                 )
                             } ?: false
+                        ).or(
+                            /* Handle search queries matching info of flags that have the flag as
+                             * their sovereignState value */
+                            other = reverseFlagsMap.getValue(flag).let { sovereign ->
+                                for (item in flags) {
+                                    if (item.sovereignState == sovereign) {
+                                        if (normalizeString(appResources.getString(item.flagOf))
+                                                .contains(
+                                                    normalizeString(searchQuery),
+                                                    ignoreCase = true)
+                                        ) {
+                                            return@let true
+                                        }
+                                    }
+                                }
+                                return@let false
+                            }
+                        ).or(
+                            /* Handle search queries matching info of flags that have the flag as
+                             * their associatedState value */
+                            other = reverseFlagsMap.getValue(flag).let { associated ->
+                                for (item in flags) {
+                                    if (item.associatedState == associated) {
+                                        if (normalizeString(appResources.getString(item.flagOf))
+                                                .contains(
+                                                    normalizeString(searchQuery),
+                                                    ignoreCase = true)
+                                        ) {
+                                            return@let true
+                                        }
+                                    }
+                                }
+                                return@let false
+                            }
                         )
                     }
                     else -> searchResultsProxy.value /* Maintains list after clearing searchQuery */

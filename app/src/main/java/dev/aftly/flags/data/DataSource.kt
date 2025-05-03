@@ -8215,5 +8215,12 @@ data object DataSource {
         )
     )
 
+    val reverseFlagsMap = flagsMap.entries.groupBy(
+        keySelector = { it.value },
+        valueTransform = { it.key },
+    ).mapValues { entry ->
+        entry.value.first()
+    }
+
     val allFlagsList = flagsMap.values.toList()
 }
