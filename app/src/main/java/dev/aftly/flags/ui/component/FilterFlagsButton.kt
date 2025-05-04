@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -72,6 +73,31 @@ fun FilterFlagsButton(
     /* Determines the expanded menu */
     var expandMenu by remember { mutableStateOf<FlagSuperCategory?>(value = null) }
 
+    /* When menu collapse, return expandMenu state to current selected category if ui differs */
+    LaunchedEffect(buttonExpanded) {
+        /* Collapse sub-menu if it's super is selected */
+        if (!buttonExpanded && currentCategoryTitle == currentSuperCategory.title) {
+            expandMenu = null
+        } else if (!buttonExpanded && expandMenu != currentSuperCategory &&
+            currentCategoryTitle != expandMenu?.title &&
+            currentSuperCategory != FlagSuperCategory.Political) {
+            /* Expand sub-menu of current super when differs from current expanded menu */
+            expandMenu = currentSuperCategory
+
+        } else if (!buttonExpanded && currentSuperCategory == FlagSuperCategory.Political) {
+            /* As Political contains supers, expandMenu cannot just be determined form
+             * currentSuperCategory. Loop through each super to find the selected category and
+             * set expandMenu state to the sub-super */
+            for (superCategory in currentSuperCategory.subCategories) {
+                superCategory as FlagSuperCategory
+                if (superCategory.subCategories.any { it as FlagCategory
+                        it.title == currentCategoryTitle }) {
+                    expandMenu = superCategory
+                }
+            }
+        }
+    }
+
     /* Manage button height */
     val oneLineButtonHeight = Dimens.defaultFilterButtonHeight30 * fontScale
     val twoLineButtonHeight = Dimens.defaultFilterButtonHeight50 * fontScale
@@ -99,25 +125,43 @@ fun FilterFlagsButton(
     Column(modifier = modifier) {
         Button(
             onClick = { onButtonExpand() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = Dimens.small8) /* Separate Button from Menu */
+            modifier = Modifier.padding(bottom = Dimens.small8) /* Separate Button from Menu */
                 .height(buttonHeight),
             shape = MaterialTheme.shapes.large,
             colors = buttonColors2,
             contentPadding = PaddingValues(horizontal = Dimens.medium16),
         ) {
-            Text(
-                text = buttonTitle,
-                style = MaterialTheme.typography.titleMedium,
-                onTextLayout = { textLayoutResult ->
-                    if (textLayoutResult.lineCount > 1) {
-                        buttonHeight = twoLineButtonHeight
-                    } else if (buttonHeight != oneLineButtonHeight) {
-                        buttonHeight = oneLineButtonHeight
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = buttonTitle,
+                    style = MaterialTheme.typography.titleMedium,
+                    onTextLayout = { textLayoutResult ->
+                        if (textLayoutResult.lineCount > 1) {
+                            buttonHeight = twoLineButtonHeight
+                        } else if (buttonHeight != oneLineButtonHeight) {
+                            buttonHeight = oneLineButtonHeight
+                        }
                     }
+                )
+
+                if (!buttonExpanded) {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowDown,
+                        contentDescription = "expand menu",
+                        tint = buttonColors1.contentColor,
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowUp,
+                        contentDescription = "collapse menu",
+                        tint = buttonColors1.contentColor,
+                    )
                 }
-            )
+            }
         }
 
         AnimatedVisibility(
