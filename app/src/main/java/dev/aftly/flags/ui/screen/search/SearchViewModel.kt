@@ -36,8 +36,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     /* Holds first item in sorted list if searchQuery is exact match */
     private var firstItem by mutableStateOf<FlagResources?>(value = null)
 
-    private val appResources = getApplication<Application>().applicationContext.resources
-
     private val flagsFlow = flowOf(uiState.value.allFlags)
     val searchResults: StateFlow<List<FlagResources>> = snapshotFlow { searchQuery }
         .combine(flagsFlow) { searchQuery, flags ->
@@ -283,6 +281,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private fun getString(@StringRes res: Int): String {
+        val appResources = getApplication<Application>().applicationContext.resources
         return appResources.getString(res)
     }
 
