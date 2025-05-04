@@ -123,8 +123,7 @@ private fun ListFlagsScaffold(
     var buttonExpanded by rememberSaveable { mutableStateOf(value = false) }
     var buttonHeight by remember { mutableStateOf(0.dp) }
 
-    /* Properties for resetting scroll position when category is selected in FilterFlagsButton or
-     * ScrollToTopButton clicked */
+    /* Properties for ScrollToTopButton & reset scroll position when category changed in menu */
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val isAtTop by remember {
