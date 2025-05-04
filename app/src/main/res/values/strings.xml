@@ -180,6 +180,10 @@
     <string name="flag_search_no_results_title">No flags found</string>
     <string name="flag_search_no_results_description">Queries will match common &amp; official names</string>
     <string name="flag_search_no_results_description_2">(Matches are special character agnostic)</string>
+    <string name="menu_icon_expand">expand menu</string>
+    <string name="menu_icon_collapse">collapse menu</string>
+    <string name="menu_sub_icon_expand">expand sub-menu</string>
+    <string name="menu_sub_icon_collapse">collapse sub-menu</string>
     <string name="settings_title">"Settings"</string>
     <string name="start_menu_title">"Flags of the World"</string>
     <string name="string_a">a</string>

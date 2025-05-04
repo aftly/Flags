@@ -73,7 +73,7 @@ fun FilterFlagsButton(
     /* Determines the expanded menu */
     var expandMenu by remember { mutableStateOf<FlagSuperCategory?>(value = null) }
 
-    /* When menu collapse, return expandMenu state to current selected category if ui differs */
+    /* When menu collapse, return expandMenu state to current selected category (if ui differs) */
     LaunchedEffect(buttonExpanded) {
         /* Collapse sub-menu if it's super is selected */
         if (!buttonExpanded && currentCategoryTitle == currentSuperCategory.title) {
@@ -151,13 +151,13 @@ fun FilterFlagsButton(
                 if (!buttonExpanded) {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowDown,
-                        contentDescription = "expand menu",
+                        contentDescription = stringResource(R.string.menu_icon_expand),
                         tint = buttonColors1.contentColor,
                     )
                 } else {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowUp,
-                        contentDescription = "collapse menu",
+                        contentDescription = stringResource(R.string.menu_icon_collapse),
                         tint = buttonColors1.contentColor,
                     )
                 }
@@ -337,14 +337,14 @@ private fun MenuItemExpandable(
                 if (!menuExpanded) {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowDown,
-                        contentDescription = "expand sub-menu",
+                        contentDescription = stringResource(R.string.menu_sub_icon_expand),
                         modifier = iconModifier,
                         tint = buttonColors1.contentColor,
                     )
                 } else {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowUp,
-                        contentDescription = "collapse sub-menu",
+                        contentDescription = stringResource(R.string.menu_sub_icon_collapse),
                         modifier = iconModifier,
                         tint = buttonColors1.contentColor,
                     )
@@ -453,13 +453,13 @@ private fun MenuSuperItem(
                     if (!parentExpanded) {
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowDown,
-                            contentDescription = "expand sub-menu",
+                            contentDescription = stringResource(R.string.menu_sub_icon_expand),
                             tint = buttonColors1.contentColor,
                         )
                     } else {
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowUp,
-                            contentDescription = "collapse sub-menu",
+                            contentDescription = stringResource(R.string.menu_sub_icon_collapse),
                             tint = buttonColors1.contentColor,
                         )
                     }
