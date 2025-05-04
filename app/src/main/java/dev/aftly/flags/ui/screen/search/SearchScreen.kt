@@ -1,11 +1,15 @@
 package dev.aftly.flags.ui.screen.search
 
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,29 +32,39 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.R
+import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
+import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.navigation.Screen
+import dev.aftly.flags.ui.component.FilterFlagsButton
 import dev.aftly.flags.ui.component.ScrollToTopButton
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.theme.Dimens
@@ -58,7 +72,6 @@ import dev.aftly.flags.ui.theme.Timings
 import dev.aftly.flags.ui.util.getFlagNavArg
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import androidx.compose.ui.platform.LocalConfiguration
 
 
 @Composable
@@ -70,6 +83,7 @@ fun SearchScreen(
     onNavigateDetails: (String) -> Unit,
 ) {
     val searchResults by viewModel.searchResults.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsState()
 
     val configuration = LocalConfiguration.current
 
@@ -83,12 +97,17 @@ fun SearchScreen(
     SearchScaffold(
         currentScreen = currentScreen,
         canNavigateBack = canNavigateBack,
+        currentCategoryTitle = uiState.currentCategoryTitle,
+        currentSuperCategory = uiState.currentSuperCategory,
         fontScale = configuration.fontScale,
         userSearch = viewModel.searchQuery,
         isUserSearch = viewModel.isSearchQuery,
         searchResults = searchResults,
         onUserSearchChange = { viewModel.onSearchQueryChange(it) },
         onNavigateUp = onNavigateUp,
+        onCategorySelect = { newSuperCategory: FlagSuperCategory?, newSubCategory: FlagCategory? ->
+            viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
+        },
         onFlagSelect = { onNavigateDetails(getFlagNavArg(flag = it)) }
     )
 }
@@ -99,15 +118,28 @@ private fun SearchScaffold(
     modifier: Modifier = Modifier,
     currentScreen: Screen,
     canNavigateBack: Boolean,
+    containerColor1: Color = MaterialTheme.colorScheme.onSecondaryContainer,
+    containerColor2: Color = MaterialTheme.colorScheme.secondary,
+    @StringRes currentCategoryTitle: Int,
+    currentSuperCategory: FlagSuperCategory,
     fontScale: Float,
     userSearch: String,
     isUserSearch: Boolean,
     searchResults: List<FlagResources>,
     onUserSearchChange: (String) -> Unit,
     onNavigateUp: () -> Unit,
+    onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onFlagSelect: (FlagResources) -> Unit,
 ) {
-    /* Properties for ScrollToTopButton */
+    /* Controls FilterFlagsButton menu expansion amd tracks current button height
+     * Also for FilterFlagsButton to access Scaffold() padding */
+    var buttonExpanded by rememberSaveable { mutableStateOf(value = false) }
+    var buttonHeight by remember { mutableStateOf(0.dp) }
+    var scaffoldTopPadding by remember { mutableStateOf(value = 0.dp) }
+    var scaffoldBottomPadding by remember { mutableStateOf(value = 0.dp) }
+
+
+    /* Properties for ScrollToTopButton & reset scroll position when category changed in menu */
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val isAtTop by remember {
@@ -129,35 +161,84 @@ private fun SearchScaffold(
         }
     }
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        topBar = {
-            StaticTopAppBar(
-                currentScreen = currentScreen,
-                canNavigateBack = canNavigateBack,
-                onNavigateUp = onNavigateUp,
-                onAction = { },
-            )
-        },
-        floatingActionButton = {
-            ScrollToTopButton(
-                isVisible = !isAtTop,
-                containerColor = MaterialTheme.colorScheme.secondary,
-                onClick = { coroutineScope.launch { listState.animateScrollToItem(index = 0) } }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            modifier = modifier.fillMaxSize(),
+            topBar = {
+                StaticTopAppBar(
+                    currentScreen = currentScreen,
+                    canNavigateBack = canNavigateBack,
+                    onNavigateUp = onNavigateUp,
+                    onAction = { },
+                )
+            },
+            floatingActionButton = {
+                ScrollToTopButton(
+                    isVisible = !isAtTop,
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    onClick = { coroutineScope.launch { listState.animateScrollToItem(index = 0) } }
+                )
+            }
+        ) { scaffoldPadding ->
+            scaffoldTopPadding = scaffoldPadding.calculateTopPadding()
+            scaffoldBottomPadding = scaffoldPadding.calculateBottomPadding()
+
+            SearchContent(
+                modifier = Modifier.fillMaxSize()
+                    .padding(
+                        top = scaffoldTopPadding + buttonHeight,
+                        start = Dimens.marginHorizontal16,
+                        end = Dimens.marginHorizontal16,
+                    ),
+                scaffoldPadding = scaffoldPadding,
+                listState = listState,
+                fontScale = fontScale,
+                userSearch = userSearch,
+                isUserSearch = isUserSearch,
+                searchResults = searchResults,
+                onUserSearchChange = onUserSearchChange,
+                onFlagSelect = onFlagSelect,
             )
         }
-    ) { scaffoldPadding ->
-        SearchContent(
-            modifier = Modifier.fillMaxSize()
-                .padding(top = scaffoldPadding.calculateTopPadding()),
-            scaffoldPadding = scaffoldPadding,
-            listState = listState,
+
+
+        /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */
+        AnimatedVisibility(
+            visible = buttonExpanded,
+            enter = fadeIn(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
+            exit = fadeOut(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize()
+                    .clickable { buttonExpanded = !buttonExpanded },
+                color = Color.Black.copy(alpha = 0.35f),
+            ) { }
+        }
+
+
+        /* Custom quasi-DropdownMenu elevated above screen content with animated nested menus for
+         * selecting super or sub category to filter flags by */
+        FilterFlagsButton(
+            modifier = Modifier.fillMaxWidth()
+                .padding(
+                    top = scaffoldTopPadding,
+                    bottom = scaffoldBottomPadding,
+                    start = Dimens.marginHorizontal16,
+                    end = Dimens.marginHorizontal16,
+                ),
+            onButtonHeightChange = { buttonHeight = it },
+            buttonExpanded = buttonExpanded,
+            onButtonExpand = { buttonExpanded = !buttonExpanded },
+            containerColor1 = containerColor1,
+            containerColor2 = containerColor2,
             fontScale = fontScale,
-            userSearch = userSearch,
-            isUserSearch = isUserSearch,
-            searchResults = searchResults,
-            onUserSearchChange = onUserSearchChange,
-            onFlagSelect = onFlagSelect,
+            currentCategoryTitle = currentCategoryTitle,
+            currentSuperCategory = currentSuperCategory,
+            onCategorySelect = { flagSuperCategory, flagSubCategory ->
+                onCategorySelect(flagSuperCategory, flagSubCategory)
+                coroutineScope.launch { listState.animateScrollToItem(index = 0) }
+            },
         )
     }
 }
@@ -187,7 +268,7 @@ private fun SearchContent(
 
     /* Search content */
     Column(
-        modifier = modifier.padding(horizontal = Dimens.marginHorizontal16),
+        modifier = modifier,
         verticalArrangement = Arrangement.Center
     ) {
         TextField(
@@ -300,7 +381,8 @@ fun SearchItem(
                 Box(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(flag.flagOf),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             /* Separate text from image */
                             .padding(end = Dimens.small8),
                         style = MaterialTheme.typography.titleMedium,

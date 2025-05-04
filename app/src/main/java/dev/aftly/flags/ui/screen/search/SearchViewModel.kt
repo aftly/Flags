@@ -8,9 +8,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import dev.aftly.flags.data.DataSource.flagsMap
-import dev.aftly.flags.data.DataSource.reverseFlagsMap
+import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
+import dev.aftly.flags.model.FlagSuperCategory
+import dev.aftly.flags.ui.util.getCategoryTitle
+import dev.aftly.flags.ui.util.getFlagsByCategory
+import dev.aftly.flags.ui.util.getParentSuperCategory
 import dev.aftly.flags.ui.util.normalizeLower
 import dev.aftly.flags.ui.util.normalizeString
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,14 +21,14 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow(SearchUiState())
-    private val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
 
     var searchQuery by mutableStateOf(value = "")
         private set
@@ -36,7 +39,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     /* Holds first item in sorted list if searchQuery is exact match */
     private var firstItem by mutableStateOf<FlagResources?>(value = null)
 
-    private val flagsFlow = flowOf(uiState.value.allFlags)
+    private val flagsFlow = uiState.map { it.currentFlags }
     val searchResults: StateFlow<List<FlagResources>> = snapshotFlow { searchQuery }
         .combine(flagsFlow) { searchQuery, flags ->
             when {
@@ -104,7 +107,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     }.or(
                         /* Handle search queries matching info of a flag's sovereign state */
                         other = flag.sovereignState?.let { sovereignState ->
-                            val sovereign = flagsMap.getValue(sovereignState)
+                            val sovereign = uiState.value.currentFlagsMap.getValue(sovereignState)
 
                             normalizeLowerRes(sovereign.flagOf).let { flagOf ->
                                 if (sovereign.isFlagOfThe &&
@@ -134,7 +137,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     ).or(
                         /* Handle search queries matching info of a flag's associated state */
                         other = flag.associatedState?.let { associatedState ->
-                            val associated = flagsMap.getValue(associatedState)
+                            val associated = uiState.value.currentFlagsMap.getValue(associatedState)
 
                             normalizeLowerRes(associated.flagOf).let { flagOf ->
                                 if (associated.isFlagOfThe &&
@@ -164,7 +167,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     ).or(
                         /* Handle search queries matching info of flags that have the flag as
                          * their sovereignState value */
-                        other = reverseFlagsMap.getValue(flag).let { sovereign ->
+                        other = uiState.value.currentReverseFlagsMap.getValue(flag).let {
+                            sovereign ->
                             val the = uiState.value.the
                             val query = normalizeLower(searchQuery)
                             val isThe = query.startsWith(the)
@@ -199,7 +203,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     ).or(
                         /* Handle search queries matching info of flags that have the flag as
                          * their associatedState value */
-                        other = reverseFlagsMap.getValue(flag).let { associated ->
+                        other = uiState.value.currentReverseFlagsMap.getValue(flag).let {
+                            associated ->
                             val the = uiState.value.the
                             val query = normalizeLower(searchQuery)
                             val isThe = query.startsWith(the)
@@ -269,6 +274,63 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     fun updateTheState() {
         _uiState.update { it.copy(the = getString(it.theRes)) }
     }
+
+
+    /* Updates state with new currentFlags list derived from new super- or sub- category
+     * Also updates currentSuperCategory and currentCategory title details for FilterFlagsButton UI
+     * Is intended to be called with either a newSuperCategory OR newSubCategory, and a null value */
+    fun updateCurrentCategory(
+        newSuperCategory: FlagSuperCategory?,
+        newSubCategory: FlagCategory?,
+    ) {
+        /* If new category is All superCategory update flags with static allFlags source,
+         * else dynamically generate flags list from category info */
+        if (newSuperCategory == FlagSuperCategory.All) {
+            _uiState.update { currentState ->
+                currentState.copy(
+                    currentFlags = currentState.allFlags,
+                    currentFlagsMap = currentState.allFlagsMap,
+                    currentReverseFlagsMap = currentState.allReverseFlagsMap,
+                    currentSuperCategory = newSuperCategory,
+                    currentCategoryTitle = newSuperCategory.title,
+                )
+            }
+        } else {
+            /* Determine category title Res from nullable values */
+            @StringRes val categoryTitle = getCategoryTitle(
+                superCategory = newSuperCategory,
+                subCategory = newSubCategory,
+            )
+
+            /* Determine the relevant parent superCategory */
+            val parentSuperCategory = getParentSuperCategory(
+                superCategory = newSuperCategory,
+                subCategory = newSubCategory,
+            )
+
+            /* Get new currentFlags list from function arguments and parent superCategory */
+            val newFlags = getFlagsByCategory(
+                superCategory = newSuperCategory,
+                subCategory = newSubCategory,
+                allFlags = uiState.value.allFlags,
+                parentCategory = parentSuperCategory,
+            )
+
+            val newFlagsMap = uiState.value.allFlagsMap.filterValues { it in newFlags }
+            val newReverseFlagsMap = uiState.value.allReverseFlagsMap.filterKeys { it in newFlags }
+
+            _uiState.update { currentState ->
+                currentState.copy(
+                    currentFlags = newFlags,
+                    currentFlagsMap = newFlagsMap,
+                    currentReverseFlagsMap = newReverseFlagsMap,
+                    currentSuperCategory = parentSuperCategory,
+                    currentCategoryTitle = categoryTitle,
+                )
+            }
+        }
+    }
+
 
     fun onSearchQueryChange(newQuery: String) {
         searchQuery = newQuery
