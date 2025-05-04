@@ -90,8 +90,8 @@ fun SearchScreen(
     /* Update (alphabetical) order of flag lists when language changes */
     val locale = configuration.locales[0]
     LaunchedEffect(locale) {
+        viewModel.updateResources()
         viewModel.sortFlagsAlphabetically()
-        viewModel.updateTheString()
     }
 
     SearchScaffold(

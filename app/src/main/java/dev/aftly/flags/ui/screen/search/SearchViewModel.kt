@@ -48,13 +48,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var appResources = MutableStateFlow(
         value = getApplication<Application>().applicationContext.resources
     )
-    private var the = MutableStateFlow(value = "")
+    private var the = MutableStateFlow(value = appResources.value.getString(R.string.string_the))
 
     val searchResults: StateFlow<List<FlagResources>> = combine(
-        searchQueryFlow,
-        flagsFlow,
-        appResources,
-        the
+        searchQueryFlow, flagsFlow, appResources, the
     ) { query, flags, res, the ->
             when {
                 query.isNotEmpty() -> flags.filter { flag ->
@@ -260,10 +257,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         )
     private val _searchResults = searchResults
 
+    init { sortFlagsAlphabetically() }
 
-    init {
-        sortFlagsAlphabetically()
-        updateTheString()
+
+    fun updateResources() {
+        appResources.value = getApplication<Application>().applicationContext.resources
+        the.value = appResources.value.getString(R.string.string_the)
     }
 
     fun sortFlagsAlphabetically() {
@@ -277,10 +276,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 }
             )
         }
-    }
-
-    fun updateTheString() {
-        the.value = appResources.value.getString(R.string.string_the)
     }
 
 
