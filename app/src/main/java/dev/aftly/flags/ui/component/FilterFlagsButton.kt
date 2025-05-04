@@ -85,7 +85,7 @@ fun FilterFlagsButton(
             expandMenu = currentSuperCategory
 
         } else if (!buttonExpanded && currentSuperCategory == FlagSuperCategory.Political) {
-            /* As Political contains supers, expandMenu cannot just be determined form
+            /* As Political contains supers, expandMenu cannot just be determined from
              * currentSuperCategory. Loop through each super to find the selected category and
              * set expandMenu state to the sub-super */
             for (superCategory in currentSuperCategory.subCategories) {
