@@ -24,6 +24,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import dev.aftly.flags.data.DataSource.flagsMap
+import dev.aftly.flags.data.DataSource.reverseFlagsMap
 
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -107,7 +109,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     }.or(
                         /* Handle search queries matching info of a flag's sovereign state */
                         other = flag.sovereignState?.let { sovereignState ->
-                            val sovereign = uiState.value.currentFlagsMap.getValue(sovereignState)
+                            val sovereign = flagsMap.getValue(sovereignState)
 
                             normalizeLowerRes(sovereign.flagOf).let { flagOf ->
                                 if (sovereign.isFlagOfThe &&
@@ -137,7 +139,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     ).or(
                         /* Handle search queries matching info of a flag's associated state */
                         other = flag.associatedState?.let { associatedState ->
-                            val associated = uiState.value.currentFlagsMap.getValue(associatedState)
+                            val associated = flagsMap.getValue(associatedState)
 
                             normalizeLowerRes(associated.flagOf).let { flagOf ->
                                 if (associated.isFlagOfThe &&
@@ -167,8 +169,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     ).or(
                         /* Handle search queries matching info of flags that have the flag as
                          * their sovereignState value */
-                        other = uiState.value.currentReverseFlagsMap.getValue(flag).let {
-                            sovereign ->
+                        other = reverseFlagsMap.getValue(flag).let { sovereign ->
                             val the = uiState.value.the
                             val query = normalizeLower(searchQuery)
                             val isThe = query.startsWith(the)
@@ -203,8 +204,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     ).or(
                         /* Handle search queries matching info of flags that have the flag as
                          * their associatedState value */
-                        other = uiState.value.currentReverseFlagsMap.getValue(flag).let {
-                            associated ->
+                        other = reverseFlagsMap.getValue(flag).let { associated ->
                             val the = uiState.value.the
                             val query = normalizeLower(searchQuery)
                             val isThe = query.startsWith(the)
@@ -250,14 +250,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }.stateIn(
             scope = viewModelScope,
             initialValue = emptyList(),
-            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000)
+            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
         )
     private val _searchResults = searchResults
 
 
     init {
         sortFlagsAlphabetically()
-        updateTheState()
+        updateTheString()
     }
 
 
@@ -266,12 +266,15 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             currentState.copy(
                 allFlags = currentState.allFlags.sortedBy { flag ->
                     normalizeString(string = getString(flag.flagOf))
+                },
+                currentFlags = currentState.currentFlags.sortedBy { flag ->
+                    normalizeString(string = getString(flag.flagOf))
                 }
             )
         }
     }
 
-    fun updateTheState() {
+    fun updateTheString() {
         _uiState.update { it.copy(the = getString(it.theRes)) }
     }
 
@@ -289,8 +292,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             _uiState.update { currentState ->
                 currentState.copy(
                     currentFlags = currentState.allFlags,
-                    currentFlagsMap = currentState.allFlagsMap,
-                    currentReverseFlagsMap = currentState.allReverseFlagsMap,
                     currentSuperCategory = newSuperCategory,
                     currentCategoryTitle = newSuperCategory.title,
                 )
@@ -316,14 +317,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 parentCategory = parentSuperCategory,
             )
 
-            val newFlagsMap = uiState.value.allFlagsMap.filterValues { it in newFlags }
-            val newReverseFlagsMap = uiState.value.allReverseFlagsMap.filterKeys { it in newFlags }
-
             _uiState.update { currentState ->
                 currentState.copy(
                     currentFlags = newFlags,
-                    currentFlagsMap = newFlagsMap,
-                    currentReverseFlagsMap = newReverseFlagsMap,
                     currentSuperCategory = parentSuperCategory,
                     currentCategoryTitle = categoryTitle,
                 )

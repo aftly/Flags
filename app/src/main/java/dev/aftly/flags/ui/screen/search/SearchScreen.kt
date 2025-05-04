@@ -91,7 +91,7 @@ fun SearchScreen(
     val locale = configuration.locales[0]
     LaunchedEffect(locale) {
         viewModel.sortFlagsAlphabetically()
-        viewModel.updateTheState()
+        viewModel.updateTheString()
     }
 
     SearchScaffold(
