@@ -50,12 +50,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     )
     private var the = MutableStateFlow(value = "")
 
-    /*
-    private fun normalizeLowerRes(@StringRes res: Int): String {
-        return normalizeLower(string = appResources.value.getString(res))
-    }
-     */
-
     val searchResults: StateFlow<List<FlagResources>> = combine(
         searchQueryFlow,
         flagsFlow,
