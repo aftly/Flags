@@ -119,11 +119,10 @@ private fun ListFlagsScaffold(
     onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onFlagSelect: (FlagResources) -> Unit,
 ) {
-    /* Controls FilterFlagsButton menu expansion amd tracks current button height */
+    /* Controls FilterFlagsButton menu expansion amd tracks current button height
+     * Also for FilterFlagsButton to access Scaffold() padding */
     var buttonExpanded by rememberSaveable { mutableStateOf(value = false) }
     var buttonHeight by remember { mutableStateOf(0.dp) }
-
-    /* For FilterFlagsButton to access Scaffold() padding */
     var scaffoldTopPadding by remember { mutableStateOf(value = 0.dp) }
     var scaffoldBottomPadding by remember { mutableStateOf(value = 0.dp) }
 
