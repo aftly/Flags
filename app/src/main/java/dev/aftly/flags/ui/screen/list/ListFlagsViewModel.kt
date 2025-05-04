@@ -58,9 +58,9 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         if (newSuperCategory == FlagSuperCategory.All) {
             _uiState.update { currentState ->
                 currentState.copy(
-                    currentCategoryTitle = newSuperCategory.title,
+                    currentFlags = currentState.allFlags,
                     currentSuperCategory = newSuperCategory,
-                    currentFlags = uiState.value.allFlags,
+                    currentCategoryTitle = newSuperCategory.title,
                 )
             }
         } else {
