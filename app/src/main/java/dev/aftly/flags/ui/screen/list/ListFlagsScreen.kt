@@ -187,7 +187,7 @@ private fun ListFlagsScaffold(
             Surface(
                 modifier = Modifier.fillMaxSize()
                     .clickable { buttonExpanded = !buttonExpanded },
-                color = Color.Black.copy(alpha = 0.35f),
+                color = Color.Black.copy(alpha = 0.4f),
             ) { }
         }
 
