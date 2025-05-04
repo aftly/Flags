@@ -11,6 +11,4 @@ data class SearchUiState(
     val currentFlags: List<FlagResources> = allFlags,
     val currentSuperCategory: FlagSuperCategory = FlagSuperCategory.All,
     @StringRes val currentCategoryTitle: Int = currentSuperCategory.title,
-    val theRes: Int = R.string.string_the,
-    val the: String = "",
 )

@@ -8,6 +8,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import dev.aftly.flags.R
+import dev.aftly.flags.data.DataSource.flagsMap
+import dev.aftly.flags.data.DataSource.reverseFlagsMap
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
@@ -24,8 +27,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import dev.aftly.flags.data.DataSource.flagsMap
-import dev.aftly.flags.data.DataSource.reverseFlagsMap
 
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -41,67 +42,80 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     /* Holds first item in sorted list if searchQuery is exact match */
     private var firstItem by mutableStateOf<FlagResources?>(value = null)
 
+    /* Flows for combining in searchResults */
     private val flagsFlow = uiState.map { it.currentFlags }
-    val searchResults: StateFlow<List<FlagResources>> = snapshotFlow { searchQuery }
-        .combine(flagsFlow) { searchQuery, flags ->
+    private val searchQueryFlow = snapshotFlow { searchQuery }
+    private var appResources = MutableStateFlow(
+        value = getApplication<Application>().applicationContext.resources
+    )
+    private var the = MutableStateFlow(value = "")
+
+    /*
+    private fun normalizeLowerRes(@StringRes res: Int): String {
+        return normalizeLower(string = appResources.value.getString(res))
+    }
+     */
+
+    val searchResults: StateFlow<List<FlagResources>> = combine(
+        searchQueryFlow,
+        flagsFlow,
+        appResources,
+        the
+    ) { query, flags, res, the ->
             when {
-                searchQuery.isNotEmpty() -> flags.filter { flag ->
+                query.isNotEmpty() -> flags.filter { flag ->
                     /* Handle searchQuery matching flag's common name */
-                    normalizeLowerRes(flag.flagOf).let { flagOf ->
-                        if (flag.isFlagOfThe &&
-                            normalizeLower(searchQuery).startsWith(uiState.value.the)) {
-                            (uiState.value.the + flagOf).contains(normalizeLower(searchQuery))
+                    normalizeLower(res.getString(flag.flagOf)).let { flagOf ->
+                        if (flag.isFlagOfThe && normalizeLower(query).startsWith(the)) {
+                            (the + flagOf).contains(normalizeLower(query))
                         } else {
-                            flagOf.contains(normalizeLower(searchQuery))
+                            flagOf.contains(normalizeLower(query))
                         }
                     }.let { isMatch ->
                         /* If exact match set flag as firstItem in results list */
                         if (isMatch) {
-                            val the = uiState.value.the
-                            val query = normalizeLower(searchQuery)
-                            val flagOf = if (flag.isFlagOfThe && query.startsWith(the)) {
-                                the + normalizeLowerRes(flag.flagOf)
+                            val search = normalizeLower(query)
+                            val flagOf = if (flag.isFlagOfThe && search.startsWith(the)) {
+                                the + normalizeLower(res.getString(flag.flagOf))
                             } else {
-                                normalizeLowerRes(flag.flagOf)
+                                normalizeLower(res.getString(flag.flagOf))
                             }
 
-                            if (flagOf == query) firstItem = flag
+                            if (flagOf == search) firstItem = flag
                         }
                         return@let isMatch
                     }.or(
                         /* Handle searchQuery matching flag's official name */
-                        other = normalizeLowerRes(flag.flagOfOfficial).let { official ->
-                            if (flag.isFlagOfOfficialThe &&
-                                normalizeLower(searchQuery).startsWith(uiState.value.the)) {
-                                (uiState.value.the + official).contains(normalizeLower(searchQuery))
+                        other = normalizeLower(res.getString(flag.flagOfOfficial)).let { official ->
+                            if (flag.isFlagOfOfficialThe && normalizeLower(query).startsWith(the)) {
+                                (the + official).contains(normalizeLower(query))
                             } else {
-                                official.contains(normalizeLower(searchQuery))
+                                official.contains(normalizeLower(query))
                             }
                         }
                     ).let { isMatch ->
                         /* If exact match set flag as firstItem in results list */
                         if (isMatch) {
-                            val the = uiState.value.the
-                            val query = normalizeLower(searchQuery)
-                            val official = if (flag.isFlagOfOfficialThe && query.startsWith(the)) {
-                                the + normalizeLowerRes(flag.flagOfOfficial)
+                            val search = normalizeLower(query)
+                            val official = if (flag.isFlagOfOfficialThe && search.startsWith(the)) {
+                                the + normalizeLower(res.getString(flag.flagOfOfficial))
                             } else {
-                                normalizeLowerRes(flag.flagOfOfficial)
+                                normalizeLower(res.getString(flag.flagOfOfficial))
                             }
 
-                            if (official == query) firstItem = flag
+                            if (official == search) firstItem = flag
                         }
                         return@let isMatch
                     }.or(
                         /* Handle searchQuery matching any of flag's alt names if applicable */
                         other = flag.flagOfAlternate?.any { alt ->
-                            normalizeLowerRes(alt).contains(normalizeLower(searchQuery))
+                            normalizeLower(res.getString(alt)).contains(normalizeLower(query))
                         } ?: false
                     ).let { isMatch ->
                         /* If exact match set flag as firstItem in results list */
                         if (isMatch && flag.flagOfAlternate != null) {
                             if (flag.flagOfAlternate.any { alt ->
-                                normalizeLowerRes(alt) == normalizeLower(searchQuery) }) {
+                                normalizeLower(res.getString(alt)) == normalizeLower(query) }) {
                                 firstItem = flag
                             }
                         }
@@ -109,60 +123,56 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     }.or(
                         /* Handle search queries matching info of a flag's sovereign state */
                         other = flag.sovereignState?.let { sovereignState ->
-                            val sovereign = flagsMap.getValue(sovereignState)
+                            val sov = flagsMap.getValue(sovereignState)
 
-                            normalizeLowerRes(sovereign.flagOf).let { flagOf ->
-                                if (sovereign.isFlagOfThe &&
-                                    normalizeLower(searchQuery).startsWith(uiState.value.the)) {
-                                    (uiState.value.the + flagOf)
-                                        .contains(normalizeLower(searchQuery))
+                            normalizeLower(res.getString(sov.flagOf)).let { flagOf ->
+                                if (sov.isFlagOfThe && normalizeLower(query).startsWith(the)) {
+                                    (the + flagOf).contains(normalizeLower(query))
                                 } else {
-                                    flagOf.contains(normalizeLower(searchQuery))
+                                    flagOf.contains(normalizeLower(query))
                                 }
                             }.or(
-                                other = normalizeLowerRes(sovereign.flagOfOfficial).let {
+                                other = normalizeLower(res.getString(sov.flagOfOfficial)).let {
                                     official ->
-                                    if (sovereign.isFlagOfOfficialThe &&
-                                        normalizeLower(searchQuery).startsWith(uiState.value.the)) {
-                                        (uiState.value.the + official)
-                                            .contains(normalizeLower(searchQuery))
+                                    if (sov.isFlagOfOfficialThe &&
+                                        normalizeLower(query).startsWith(the)) {
+                                        (the + official).contains(normalizeLower(query))
                                     } else {
-                                        official.contains(normalizeLower(searchQuery))
+                                        official.contains(normalizeLower(query))
                                     }
                                 }
                             ).or(
-                                other = sovereign.flagOfAlternate?.any { alt ->
-                                    normalizeLowerRes(alt).contains(normalizeLower(searchQuery))
+                                other = sov.flagOfAlternate?.any { alt ->
+                                    normalizeLower(res.getString(alt))
+                                        .contains(normalizeLower(query))
                                 } ?: false
                             )
                         } ?: false
                     ).or(
                         /* Handle search queries matching info of a flag's associated state */
                         other = flag.associatedState?.let { associatedState ->
-                            val associated = flagsMap.getValue(associatedState)
+                            val ass = flagsMap.getValue(associatedState)
 
-                            normalizeLowerRes(associated.flagOf).let { flagOf ->
-                                if (associated.isFlagOfThe &&
-                                    normalizeLower(searchQuery).startsWith(uiState.value.the)) {
-                                    (uiState.value.the + flagOf)
-                                        .contains(normalizeLower(searchQuery))
+                            normalizeLower(res.getString(ass.flagOf)).let { flagOf ->
+                                if (ass.isFlagOfThe && normalizeLower(query).startsWith(the)) {
+                                    (the + flagOf).contains(normalizeLower(query))
                                 } else {
-                                    flagOf.contains(normalizeLower(searchQuery))
+                                    flagOf.contains(normalizeLower(query))
                                 }
                             }.or(
-                                other = normalizeLowerRes(associated.flagOfOfficial).let {
+                                other = normalizeLower(res.getString(ass.flagOfOfficial)).let {
                                     official ->
-                                    if (associated.isFlagOfOfficialThe &&
-                                        normalizeLower(searchQuery).startsWith(uiState.value.the)) {
-                                        (uiState.value.the + official)
-                                            .contains(normalizeLower(searchQuery))
+                                    if (ass.isFlagOfOfficialThe &&
+                                        normalizeLower(query).startsWith(the)) {
+                                        (the + official).contains(normalizeLower(query))
                                     } else {
-                                        official.contains(normalizeLower(searchQuery))
+                                        official.contains(normalizeLower(query))
                                     }
                                 }
                             ).or(
-                                other = associated.flagOfAlternate?.any { alt ->
-                                    normalizeLowerRes(alt).contains(normalizeLower(searchQuery))
+                                other = ass.flagOfAlternate?.any { alt ->
+                                    normalizeLower(res.getString(alt))
+                                        .contains(normalizeLower(query))
                                 } ?: false
                             )
                         } ?: false
@@ -170,31 +180,32 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                         /* Handle search queries matching info of flags that have the flag as
                          * their sovereignState value */
                         other = reverseFlagsMap.getValue(flag).let { sovereign ->
-                            val the = uiState.value.the
-                            val query = normalizeLower(searchQuery)
-                            val isThe = query.startsWith(the)
+                            val search = normalizeLower(query)
+                            val isThe = search.startsWith(the)
 
                             for (item in flags) {
                                 if (item.sovereignState == sovereign) {
-                                    val flagOf = normalizeLowerRes(item.flagOf)
-                                    val official = normalizeLowerRes(item.flagOfOfficial)
+                                    val flagOf = normalizeLower(res.getString(item.flagOf))
+                                    val official =
+                                        normalizeLower(res.getString(item.flagOfOfficial))
 
                                     if (item.isFlagOfThe && isThe &&
-                                        (the + flagOf).contains(query)) {
+                                        (the + flagOf).contains(search)) {
                                         return@let true
-                                    } else if (flagOf.contains(query)) {
+                                    } else if (flagOf.contains(search)) {
                                         return@let true
                                     }
 
                                     if (item.isFlagOfOfficialThe && isThe &&
-                                        (the + official).contains(query)) {
+                                        (the + official).contains(search)) {
                                         return@let true
-                                    } else if (official.contains(query)) {
+                                    } else if (official.contains(search)) {
                                         return@let true
                                     }
 
                                     if (item.flagOfAlternate?.any { alt ->
-                                        normalizeLowerRes(alt).contains(query) } == true) {
+                                        normalizeLower(res.getString(alt))
+                                            .contains(search) } == true) {
                                         return@let true
                                     }
                                 }
@@ -205,31 +216,32 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                         /* Handle search queries matching info of flags that have the flag as
                          * their associatedState value */
                         other = reverseFlagsMap.getValue(flag).let { associated ->
-                            val the = uiState.value.the
-                            val query = normalizeLower(searchQuery)
-                            val isThe = query.startsWith(the)
+                            val search = normalizeLower(query)
+                            val isThe = search.startsWith(the)
 
                             for (item in flags) {
                                 if (item.associatedState == associated) {
-                                    val flagOf = normalizeLowerRes(item.flagOf)
-                                    val official = normalizeLowerRes(item.flagOfOfficial)
+                                    val flagOf = normalizeLower(res.getString(item.flagOf))
+                                    val official =
+                                        normalizeLower(res.getString(item.flagOfOfficial))
 
                                     if (item.isFlagOfThe && isThe &&
-                                        (the + flagOf).contains(query)) {
+                                        (the + flagOf).contains(search)) {
                                         return@let true
-                                    } else if (flagOf.contains(query)) {
+                                    } else if (flagOf.contains(search)) {
                                         return@let true
                                     }
 
                                     if (item.isFlagOfOfficialThe && isThe &&
-                                        (the + official).contains(query)) {
+                                        (the + official).contains(search)) {
                                         return@let true
-                                    } else if (official.contains(query)) {
+                                    } else if (official.contains(search)) {
                                         return@let true
                                     }
 
                                     if (item.flagOfAlternate?.any { alt ->
-                                            normalizeLowerRes(alt).contains(query) } == true) {
+                                        normalizeLower(res.getString(alt))
+                                            .contains(search) } == true) {
                                         return@let true
                                     }
                                 }
@@ -260,22 +272,21 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         updateTheString()
     }
 
-
     fun sortFlagsAlphabetically() {
         _uiState.update { currentState ->
             currentState.copy(
                 allFlags = currentState.allFlags.sortedBy { flag ->
-                    normalizeString(string = getString(flag.flagOf))
+                    normalizeString(string = appResources.value.getString(flag.flagOf))
                 },
                 currentFlags = currentState.currentFlags.sortedBy { flag ->
-                    normalizeString(string = getString(flag.flagOf))
+                    normalizeString(string = appResources.value.getString(flag.flagOf))
                 }
             )
         }
     }
 
     fun updateTheString() {
-        _uiState.update { it.copy(the = getString(it.theRes)) }
+        the.value = appResources.value.getString(R.string.string_the)
     }
 
 
@@ -336,14 +347,5 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             else -> true
         }
         firstItem = null /* Reset exact match state with each change to searchQuery */
-    }
-
-    private fun getString(@StringRes res: Int): String {
-        val appResources = getApplication<Application>().applicationContext.resources
-        return appResources.getString(res)
-    }
-
-    private fun normalizeLowerRes(@StringRes res: Int): String {
-        return normalizeLower(string = getString(res))
     }
 }
