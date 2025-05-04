@@ -123,6 +123,11 @@ private fun ListFlagsScaffold(
     var buttonExpanded by rememberSaveable { mutableStateOf(value = false) }
     var buttonHeight by remember { mutableStateOf(0.dp) }
 
+    /* For FilterFlagsButton to access Scaffold() padding */
+    var scaffoldTopPadding by remember { mutableStateOf(value = 0.dp) }
+    var scaffoldBottomPadding by remember { mutableStateOf(value = 0.dp) }
+
+
     /* Properties for ScrollToTopButton & reset scroll position when category changed in menu */
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -131,10 +136,6 @@ private fun ListFlagsScaffold(
             listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0
         }
     }
-
-    /* So FilterFlagsButton can access Scaffold() padding */
-    var scaffoldTopPadding by remember { mutableStateOf(value = 0.dp) }
-    var scaffoldBottomPadding by remember { mutableStateOf(value = 0.dp) }
 
 
     /* Scaffold within box so FilterFlagsButton & it's associated surface can overlay it */
