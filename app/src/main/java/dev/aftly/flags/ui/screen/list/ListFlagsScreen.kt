@@ -89,9 +89,9 @@ fun ListFlagsScreen(
         currentScreen = currentScreen,
         scrollBehaviour = scrollBehaviour,
         canNavigateBack = canNavigateBack,
-        fontScale = configuration.fontScale,
         currentCategoryTitle = uiState.currentCategoryTitle,
         currentSuperCategory = uiState.currentSuperCategory,
+        fontScale = configuration.fontScale,
         currentFlagsList = uiState.currentFlags,
         onNavigateUp = onNavigateUp,
         onCategorySelect = { newSuperCategory: FlagSuperCategory?, newSubCategory: FlagCategory? ->
@@ -163,7 +163,7 @@ private fun ListFlagsScaffold(
             ListFlagsContent(
                 modifier = Modifier.fillMaxSize()
                     .padding(
-                        top = scaffoldPadding.calculateTopPadding(),
+                        top = scaffoldTopPadding,
                         start = Dimens.marginHorizontal16,
                         end = Dimens.marginHorizontal16,
                     ),
