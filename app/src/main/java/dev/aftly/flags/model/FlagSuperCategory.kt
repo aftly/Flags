@@ -156,7 +156,7 @@ sealed class FlagSuperCategory(
         ),
     )
 
-    private data object NonAdministrative : FlagSuperCategory(
+    data object NonAdministrative : FlagSuperCategory(
         title = R.string.category_non_administrative_political,
         subCategories = listOf(FlagCategory.POLITICAL),
     )

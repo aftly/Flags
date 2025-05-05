@@ -21,4 +21,5 @@ object Dimens {
     val defaultFilterButtonHeight50: Dp = 50.dp
     val bottomSpacer30: Dp = 30.dp
     val bottomSpacer80: Dp = 80.dp
+    val standardIconSize24: Dp = 24.dp
 }
