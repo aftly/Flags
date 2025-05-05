@@ -174,7 +174,7 @@
     <string name="flag_list_title">View</string>
     <string name="flag_list_description">Display lists of flags by category</string>
     <string name="flag_search_title">Search</string>
-    <string name="flag_search_description">Find a flag by it\'s names (eg. \"United Kingdom\" or \"Britain\")</string>
+    <string name="flag_search_description">Find a flag by it\'s names and politically related flags (eg. \"United Kingdom\" or \"Britain\")</string>
     <string name="flag_search_bar_placeholder">Search all flags</string>
     <string name="flag_search_clear">Clear search</string>
     <string name="flag_search_no_results_title">No flags found</string>
