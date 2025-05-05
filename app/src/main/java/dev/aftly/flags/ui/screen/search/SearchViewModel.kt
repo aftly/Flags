@@ -51,7 +51,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private var the = MutableStateFlow(value = appResources.value.getString(R.string.string_the))
 
     val searchResults: StateFlow<List<FlagResources>> = combine(
-        searchQueryFlow, flagsFlow, appResources, the
+        flow = searchQueryFlow,
+        flow2 = flagsFlow,
+        flow3 = appResources,
+        flow4 = the
     ) { query, flags, res, the ->
             when {
                 query.isNotEmpty() -> flags.filter { flag ->
