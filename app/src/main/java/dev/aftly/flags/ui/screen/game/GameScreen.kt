@@ -176,7 +176,15 @@ private fun GameScaffold(
     /* Managing state and screen orientation for fullscreen flag view */
     var isFullScreen by rememberSaveable { mutableStateOf(value = false) }
     val orientationController = LocalOrientationController.current
+    var isFlagWide by rememberSaveable { mutableStateOf(value = true) }
+    var isLandscapeOrientation by rememberSaveable { mutableStateOf(value = false) }
 
+    LaunchedEffect(isLandscapeOrientation) {
+        when (isLandscapeOrientation) {
+            true -> orientationController.setLandscapeOrientation()
+            false -> orientationController.unsetLandscapeOrientation()
+        }
+    }
 
     /* Scaffold within box so that FilterFlagsButton & it's associated surface can overlay it */
     Box(modifier = Modifier.fillMaxSize()) {
@@ -213,16 +221,20 @@ private fun GameScaffold(
                     onSubmit = onSubmit,
                     onSkip = onSkip,
                     onEndGame = onEndGame,
+                    onImageWide = { if (isFlagWide != it) isFlagWide = it },
                     onFullscreen = {
+                        if (isFlagWide) isLandscapeOrientation = true
                         isFullScreen = true
-                        orientationController.setLandscapeOrientation()
                     },
                 )
             } else {
                 FullscreenImage(
                     flag = currentFlag,
+                    isFlagWide = isFlagWide,
+                    isLandscapeLock = isLandscapeOrientation,
+                    onLandscapeLockChange = { isLandscapeOrientation = !isLandscapeOrientation },
                     onExitFullScreen = {
-                        orientationController.unsetLandscapeOrientation()
+                        isLandscapeOrientation = false
                         isFullScreen = false
                     },
                 )
@@ -289,6 +301,7 @@ private fun GameContent(
     onSubmit: () -> Unit,
     onSkip: () -> Unit,
     onEndGame: () -> Unit,
+    onImageWide: (Boolean) -> Unit,
     onFullscreen: () -> Unit,
 ) {
     /* Properties for if card image height greater than content column height, eg. in landscape
@@ -356,6 +369,7 @@ private fun GameContent(
             isGuessWrongEvent = isGuessWrongEvent,
             onKeyboardDoneAction = onKeyboardDoneAction,
             onEndGame = onEndGame,
+            onImageWide = onImageWide,
             onFullscreen = onFullscreen,
         )
 
@@ -406,6 +420,7 @@ private fun GameCard(
     isGuessWrongEvent: Boolean,
     onKeyboardDoneAction: () -> Unit,
     onEndGame: () -> Unit,
+    onImageWide: (Boolean) -> Unit,
     onFullscreen: () -> Unit,
 ) {
     /* State variables for animated colors */
@@ -546,8 +561,11 @@ private fun GameCard(
                                     Modifier.fillMaxWidth()
                                 )
                             }
-                        } /* concatenate height modifier after onSizeChanged */
-                        .then(cardImageHeightModifier)
+
+                            /* For fullscreen orientation */
+                            onImageWide(size.width > size.height)
+                        }
+                        .then(cardImageHeightModifier) /* concatenate height after onSizeChanged */
                         /* Force aspect ratio to keep game card shape consistent */
                         .aspectRatio(ratio = 3f / 2f),
                     painter = painterResource(currentFlag.image),

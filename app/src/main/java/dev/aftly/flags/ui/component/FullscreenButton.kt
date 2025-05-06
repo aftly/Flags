@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Fullscreen
+import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -22,21 +23,29 @@ import kotlinx.coroutines.delay
 @Composable
 fun FullscreenButton(
     visible: Boolean,
+    isFullScreenView: Boolean = false, /* To determine icon and animation behavior */
+    animationTiming: Int? = null,
     onInvisible: () -> Unit,
     onFullScreen: () -> Unit,
 ) {
-    LaunchedEffect(visible) {
-        /* Disable fullscreen button automatically when not clicked */
-        if (visible) {
-            delay(timeMillis = Timings.SYSTEM_BARS_HANG.toLong() * 4)
-            onInvisible()
+    if (!isFullScreenView) {
+        LaunchedEffect(visible) {
+            /* Disable fullscreen button automatically when not clicked */
+            if (visible) {
+                delay(timeMillis = Timings.SYSTEM_BARS_HANG.toLong() * 4)
+                onInvisible()
+            }
         }
     }
 
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn(animationSpec = tween(durationMillis = Timings.FULLSCREEN_BUTTON)),
-        exit = fadeOut(animationSpec = tween(durationMillis = Timings.FULLSCREEN_BUTTON)),
+        enter = fadeIn(
+            animationSpec = tween(durationMillis = animationTiming ?: Timings.FULLSCREEN_BUTTON)
+        ),
+        exit = fadeOut(
+            animationSpec = tween(durationMillis = animationTiming ?: Timings.FULLSCREEN_BUTTON)
+        ),
     ) {
         IconButton(
             onClick = onFullScreen,
@@ -46,7 +55,10 @@ fun FullscreenButton(
             )
         ) {
             Icon(
-                imageVector = Icons.Default.Fullscreen,
+                imageVector = when (isFullScreenView) {
+                    false -> Icons.Default.Fullscreen
+                    true -> Icons.Default.FullscreenExit
+                },
                 contentDescription = null,
                 tint = surfaceLight,
             )

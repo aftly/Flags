@@ -96,6 +96,15 @@ private fun FlagScaffold(
     /* Managing state and screen orientation for fullscreen flag view */
     var isFullScreen by rememberSaveable { mutableStateOf(value = false) }
     val orientationController = LocalOrientationController.current
+    var isFlagWide by rememberSaveable { mutableStateOf(value = true) }
+    var isLandscapeOrientation by rememberSaveable { mutableStateOf(value = false) }
+
+    LaunchedEffect(isLandscapeOrientation) {
+        when (isLandscapeOrientation) {
+            true -> orientationController.setLandscapeOrientation()
+            false -> orientationController.unsetLandscapeOrientation()
+        }
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -116,16 +125,20 @@ private fun FlagScaffold(
                 flag = flag,
                 description = description,
                 boldWordPositions = boldWordPositions,
+                onImageWide = { if (isFlagWide != it) isFlagWide = it },
                 onFullscreen = {
+                    if (isFlagWide) isLandscapeOrientation = true
                     isFullScreen = true
-                    orientationController.setLandscapeOrientation()
                 },
             )
         } else {
             FullscreenImage(
                 flag = flag,
+                isFlagWide = isFlagWide,
+                isLandscapeLock = isLandscapeOrientation,
+                onLandscapeLockChange = { isLandscapeOrientation = !isLandscapeOrientation },
                 onExitFullScreen = {
-                    orientationController.unsetLandscapeOrientation()
+                    isLandscapeOrientation = false
                     isFullScreen = false
                 },
             )
@@ -140,6 +153,7 @@ private fun FlagContent(
     flag: FlagResources,
     description: List<String>,
     boldWordPositions: List<Int>,
+    onImageWide: (Boolean) -> Unit,
     onFullscreen: () -> Unit,
 ) {
     /* Properties for if image height greater than column height, eg. in landscape orientation,
@@ -154,8 +168,7 @@ private fun FlagContent(
 
     /* Flag Content */
     Column(
-        modifier = modifier
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
             .padding(horizontal = Dimens.medium16)
             .onSizeChanged { size ->
                 columnHeight = size.height
@@ -214,8 +227,7 @@ private fun FlagContent(
 
         /* Image and fullscreen button contents */
         Box(
-            modifier = Modifier
-                .padding(vertical = Dimens.extraLarge32)
+            modifier = Modifier.padding(vertical = Dimens.extraLarge32)
                 .clickable { isFullScreenButton = !isFullScreenButton },
             contentAlignment = Alignment.BottomEnd
         ) {
@@ -234,8 +246,11 @@ private fun FlagContent(
                             } else {
                                 Modifier.height(height = (imageHeight / density).dp)
                             }
+
+                            /* For fullscreen orientation */
+                            onImageWide(size.width > size.height)
                         }
-                        .then(imageHeightModifier), /* concatenate height modifier after onSizeChanged */
+                        .then(imageHeightModifier), /* concatenate height mod after onSizeChanged */
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
                 )
