@@ -175,7 +175,7 @@ fun FullscreenImage(
             ),
         ) {
             Box(modifier = Modifier.fillMaxWidth()
-                .height(26.dp)
+                .height(28.dp)
                 .background(Color.Black.copy(alpha = 0.5f))
             )
         }

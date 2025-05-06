@@ -40,6 +40,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -88,6 +89,9 @@ fun GameScreen(
 
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
+    val isWideScreen = remember {
+        context.resources.displayMetrics.widthPixels > context.resources.displayMetrics.heightPixels
+    }
 
     /* When language configuration changes, update strings in uiState */
     val locale = configuration.locales[0]
@@ -117,6 +121,7 @@ fun GameScreen(
     GameScaffold(
         currentScreen = currentScreen,
         canNavigateBack = canNavigateBack,
+        isWideScreen = isWideScreen,
         fontScale = configuration.fontScale,
         totalFlagCount = uiState.totalFlagCount,
         correctGuessCount = uiState.correctGuessCount,
@@ -146,6 +151,7 @@ private fun GameScaffold(
     modifier: Modifier = Modifier,
     currentScreen: Screen,
     canNavigateBack: Boolean,
+    isWideScreen: Boolean,
     fontScale: Float,
     totalFlagCount: Int,
     correctGuessCount: Int,
@@ -207,6 +213,7 @@ private fun GameScaffold(
             if (!isFullScreen) {
                 GameContent(
                     modifier = Modifier.padding(scaffoldPadding),
+                    isWideScreen = isWideScreen,
                     filterButtonHeight = buttonHeight,
                     totalFlagCount = totalFlagCount,
                     correctGuessCount = correctGuessCount,
@@ -291,6 +298,7 @@ private fun GameScaffold(
 @Composable
 private fun GameContent(
     modifier: Modifier = Modifier,
+    isWideScreen: Boolean,
     filterButtonHeight: Dp,
     totalFlagCount: Int,
     correctGuessCount: Int,
@@ -319,11 +327,15 @@ private fun GameContent(
     val density = LocalDensity.current.density
     val contentTopPadding = Dimens.defaultFilterButtonHeight30 / 2
 
+    val aspectRatioTopPadding = when (isWideScreen) {
+        false -> Dimens.large24
+        true -> Dimens.large24 / 2
+    }
+
 
     /* Center arranged column with Game content */
     Column(
-        modifier = modifier
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
             .padding(
                 /* Top padding so that content scroll disappears into FilterFlagsButton */
                 top = filterButtonHeight / 2,
@@ -346,9 +358,8 @@ private fun GameContent(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         /* Spacer to make content start below FilterFlags button */
-        Spacer(modifier = Modifier
-            .fillMaxWidth()
-            .height(filterButtonHeight / 2 + Dimens.medium16)
+        Spacer(modifier = Modifier.fillMaxWidth()
+            .height(filterButtonHeight / 2 + aspectRatioTopPadding)
         )
 
         GameCard(
