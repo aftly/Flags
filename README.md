@@ -47,26 +47,34 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 
  **📌 TODO for version 1.0:**
 - [ ] Add more flags (to less populated categories)
-- [x] Add scroll to top button on list and search screens
-- [x] Full screen view option on flag image
-- [ ] Implement regime type categories for political flags from OurWorldInData
-- [ ] Add Python scripts to repo
-- [ ] Make searches filterable
+- [x] ~~Add scroll to top button on list and search screens~~
+- [x] ~~Fullscreen flag image view~~
+- [ ] Fullscreen view optimizes for image aspect ratio & button for unlocking screen orientation
+- [ ] Full screen carousel for flags in current list
+- [ ] Add regime type categories (for political flags) from **OurWorldInData**
+- [ ] Add Python scripts to repository
+- [x] ~~Searches return politically related flags~~
+- [x] ~~Search result exact match sorts item to first position in list~~
+- [x] ~~Filter searches~~
+- [ ] Deselect keyboard and text fields when tap off
 - [ ] Move search function into list flags screen
-- [ ] Add ability to select multiple individual categories in the filter menu
-- [ ] Persistent data features
-- [ ] Game features: Timers, score history, exporting scores (for sharing)
-- [ ] Settings screen: Themes, strictness of user guesses for game, disable animations for older devices
-- [ ] Info screen: For information about the app and links to app resources
-- [ ] Add ability to save flags to custom list
-- [ ] Optimise app for different screen resolutions and aspect ratios
+- [ ] Multi-select categories in filter menu
+- [ ] **Game**: Button to show correct answer & list in game over details
+- [ ] **Game**: Timer feature/mode
+- [ ] **Persistent Game features**: Score history & exporting scores *(for sharing)*
+- [ ] **Persistent Settings features**: Themes, strictness of user guesses for game, disable animations for older devices
+- [ ] **Info screen**: For information about the app and links to app resources
+- [ ] Save flags to custom list
+- [ ] *Add flag ISO codes?*
+- [x] ~~Optimize app for different system Font sizes~~
+- [ ] Optimize app for different screen resolutions and aspect ratios
 - [ ] Implement tests and production optimizations
 - [ ] Language translations
 - [ ] Release app on the Google Play Store
 <br>
 
 ## 🛠 Design
-- Built with Jetpack Compose in Kotlin, following architecture best practises described on Android Developers, such as UDF, SSOT, ViewModels for managing business state and logic.
+- Built with Jetpack Compose in Kotlin, following architecture best practises described on Android Developers such as UDF, SSOT, ViewModels for managing business state and logic.
 
 - Flag info uses local data, originally sourced from Wikipedia via a collection of Python scripts for getting flag images, common names, official names and alternate names.
 Flag category info is derived more manually, by filtering from broader categories such as on [countries by system of government](https://en.wikipedia.org/wiki/List_of_countries_by_system_of_government) and other Wikipedia lists.
@@ -76,7 +84,7 @@ Flag category info is derived more manually, by filtering from broader categorie
  - Flag information sourced from [Wikipedia](https://en.wikipedia.org/wiki/Main_Page)
 <br>
 
-## 🔖 License 
+## 🔖 [License](https://github.com/aftly/Flags/blob/main/LICENSE)
 ```
 Licensed under the Mozilla Public License, Version 2.0.
 ```
