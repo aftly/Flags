@@ -49,7 +49,7 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [ ] Add more flags (to less populated categories)
 - [x] ~~Add scroll to top button on list and search screens~~
 - [x] ~~Fullscreen flag image view~~
-- [ ] Fullscreen view optimizes for image aspect ratio & button for unlocking screen orientation
+- [ ] Fullscreen view orientation relative to image aspect ratio & button for unlocking screen orientation
 - [ ] Full screen carousel for flags in current list
 - [ ] Add regime type categories (for political flags) from **OurWorldInData**
 - [ ] Add Python scripts to repository
@@ -66,6 +66,7 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [ ] **Info screen**: For information about the app and links to app resources
 - [ ] Save flags to custom list
 - [ ] *Add flag ISO codes?*
+- [ ] Add screenshots of app to README
 - [x] ~~Optimize app for different system Font sizes~~
 - [ ] Optimize app for different screen resolutions and aspect ratios
 - [ ] Implement tests and production optimizations
@@ -74,7 +75,7 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 <br>
 
 ## 🛠 Design
-- Built with Jetpack Compose in Kotlin, following architecture best practises described on Android Developers such as UDF, SSOT, ViewModels for managing business state and logic.
+- Built with Jetpack Compose in Kotlin, following architecture best practises described on Android Developers such as UDF, SSOT and ViewModels for managing business state and logic.
 
 - Flag info uses local data, originally sourced from Wikipedia via a collection of Python scripts for getting flag images, common names, official names and alternate names.
 Flag category info is derived more manually, by filtering from broader categories such as on [countries by system of government](https://en.wikipedia.org/wiki/List_of_countries_by_system_of_government) and other Wikipedia lists.
