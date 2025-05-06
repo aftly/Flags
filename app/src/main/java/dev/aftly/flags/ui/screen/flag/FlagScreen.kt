@@ -97,12 +97,12 @@ private fun FlagScaffold(
     var isFullScreen by rememberSaveable { mutableStateOf(value = false) }
     val orientationController = LocalOrientationController.current
     var isFlagWide by rememberSaveable { mutableStateOf(value = true) }
-    var isLandscapeOrientation by rememberSaveable { mutableStateOf(value = false) }
+    var isLandscapeOrientation by rememberSaveable { mutableStateOf(value = true) }
 
     LaunchedEffect(isLandscapeOrientation) {
-        when (isLandscapeOrientation) {
-            true -> orientationController.setLandscapeOrientation()
-            false -> orientationController.unsetLandscapeOrientation()
+        when (isFullScreen to isLandscapeOrientation) {
+            true to true -> orientationController.setLandscapeOrientation()
+            true to false -> orientationController.unsetLandscapeOrientation()
         }
     }
 
@@ -128,6 +128,7 @@ private fun FlagScaffold(
                 onImageWide = { if (isFlagWide != it) isFlagWide = it },
                 onFullscreen = {
                     if (isFlagWide) isLandscapeOrientation = true
+                    if (isFlagWide) orientationController.setLandscapeOrientation()
                     isFullScreen = true
                 },
             )
@@ -138,8 +139,11 @@ private fun FlagScaffold(
                 isLandscapeLock = isLandscapeOrientation,
                 onLandscapeLockChange = { isLandscapeOrientation = !isLandscapeOrientation },
                 onExitFullScreen = {
-                    isLandscapeOrientation = false
+                    if (isLandscapeOrientation) {
+                        orientationController.unsetLandscapeOrientation()
+                    }
                     isFullScreen = false
+                    isLandscapeOrientation = false
                 },
             )
         }

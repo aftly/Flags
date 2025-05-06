@@ -180,9 +180,9 @@ private fun GameScaffold(
     var isLandscapeOrientation by rememberSaveable { mutableStateOf(value = false) }
 
     LaunchedEffect(isLandscapeOrientation) {
-        when (isLandscapeOrientation) {
-            true -> orientationController.setLandscapeOrientation()
-            false -> orientationController.unsetLandscapeOrientation()
+        when (isFullScreen to isLandscapeOrientation) {
+            true to true -> orientationController.setLandscapeOrientation()
+            true to false -> orientationController.unsetLandscapeOrientation()
         }
     }
 
@@ -224,6 +224,7 @@ private fun GameScaffold(
                     onImageWide = { if (isFlagWide != it) isFlagWide = it },
                     onFullscreen = {
                         if (isFlagWide) isLandscapeOrientation = true
+                        if (isFlagWide) orientationController.setLandscapeOrientation()
                         isFullScreen = true
                     },
                 )
@@ -234,8 +235,11 @@ private fun GameScaffold(
                     isLandscapeLock = isLandscapeOrientation,
                     onLandscapeLockChange = { isLandscapeOrientation = !isLandscapeOrientation },
                     onExitFullScreen = {
-                        isLandscapeOrientation = false
+                        if (isLandscapeOrientation) {
+                            orientationController.unsetLandscapeOrientation()
+                        }
                         isFullScreen = false
+                        isLandscapeOrientation = false
                     },
                 )
             }
