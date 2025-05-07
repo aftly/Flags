@@ -17,6 +17,7 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.ui.util.getCategoryTitle
 import dev.aftly.flags.ui.util.getFlagsByCategory
 import dev.aftly.flags.ui.util.getParentSuperCategory
+import dev.aftly.flags.ui.util.getStringFromResources
 import dev.aftly.flags.ui.util.normalizeLower
 import dev.aftly.flags.ui.util.normalizeString
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -272,10 +273,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         _uiState.update { currentState ->
             currentState.copy(
                 allFlags = currentState.allFlags.sortedBy { flag ->
-                    normalizeString(string = appResources.value.getString(flag.flagOf))
+                    normalizeString(string = getString(flag.flagOf))
                 },
                 currentFlags = currentState.currentFlags.sortedBy { flag ->
-                    normalizeString(string = appResources.value.getString(flag.flagOf))
+                    normalizeString(string = getString(flag.flagOf))
                 }
             )
         }
@@ -339,5 +340,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             else -> true
         }
         firstItem = null /* Reset exact match state with each change to searchQuery */
+    }
+
+    fun getString(@StringRes stringRes: Int): String {
+        return getStringFromResources(
+            resources = appResources.value,
+            stringRes = stringRes,
+        )
     }
 }

@@ -121,6 +121,7 @@ fun GameScreen(
     GameScaffold(
         currentScreen = currentScreen,
         canNavigateBack = canNavigateBack,
+        getString = { viewModel.getString(it) },
         isWideScreen = isWideScreen,
         fontScale = configuration.fontScale,
         totalFlagCount = uiState.totalFlagCount,
@@ -151,6 +152,7 @@ private fun GameScaffold(
     modifier: Modifier = Modifier,
     currentScreen: Screen,
     canNavigateBack: Boolean,
+    getString: (Int) -> String,
     isWideScreen: Boolean,
     fontScale: Float,
     totalFlagCount: Int,
@@ -282,6 +284,7 @@ private fun GameScaffold(
                         start = Dimens.marginHorizontal16,
                         end = Dimens.marginHorizontal16,
                     ),
+                getString = getString,
                 onButtonHeightChange = { buttonHeight = it },
                 buttonExpanded = expanded,
                 onButtonExpand = { expanded = !expanded },
@@ -335,7 +338,8 @@ private fun GameContent(
 
     /* Center arranged column with Game content */
     Column(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
             .padding(
                 /* Top padding so that content scroll disappears into FilterFlagsButton */
                 top = filterButtonHeight / 2,
@@ -358,7 +362,8 @@ private fun GameContent(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         /* Spacer to make content start below FilterFlags button */
-        Spacer(modifier = Modifier.fillMaxWidth()
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
             .height(filterButtonHeight / 2 + aspectRatioTopPadding)
         )
 

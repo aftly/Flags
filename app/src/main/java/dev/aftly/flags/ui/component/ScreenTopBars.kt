@@ -1,7 +1,6 @@
 package dev.aftly.flags.ui.component
 
 import androidx.annotation.StringRes
-import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -59,8 +58,8 @@ fun ExpandableTopAppBar(
         else -> currentScreen.title
     }
 
-    var titleBoxWidth by remember { mutableIntStateOf(value = 0) }
-    var titleTextWidth by remember { mutableIntStateOf(value = 0) }
+    //var titleBoxWidth by remember { mutableIntStateOf(value = 0) }
+    //var titleTextWidth by remember { mutableIntStateOf(value = 0) }
 
     /* Manage TitleStyle transition between expanded (start) and collapsed (stop) TopBar title */
     val titleStyle = lerp(
@@ -70,6 +69,7 @@ fun ExpandableTopAppBar(
     )
 
     /* Manage padding transition between expanded (start) and collapsed (stop) TopBar title */
+    /*
     val titleStartPadding = lerp(
         start = 0.dp,
         stop = Dimens.large24,
@@ -81,6 +81,7 @@ fun ExpandableTopAppBar(
         stop = - (titleBoxWidth - titleTextWidth) / 2,
         fraction = scrollBehaviour.state.collapsedFraction,
     )
+     */
 
 
     MediumTopAppBar(
@@ -89,20 +90,24 @@ fun ExpandableTopAppBar(
                 Box(
                     modifier = Modifier.fillMaxWidth()
                         .padding(end = Dimens.medium16)
+                        /*
                         .onSizeChanged { size ->
                             titleBoxWidth = size.width
                         }
+                         */
                 ) {
                     Text(
                         text = stringResource(it),
                         style = titleStyle,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.align(Alignment.Center)
+                            /*
                             .onSizeChanged { size ->
                                 titleTextWidth = size.width
                             }
-                            .offset { IntOffset(x = horizontalOffset, y = 0) }
-                            .padding(start = titleStartPadding),
+                             */
+                            //.offset { IntOffset(x = horizontalOffset, y = 0) }
+                            //.padding(start = titleStartPadding),
                     )
                 }
             }

@@ -97,6 +97,7 @@ fun SearchScreen(
     SearchScaffold(
         currentScreen = currentScreen,
         canNavigateBack = canNavigateBack,
+        getString = { viewModel.getString(it) },
         currentCategoryTitle = uiState.currentCategoryTitle,
         currentSuperCategory = uiState.currentSuperCategory,
         fontScale = configuration.fontScale,
@@ -120,6 +121,7 @@ private fun SearchScaffold(
     canNavigateBack: Boolean,
     containerColor1: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     containerColor2: Color = MaterialTheme.colorScheme.secondary,
+    getString: (Int) -> String,
     @StringRes currentCategoryTitle: Int,
     currentSuperCategory: FlagSuperCategory,
     fontScale: Float,
@@ -176,7 +178,7 @@ private fun SearchScaffold(
             floatingActionButton = {
                 ScrollToTopButton(
                     isVisible = !isAtTop,
-                    containerColor = MaterialTheme.colorScheme.secondary,
+                    containerColor = containerColor2,
                     onClick = { coroutineScope.launch { listState.animateScrollToItem(index = 0) } }
                 )
             }
@@ -227,6 +229,7 @@ private fun SearchScaffold(
                     start = Dimens.marginHorizontal16,
                     end = Dimens.marginHorizontal16,
                 ),
+            getString = getString,
             onButtonHeightChange = { buttonHeight = it },
             buttonExpanded = buttonExpanded,
             onButtonExpand = { buttonExpanded = !buttonExpanded },

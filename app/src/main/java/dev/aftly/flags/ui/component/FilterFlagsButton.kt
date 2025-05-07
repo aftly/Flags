@@ -11,11 +11,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,6 +44,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -65,6 +69,7 @@ import dev.aftly.flags.ui.theme.Timings
 @Composable
 fun FilterFlagsButton(
     modifier: Modifier = Modifier,
+    getString: (Int) -> String,
     onButtonHeightChange: (Dp) -> Unit,
     buttonExpanded: Boolean,
     onButtonExpand: () -> Unit,
@@ -123,9 +128,26 @@ fun FilterFlagsButton(
     /* Manage button title & exceptions */
     val buttonTitle = when (currentSuperCategory) {
         SovereignCountry -> stringResource(R.string.category_super_sovereign_country_title)
-        Political -> stringResource(currentCategoryTitle) + stringResource(R.string.button_title_state_flags)
-        International -> stringResource(R.string.category_international_organization_title) + stringResource(R.string.button_title_flags)
+        Political -> stringResource(currentCategoryTitle) +
+                stringResource(R.string.button_title_state_flags)
+        International -> stringResource(R.string.category_international_organization_title) +
+                stringResource(R.string.button_title_flags)
         else -> stringResource(currentCategoryTitle) + stringResource(R.string.button_title_flags)
+    }
+
+    /* Manage dynamic spacer size for button title center alignment */
+    val density = LocalDensity.current
+    var buttonWidth by remember { mutableStateOf(value = 0.dp) }
+    var textWidth by remember { mutableStateOf(value = 0.dp) }
+    var spacerWidth by remember { mutableStateOf(value = 0.dp) }
+    val iconSize = Dimens.standardIconSize24 * fontScale
+    val iconPadding = 2.dp * fontScale
+
+    LaunchedEffect(textWidth) { spacerWidth =
+        if (buttonWidth != 0.dp && textWidth != 0.dp &&
+            textWidth + (iconSize + iconPadding + 1.dp) * 2 < buttonWidth) {
+            iconSize + iconPadding
+        } else 0.dp
     }
 
 
@@ -139,13 +161,22 @@ fun FilterFlagsButton(
             contentPadding = PaddingValues(horizontal = Dimens.medium16),
         ) {
             Row(
-                modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.End,
+                modifier = Modifier.fillMaxSize()
+                    .onSizeChanged {
+                        with(density) { buttonWidth = it.width.toDp() }
+                    },
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                Spacer(
+                    modifier = Modifier.width(spacerWidth)
+                )
+
                 Box(
-                    modifier = Modifier.weight(1f),
-                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.weight(weight = 1f, fill = false)
+                        .onSizeChanged {
+                            with(density) { textWidth = it.width.toDp() }
+                        },
                 ) {
                     Text(
                         text = buttonTitle,
@@ -161,20 +192,22 @@ fun FilterFlagsButton(
                     )
                 }
 
-                if (!buttonExpanded) {
-                    Icon(
-                        imageVector = Icons.Default.KeyboardArrowDown,
-                        contentDescription = stringResource(R.string.menu_icon_expand),
-                        modifier = Modifier.size(Dimens.standardIconSize24 * fontScale),
-                        tint = buttonColors1.contentColor,
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.KeyboardArrowUp,
-                        contentDescription = stringResource(R.string.menu_icon_collapse),
-                        modifier = Modifier.size(Dimens.standardIconSize24 * fontScale),
-                        tint = buttonColors1.contentColor,
-                    )
+                Box(modifier = Modifier.padding(start = iconPadding)) {
+                    if (!buttonExpanded) {
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowDown,
+                            contentDescription = stringResource(R.string.menu_icon_expand),
+                            modifier = Modifier.size(iconSize),
+                            tint = buttonColors1.contentColor,
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowUp,
+                            contentDescription = stringResource(R.string.menu_icon_collapse),
+                            modifier = Modifier.size(iconSize),
+                            tint = buttonColors1.contentColor,
+                        )
+                    }
                 }
             }
         }
@@ -215,6 +248,7 @@ fun FilterFlagsButton(
                                 superCategory = superCategory,
                                 onCategorySelect = { newSuperCategory ->
                                     expandMenu = null
+                                    if (newSuperCategory != currentSuperCategory) spacerWidth = 0.dp
                                     onCategorySelect(newSuperCategory, null)
                                     onButtonExpand()
                                 },
@@ -234,6 +268,13 @@ fun FilterFlagsButton(
                                 menuExpanded = superCategory == expandMenu,
                                 onMenuSelect = { expandMenu = it },
                                 onCategorySelect = { newSuperCategory, newSubCategory ->
+                                    if (!isNewCategoryCurrent(
+                                        newSuperCategory = newSuperCategory,
+                                        newSubCategory = newSubCategory,
+                                        currentCategoryTitle = currentCategoryTitle,
+                                        getString = getString,
+                                    )) { spacerWidth = 0.dp }
+
                                     onCategorySelect(newSuperCategory,newSubCategory)
                                     onButtonExpand()
                                 },
@@ -252,6 +293,7 @@ fun FilterFlagsButton(
                                 expandMenuState = expandMenu,
                                 onMenuSelect = { expandMenu = it },
                                 onCategorySelect = { newSuperCategory, newSubCategory ->
+                                    spacerWidth = 0.dp
                                     onCategorySelect(newSuperCategory,newSubCategory)
                                     onButtonExpand()
                                 },
@@ -331,11 +373,32 @@ private fun MenuItemExpandable(
         true -> Alignment.CenterStart
         false -> Alignment.Center
     }
+    /*
+    val rowArrangement = when (isSuperCategorySelectable) {
+        true -> Arrangement.SpaceBetween
+        false -> Arrangement.Center
+    }
+     */
 
     /* Bottom padding when last item is expandable and expanded */
     val lastItemPadding = when (superCategory to menuExpanded) {
         NonAdministrative to true -> 9.dp
         else -> 0.dp
+    }
+
+    /* Manage dynamic spacer size for button title center alignment */
+    val density = LocalDensity.current
+    var buttonWidth by remember { mutableStateOf(value = 0.dp) }
+    var textWidth by remember { mutableStateOf(value = 0.dp) }
+    var spacerWidth by remember { mutableStateOf(value = 0.dp) }
+    val iconSize = Dimens.standardIconSize24 * fontScale
+    val iconPadding = 2.dp * fontScale
+
+    LaunchedEffect(textWidth) { spacerWidth =
+        if (buttonWidth != 0.dp && textWidth != 0.dp &&
+            textWidth + (iconSize + iconPadding + 1.dp) * 2 < buttonWidth) {
+            iconSize + iconPadding
+        } else 0.dp
     }
 
 
@@ -363,13 +426,25 @@ private fun MenuItemExpandable(
             colors = buttonColors1,
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+                    .onSizeChanged {
+                        with(density) { buttonWidth = it.width.toDp() }
+                    },
+                horizontalArrangement = Arrangement.SpaceBetween, // TODO: was rowArrangement
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                if (!isSuperCategorySelectable) {
+                    Spacer(
+                        modifier = Modifier.width(spacerWidth)
+                    )
+                }
+
                 Box(
-                    modifier = Modifier.weight(1f),
-                    contentAlignment = boxAlignment
+                    modifier = Modifier.weight(weight = 1f, fill = false)
+                        .padding(end = 2.dp * fontScale)
+                        .onSizeChanged {
+                            with(density) { textWidth = it.width.toDp() }
+                        },
                 ) {
                     Text(
                         text = stringResource(superCategory.title),
@@ -475,6 +550,22 @@ private fun MenuSuperItem(
     val parentExpanded = parentSuperCategory == expandMenuState || parentSuperCategory
         .subCategories.filterIsInstance<FlagSuperCategory>().contains(element = expandMenuState)
 
+    /* Manage dynamic spacer size for button title center alignment */
+    val density = LocalDensity.current
+    var buttonWidth by remember { mutableStateOf(value = 0.dp) }
+    var textWidth by remember { mutableStateOf(value = 0.dp) }
+    var spacerWidth by remember { mutableStateOf(value = 0.dp) }
+    val iconSize = Dimens.standardIconSize24 * fontScale
+    val iconPadding = 2.dp * fontScale
+
+    LaunchedEffect(textWidth) { spacerWidth =
+        if (buttonWidth != 0.dp && textWidth != 0.dp &&
+            textWidth + (iconSize + iconPadding + 1.dp) * 2 < buttonWidth) {
+            iconSize + iconPadding
+        } else 0.dp
+    }
+
+
     Column(modifier = modifier) {
         Card(
             modifier = Modifier.padding(horizontal = Dimens.small10),
@@ -494,13 +585,23 @@ private fun MenuSuperItem(
                 colors = buttonColors2,
             ) {
                 Row(
-                    modifier = modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
+                    modifier = modifier.fillMaxWidth()
+                        .onSizeChanged {
+                            with(density) { buttonWidth = it.width.toDp() }
+                        },
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    Spacer(
+                        modifier = Modifier.width(spacerWidth)
+                    )
+
                     Box(
-                        modifier = Modifier.weight(1f),
-                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.weight(weight = 1f, fill = false)
+                            .padding(end = 2.dp * fontScale)
+                            .onSizeChanged {
+                                with(density) { textWidth = it.width.toDp() }
+                            },
                     ) {
                         Text(
                             text = stringResource(parentSuperCategory.title),
@@ -564,5 +665,25 @@ private fun MenuSuperItem(
                 }
             }
         }
+    }
+}
+
+
+private fun isNewCategoryCurrent(
+    newSuperCategory: FlagSuperCategory?,
+    newSubCategory: FlagCategory?,
+    currentCategoryTitle: Int,
+    getString: (Int) -> String,
+): Boolean {
+    val currentCategoryString = getString(currentCategoryTitle)
+
+    return if (newSuperCategory != null &&
+        getString(newSuperCategory.title) == currentCategoryString) {
+        true
+    } else if (newSubCategory != null &&
+        getString(newSubCategory.title) == currentCategoryString) {
+        true
+    } else {
+        false
     }
 }

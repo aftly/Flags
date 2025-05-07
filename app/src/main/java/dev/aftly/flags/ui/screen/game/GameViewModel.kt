@@ -12,6 +12,7 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.ui.util.getCategoryTitle
 import dev.aftly.flags.ui.util.getFlagsByCategory
 import dev.aftly.flags.ui.util.getParentSuperCategory
+import dev.aftly.flags.ui.util.getStringFromResources
 import dev.aftly.flags.ui.util.normalizeString
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -160,6 +161,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         val currentFlag = uiState.value.currentFlag
         val currentFlagStrings = getStringsList(flag = currentFlag)
         _uiState.update { it.copy(currentFlagStrings = currentFlagStrings) }
+    }
+
+
+    fun getString(@StringRes stringRes: Int): String {
+        return getStringFromResources(
+            resources = getApplication<Application>().applicationContext.resources,
+            stringRes = stringRes
+        )
     }
 
 
