@@ -49,6 +49,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.aftly.flags.R
@@ -151,6 +152,7 @@ fun FilterFlagsButton(
     }
 
 
+    /* Filter button content */
     Column(modifier = modifier) {
         Button(
             onClick = { onButtonExpand() },
@@ -261,6 +263,7 @@ fun FilterFlagsButton(
                                 buttonColors1 = buttonColors,
                                 buttonColors2 = buttonColors2,
                                 cardColors2 = cardColors2,
+                                density = density,
                                 fontScale = fontScale,
                                 isSuperCategorySelectable = true,
                                 currentCategoryTitle = currentCategoryTitle,
@@ -286,6 +289,7 @@ fun FilterFlagsButton(
                                 buttonColors2 = buttonColors2,
                                 cardColors1 = cardColors1,
                                 cardColors2 = cardColors2,
+                                density = density,
                                 fontScale = fontScale,
                                 isChildSelectable = false,
                                 currentCategoryTitle = currentCategoryTitle,
@@ -346,6 +350,7 @@ private fun MenuItemExpandable(
     buttonColors1: ButtonColors,
     buttonColors2: ButtonColors,
     cardColors2: CardColors,
+    density: Density,
     fontScale: Float,
     isSuperCategorySelectable: Boolean,
     @StringRes currentCategoryTitle: Int,
@@ -373,12 +378,6 @@ private fun MenuItemExpandable(
         true -> Alignment.CenterStart
         false -> Alignment.Center
     }
-    /*
-    val rowArrangement = when (isSuperCategorySelectable) {
-        true -> Arrangement.SpaceBetween
-        false -> Arrangement.Center
-    }
-     */
 
     /* Bottom padding when last item is expandable and expanded */
     val lastItemPadding = when (superCategory to menuExpanded) {
@@ -387,7 +386,6 @@ private fun MenuItemExpandable(
     }
 
     /* Manage dynamic spacer size for button title center alignment */
-    val density = LocalDensity.current
     var buttonWidth by remember { mutableStateOf(value = 0.dp) }
     var textWidth by remember { mutableStateOf(value = 0.dp) }
     var spacerWidth by remember { mutableStateOf(value = 0.dp) }
@@ -402,6 +400,7 @@ private fun MenuItemExpandable(
     }
 
 
+    /* Menu item content */
     Column(modifier = modifier.padding(bottom = lastItemPadding)) {
         TextButton(
             onClick = {
@@ -539,6 +538,7 @@ private fun MenuSuperItem(
     buttonColors2: ButtonColors,
     cardColors1: CardColors,
     cardColors2: CardColors,
+    density: Density,
     fontScale: Float,
     isChildSelectable: Boolean,
     @StringRes currentCategoryTitle: Int,
@@ -551,7 +551,6 @@ private fun MenuSuperItem(
         .subCategories.filterIsInstance<FlagSuperCategory>().contains(element = expandMenuState)
 
     /* Manage dynamic spacer size for button title center alignment */
-    val density = LocalDensity.current
     var buttonWidth by remember { mutableStateOf(value = 0.dp) }
     var textWidth by remember { mutableStateOf(value = 0.dp) }
     var spacerWidth by remember { mutableStateOf(value = 0.dp) }
@@ -566,6 +565,7 @@ private fun MenuSuperItem(
     }
 
 
+    /* Menu item content */
     Column(modifier = modifier) {
         Card(
             modifier = Modifier.padding(horizontal = Dimens.small10),
@@ -652,6 +652,7 @@ private fun MenuSuperItem(
                                 buttonColors1 = buttonColors2,
                                 buttonColors2 = buttonColors1,
                                 cardColors2 = cardColors1,
+                                density = density,
                                 fontScale = fontScale,
                                 isSuperCategorySelectable = isChildSelectable,
                                 currentCategoryTitle = currentCategoryTitle,
