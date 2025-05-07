@@ -125,7 +125,7 @@ private fun FlagScaffold(
                 flag = flag,
                 description = description,
                 boldWordPositions = boldWordPositions,
-                onImageWide = { if (isFlagWide != it) isFlagWide = it },
+                onImageWide = { isFlagWide = it },
                 onFullscreen = {
                     if (isFlagWide) isLandscapeOrientation = true
                     if (isFlagWide) orientationController.setLandscapeOrientation()

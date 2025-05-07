@@ -429,7 +429,7 @@ private fun MenuItemExpandable(
                     .onSizeChanged {
                         with(density) { buttonWidth = it.width.toDp() }
                     },
-                horizontalArrangement = Arrangement.SpaceBetween, // TODO: was rowArrangement
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (!isSuperCategorySelectable) {

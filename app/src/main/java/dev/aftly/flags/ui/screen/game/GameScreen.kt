@@ -230,7 +230,7 @@ private fun GameScaffold(
                     onSubmit = onSubmit,
                     onSkip = onSkip,
                     onEndGame = onEndGame,
-                    onImageWide = { if (isFlagWide != it) isFlagWide = it },
+                    onImageWide = { isFlagWide = it },
                     onFullscreen = {
                         if (isFlagWide) isLandscapeOrientation = true
                         if (isFlagWide) orientationController.setLandscapeOrientation()
