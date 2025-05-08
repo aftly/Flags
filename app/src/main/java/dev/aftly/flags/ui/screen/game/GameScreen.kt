@@ -40,7 +40,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -121,7 +120,6 @@ fun GameScreen(
     GameScaffold(
         currentScreen = currentScreen,
         canNavigateBack = canNavigateBack,
-        getString = { viewModel.getString(it) },
         isWideScreen = isWideScreen,
         fontScale = configuration.fontScale,
         totalFlagCount = uiState.totalFlagCount,
@@ -152,7 +150,6 @@ private fun GameScaffold(
     modifier: Modifier = Modifier,
     currentScreen: Screen,
     canNavigateBack: Boolean,
-    getString: (Int) -> String,
     isWideScreen: Boolean,
     fontScale: Float,
     totalFlagCount: Int,
@@ -284,7 +281,6 @@ private fun GameScaffold(
                         start = Dimens.marginHorizontal16,
                         end = Dimens.marginHorizontal16,
                     ),
-                getString = getString,
                 onButtonHeightChange = { buttonHeight = it },
                 buttonExpanded = expanded,
                 onButtonExpand = { expanded = !expanded },

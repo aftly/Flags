@@ -8,6 +8,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -44,7 +45,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -70,7 +70,6 @@ import dev.aftly.flags.ui.theme.Timings
 @Composable
 fun FilterFlagsButton(
     modifier: Modifier = Modifier,
-    getString: (Int) -> String,
     onButtonHeightChange: (Dp) -> Unit,
     buttonExpanded: Boolean,
     onButtonExpand: () -> Unit,
@@ -136,20 +135,7 @@ fun FilterFlagsButton(
         else -> stringResource(currentCategoryTitle) + stringResource(R.string.button_title_flags)
     }
 
-    /* Manage dynamic spacer size for button title center alignment */
     val density = LocalDensity.current
-    var buttonWidth by remember { mutableStateOf(value = 0.dp) }
-    var textWidth by remember { mutableStateOf(value = 0.dp) }
-    var spacerWidth by remember { mutableStateOf(value = 0.dp) }
-    val iconSize = Dimens.standardIconSize24 * fontScale
-    val iconPadding = 2.dp * fontScale
-
-    LaunchedEffect(textWidth) { spacerWidth =
-        if (buttonWidth != 0.dp && textWidth != 0.dp &&
-            textWidth + (iconSize + iconPadding + 1.dp) * 2 < buttonWidth) {
-            iconSize + iconPadding
-        } else 0.dp
-    }
 
 
     /* Filter button content */
@@ -162,28 +148,37 @@ fun FilterFlagsButton(
             colors = buttonColors2,
             contentPadding = PaddingValues(horizontal = Dimens.medium16),
         ) {
-            Row(
-                modifier = Modifier.fillMaxSize()
-                    .onSizeChanged {
-                        with(density) { buttonWidth = it.width.toDp() }
-                    },
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Spacer(
-                    modifier = Modifier.width(spacerWidth)
-                )
+            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+                /* Manage dynamic spacer size for button title center alignment */
+                val buttonWidth = maxWidth
+                var textWidth by remember { mutableStateOf(value = 0.dp) }
 
-                Box(
-                    modifier = Modifier.weight(weight = 1f, fill = false)
-                        .onSizeChanged {
-                            with(density) { textWidth = it.width.toDp() }
-                        },
+                val iconSize = Dimens.standardIconSize24 * fontScale
+                val iconPadding = 2.dp * fontScale
+                val iconSizePadding = iconSize + iconPadding
+                val iconsTotalSize = (iconSize + iconPadding + 1.dp) * 2
+
+
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    Spacer(
+                        modifier = Modifier.width(width =
+                            if (textWidth + iconsTotalSize < buttonWidth) {
+                                iconSizePadding
+                            } else 0.dp
+                        )
+                    )
+
                     Text(
                         text = buttonTitle,
+                        modifier = Modifier.weight(weight = 1f, fill = false),
                         textAlign = TextAlign.Center,
                         onTextLayout = { textLayoutResult ->
+                            with(density) { textWidth = textLayoutResult.size.width.toDp() }
+
                             if (textLayoutResult.lineCount > 1) {
                                 buttonHeight = twoLineButtonHeight
                             } else if (buttonHeight != oneLineButtonHeight) {
@@ -192,21 +187,21 @@ fun FilterFlagsButton(
                         },
                         style = MaterialTheme.typography.titleMedium,
                     )
-                }
 
-                Box(modifier = Modifier.padding(start = iconPadding)) {
                     if (!buttonExpanded) {
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowDown,
                             contentDescription = stringResource(R.string.menu_icon_expand),
-                            modifier = Modifier.size(iconSize),
+                            modifier = Modifier.size(iconSize)
+                                .padding(start = iconPadding),
                             tint = buttonColors1.contentColor,
                         )
                     } else {
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowUp,
                             contentDescription = stringResource(R.string.menu_icon_collapse),
-                            modifier = Modifier.size(iconSize),
+                            modifier = Modifier.size(iconSize)
+                                .padding(start = iconPadding),
                             tint = buttonColors1.contentColor,
                         )
                     }
@@ -250,7 +245,6 @@ fun FilterFlagsButton(
                                 superCategory = superCategory,
                                 onCategorySelect = { newSuperCategory ->
                                     expandMenu = null
-                                    if (newSuperCategory != currentSuperCategory) spacerWidth = 0.dp
                                     onCategorySelect(newSuperCategory, null)
                                     onButtonExpand()
                                 },
@@ -271,13 +265,6 @@ fun FilterFlagsButton(
                                 menuExpanded = superCategory == expandMenu,
                                 onMenuSelect = { expandMenu = it },
                                 onCategorySelect = { newSuperCategory, newSubCategory ->
-                                    if (!isNewCategoryCurrent(
-                                        newSuperCategory = newSuperCategory,
-                                        newSubCategory = newSubCategory,
-                                        currentCategoryTitle = currentCategoryTitle,
-                                        getString = getString,
-                                    )) { spacerWidth = 0.dp }
-
                                     onCategorySelect(newSuperCategory,newSubCategory)
                                     onButtonExpand()
                                 },
@@ -297,7 +284,6 @@ fun FilterFlagsButton(
                                 expandMenuState = expandMenu,
                                 onMenuSelect = { expandMenu = it },
                                 onCategorySelect = { newSuperCategory, newSubCategory ->
-                                    spacerWidth = 0.dp
                                     onCategorySelect(newSuperCategory,newSubCategory)
                                     onButtonExpand()
                                 },
@@ -374,29 +360,11 @@ private fun MenuItemExpandable(
         true -> null
         false -> TextAlign.Center
     }
-    val boxAlignment = when (isSuperCategorySelectable) {
-        true -> Alignment.CenterStart
-        false -> Alignment.Center
-    }
 
     /* Bottom padding when last item is expandable and expanded */
     val lastItemPadding = when (superCategory to menuExpanded) {
         NonAdministrative to true -> 9.dp
         else -> 0.dp
-    }
-
-    /* Manage dynamic spacer size for button title center alignment */
-    var buttonWidth by remember { mutableStateOf(value = 0.dp) }
-    var textWidth by remember { mutableStateOf(value = 0.dp) }
-    var spacerWidth by remember { mutableStateOf(value = 0.dp) }
-    val iconSize = Dimens.standardIconSize24 * fontScale
-    val iconPadding = 2.dp * fontScale
-
-    LaunchedEffect(textWidth) { spacerWidth =
-        if (buttonWidth != 0.dp && textWidth != 0.dp &&
-            textWidth + (iconSize + iconPadding + 1.dp) * 2 < buttonWidth) {
-            iconSize + iconPadding
-        } else 0.dp
     }
 
 
@@ -424,47 +392,58 @@ private fun MenuItemExpandable(
             shape = RoundedCornerShape(0.dp),
             colors = buttonColors1,
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth()
-                    .onSizeChanged {
-                        with(density) { buttonWidth = it.width.toDp() }
-                    },
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (!isSuperCategorySelectable) {
-                    Spacer(
-                        modifier = Modifier.width(spacerWidth)
-                    )
-                }
+            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                /* Manage dynamic spacer size for button title center alignment */
+                val buttonWidth = maxWidth
+                var textWidth by remember { mutableStateOf(value = 0.dp) }
 
-                Box(
-                    modifier = Modifier.weight(weight = 1f, fill = false)
-                        .padding(end = 2.dp * fontScale)
-                        .onSizeChanged {
-                            with(density) { textWidth = it.width.toDp() }
-                        },
+                val iconSize = Dimens.standardIconSize24 * fontScale
+                val iconPadding = 2.dp * fontScale
+                val iconSizePadding = iconSize + iconPadding
+                val iconsTotalSize = (iconSize + iconPadding + 1.dp) * 2
+
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    if (!isSuperCategorySelectable) {
+                        Spacer(
+                            modifier = Modifier.width(width =
+                                if (textWidth + iconsTotalSize < buttonWidth) {
+                                    iconSizePadding
+                                } else 0.dp
+                            )
+                        )
+                    }
+
                     Text(
                         text = stringResource(superCategory.title),
+                        modifier = Modifier.weight(weight = 1f, fill = false),
                         textAlign = textAlign,
+                        onTextLayout = { textLayoutResult ->
+                            with(density) { textWidth = textLayoutResult.size.width.toDp() }
+                        },
                     )
-                }
 
-                if (!menuExpanded) {
-                    Icon(
-                        imageVector = Icons.Default.KeyboardArrowDown,
-                        contentDescription = stringResource(R.string.menu_sub_icon_expand),
-                        modifier = iconModifier.size(Dimens.standardIconSize24 * fontScale),
-                        tint = buttonColors1.contentColor,
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.KeyboardArrowUp,
-                        contentDescription = stringResource(R.string.menu_sub_icon_collapse),
-                        modifier = iconModifier.size(Dimens.standardIconSize24 * fontScale),
-                        tint = buttonColors1.contentColor,
-                    )
+                    if (!menuExpanded) {
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowDown,
+                            contentDescription = stringResource(R.string.menu_sub_icon_expand),
+                            modifier = iconModifier.size(iconSize)
+                                .padding(start = iconPadding),
+                            tint = buttonColors1.contentColor,
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowUp,
+                            contentDescription = stringResource(R.string.menu_sub_icon_collapse),
+                            modifier = iconModifier.size(iconSize)
+                                .padding(start = iconPadding),
+                            tint = buttonColors1.contentColor,
+                        )
+                    }
                 }
             }
         }
@@ -550,20 +529,6 @@ private fun MenuSuperItem(
     val parentExpanded = parentSuperCategory == expandMenuState || parentSuperCategory
         .subCategories.filterIsInstance<FlagSuperCategory>().contains(element = expandMenuState)
 
-    /* Manage dynamic spacer size for button title center alignment */
-    var buttonWidth by remember { mutableStateOf(value = 0.dp) }
-    var textWidth by remember { mutableStateOf(value = 0.dp) }
-    var spacerWidth by remember { mutableStateOf(value = 0.dp) }
-    val iconSize = Dimens.standardIconSize24 * fontScale
-    val iconPadding = 2.dp * fontScale
-
-    LaunchedEffect(textWidth) { spacerWidth =
-        if (buttonWidth != 0.dp && textWidth != 0.dp &&
-            textWidth + (iconSize + iconPadding + 1.dp) * 2 < buttonWidth) {
-            iconSize + iconPadding
-        } else 0.dp
-    }
-
 
     /* Menu item content */
     Column(modifier = modifier) {
@@ -584,46 +549,57 @@ private fun MenuSuperItem(
                 shape = RoundedCornerShape(0.dp),
                 colors = buttonColors2,
             ) {
-                Row(
-                    modifier = modifier.fillMaxWidth()
-                        .onSizeChanged {
-                            with(density) { buttonWidth = it.width.toDp() }
-                        },
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Spacer(
-                        modifier = Modifier.width(spacerWidth)
-                    )
+                BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                    /* Manage dynamic spacer size for button title center alignment */
+                    val buttonWidth = maxWidth
+                    var textWidth by remember { mutableStateOf(value = 0.dp) }
 
-                    Box(
-                        modifier = Modifier.weight(weight = 1f, fill = false)
-                            .padding(end = 2.dp * fontScale)
-                            .onSizeChanged {
-                                with(density) { textWidth = it.width.toDp() }
-                            },
+                    val iconSize = Dimens.standardIconSize24 * fontScale
+                    val iconPadding = 2.dp * fontScale
+                    val iconSizePadding = iconSize + iconPadding
+                    val iconsTotalSize = (iconSize + iconPadding + 1.dp) * 2
+
+
+                    Row(
+                        modifier = modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
+                        Spacer(
+                            modifier = Modifier.width(width =
+                                if (textWidth + iconsTotalSize < buttonWidth) {
+                                    iconSizePadding
+                                } else 0.dp
+                            )
+                        )
+
                         Text(
                             text = stringResource(parentSuperCategory.title),
+                            modifier = Modifier.weight(weight = 1f, fill = false),
                             fontWeight = FontWeight.ExtraBold,
                             textAlign = TextAlign.Center,
+                            onTextLayout = { textLayoutResult ->
+                                with(density) { textWidth = textLayoutResult.size.width.toDp() }
+                            }
                         )
-                    }
 
-                    if (!parentExpanded) {
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowDown,
-                            contentDescription = stringResource(R.string.menu_sub_icon_expand),
-                            modifier = Modifier.size(Dimens.standardIconSize24 * fontScale),
-                            tint = buttonColors1.contentColor,
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowUp,
-                            contentDescription = stringResource(R.string.menu_sub_icon_collapse),
-                            modifier = Modifier.size(Dimens.standardIconSize24 * fontScale),
-                            tint = buttonColors1.contentColor,
-                        )
+                        if (!parentExpanded) {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowDown,
+                                contentDescription = stringResource(R.string.menu_sub_icon_expand),
+                                modifier = Modifier.size(iconSize)
+                                    .padding(start = iconPadding),
+                                tint = buttonColors1.contentColor,
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowUp,
+                                contentDescription = stringResource(R.string.menu_sub_icon_collapse),
+                                modifier = Modifier.size(iconSize)
+                                    .padding(start = iconPadding),
+                                tint = buttonColors1.contentColor,
+                            )
+                        }
                     }
                 }
             }
@@ -666,25 +642,5 @@ private fun MenuSuperItem(
                 }
             }
         }
-    }
-}
-
-
-private fun isNewCategoryCurrent(
-    newSuperCategory: FlagSuperCategory?,
-    newSubCategory: FlagCategory?,
-    currentCategoryTitle: Int,
-    getString: (Int) -> String,
-): Boolean {
-    val currentCategoryString = getString(currentCategoryTitle)
-
-    return if (newSuperCategory != null &&
-        getString(newSuperCategory.title) == currentCategoryString) {
-        true
-    } else if (newSubCategory != null &&
-        getString(newSubCategory.title) == currentCategoryString) {
-        true
-    } else {
-        false
     }
 }
