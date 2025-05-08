@@ -139,9 +139,7 @@ private fun FlagScaffold(
                 isLandscapeLock = isLandscapeOrientation,
                 onLandscapeLockChange = { isLandscapeOrientation = !isLandscapeOrientation },
                 onExitFullScreen = {
-                    if (isLandscapeOrientation) {
-                        orientationController.unsetLandscapeOrientation()
-                    }
+                    orientationController.unsetLandscapeOrientation()
                     isFullScreen = false
                     isLandscapeOrientation = false
                 },
