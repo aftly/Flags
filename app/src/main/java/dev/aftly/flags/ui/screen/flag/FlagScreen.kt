@@ -146,8 +146,8 @@ private fun FlagScaffold(
                 onLandscapeLockChange = { isLandscapeOrientation = !isLandscapeOrientation },
                 onExitFullScreen = {
                     coroutineScope.launch {
-                        isFullScreen = false
                         orientationController.unsetLandscapeOrientation()
+                        isFullScreen = false
                         isLandscapeOrientation = false
                     }
                 },

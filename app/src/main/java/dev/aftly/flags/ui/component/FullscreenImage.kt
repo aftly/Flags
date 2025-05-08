@@ -131,7 +131,10 @@ fun FullscreenImage(
                     true -> Modifier.fillMaxHeight()
                     false -> Modifier.fillMaxWidth()
                 },
-                contentScale = ContentScale.Fit,
+                contentScale = when (isAspectRatioWide) {
+                    true -> ContentScale.FillHeight
+                    false -> ContentScale.FillWidth
+                },
             )
 
             if (isFlagWide) {
