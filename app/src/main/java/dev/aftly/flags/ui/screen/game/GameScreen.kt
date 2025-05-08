@@ -43,6 +43,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -75,6 +76,7 @@ import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timings
 import dev.aftly.flags.ui.theme.successLight
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -190,6 +192,7 @@ private fun GameScaffold(
             true to false -> orientationController.unsetLandscapeOrientation()
         }
     }
+    val coroutineScope = rememberCoroutineScope()
 
     /* Scaffold within box so that FilterFlagsButton & it's associated surface can overlay it */
     Box(modifier = Modifier.fillMaxSize()) {
@@ -229,9 +232,11 @@ private fun GameScaffold(
                     onEndGame = onEndGame,
                     onImageWide = { isFlagWide = it },
                     onFullscreen = {
-                        if (isFlagWide) isLandscapeOrientation = true
-                        if (isFlagWide) orientationController.setLandscapeOrientation()
-                        isFullScreen = true
+                        coroutineScope.launch {
+                            if (isFlagWide) isLandscapeOrientation = true
+                            if (isFlagWide) orientationController.setLandscapeOrientation()
+                            isFullScreen = true
+                        }
                     },
                 )
             } else {
@@ -241,9 +246,11 @@ private fun GameScaffold(
                     isLandscapeLock = isLandscapeOrientation,
                     onLandscapeLockChange = { isLandscapeOrientation = !isLandscapeOrientation },
                     onExitFullScreen = {
-                        orientationController.unsetLandscapeOrientation()
-                        isFullScreen = false
-                        isLandscapeOrientation = false
+                        coroutineScope.launch {
+                            orientationController.unsetLandscapeOrientation()
+                            isFullScreen = false
+                            isLandscapeOrientation = false
+                        }
                     },
                 )
             }
