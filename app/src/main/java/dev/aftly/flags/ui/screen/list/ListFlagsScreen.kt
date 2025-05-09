@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -57,6 +58,7 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.ExpandableTopAppBar
 import dev.aftly.flags.ui.component.FilterFlagsButton
+import dev.aftly.flags.ui.component.Scrim
 import dev.aftly.flags.ui.component.ScrollToTopButton
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timings
@@ -94,8 +96,11 @@ fun ListFlagsScreen(
         fontScale = configuration.fontScale,
         currentFlagsList = uiState.currentFlags,
         onNavigateUp = onNavigateUp,
-        onCategorySelect = { newSuperCategory: FlagSuperCategory?, newSubCategory: FlagCategory? ->
+        onCategorySelect = { newSuperCategory, newSubCategory ->
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
+        },
+        onCategoryMultiSelect = { selectSuperCategory, selectSubCategory ->
+            viewModel.updateMultiSelectCategories(selectSuperCategory, selectSubCategory)
         },
         onFlagSelect = { onNavigateDetails(getFlagNavArg(flag = it)) },
     )
@@ -117,6 +122,7 @@ private fun ListFlagsScaffold(
     currentFlagsList: List<FlagResources>,
     onNavigateUp: () -> Unit,
     onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onCategoryMultiSelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onFlagSelect: (FlagResources) -> Unit,
 ) {
     /* Controls FilterFlagsButton menu expansion amd tracks current button height
@@ -184,11 +190,11 @@ private fun ListFlagsScaffold(
             enter = fadeIn(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
             exit = fadeOut(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
         ) {
-            Surface(
+            Scrim(
                 modifier = Modifier.fillMaxSize()
-                    .clickable { buttonExpanded = !buttonExpanded },
-                color = Color.Black.copy(alpha = 0.4f),
-            ) { }
+                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
+                onAction = { buttonExpanded = !buttonExpanded }
+            )
         }
 
 
@@ -214,6 +220,7 @@ private fun ListFlagsScaffold(
                 onCategorySelect(flagSuperCategory, flagSubCategory)
                 coroutineScope.launch { listState.animateScrollToItem(index = 0) }
             },
+            onCategoryMultiSelect = onCategoryMultiSelect,
         )
     }
 }

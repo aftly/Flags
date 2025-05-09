@@ -71,6 +71,7 @@ import dev.aftly.flags.ui.component.FilterFlagsButton
 import dev.aftly.flags.ui.component.FullscreenButton
 import dev.aftly.flags.ui.component.FullscreenImage
 import dev.aftly.flags.ui.component.LocalOrientationController
+import dev.aftly.flags.ui.component.Scrim
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.component.shareText
 import dev.aftly.flags.ui.theme.Dimens
@@ -174,7 +175,7 @@ private fun GameScaffold(
     onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
 ) {
     /* Controls FilterFlagsButton menu expansion and tracks button height */
-    var expanded by rememberSaveable { mutableStateOf(value = false) }
+    var buttonExpanded by rememberSaveable { mutableStateOf(value = false) }
     var buttonHeight by remember { mutableStateOf(value = 0.dp) }
 
     /* So that FilterFlagsButton can access Scaffold() padding */
@@ -194,6 +195,7 @@ private fun GameScaffold(
         }
     }
     val coroutineScope = rememberCoroutineScope()
+
 
     /* Scaffold within box so that FilterFlagsButton & it's associated surface can overlay it */
     Box(modifier = Modifier.fillMaxSize()) {
@@ -263,16 +265,15 @@ private fun GameScaffold(
 
             /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */
             AnimatedVisibility(
-                visible = expanded,
+                visible = buttonExpanded,
                 enter = fadeIn(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
                 exit = fadeOut(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
             ) {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clickable { expanded = !expanded },
-                    color = Color.Black.copy(alpha = 0.35f),
-                ) { }
+                Scrim(
+                    modifier = Modifier.fillMaxSize()
+                        .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
+                    onAction = { buttonExpanded = !buttonExpanded }
+                )
             }
 
 
@@ -288,8 +289,8 @@ private fun GameScaffold(
                         end = Dimens.marginHorizontal16,
                     ),
                 onButtonHeightChange = { buttonHeight = it },
-                buttonExpanded = expanded,
-                onButtonExpand = { expanded = !expanded },
+                buttonExpanded = buttonExpanded,
+                onButtonExpand = { buttonExpanded = !buttonExpanded },
                 fontScale = fontScale,
                 currentCategoryTitle = currentCategoryTitle,
                 currentSuperCategory = currentSuperCategory,

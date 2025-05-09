@@ -9,6 +9,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -65,6 +66,7 @@ import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.FilterFlagsButton
+import dev.aftly.flags.ui.component.Scrim
 import dev.aftly.flags.ui.component.ScrollToTopButton
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.theme.Dimens
@@ -209,11 +211,11 @@ private fun SearchScaffold(
             enter = fadeIn(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
             exit = fadeOut(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
         ) {
-            Surface(
+            Scrim(
                 modifier = Modifier.fillMaxSize()
-                    .clickable { buttonExpanded = !buttonExpanded },
-                color = Color.Black.copy(alpha = 0.35f),
-            ) { }
+                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
+                onAction = { buttonExpanded = !buttonExpanded }
+            )
         }
 
 
@@ -239,6 +241,7 @@ private fun SearchScaffold(
                 onCategorySelect(flagSuperCategory, flagSubCategory)
                 coroutineScope.launch { listState.animateScrollToItem(index = 0) }
             },
+            onCategoryMultiSelect = { selectSuper, selectSub -> } // TODO
         )
     }
 }
