@@ -1,7 +1,7 @@
 package dev.aftly.flags.ui.screen.flag
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,7 +53,6 @@ import dev.aftly.flags.ui.component.FullscreenImage
 import dev.aftly.flags.ui.component.LocalOrientationController
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.theme.Dimens
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -238,7 +237,10 @@ private fun FlagContent(
         /* Image and fullscreen button contents */
         Box(
             modifier = Modifier.padding(vertical = Dimens.extraLarge32)
-                .clickable { isFullScreenButton = !isFullScreenButton },
+                .combinedClickable(
+                    onClick = { isFullScreenButton = !isFullScreenButton },
+                    onDoubleClick = onFullscreen,
+                ),
             contentAlignment = Alignment.BottomEnd
         ) {
             Surface(

@@ -14,7 +14,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,8 +23,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.ScreenLockLandscape
 import androidx.compose.material.icons.filled.StayPrimaryLandscape
 import androidx.compose.material3.Icon
@@ -117,7 +115,10 @@ fun FullscreenImage(
     Box(
         modifier = Modifier.fillMaxSize()
             .background(color = surfaceDark)
-            .clickable { isSystemBars = !isSystemBars }
+            .combinedClickable(
+                onClick = { isSystemBars = !isSystemBars },
+                onDoubleClick = onExitFullScreen,
+            )
     ) {
         /* Flag image */
         Box(
