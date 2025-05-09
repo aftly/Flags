@@ -7,6 +7,7 @@ import dev.aftly.flags.model.FlagSuperCategory
 
 
 data object DataSource {
+    /* For use in Filter Menu */
     val superCategoryList = listOf(
         FlagSuperCategory.All,
         FlagSuperCategory.SovereignCountry,
@@ -19,6 +20,20 @@ data object DataSource {
     )
 
     val historicalSuperCategoryExceptions = listOf(
+        FlagSuperCategory.SovereignCountry,
+        FlagSuperCategory.AutonomousRegion,
+        FlagSuperCategory.Regional,
+        FlagSuperCategory.International
+    )
+
+    val allMultiSelectSuperCategories = superCategoryList.filterNot {
+        it in listOf(
+            FlagSuperCategory.All,
+            FlagSuperCategory.Political
+        )
+    }
+
+    val mutuallyExclusiveMultiSelectSuperCategories = listOf(
         FlagSuperCategory.SovereignCountry,
         FlagSuperCategory.AutonomousRegion,
         FlagSuperCategory.Regional,

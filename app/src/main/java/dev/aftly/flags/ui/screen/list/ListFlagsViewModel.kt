@@ -3,6 +3,8 @@ package dev.aftly.flags.ui.screen.list
 import android.app.Application
 import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
+import dev.aftly.flags.data.DataSource.allMultiSelectSuperCategories
+import dev.aftly.flags.data.DataSource.mutuallyExclusiveMultiSelectSuperCategories
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.ui.util.getCategoryTitle
@@ -61,6 +63,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                     currentFlags = currentState.allFlags,
                     currentSuperCategory = newSuperCategory,
                     currentCategoryTitle = newSuperCategory.title,
+                    multiSelectCategories = null,
                 )
             }
         } else {
@@ -89,8 +92,59 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                     currentFlags = newFlags,
                     currentSuperCategory = parentSuperCategory,
                     currentCategoryTitle = categoryTitle,
+                    multiSelectCategories = null,
                 )
             }
+        }
+    }
+
+    fun updateMultiSelectCategories(
+        newSuperCategory: FlagSuperCategory?,
+        newSubCategory: FlagCategory?,
+    ) {
+        /* Exit function if newSuperCategory is not selectable or mutually exclusive from current */
+        if (newSuperCategory != null && (newSuperCategory !in allMultiSelectSuperCategories ||
+            mutuallyExclusiveMultiSelectSuperCategories.containsAll(
+                elements = listOf(newSuperCategory, uiState.value.currentSuperCategory)))) {
+            return
+        }
+
+        /* Init newCategories list from currentCategories or from current selected category */
+        val newCategories = when (val currentCategories = uiState.value.multiSelectCategories) {
+            null -> uiState.value.currentCategoryTitle.let {
+                for (superCategory in allMultiSelectSuperCategories) {
+                    if (superCategory.title == it) {
+                        return@let superCategory.subCategories.filterIsInstance<FlagCategory>()
+                            .toMutableList()
+                    }
+                }
+                for (subCategory in FlagCategory.entries) {
+                    if (subCategory.title == it) return@let mutableListOf(subCategory)
+                }
+                return@let mutableListOf<FlagCategory>()
+            }
+            else -> currentCategories.toMutableList()
+        }
+
+        /* Add argument category(s) to newCategories */
+        newSuperCategory?.subCategories?.forEach {
+            it as FlagCategory
+            newCategories.add(it)
+        } ?: newSubCategory?.let { newCategories.add(it) }
+
+
+        /* Get new flags list from newCategories and currentFlags */
+        val newFlags = uiState.value.currentFlags.filter {
+            it.categories.containsAll(newCategories)
+        }
+
+
+        /* Update state with new multiSelectCategories list and currentFlags list */
+        _uiState.update { currentState ->
+            currentState.copy(
+                multiSelectCategories = newCategories,
+                currentFlags = newFlags,
+            )
         }
     }
 }
