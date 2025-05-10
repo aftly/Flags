@@ -19,6 +19,7 @@ data object DataSource {
         FlagSuperCategory.Political
     )
 
+    /* For use in updating flags list when selecting category in Filter Menu */
     val historicalSuperCategoryExceptions = listOf(
         FlagSuperCategory.SovereignCountry,
         FlagSuperCategory.AutonomousRegion,
@@ -27,16 +28,19 @@ data object DataSource {
         FlagSuperCategory.Political
     )
 
-    val mutuallyExclusiveMultiSelectSuperCategories = listOf(
+    /* For use in multi-selection in Filter Menu */
+    val mutuallyExclusiveSuperCategories1 = listOf(
         FlagSuperCategory.SovereignCountry,
         FlagSuperCategory.AutonomousRegion,
         FlagSuperCategory.Regional,
         FlagSuperCategory.International
     )
 
-    val mutuallyExclusiveMultiSelectSuperCategories2 = listOf(
+    /* For use in multi-selection in Filter Menu */
+    val mutuallyExclusiveSuperCategories2 = listOf(
+        FlagSuperCategory.Cultural,
         FlagSuperCategory.SovereignCountry,
-        FlagSuperCategory.Cultural
+        FlagSuperCategory.International
     )
 
     val nullFlag = FlagResources(

@@ -100,7 +100,7 @@ fun ListFlagsScreen(
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
         },
         onCategoryMultiSelect = { selectSuperCategory, selectSubCategory ->
-            viewModel.updateMultiSelectCategories(selectSuperCategory, selectSubCategory)
+            viewModel.updateCurrentCategories(selectSuperCategory, selectSubCategory)
         },
         onFlagSelect = { onNavigateDetails(getFlagNavArg(flag = it)) },
     )

@@ -3,13 +3,12 @@ package dev.aftly.flags.ui.screen.list
 import android.app.Application
 import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
-import dev.aftly.flags.data.DataSource.mutuallyExclusiveMultiSelectSuperCategories
-import dev.aftly.flags.data.DataSource.mutuallyExclusiveMultiSelectSuperCategories2
+import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories1
+import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories2
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagSuperCategory.Historical
-import dev.aftly.flags.model.FlagSuperCategory.Political
 import dev.aftly.flags.ui.util.getCategoryTitle
 import dev.aftly.flags.ui.util.getFlagsByCategory
 import dev.aftly.flags.ui.util.getParentSuperCategory
@@ -104,7 +103,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
 
-    fun updateMultiSelectCategories(
+    fun updateCurrentCategories(
         newSuperCategory: FlagSuperCategory?,
         newSubCategory: FlagCategory?,
     ) {
@@ -112,27 +111,34 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         var isDeselect = false /* Controls whether flags are updated from current or all flags */
 
         val superCategories = when (val superCategories = uiState.value.currentSuperCategories) {
-            null ->
-                when (currentSuperCategory) {
-                    Political -> mutableListOf()
-                    else -> mutableListOf(currentSuperCategory)
-                }
+            null -> mutableListOf(currentSuperCategory)
             else -> superCategories.toMutableList()
         }
+
         val subCategories = when (val subCategories = uiState.value.currentSubCategories) {
-            null -> mutableListOf()
+            null ->
+                when (currentSuperCategory.subCategories.size) {
+                    1 -> mutableListOf(currentSuperCategory.subCategories
+                        .filterIsInstance<FlagCategory>().first())
+                    else -> mutableListOf<FlagCategory>()
+                }
             else -> subCategories.toMutableList()
         }
 
 
         /* Exit function if newSuperCategory is not selectable or mutually exclusive from current */
-        newSuperCategory?.let {
-            if (mutuallyExclusiveMultiSelectSuperCategories
-                .containsAll(elements = listOf(newSuperCategory, currentSuperCategory))) {
-                return
-            } else if (mutuallyExclusiveMultiSelectSuperCategories2
-                .containsAll(elements = listOf(newSuperCategory, currentSuperCategory))) {
-                return
+        newSuperCategory?.let { newCategory ->
+            mutuallyExclusiveSuperCategories1.let { exclusive1 ->
+                if (newCategory !in superCategories && exclusive1.contains(newCategory) &&
+                    exclusive1.any { it in superCategories }) {
+                    return
+                }
+            }
+            mutuallyExclusiveSuperCategories2.let { exclusive2 ->
+                if (newCategory !in superCategories && exclusive2.contains(newCategory) &&
+                    exclusive2.any { it in superCategories }) {
+                    return
+                }
             }
         }
         /* Exit function if newSuperCategory is mutually exclusive from current */
@@ -143,26 +149,34 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
 
         /* Add/remove argument category to/from categories lists */
         newSuperCategory?.let { superCategory ->
-            if (superCategories.isNotEmpty() && superCategory in superCategories) {
-                superCategories.remove(superCategory)
-                isDeselect = true
-            } else if (superCategories.isNotEmpty() && superCategory.subCategories.size == 1 &&
-                superCategory.subCategories.filterIsInstance<FlagCategory>().first()
-                in subCategories) {
-                subCategories.remove(
-                    superCategory.subCategories.filterIsInstance<FlagCategory>().first()
-                )
-                isDeselect = true
-            } else if (superCategory == All) {
+            /* If super in either superCategories or subCategories remove it/them and exit let */
+            if (superCategories.isNotEmpty() || subCategories.isNotEmpty()) {
+                if (superCategory in superCategories) {
+                    superCategories.remove(superCategory)
+                    isDeselect = true
+                }
+                if (subCategories.isNotEmpty() && superCategory.subCategories.size == 1 &&
+                    superCategory.subCategories.first() in subCategories) {
+                    subCategories.remove(superCategory.subCategories.first())
+                    isDeselect = true
+                }
+                if (isDeselect) return@let
+            }
+
+            if (superCategory == All) {
                 return
             } else {
                 when (newSuperCategory.subCategories.size) {
-                    1 -> subCategories.add(superCategory.subCategories
-                        .filterIsInstance<FlagCategory>().first())
+                    1 -> {
+                        superCategories.add(superCategory)
+                        subCategories.add(superCategory.subCategories
+                            .filterIsInstance<FlagCategory>().first())
+                    }
                     else -> superCategories.add(superCategory)
                 }
             }
         }
+
         newSubCategory?.let { subCategory ->
             if (subCategories.isNotEmpty() && subCategory in subCategories) {
                 subCategories.remove(subCategory)
@@ -196,17 +210,10 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         }
 
 
-        /* Update currentSuperCategory if it aids in ignoring multi-selection of mutually exclusive
-         * supers, as per top operation on mutuallyExclusiveMultiSelectSuperCategories(2) */
-        val newCurrentSuperCategory = if (currentSuperCategory == All && newSuperCategory != null) {
-            newSuperCategory
-        } else currentSuperCategory
-
-
         /* Update state with new multiSelectCategories list and currentFlags list */
         _uiState.update { currentState ->
             currentState.copy(
-                currentSuperCategory = newCurrentSuperCategory,
+                //currentSuperCategory = newCurrentSuperCategory,
                 currentSuperCategories = superCategories,
                 currentSubCategories = subCategories,
                 currentFlags = newFlags,

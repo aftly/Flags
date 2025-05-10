@@ -248,15 +248,22 @@ fun FilterFlagsButton(
                     ),
                 ) {
                     items(items = menuSuperCategoryList) { superCategory ->
-                        val buttonColors = if (currentSuperCategories != null &&
-                            superCategory in currentSuperCategories) {
-                            buttonColors2
-                        } else if (currentSuperCategories == null &&
-                            superCategory == currentSuperCategory) {
-                            buttonColors2
-                        } else {
-                            buttonColors1
-                        }
+                        val buttonColors =
+                            if (currentSuperCategories == null && currentSubCategories == null && superCategory == currentSuperCategory) {
+                                buttonColors2
+                            } else if (
+                                currentSuperCategories != null && currentSubCategories != null &&
+                                (superCategory in currentSuperCategories || (superCategory
+                                    .subCategories.size == 1 && superCategory
+                                        .subCategories.first() in currentSubCategories))) {
+                                buttonColors2
+                            } else if (currentSuperCategories != null &&
+                                currentSuperCategories.isEmpty() && superCategory == All) {
+                                buttonColors2
+                            } else {
+                                buttonColors1
+                            }
+
 
                         if (superCategory.subCategories.size == 1 || superCategory == All) {
                             /* If superCategory has 1 sub category use 1 tier (static) menu item
