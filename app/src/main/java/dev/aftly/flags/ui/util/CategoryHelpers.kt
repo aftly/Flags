@@ -2,7 +2,7 @@ package dev.aftly.flags.ui.util
 
 import androidx.annotation.StringRes
 import dev.aftly.flags.data.DataSource
-import dev.aftly.flags.data.DataSource.superCategoryList
+import dev.aftly.flags.data.DataSource.menuSuperCategoryList
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategory.CONSTITUTIONAL
 import dev.aftly.flags.model.FlagCategory.HISTORICAL
@@ -79,7 +79,7 @@ fun getParentSuperCategory(
     /* If subCategory not null get it's superCategory, else if superCategory not null return it,
     * else return exception superCategory  */
     return if (subCategory != null) {
-        superCategoryList.filterNot {
+        menuSuperCategoryList.filterNot {
             it in listOf(FlagSuperCategory.All, FlagSuperCategory.Political)
         }.find { item ->
             subCategory in item.subCategories

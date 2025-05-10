@@ -22,4 +22,6 @@ object Dimens {
     val bottomSpacer30: Dp = 30.dp
     val bottomSpacer80: Dp = 80.dp
     val standardIconSize24: Dp = 24.dp
+    val textButtonVertPad: Dp = 4.dp
+    val textButtonHorizPad: Dp = 12.dp
 }

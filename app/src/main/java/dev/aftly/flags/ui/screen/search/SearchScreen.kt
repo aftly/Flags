@@ -237,6 +237,8 @@ private fun SearchScaffold(
             fontScale = fontScale,
             currentCategoryTitle = currentCategoryTitle,
             currentSuperCategory = currentSuperCategory,
+            currentSuperCategories = emptyList(), // TODO
+            currentSubCategories = emptyList(), // TODO
             onCategorySelect = { flagSuperCategory, flagSubCategory ->
                 onCategorySelect(flagSuperCategory, flagSubCategory)
                 coroutineScope.launch { listState.animateScrollToItem(index = 0) }

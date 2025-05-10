@@ -8,7 +8,7 @@ import dev.aftly.flags.model.FlagSuperCategory
 
 data object DataSource {
     /* For use in Filter Menu */
-    val superCategoryList = listOf(
+    val menuSuperCategoryList = listOf(
         FlagSuperCategory.All,
         FlagSuperCategory.SovereignCountry,
         FlagSuperCategory.AutonomousRegion,
@@ -23,21 +23,20 @@ data object DataSource {
         FlagSuperCategory.SovereignCountry,
         FlagSuperCategory.AutonomousRegion,
         FlagSuperCategory.Regional,
-        FlagSuperCategory.International
+        FlagSuperCategory.International,
+        FlagSuperCategory.Political
     )
-
-    val allMultiSelectSuperCategories = superCategoryList.filterNot {
-        it in listOf(
-            FlagSuperCategory.All,
-            FlagSuperCategory.Political
-        )
-    }
 
     val mutuallyExclusiveMultiSelectSuperCategories = listOf(
         FlagSuperCategory.SovereignCountry,
         FlagSuperCategory.AutonomousRegion,
         FlagSuperCategory.Regional,
         FlagSuperCategory.International
+    )
+
+    val mutuallyExclusiveMultiSelectSuperCategories2 = listOf(
+        FlagSuperCategory.SovereignCountry,
+        FlagSuperCategory.Cultural
     )
 
     val nullFlag = FlagResources(
@@ -1087,7 +1086,6 @@ data object DataSource {
                 FlagCategory.PARLIAMENTARY,
                 FlagCategory.CONSTITUTIONAL,
                 FlagCategory.REPUBLIC,
-                FlagCategory.SEMI_PRESIDENTIAL
             ),
         ),
 

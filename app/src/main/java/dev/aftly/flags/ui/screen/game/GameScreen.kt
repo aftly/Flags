@@ -294,6 +294,8 @@ private fun GameScaffold(
                 fontScale = fontScale,
                 currentCategoryTitle = currentCategoryTitle,
                 currentSuperCategory = currentSuperCategory,
+                currentSuperCategories = emptyList(), // TODO
+                currentSubCategories = emptyList(), // TODO
                 onCategorySelect = onCategorySelect,
                 onCategoryMultiSelect = { selectSuper, selectSub -> }, // TODO
             )

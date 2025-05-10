@@ -5,7 +5,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -45,15 +47,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import dev.aftly.flags.R
-import dev.aftly.flags.data.DataSource.superCategoryList
+import dev.aftly.flags.data.DataSource.menuSuperCategoryList
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
@@ -82,7 +89,10 @@ fun FilterFlagsButton(
     fontScale: Float,
     @StringRes currentCategoryTitle: Int,
     currentSuperCategory: FlagSuperCategory,
+    currentSuperCategories: List<FlagSuperCategory>?,
+    currentSubCategories: List<FlagCategory>?,
     onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onCategoryMultiSelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
 ) {
     /* Determines the expanded menu */
     var expandMenu by remember { mutableStateOf<FlagSuperCategory?>(value = null) }
@@ -135,7 +145,13 @@ fun FilterFlagsButton(
         else -> stringResource(currentCategoryTitle) + stringResource(R.string.button_title_flags)
     }
 
+    val textButtonStyle = MaterialTheme.typography.bodyMedium.copy(
+        fontWeight = FontWeight.Medium,
+        letterSpacing = 0.15.sp,
+    )
+
     val density = LocalDensity.current
+    val haptics = LocalHapticFeedback.current
 
 
     /* Filter button content */
@@ -231,16 +247,23 @@ fun FilterFlagsButton(
                         bottom = Dimens.small10,
                     ),
                 ) {
-                    items(items = superCategoryList) { superCategory ->
-                        val buttonColors = when (superCategory) {
-                            currentSuperCategory -> buttonColors2
-                            else -> buttonColors1
+                    items(items = menuSuperCategoryList) { superCategory ->
+                        val buttonColors = if (currentSuperCategories != null &&
+                            superCategory in currentSuperCategories) {
+                            buttonColors2
+                        } else if (currentSuperCategories == null &&
+                            superCategory == currentSuperCategory) {
+                            buttonColors2
+                        } else {
+                            buttonColors1
                         }
 
                         if (superCategory.subCategories.size == 1 || superCategory == All) {
                             /* If superCategory has 1 sub category use 1 tier (static) menu item
                              * (where the superCategory is meant to represent a sub/FlagCategory) */
                             MenuItemStatic(
+                                haptics = haptics,
+                                textButtonStyle = textButtonStyle,
                                 buttonColors = buttonColors,
                                 superCategory = superCategory,
                                 onCategorySelect = { newSuperCategory ->
@@ -248,12 +271,17 @@ fun FilterFlagsButton(
                                     onCategorySelect(newSuperCategory, null)
                                     onButtonExpand()
                                 },
+                                onCategoryMultiSelect = { selectSuperCategory ->
+                                    onCategoryMultiSelect(selectSuperCategory, null)
+                                },
                             )
                         } else if (superCategory.subCategories
                             .filterIsInstance<FlagCategory>().isNotEmpty()) {
                             /* If superCategory has any FlagCategories (ie. actual sub-categories)
                              * use 2 tier expandable menu */
                             MenuItemExpandable(
+                                haptics = haptics,
+                                textButtonStyle = textButtonStyle,
                                 buttonColors1 = buttonColors,
                                 buttonColors2 = buttonColors2,
                                 cardColors2 = cardColors2,
@@ -262,16 +290,20 @@ fun FilterFlagsButton(
                                 isSuperCategorySelectable = true,
                                 currentCategoryTitle = currentCategoryTitle,
                                 superCategory = superCategory,
+                                subCategories = currentSubCategories,
                                 menuExpanded = superCategory == expandMenu,
                                 onMenuSelect = { expandMenu = it },
                                 onCategorySelect = { newSuperCategory, newSubCategory ->
                                     onCategorySelect(newSuperCategory,newSubCategory)
                                     onButtonExpand()
                                 },
+                                onCategoryMultiSelect = onCategoryMultiSelect,
                             )
                         } else {
                             /* If superCategory only contains superCategories use 3 tier menu */
                             MenuSuperItem(
+                                haptics = haptics,
+                                textButtonStyle = textButtonStyle,
                                 buttonColors1 = buttonColors1,
                                 buttonColors2 = buttonColors2,
                                 cardColors1 = cardColors1,
@@ -281,12 +313,14 @@ fun FilterFlagsButton(
                                 isChildSelectable = false,
                                 currentCategoryTitle = currentCategoryTitle,
                                 parentSuperCategory = superCategory,
+                                subCategories = currentSubCategories,
                                 expandMenuState = expandMenu,
                                 onMenuSelect = { expandMenu = it },
                                 onCategorySelect = { newSuperCategory, newSubCategory ->
                                     onCategorySelect(newSuperCategory,newSubCategory)
                                     onButtonExpand()
                                 },
+                                onCategoryMultiSelect = onCategoryMultiSelect,
                             )
                         }
                     }
@@ -300,9 +334,12 @@ fun FilterFlagsButton(
 @Composable
 private fun MenuItemStatic(
     modifier: Modifier = Modifier,
+    haptics: HapticFeedback,
+    textButtonStyle: TextStyle,
     buttonColors: ButtonColors,
     superCategory: FlagSuperCategory,
     onCategorySelect: (FlagSuperCategory) -> Unit,
+    onCategoryMultiSelect: (FlagSuperCategory) -> Unit,
 ) {
     val fontWeight = when (superCategory) {
         All -> FontWeight.ExtraBold
@@ -313,18 +350,38 @@ private fun MenuItemStatic(
         else -> 0.dp
     }
 
-    Column(modifier = modifier.padding(bottom = lastItemPadding)) {
-        TextButton(
-            onClick = { onCategorySelect(superCategory) },
-            shape = RoundedCornerShape(0.dp),
-            colors = buttonColors,
+
+    Box(
+        modifier = modifier
+            .padding(
+                top = Dimens.textButtonVertPad,
+                bottom = Dimens.textButtonVertPad + lastItemPadding
+            )
+            .combinedClickable(
+                onClick = { onCategorySelect(superCategory) },
+                onLongClick = {
+                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onCategoryMultiSelect(superCategory)
+                },
+            )
+            /*
+            .indication(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = LocalIndication.current
+            ),
+             */
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth()
+                .background(color = buttonColors.containerColor)
         ) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = stringResource(superCategory.title),
-                    fontWeight = fontWeight,
-                )
-            }
+            Text(
+                text = stringResource(superCategory.title),
+                modifier = Modifier.padding(ButtonDefaults.TextButtonContentPadding),
+                color = buttonColors.contentColor,
+                fontWeight = fontWeight,
+                style = textButtonStyle,
+            )
         }
     }
 }
@@ -333,6 +390,8 @@ private fun MenuItemStatic(
 @Composable
 private fun MenuItemExpandable(
     modifier: Modifier = Modifier,
+    haptics: HapticFeedback,
+    textButtonStyle: TextStyle,
     buttonColors1: ButtonColors,
     buttonColors2: ButtonColors,
     cardColors2: CardColors,
@@ -341,9 +400,11 @@ private fun MenuItemExpandable(
     isSuperCategorySelectable: Boolean,
     @StringRes currentCategoryTitle: Int,
     superCategory: FlagSuperCategory,
+    subCategories: List<FlagCategory>?, /* for if multiple sub-categories are selected */
     menuExpanded: Boolean,
     onMenuSelect: (FlagSuperCategory?) -> Unit,
     onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onCategoryMultiSelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
 ) {
     val iconModifier = when (isSuperCategorySelectable) {
         true -> Modifier.clickable {
@@ -370,83 +431,97 @@ private fun MenuItemExpandable(
 
     /* Menu item content */
     Column(modifier = modifier.padding(bottom = lastItemPadding)) {
-        TextButton(
-            onClick = {
-                /* Reminder: expandMenu state contains the superCategory whose menu is to expand */
-                /* Reminder: Menu uses a superCategory to select and/or show it's sub categories */
-                if (isSuperCategorySelectable) {
-                    /* If super is selectable make expandMenu null and select super as category */
-                    onMenuSelect(null)
-                    onCategorySelect(superCategory, null)
-                } else if (!menuExpanded) {
-                    /* If current menu is not expanded, update expandMenu state with item's cat */
-                    onMenuSelect(superCategory)
-                } else if (superCategoryList.any { superCategory in it.subCategories }) {
-                    /* If item's cat is in a superCategory, update expandMenu state with the super */
-                    onMenuSelect(superCategoryList.find { superCategory in it.subCategories })
-                } else {
-                    /* Else, make expandMenu state null */
-                    onMenuSelect(null)
-                }
-            },
-            shape = RoundedCornerShape(0.dp),
-            colors = buttonColors1,
+        /* Top text button */
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxWidth()
+                .padding(
+                    top = Dimens.textButtonVertPad,
+                    bottom = Dimens.textButtonVertPad + lastItemPadding,
+                )
+                .combinedClickable(
+                    onClick = {
+                        if (isSuperCategorySelectable) {
+                            /* If super is selectable make expandMenu null and select super as category */
+                            onMenuSelect(null)
+                            onCategorySelect(superCategory, null)
+                        } else if (!menuExpanded) {
+                            /* If current menu is not expanded, update expandMenu state with item's cat */
+                            onMenuSelect(superCategory)
+                        } else if (menuSuperCategoryList.any { superCategory in it.subCategories }) {
+                            /* If item's cat is in a superCategory, update expandMenu state with the super */
+                            onMenuSelect(menuSuperCategoryList.find { superCategory in it.subCategories })
+                        } else {
+                            /* Else, make expandMenu state null */
+                            onMenuSelect(null)
+                        }
+                    },
+                    onLongClick = {
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onCategoryMultiSelect(superCategory, null)
+                    },
+                ),
         ) {
-            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                /* Manage dynamic spacer size for button title center alignment */
-                val buttonWidth = maxWidth
-                var textWidth by remember { mutableStateOf(value = 0.dp) }
+            /* Manage dynamic spacer size for button title center alignment */
+            val buttonWidth = maxWidth
+            var textWidth by remember { mutableStateOf(value = 0.dp) }
 
-                val iconSize = Dimens.standardIconSize24 * fontScale
-                val iconPadding = 2.dp * fontScale
-                val iconSizePadding = iconSize + iconPadding
-                val iconsTotalSize = (iconSize + iconPadding + 1.dp) * 2
+            val iconSize = Dimens.standardIconSize24 * fontScale
+            val iconSizePadding = iconSize + Dimens.textButtonHorizPad
+            val iconsTotalSize = (iconSizePadding + 1.dp) * 2
 
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    if (!isSuperCategorySelectable) {
-                        Spacer(
-                            modifier = Modifier.width(width =
-                                if (textWidth + iconsTotalSize < buttonWidth) {
-                                    iconSizePadding
-                                } else 0.dp
-                            )
+            /* Top text button content */
+            Row(
+                modifier = Modifier.fillMaxWidth()
+                    .background(color = buttonColors1.containerColor),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (!isSuperCategorySelectable) {
+                    Spacer(
+                        modifier = Modifier.width(width =
+                            if (textWidth + iconsTotalSize < buttonWidth) {
+                                iconSizePadding
+                            } else 0.dp
                         )
-                    }
-
-                    Text(
-                        text = stringResource(superCategory.title),
-                        modifier = Modifier.weight(weight = 1f, fill = false),
-                        textAlign = textAlign,
-                        onTextLayout = { textLayoutResult ->
-                            with(density) { textWidth = textLayoutResult.size.width.toDp() }
-                        },
                     )
+                }
 
-                    if (!menuExpanded) {
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowDown,
-                            contentDescription = stringResource(R.string.menu_sub_icon_expand),
-                            modifier = iconModifier.size(iconSize)
-                                .padding(start = iconPadding),
-                            tint = buttonColors1.contentColor,
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowUp,
-                            contentDescription = stringResource(R.string.menu_sub_icon_collapse),
-                            modifier = iconModifier.size(iconSize)
-                                .padding(start = iconPadding),
-                            tint = buttonColors1.contentColor,
-                        )
-                    }
+                Text(
+                    text = stringResource(superCategory.title),
+                    modifier = Modifier.padding(ButtonDefaults.TextButtonContentPadding)
+                        .weight(weight = 1f, fill = false),
+                    color = buttonColors1.contentColor,
+                    textAlign = textAlign,
+                    onTextLayout = { textLayoutResult ->
+                        with(density) { textWidth = textLayoutResult.size.width.toDp() }
+                    },
+                    style = textButtonStyle,
+                )
+
+                if (!menuExpanded) {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowDown,
+                        contentDescription = stringResource(R.string.menu_sub_icon_expand),
+                        modifier = iconModifier
+                            .padding(end = Dimens.textButtonHorizPad)
+                            .size(iconSize),
+                        tint = buttonColors1.contentColor,
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowUp,
+                        contentDescription = stringResource(R.string.menu_sub_icon_collapse),
+                        modifier = iconModifier
+                            .padding(end = Dimens.textButtonHorizPad)
+                            .size(iconSize),
+                        tint = buttonColors1.contentColor,
+                    )
                 }
             }
         }
+
+        /* Sub-menu content */
         AnimatedVisibility(
             visible = menuExpanded,
             enter = expandVertically(
@@ -474,28 +549,44 @@ private fun MenuItemExpandable(
                     superCategory.subCategories.forEach { subCategory ->
                         subCategory as FlagCategory
 
-                        TextButton(
-                            onClick = { onCategorySelect(null, subCategory) },
-                            shape = RoundedCornerShape(0.dp),
-                            colors = buttonColors2,
+                        Box(
+                            modifier = Modifier
+                                .padding(
+                                    top = Dimens.textButtonVertPad,
+                                    bottom = Dimens.textButtonVertPad,
+                                )
+                                .combinedClickable(
+                                    onClick = { onCategorySelect(null, subCategory) },
+                                    onLongClick = {
+                                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        onCategoryMultiSelect(null, subCategory)
+                                    }
+                                )
                         ) {
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth()
+                                    .background(color = buttonColors2.containerColor),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Box(modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = stringResource(subCategory.title),
+                                        modifier = Modifier
+                                            .padding(ButtonDefaults.TextButtonContentPadding),
+                                        color = buttonColors2.contentColor,
                                         fontWeight = FontWeight.Normal,
+                                        style = textButtonStyle,
                                     )
                                 }
 
-                                if (currentCategoryTitle == subCategory.title) {
+                                if (subCategories != null && subCategory in subCategories ||
+                                    currentCategoryTitle == subCategory.title) {
                                     Icon(
                                         imageVector = Icons.Default.Check,
                                         contentDescription = "selected",
                                         modifier = Modifier
+                                            .padding(end = Dimens.textButtonHorizPad)
                                             .size(Dimens.standardIconSize24 * fontScale * 0.9f),
                                         tint = buttonColors2.contentColor,
                                     )
@@ -513,6 +604,8 @@ private fun MenuItemExpandable(
 @Composable
 private fun MenuSuperItem(
     modifier: Modifier = Modifier,
+    haptics: HapticFeedback,
+    textButtonStyle: TextStyle,
     buttonColors1: ButtonColors,
     buttonColors2: ButtonColors,
     cardColors1: CardColors,
@@ -522,9 +615,11 @@ private fun MenuSuperItem(
     isChildSelectable: Boolean,
     @StringRes currentCategoryTitle: Int,
     parentSuperCategory: FlagSuperCategory,
+    subCategories: List<FlagCategory>?, /* for if multiple sub-categories are selected */
     expandMenuState: FlagSuperCategory?,
     onMenuSelect: (FlagSuperCategory?) -> Unit,
     onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onCategoryMultiSelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
 ) {
     val parentExpanded = parentSuperCategory == expandMenuState || parentSuperCategory
         .subCategories.filterIsInstance<FlagSuperCategory>().contains(element = expandMenuState)
@@ -537,6 +632,7 @@ private fun MenuSuperItem(
             shape = Shapes.large,
             colors = cardColors2,
         ) {
+
             TextButton(
                 onClick = {
                     when (expandMenuState) {
@@ -557,7 +653,7 @@ private fun MenuSuperItem(
                     val iconSize = Dimens.standardIconSize24 * fontScale
                     val iconPadding = 2.dp * fontScale
                     val iconSizePadding = iconSize + iconPadding
-                    val iconsTotalSize = (iconSize + iconPadding + 1.dp) * 2
+                    val iconsTotalSize = (iconSizePadding + 1.dp) * 2
 
 
                     Row(
@@ -625,6 +721,8 @@ private fun MenuSuperItem(
                             superCategory as FlagSuperCategory
 
                             MenuItemExpandable(
+                                haptics = haptics,
+                                textButtonStyle = textButtonStyle,
                                 buttonColors1 = buttonColors2,
                                 buttonColors2 = buttonColors1,
                                 cardColors2 = cardColors1,
@@ -633,9 +731,11 @@ private fun MenuSuperItem(
                                 isSuperCategorySelectable = isChildSelectable,
                                 currentCategoryTitle = currentCategoryTitle,
                                 superCategory = superCategory,
+                                subCategories = subCategories,
                                 menuExpanded = superCategory == expandMenuState,
                                 onMenuSelect = onMenuSelect,
                                 onCategorySelect = onCategorySelect,
+                                onCategoryMultiSelect = onCategoryMultiSelect,
                             )
                         }
                     }

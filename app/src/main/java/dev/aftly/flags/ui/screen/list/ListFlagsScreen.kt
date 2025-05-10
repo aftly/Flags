@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +25,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
@@ -93,6 +91,8 @@ fun ListFlagsScreen(
         canNavigateBack = canNavigateBack,
         currentCategoryTitle = uiState.currentCategoryTitle,
         currentSuperCategory = uiState.currentSuperCategory,
+        currentSuperCategories = uiState.currentSuperCategories,
+        currentSubCategories = uiState.currentSubCategories,
         fontScale = configuration.fontScale,
         currentFlagsList = uiState.currentFlags,
         onNavigateUp = onNavigateUp,
@@ -118,6 +118,8 @@ private fun ListFlagsScaffold(
     containerColor2: Color = MaterialTheme.colorScheme.secondary,
     @StringRes currentCategoryTitle: Int,
     currentSuperCategory: FlagSuperCategory,
+    currentSuperCategories: List<FlagSuperCategory>?,
+    currentSubCategories: List<FlagCategory>?,
     fontScale: Float,
     currentFlagsList: List<FlagResources>,
     onNavigateUp: () -> Unit,
@@ -216,6 +218,8 @@ private fun ListFlagsScaffold(
             fontScale = fontScale,
             currentCategoryTitle = currentCategoryTitle,
             currentSuperCategory = currentSuperCategory,
+            currentSuperCategories = currentSuperCategories,
+            currentSubCategories = currentSubCategories,
             onCategorySelect = { flagSuperCategory, flagSubCategory ->
                 onCategorySelect(flagSuperCategory, flagSubCategory)
                 coroutineScope.launch { listState.animateScrollToItem(index = 0) }
