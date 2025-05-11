@@ -43,6 +43,29 @@ data object DataSource {
         FlagSuperCategory.International
     )
 
+    /* For use in multi-selection in Filter Menu */
+    val mutuallyExclusiveSubCategories = listOf(
+        FlagSuperCategory.Regional,
+        FlagSuperCategory.TerritorialDistributionOfAuthority,
+        FlagSuperCategory.ExecutiveStructure,
+        FlagSuperCategory.LegalConstraint,
+        FlagSuperCategory.PowerDerivation,
+        FlagSuperCategory.IdeologicalOrientation
+    )
+
+    /* For use in tracking expanded sub-menus in Filter Menu */
+    val expandableMenuSuperCategories = listOf(
+        FlagSuperCategory.AutonomousRegion,
+        FlagSuperCategory.Regional,
+        FlagSuperCategory.Cultural,
+        FlagSuperCategory.Political,
+        FlagSuperCategory.TerritorialDistributionOfAuthority,
+        FlagSuperCategory.ExecutiveStructure,
+        FlagSuperCategory.LegalConstraint,
+        FlagSuperCategory.PowerDerivation,
+        FlagSuperCategory.IdeologicalOrientation
+    )
+
     val nullFlag = FlagResources(
         id = 0,
         image = 0,

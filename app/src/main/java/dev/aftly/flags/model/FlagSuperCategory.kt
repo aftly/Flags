@@ -115,7 +115,7 @@ sealed class FlagSuperCategory(
         ),
     )
 
-    private data object LegalConstraint : FlagSuperCategory(
+    data object LegalConstraint : FlagSuperCategory(
         title = R.string.category_sub_legal_constraint,
         subCategories = listOf(
             FlagCategory.CONSTITUTIONAL,
@@ -123,7 +123,7 @@ sealed class FlagSuperCategory(
         ),
     )
 
-    private data object PowerDerivation : FlagSuperCategory(
+    data object PowerDerivation : FlagSuperCategory(
         title = R.string.category_sub_power_derivation,
         subCategories = listOf(
             FlagCategory.REPUBLIC,

@@ -224,7 +224,10 @@ private fun ListFlagsScaffold(
                 onCategorySelect(flagSuperCategory, flagSubCategory)
                 coroutineScope.launch { listState.animateScrollToItem(index = 0) }
             },
-            onCategoryMultiSelect = onCategoryMultiSelect,
+            onCategoryMultiSelect = { flagSuperCategory, flagSubCategory ->
+                onCategoryMultiSelect(flagSuperCategory, flagSubCategory)
+                coroutineScope.launch { listState.animateScrollToItem(index = 0) }
+            },
         )
     }
 }

@@ -41,9 +41,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -60,6 +62,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.aftly.flags.R
+import dev.aftly.flags.data.DataSource.expandableMenuSuperCategories
 import dev.aftly.flags.data.DataSource.menuSuperCategoryList
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
@@ -94,8 +97,24 @@ fun FilterFlagsButton(
     onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onCategoryMultiSelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
 ) {
-    /* Determines the expanded menu */
+    /* Determines the expanded menu(s) */
     var expandMenu by remember { mutableStateOf<FlagSuperCategory?>(value = null) }
+    var expandMenus = remember { mutableStateListOf<FlagSuperCategory>() }
+
+    LaunchedEffect(currentSubCategories) {
+        if (currentSubCategories != null) {
+            val superCategories = mutableListOf<FlagSuperCategory>()
+
+            expandableMenuSuperCategories.forEach { superCategory ->
+                if (currentSubCategories.any { it in superCategory.subCategories }) {
+                    superCategories.add(superCategory)
+                }
+            }
+            expandMenus = superCategories.toMutableStateList()
+        } else {
+            expandMenus = mutableStateListOf()
+        }
+    }
 
     /* When menu collapse, return expandMenu state to current selected category (if ui differs) */
     LaunchedEffect(buttonExpanded) {
@@ -249,7 +268,8 @@ fun FilterFlagsButton(
                 ) {
                     items(items = menuSuperCategoryList) { superCategory ->
                         val buttonColors =
-                            if (currentSuperCategories == null && currentSubCategories == null && superCategory == currentSuperCategory) {
+                            if (currentSuperCategories == null && currentSubCategories == null &&
+                                superCategory == currentSuperCategory) {
                                 buttonColors2
                             } else if (
                                 currentSuperCategories != null && currentSubCategories != null &&
@@ -530,7 +550,9 @@ private fun MenuItemExpandable(
 
         /* Sub-menu content */
         AnimatedVisibility(
-            visible = menuExpanded,
+            visible = if (subCategories != null &&
+                subCategories.any { it in superCategory.subCategories })
+                true else menuExpanded,
             enter = expandVertically(
                 animationSpec = tween(durationMillis = Timings.MENU_EXPAND),
                 expandFrom = Alignment.Top,

@@ -3,6 +3,7 @@ package dev.aftly.flags.ui.screen.list
 import android.app.Application
 import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
+import dev.aftly.flags.data.DataSource.mutuallyExclusiveSubCategories
 import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories1
 import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories2
 import dev.aftly.flags.model.FlagCategory
@@ -59,7 +60,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
     ) {
         /* If new category is All superCategory update flags with static allFlags source,
          * else dynamically generate flags list from category info */
-        if (newSuperCategory == FlagSuperCategory.All) {
+        if (newSuperCategory == All) {
             _uiState.update { currentState ->
                 currentState.copy(
                     currentFlags = currentState.allFlags,
@@ -141,17 +142,47 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 }
             }
         }
-        /* Exit function if newSuperCategory is mutually exclusive from current */
-        newSubCategory?.let {
-            // TODO
+        /* Exit function if newSubCategory is mutually exclusive from current */
+        newSubCategory?.let { newCategory ->
+            mutuallyExclusiveSubCategories.forEach { superCategory ->
+                if (newCategory !in subCategories &&
+                    superCategory.subCategories.any { it in subCategories } &&
+                    newCategory in superCategory.subCategories) {
+                    return
+                }
+            }
+            mutuallyExclusiveSuperCategories1.let { exclusive1 ->
+                val subCategorySuper = exclusive1.find { newCategory in it.subCategories }
+                if (subCategorySuper != null) {
+                    val selectedExclusiveSupers = exclusive1.filter { it in superCategories }
+                    val unselectedExclusiveSupers = exclusive1.filterNot { it in superCategories }
+
+                    if (selectedExclusiveSupers.isNotEmpty() &&
+                        subCategorySuper in unselectedExclusiveSupers) {
+                        return
+                    }
+                }
+            }
+            mutuallyExclusiveSuperCategories2.let { exclusive2 ->
+                val subCategorySuper = exclusive2.find { newCategory in it.subCategories }
+                if (subCategorySuper != null) {
+                    val selectedExclusiveSupers = exclusive2.filter { it in superCategories }
+                    val unselectedExclusiveSupers = exclusive2.filterNot { it in superCategories }
+
+                    if (selectedExclusiveSupers.isNotEmpty() &&
+                        subCategorySuper in unselectedExclusiveSupers) {
+                        return
+                    }
+                }
+            }
         }
 
 
-        /* Add/remove argument category to/from categories lists */
+        /* Add/remove super-category argument to/from categories lists */
         newSuperCategory?.let { superCategory ->
             /* If super in either superCategories or subCategories remove it/them and exit let */
             if (superCategories.isNotEmpty() || subCategories.isNotEmpty()) {
-                if (superCategory in superCategories) {
+                if (superCategories.isNotEmpty() && superCategory in superCategories) {
                     superCategories.remove(superCategory)
                     isDeselect = true
                 }
@@ -160,7 +191,11 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                     subCategories.remove(superCategory.subCategories.first())
                     isDeselect = true
                 }
-                if (isDeselect) return@let
+                if (isDeselect) {
+                    return if (superCategories.isEmpty() && subCategories.isEmpty()) {
+                        updateCurrentCategory(newSuperCategory = All, newSubCategory = null)
+                    } else return@let
+                }
             }
 
             if (superCategory == All) {
@@ -176,11 +211,16 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 }
             }
         }
-
+        /* Add/remove sub-category argument to/from subcategories list */
         newSubCategory?.let { subCategory ->
             if (subCategories.isNotEmpty() && subCategory in subCategories) {
                 subCategories.remove(subCategory)
                 isDeselect = true
+
+                return if (superCategories.isEmpty() && subCategories.isEmpty()) {
+                    updateCurrentCategory(newSuperCategory = All, newSubCategory = null)
+                } else return@let
+
             } else {
                 subCategories.add(subCategory)
             }
