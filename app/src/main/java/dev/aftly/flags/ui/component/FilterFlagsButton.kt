@@ -41,11 +41,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -62,7 +60,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.aftly.flags.R
-import dev.aftly.flags.data.DataSource.expandableMenuSuperCategories
 import dev.aftly.flags.data.DataSource.menuSuperCategoryList
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
@@ -99,22 +96,6 @@ fun FilterFlagsButton(
 ) {
     /* Determines the expanded menu(s) */
     var expandMenu by remember { mutableStateOf<FlagSuperCategory?>(value = null) }
-    var expandMenus = remember { mutableStateListOf<FlagSuperCategory>() }
-
-    LaunchedEffect(currentSubCategories) {
-        if (currentSubCategories != null) {
-            val superCategories = mutableListOf<FlagSuperCategory>()
-
-            expandableMenuSuperCategories.forEach { superCategory ->
-                if (currentSubCategories.any { it in superCategory.subCategories }) {
-                    superCategories.add(superCategory)
-                }
-            }
-            expandMenus = superCategories.toMutableStateList()
-        } else {
-            expandMenus = mutableStateListOf()
-        }
-    }
 
     /* When menu collapse, return expandMenu state to current selected category (if ui differs) */
     LaunchedEffect(buttonExpanded) {
@@ -155,13 +136,17 @@ fun FilterFlagsButton(
     }
 
     /* Manage button title & exceptions */
-    val buttonTitle = when (currentSuperCategory) {
-        SovereignCountry -> stringResource(R.string.category_super_sovereign_country_title)
-        Political -> stringResource(currentCategoryTitle) +
-                stringResource(R.string.button_title_state_flags)
-        International -> stringResource(R.string.category_international_organization_title) +
-                stringResource(R.string.button_title_flags)
-        else -> stringResource(currentCategoryTitle) + stringResource(R.string.button_title_flags)
+    val buttonTitle = if (currentSuperCategories != null && currentSubCategories != null) {
+        stringResource(R.string.menu_multiple_selection)
+    } else {
+        when (currentSuperCategory) {
+            SovereignCountry -> stringResource(R.string.category_super_sovereign_country_title)
+            Political -> stringResource(currentCategoryTitle) +
+                    stringResource(R.string.button_title_state_flags)
+            International -> stringResource(R.string.category_international_organization_title) +
+                    stringResource(R.string.button_title_flags)
+            else -> stringResource(currentCategoryTitle) + stringResource(R.string.button_title_flags)
+        }
     }
 
     val textButtonStyle = MaterialTheme.typography.bodyMedium.copy(
@@ -433,11 +418,28 @@ private fun MenuItemExpandable(
     onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onCategoryMultiSelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
 ) {
+    /* Separated boolean for controlling submenu expansion when multi select (subCategories) */
+    var isMultiSelected: Boolean? by remember { mutableStateOf(value = null) }
+
+    /* on subCategories change, if any subcategories in the menus super, expand the menu, else
+     * null so that regular menu expansion property (menuExpanded) applies */
+    LaunchedEffect(subCategories) {
+        isMultiSelected = if (subCategories != null &&
+            subCategories.any { it in superCategory.subCategories }) {
+            true
+        } else {
+            null
+        }
+    }
+
     val iconModifier = when (isSuperCategorySelectable) {
         true -> Modifier.clickable {
-            when (menuExpanded) {
-                false -> onMenuSelect(superCategory)
-                true -> onMenuSelect(null)
+            if (isMultiSelected != null) {
+                isMultiSelected = !isMultiSelected!!
+            } else if (menuExpanded) {
+                onMenuSelect(null)
+            } else {
+                onMenuSelect(superCategory)
             }
         }
         false -> Modifier
@@ -550,9 +552,7 @@ private fun MenuItemExpandable(
 
         /* Sub-menu content */
         AnimatedVisibility(
-            visible = if (subCategories != null &&
-                subCategories.any { it in superCategory.subCategories })
-                true else menuExpanded,
+            visible = isMultiSelected ?: menuExpanded,
             enter = expandVertically(
                 animationSpec = tween(durationMillis = Timings.MENU_EXPAND),
                 expandFrom = Alignment.Top,

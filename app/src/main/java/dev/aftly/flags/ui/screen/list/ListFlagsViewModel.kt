@@ -9,6 +9,11 @@ import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories2
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
+import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
+import dev.aftly.flags.model.FlagSuperCategory.AutonomousRegion
+import dev.aftly.flags.model.FlagSuperCategory.Regional
+import dev.aftly.flags.model.FlagSuperCategory.International
+import dev.aftly.flags.model.FlagSuperCategory.Cultural
 import dev.aftly.flags.model.FlagSuperCategory.Historical
 import dev.aftly.flags.ui.util.getCategoryTitle
 import dev.aftly.flags.ui.util.getFlagsByCategory
@@ -134,10 +139,24 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                     exclusive1.any { it in superCategories }) {
                     return
                 }
+                /* Hard coded solution for excluding supers when it's sub category selected
+                 * TODO: Make dynamic */
+                if (subCategories.any {
+                    it in AutonomousRegion.subCategories || it in Regional.subCategories
+                } && (newCategory == SovereignCountry || newCategory == International)) {
+                    return
+                }
             }
             mutuallyExclusiveSuperCategories2.let { exclusive2 ->
                 if (newCategory !in superCategories && exclusive2.contains(newCategory) &&
                     exclusive2.any { it in superCategories }) {
+                    return
+                }
+                /* Hard coded solution for excluding supers when it's sub category selected
+                 * TODO: Make dynamic */
+                if (subCategories.any {
+                    it in Cultural.subCategories
+                } && (newCategory == SovereignCountry || newCategory == International)) {
                     return
                 }
             }
@@ -154,8 +173,13 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
             mutuallyExclusiveSuperCategories1.let { exclusive1 ->
                 val subCategorySuper = exclusive1.find { newCategory in it.subCategories }
                 if (subCategorySuper != null) {
+                    /* If Sovereign or International selected reject selection of subcategories
+                     * from Regional */
                     val selectedExclusiveSupers = exclusive1.filter { it in superCategories }
+                        .filter { it in listOf(SovereignCountry, International) }
+
                     val unselectedExclusiveSupers = exclusive1.filterNot { it in superCategories }
+                        .filter { it == Regional }
 
                     if (selectedExclusiveSupers.isNotEmpty() &&
                         subCategorySuper in unselectedExclusiveSupers) {
@@ -192,9 +216,12 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                     isDeselect = true
                 }
                 if (isDeselect) {
-                    return if (superCategories.isEmpty() && subCategories.isEmpty()) {
-                        updateCurrentCategory(newSuperCategory = All, newSubCategory = null)
-                    } else return@let
+                    if (subCategories.isEmpty() && (superCategories.isEmpty() || superCategories
+                        .size == 1 && superCategories.first() == All)) {
+                        return updateCurrentCategory(newSuperCategory = All, newSubCategory = null)
+                    } else {
+                        return@let
+                    }
                 }
             }
 
@@ -217,7 +244,8 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 subCategories.remove(subCategory)
                 isDeselect = true
 
-                return if (superCategories.isEmpty() && subCategories.isEmpty()) {
+                return if (subCategories.isEmpty() && (superCategories.isEmpty() || superCategories
+                    .size == 1 && superCategories.first() == All)) {
                     updateCurrentCategory(newSuperCategory = All, newSubCategory = null)
                 } else return@let
 
@@ -253,7 +281,6 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         /* Update state with new multiSelectCategories list and currentFlags list */
         _uiState.update { currentState ->
             currentState.copy(
-                //currentSuperCategory = newCurrentSuperCategory,
                 currentSuperCategories = superCategories,
                 currentSubCategories = subCategories,
                 currentFlags = newFlags,
