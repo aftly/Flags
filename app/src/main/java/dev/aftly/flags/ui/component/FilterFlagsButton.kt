@@ -326,7 +326,7 @@ fun FilterFlagsButton(
                                 currentCategoryTitle = currentCategoryTitle,
                                 parentSuperCategory = superCategory,
                                 subCategories = currentSubCategories,
-                                expandMenuState = expandMenu,
+                                expandMenu = expandMenu,
                                 onMenuSelect = { expandMenu = it },
                                 onCategorySelect = { newSuperCategory, newSubCategory ->
                                     onCategorySelect(newSuperCategory,newSubCategory)
@@ -434,12 +434,11 @@ private fun MenuItemExpandable(
 
     val iconModifier = when (isSuperCategorySelectable) {
         true -> Modifier.clickable {
-            if (isMultiSelected != null) {
+            isMultiSelected?.let {
                 isMultiSelected = !isMultiSelected!!
-            } else if (menuExpanded) {
-                onMenuSelect(null)
-            } else {
-                onMenuSelect(superCategory)
+            } ?: when (menuExpanded) {
+                true -> onMenuSelect(null)
+                false -> onMenuSelect(superCategory)
             }
         }
         false -> Modifier
@@ -645,13 +644,30 @@ private fun MenuSuperItem(
     @StringRes currentCategoryTitle: Int,
     parentSuperCategory: FlagSuperCategory,
     subCategories: List<FlagCategory>?, /* for if multiple sub-categories are selected */
-    expandMenuState: FlagSuperCategory?,
+    expandMenu: FlagSuperCategory?,
     onMenuSelect: (FlagSuperCategory?) -> Unit,
     onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onCategoryMultiSelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
 ) {
-    val parentExpanded = parentSuperCategory == expandMenuState || parentSuperCategory
-        .subCategories.filterIsInstance<FlagSuperCategory>().contains(element = expandMenuState)
+    val parentExpanded = parentSuperCategory == expandMenu || parentSuperCategory
+        .subCategories.filterIsInstance<FlagSuperCategory>().contains(element = expandMenu)
+
+    /* Separated boolean for controlling submenu expansion when multi select (subCategories) */
+    var isMultiSelected: Boolean? by remember { mutableStateOf(value = null) }
+
+    /* on subCategories change, if any subcategories in the menus super, expand the menu, else
+     * null so that regular menu expansion property (menuExpanded) applies */
+    LaunchedEffect(subCategories) {
+        isMultiSelected = if (subCategories != null &&
+            subCategories.any { subCategory ->
+                parentSuperCategory.subCategories.filterIsInstance<FlagSuperCategory>().any {
+                    superCategory ->
+                    subCategory in superCategory.subCategories } }) {
+            true
+        } else {
+            null
+        }
+    }
 
 
     /* Menu item content */
@@ -664,7 +680,9 @@ private fun MenuSuperItem(
 
             TextButton(
                 onClick = {
-                    when (expandMenuState) {
+                    isMultiSelected?.let {
+                        isMultiSelected = !isMultiSelected!!
+                    } ?: when (expandMenu) {
                         in parentSuperCategory.subCategories
                             .filterIsInstance<FlagSuperCategory>() -> onMenuSelect(null)
                         parentSuperCategory -> onMenuSelect(null)
@@ -708,18 +726,18 @@ private fun MenuSuperItem(
                             }
                         )
 
-                        if (!parentExpanded) {
+                        if (isMultiSelected ?: parentExpanded) {
                             Icon(
-                                imageVector = Icons.Default.KeyboardArrowDown,
-                                contentDescription = stringResource(R.string.menu_sub_icon_expand),
+                                imageVector = Icons.Default.KeyboardArrowUp,
+                                contentDescription = stringResource(R.string.menu_sub_icon_collapse),
                                 modifier = Modifier.size(iconSize)
                                     .padding(start = iconPadding),
                                 tint = buttonColors1.contentColor,
                             )
                         } else {
                             Icon(
-                                imageVector = Icons.Default.KeyboardArrowUp,
-                                contentDescription = stringResource(R.string.menu_sub_icon_collapse),
+                                imageVector = Icons.Default.KeyboardArrowDown,
+                                contentDescription = stringResource(R.string.menu_sub_icon_expand),
                                 modifier = Modifier.size(iconSize)
                                     .padding(start = iconPadding),
                                 tint = buttonColors1.contentColor,
@@ -729,7 +747,7 @@ private fun MenuSuperItem(
                 }
             }
             AnimatedVisibility(
-                visible = parentExpanded,
+                visible = isMultiSelected ?: parentExpanded,
                 enter = expandVertically(
                     animationSpec = tween(durationMillis = Timings.MENU_EXPAND),
                     expandFrom = Alignment.Top,
@@ -743,9 +761,7 @@ private fun MenuSuperItem(
                     shape = Shapes.large,
                     colors = cardColors2,
                 ) {
-                    Column(modifier = Modifier
-                        .fillMaxWidth()
-                    ) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
                         parentSuperCategory.subCategories.forEach { superCategory ->
                             superCategory as FlagSuperCategory
 
@@ -761,7 +777,7 @@ private fun MenuSuperItem(
                                 currentCategoryTitle = currentCategoryTitle,
                                 superCategory = superCategory,
                                 subCategories = subCategories,
-                                menuExpanded = superCategory == expandMenuState,
+                                menuExpanded = superCategory == expandMenu,
                                 onMenuSelect = onMenuSelect,
                                 onCategorySelect = onCategorySelect,
                                 onCategoryMultiSelect = onCategoryMultiSelect,
