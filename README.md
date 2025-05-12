@@ -46,19 +46,20 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 <br>
 
  **📌 TODO for version 1.0:**
-- [ ] Add more flags (to less populated categories)
 - [x] ~~Add scroll to top button on list and search screens~~
 - [x] ~~Fullscreen flag image view~~
 - [x] ~~Fullscreen view orientation relative to image aspect ratio & button for unlocking screen orientation~~
-- [ ] Full screen carousel for flags in current list & flag name as header
-- [ ] Add regime type categories (for political flags) from **OurWorldInData**
-- [ ] Add Python scripts to repository
 - [x] ~~Searches return politically related flags~~
 - [x] ~~Search result exact match sorts item to first position in list~~
 - [x] ~~Filter searches~~
+- [x] Optimize app for different system Font sizes - **(Partially Complete)**
+- [x] Multi-select categories in filter menu
+- [ ] Add more flags (to less populated categories)
+- [ ] Full screen carousel for flags in current list & flag name as header
+- [ ] Add regime type categories (for political flags) from **OurWorldInData**
+- [ ] Add Python scripts to repository
 - [ ] Deselect keyboard and text fields when tap off
 - [ ] Move search function into list flags screen
-- [ ] Multi-select categories in filter menu
 - [ ] Show and select politically related flags on flag view screen
 - [ ] **Game**: Button to show correct answer & list in game over details
 - [ ] **Game**: Timer feature/mode
@@ -68,7 +69,6 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [ ] Save flags to custom list
 - [ ] *Add flag ISO codes?*
 - [ ] Add screenshots of app to **README**
-- [x] Optimize app for different system Font sizes - **(Partially Complete)**
 - [ ] Optimize app for different screen resolutions and aspect ratios
 - [ ] Implement tests and production optimizations
 - [ ] Language translations
