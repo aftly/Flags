@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -124,7 +123,7 @@ fun StaticTopAppBar(
     canNavigateBack: Boolean = false,
     canNavigateBackTitlePadding: Dp = Dimens.canNavigateBack0,
     onNavigateUp: () -> Unit,
-    onAction: (Screen) -> Unit,
+    onNavigateDetails: (Screen) -> Unit,
 ) {
     /* Ensures navigationIcon persists throughout the lifecycle */
     val canNavigateBackStatic by remember { mutableStateOf(canNavigateBack) }
@@ -170,7 +169,7 @@ fun StaticTopAppBar(
                     }
                     // TODO: Implement SettingsScreen()
                     IconButton(
-                        onClick = { /* onAction(Screen.Settings) */ }
+                        onClick = { /* onNavigateDetails(Screen.Settings) */ }
                     ) {
                         Icon(
                             imageVector = Icons.Default.Settings,

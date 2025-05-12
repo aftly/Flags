@@ -117,7 +117,7 @@ private fun FlagScaffold(
                     currentScreen = currentScreen,
                     canNavigateBack = canNavigateBack,
                     onNavigateUp = navigateUp,
-                    onAction = { },
+                    onNavigateDetails = { },
                 )
             }
         }

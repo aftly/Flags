@@ -30,14 +30,12 @@ fun StartMenuScreen(
     currentScreen: Screen,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
-    onTopBarAction: (Screen) -> Unit,
     onNavigateDetails: (Screen) -> Unit,
 ) {
     StartMenuScaffold(
         currentScreen = currentScreen,
         canNavigateBack = canNavigateBack,
         navigateUp = navigateUp,
-        onTopBarAction = onTopBarAction,
         onNavigateDetails = onNavigateDetails,
     )
 }
@@ -49,7 +47,6 @@ private fun StartMenuScaffold(
     currentScreen: Screen,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
-    onTopBarAction: (Screen) -> Unit,
     onNavigateDetails: (Screen) -> Unit,
 ) {
     Scaffold(
@@ -64,7 +61,7 @@ private fun StartMenuScaffold(
                     true -> Dimens.canNavigateBack0
                 },
                 onNavigateUp = navigateUp,
-                onAction = onTopBarAction,
+                onNavigateDetails = onNavigateDetails,
             )
         },
     ) { scaffoldPadding ->

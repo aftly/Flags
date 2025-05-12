@@ -66,9 +66,6 @@ fun AppNavHost(
                 currentScreen = Screen.StartMenu,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 navigateUp = { navController.navigateUp() },
-                onTopBarAction = { screen ->
-                    navController.navigate(screen.route) { launchSingleTop = true }
-                },
                 onNavigateDetails = { screen ->
                     navController.navigate(screen.route) { launchSingleTop = true }
                 },

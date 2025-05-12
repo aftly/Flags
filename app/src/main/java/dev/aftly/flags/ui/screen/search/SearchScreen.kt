@@ -178,7 +178,7 @@ private fun SearchScaffold(
                     currentScreen = currentScreen,
                     canNavigateBack = canNavigateBack,
                     onNavigateUp = onNavigateUp,
-                    onAction = { },
+                    onNavigateDetails = { },
                 )
             },
             floatingActionButton = {

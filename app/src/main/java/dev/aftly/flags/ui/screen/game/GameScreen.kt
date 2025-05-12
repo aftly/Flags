@@ -213,7 +213,7 @@ private fun GameScaffold(
                         currentScreen = currentScreen,
                         canNavigateBack = canNavigateBack,
                         onNavigateUp = onNavigateUp,
-                        onAction = { },
+                        onNavigateDetails = { },
                     )
                 }
             }
