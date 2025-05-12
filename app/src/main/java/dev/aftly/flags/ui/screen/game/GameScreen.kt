@@ -130,6 +130,8 @@ fun GameScreen(
         correctGuessCount = uiState.correctGuessCount,
         currentCategoryTitle = uiState.currentCategoryTitle,
         currentSuperCategory = uiState.currentSuperCategory,
+        currentSuperCategories = uiState.currentSuperCategories,
+        currentSubCategories = uiState.currentSubCategories,
         currentFlag = uiState.currentFlag,
         userGuess = viewModel.userGuess,
         onUserGuessChange = { viewModel.updateUserGuess(it) },
@@ -142,8 +144,11 @@ fun GameScreen(
         onSkip = { viewModel.skipFlag() },
         onEndGame = { viewModel.endGame() },
         onNavigateUp = onNavigateUp,
-        onCategorySelect = { newSuperCategory: FlagSuperCategory?, newSubCategory: FlagCategory? ->
+        onCategorySelect = { newSuperCategory, newSubCategory ->
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
+        },
+        onCategoryMultiSelect = { selectSuperCategory, selectSubCategory ->
+            viewModel.updateCurrentCategories(selectSuperCategory, selectSubCategory)
         },
     )
 }
@@ -160,6 +165,8 @@ private fun GameScaffold(
     correctGuessCount: Int,
     @StringRes currentCategoryTitle: Int,
     currentSuperCategory: FlagSuperCategory,
+    currentSuperCategories: List<FlagSuperCategory>?,
+    currentSubCategories: List<FlagCategory>?,
     currentFlag: FlagResources,
     userGuess: String,
     onUserGuessChange: (String) -> Unit,
@@ -173,6 +180,7 @@ private fun GameScaffold(
     onEndGame: () -> Unit,
     onNavigateUp: () -> Unit,
     onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onCategoryMultiSelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
 ) {
     /* Controls FilterFlagsButton menu expansion and tracks button height */
     var buttonExpanded by rememberSaveable { mutableStateOf(value = false) }
@@ -294,10 +302,10 @@ private fun GameScaffold(
                 fontScale = fontScale,
                 currentCategoryTitle = currentCategoryTitle,
                 currentSuperCategory = currentSuperCategory,
-                currentSuperCategories = emptyList(), // TODO
-                currentSubCategories = emptyList(), // TODO
+                currentSuperCategories = currentSuperCategories,
+                currentSubCategories = currentSubCategories,
                 onCategorySelect = onCategorySelect,
-                onCategoryMultiSelect = { selectSuper, selectSub -> }, // TODO
+                onCategoryMultiSelect = onCategoryMultiSelect,
             )
         }
     }

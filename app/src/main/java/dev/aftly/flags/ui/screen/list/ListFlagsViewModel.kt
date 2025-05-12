@@ -3,22 +3,20 @@ package dev.aftly.flags.ui.screen.list
 import android.app.Application
 import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
-import dev.aftly.flags.data.DataSource.mutuallyExclusiveSubCategories
-import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories1
-import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories2
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
-import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
-import dev.aftly.flags.model.FlagSuperCategory.AutonomousRegion
-import dev.aftly.flags.model.FlagSuperCategory.Regional
-import dev.aftly.flags.model.FlagSuperCategory.International
-import dev.aftly.flags.model.FlagSuperCategory.Cultural
-import dev.aftly.flags.model.FlagSuperCategory.Historical
 import dev.aftly.flags.ui.util.getCategoryTitle
 import dev.aftly.flags.ui.util.getFlagsByCategory
+import dev.aftly.flags.ui.util.getFlagsFromCategories
 import dev.aftly.flags.ui.util.getParentSuperCategory
+import dev.aftly.flags.ui.util.getSubCategories
+import dev.aftly.flags.ui.util.getSuperCategories
+import dev.aftly.flags.ui.util.isSubCategoryExit
+import dev.aftly.flags.ui.util.isSuperCategoryExit
 import dev.aftly.flags.ui.util.normalizeString
+import dev.aftly.flags.ui.util.updateCategoriesFromSub
+import dev.aftly.flags.ui.util.updateCategoriesFromSuper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -113,177 +111,63 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         newSuperCategory: FlagSuperCategory?,
         newSubCategory: FlagCategory?,
     ) {
-        val currentSuperCategory = uiState.value.currentSuperCategory
         var isDeselect = false /* Controls whether flags are updated from current or all flags */
 
-        val superCategories = when (val superCategories = uiState.value.currentSuperCategories) {
-            null -> mutableListOf(currentSuperCategory)
-            else -> superCategories.toMutableList()
-        }
+        val superCategories = getSuperCategories(
+            superCategories = uiState.value.currentSuperCategories,
+            currentSuperCategory = uiState.value.currentSuperCategory,
+        )
+        val subCategories = getSubCategories(
+            subCategories = uiState.value.currentSubCategories,
+            currentSuperCategory = uiState.value.currentSuperCategory,
+        )
 
-        val subCategories = when (val subCategories = uiState.value.currentSubCategories) {
-            null ->
-                when (currentSuperCategory.subCategories.size) {
-                    1 -> mutableListOf(currentSuperCategory.subCategories
-                        .filterIsInstance<FlagCategory>().first())
-                    else -> mutableListOf<FlagCategory>()
-                }
-            else -> subCategories.toMutableList()
-        }
-
-
-        /* Exit function if newSuperCategory is not selectable or mutually exclusive from current */
-        newSuperCategory?.let { newCategory ->
-            mutuallyExclusiveSuperCategories1.let { exclusive1 ->
-                if (newCategory !in superCategories && exclusive1.contains(newCategory) &&
-                    exclusive1.any { it in superCategories }) {
-                    return
-                }
-                /* Hard coded solution for excluding supers when it's sub category selected
-                 * TODO: Make dynamic */
-                if (subCategories.any {
-                    it in AutonomousRegion.subCategories || it in Regional.subCategories
-                } && (newCategory == SovereignCountry || newCategory == International)) {
-                    return
-                }
-            }
-            mutuallyExclusiveSuperCategories2.let { exclusive2 ->
-                if (newCategory !in superCategories && exclusive2.contains(newCategory) &&
-                    exclusive2.any { it in superCategories }) {
-                    return
-                }
-                /* Hard coded solution for excluding supers when it's sub category selected
-                 * TODO: Make dynamic */
-                if (subCategories.any {
-                    it in Cultural.subCategories
-                } && (newCategory == SovereignCountry || newCategory == International)) {
-                    return
-                }
-            }
-        }
-        /* Exit function if newSubCategory is mutually exclusive from current */
-        newSubCategory?.let { newCategory ->
-            mutuallyExclusiveSubCategories.forEach { superCategory ->
-                if (newCategory !in subCategories &&
-                    superCategory.subCategories.any { it in subCategories } &&
-                    newCategory in superCategory.subCategories) {
-                    return
-                }
-            }
-            mutuallyExclusiveSuperCategories1.let { exclusive1 ->
-                val subCategorySuper = exclusive1.find { newCategory in it.subCategories }
-                if (subCategorySuper != null) {
-                    /* If Sovereign or International selected reject selection of subcategories
-                     * from Regional */
-                    val selectedExclusiveSupers = exclusive1.filter { it in superCategories }
-                        .filter { it in listOf(SovereignCountry, International) }
-
-                    val unselectedExclusiveSupers = exclusive1.filterNot { it in superCategories }
-                        .filter { it == Regional }
-
-                    if (selectedExclusiveSupers.isNotEmpty() &&
-                        subCategorySuper in unselectedExclusiveSupers) {
-                        return
-                    }
-                }
-            }
-            mutuallyExclusiveSuperCategories2.let { exclusive2 ->
-                val subCategorySuper = exclusive2.find { newCategory in it.subCategories }
-                if (subCategorySuper != null) {
-                    val selectedExclusiveSupers = exclusive2.filter { it in superCategories }
-                    val unselectedExclusiveSupers = exclusive2.filterNot { it in superCategories }
-
-                    if (selectedExclusiveSupers.isNotEmpty() &&
-                        subCategorySuper in unselectedExclusiveSupers) {
-                        return
-                    }
-                }
-            }
-        }
-
-
-        /* Add/remove super-category argument to/from categories lists */
+        /* Exit function if new<*>Category is not selectable or mutually exclusive from current.
+         * Else, add/remove category argument to/from categories lists */
         newSuperCategory?.let { superCategory ->
-            /* If super in either superCategories or subCategories remove it/them and exit let */
-            if (superCategories.isNotEmpty() || subCategories.isNotEmpty()) {
-                if (superCategories.isNotEmpty() && superCategory in superCategories) {
-                    superCategories.remove(superCategory)
-                    isDeselect = true
-                }
-                if (subCategories.isNotEmpty() && superCategory.subCategories.size == 1 &&
-                    superCategory.subCategories.first() in subCategories) {
-                    subCategories.remove(superCategory.subCategories.first())
-                    isDeselect = true
-                }
-                if (isDeselect) {
-                    if (subCategories.isEmpty() && (superCategories.isEmpty() || superCategories
-                        .size == 1 && superCategories.first() == All)) {
-                        return updateCurrentCategory(newSuperCategory = All, newSubCategory = null)
-                    } else {
-                        return@let
-                    }
-                }
-            }
+            if (isSuperCategoryExit(superCategory, superCategories, subCategories)) return
 
-            if (superCategory == All) {
-                return
-            } else {
-                when (newSuperCategory.subCategories.size) {
-                    1 -> {
-                        superCategories.add(superCategory)
-                        subCategories.add(superCategory.subCategories
-                            .filterIsInstance<FlagCategory>().first())
-                    }
-                    else -> superCategories.add(superCategory)
-                }
-            }
+            isDeselect = updateCategoriesFromSuper(
+                superCategory = superCategory,
+                superCategories = superCategories,
+                subCategories = subCategories,
+            )
+            /* Exit after All is deselected since (how) deselection is state inconsequential */
+            if (!isDeselect && superCategory == All) return
         }
-        /* Add/remove sub-category argument to/from subcategories list */
         newSubCategory?.let { subCategory ->
-            if (subCategories.isNotEmpty() && subCategory in subCategories) {
-                subCategories.remove(subCategory)
-                isDeselect = true
+            if (isSubCategoryExit(subCategory, subCategories, superCategories)) return
 
-                return if (subCategories.isEmpty() && (superCategories.isEmpty() || superCategories
-                    .size == 1 && superCategories.first() == All)) {
-                    updateCurrentCategory(newSuperCategory = All, newSubCategory = null)
-                } else return@let
-
-            } else {
-                subCategories.add(subCategory)
-            }
+            isDeselect = updateCategoriesFromSub(
+                subCategory = subCategory,
+                subCategories = subCategories,
+            )
+        }
+        /* Return updateCurrentCategory() if deselection to 0 categories or only All super */
+        if (isDeselect && subCategories.isEmpty() && (superCategories.isEmpty() || superCategories
+            .size == 1 && superCategories.first() == All)) {
+            return updateCurrentCategory(newSuperCategory = All, newSubCategory = null)
         }
 
 
         /* Get new flags list from categories list and currentFlags or allFlags (depending on
          * processing needs) */
-        val newFlags = uiState.value.let { state ->
-            if (isDeselect || newSuperCategory == Historical) state.allFlags
-            else state.currentFlags
-        }.let { flags ->
-            when (subCategories.isNotEmpty()) {
-                true -> flags.filter { it.categories.containsAll(subCategories) }
-                false -> flags
-            }
-        }.let { flags ->
-            when (superCategories.isNotEmpty()) {
-                true ->
-                    flags.filter { flag ->
-                        superCategories.all { superCategory ->
-                            flag.categories.any { it in superCategory.subCategories }
-                        }
-                    }
-                false -> flags
-            }
-        }
+        val newFlags = getFlagsFromCategories(
+            allFlags = uiState.value.allFlags,
+            currentFlags = uiState.value.currentFlags,
+            isDeselect = isDeselect,
+            newSuperCategory = newSuperCategory,
+            superCategories = superCategories,
+            subCategories = subCategories,
+        )
 
 
-        /* Update state with new multiSelectCategories list and currentFlags list */
+        /* Update state with new categories lists and currentFlags list */
         _uiState.update { currentState ->
             currentState.copy(
+                currentFlags = newFlags,
                 currentSuperCategories = superCategories,
                 currentSubCategories = subCategories,
-                currentFlags = newFlags,
             )
         }
     }

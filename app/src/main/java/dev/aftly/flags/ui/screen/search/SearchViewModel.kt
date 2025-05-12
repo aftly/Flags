@@ -14,11 +14,19 @@ import dev.aftly.flags.data.DataSource.reverseFlagsMap
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
+import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.ui.util.getCategoryTitle
 import dev.aftly.flags.ui.util.getFlagsByCategory
+import dev.aftly.flags.ui.util.getFlagsFromCategories
 import dev.aftly.flags.ui.util.getParentSuperCategory
+import dev.aftly.flags.ui.util.getSubCategories
+import dev.aftly.flags.ui.util.getSuperCategories
+import dev.aftly.flags.ui.util.isSubCategoryExit
+import dev.aftly.flags.ui.util.isSuperCategoryExit
 import dev.aftly.flags.ui.util.normalizeLower
 import dev.aftly.flags.ui.util.normalizeString
+import dev.aftly.flags.ui.util.updateCategoriesFromSub
+import dev.aftly.flags.ui.util.updateCategoriesFromSuper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -297,6 +305,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     currentFlags = currentState.allFlags,
                     currentSuperCategory = newSuperCategory,
                     currentCategoryTitle = newSuperCategory.title,
+                    currentSuperCategories = null,
+                    currentSubCategories = null,
                 )
             }
         } else {
@@ -325,8 +335,76 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     currentFlags = newFlags,
                     currentSuperCategory = parentSuperCategory,
                     currentCategoryTitle = categoryTitle,
+                    currentSuperCategories = null,
+                    currentSubCategories = null,
                 )
             }
+        }
+    }
+
+
+    fun updateCurrentCategories(
+        newSuperCategory: FlagSuperCategory?,
+        newSubCategory: FlagCategory?,
+    ) {
+        var isDeselect = false /* Controls whether flags are updated from current or all flags */
+
+        val superCategories = getSuperCategories(
+            superCategories = uiState.value.currentSuperCategories,
+            currentSuperCategory = uiState.value.currentSuperCategory,
+        )
+        val subCategories = getSubCategories(
+            subCategories = uiState.value.currentSubCategories,
+            currentSuperCategory = uiState.value.currentSuperCategory,
+        )
+
+        /* Exit function if new<*>Category is not selectable or mutually exclusive from current.
+         * Else, add/remove category argument to/from categories lists */
+        newSuperCategory?.let { superCategory ->
+            if (isSuperCategoryExit(superCategory, superCategories, subCategories)) return
+
+            isDeselect = updateCategoriesFromSuper(
+                superCategory = superCategory,
+                superCategories = superCategories,
+                subCategories = subCategories,
+            )
+            /* Exit after All is deselected since (how) deselection is state inconsequential */
+            if (!isDeselect && superCategory == All) return
+        }
+        newSubCategory?.let { subCategory ->
+            if (isSubCategoryExit(subCategory, subCategories, superCategories)) return
+
+            isDeselect = updateCategoriesFromSub(
+                subCategory = subCategory,
+                subCategories = subCategories,
+            )
+        }
+        /* Return updateCurrentCategory() if deselection to 0 categories or only All super */
+        if (isDeselect && subCategories.isEmpty() && (superCategories.isEmpty() || superCategories
+                .size == 1 && superCategories.first() == All)) {
+            return updateCurrentCategory(newSuperCategory = All, newSubCategory = null)
+        }
+
+
+        /* Get new flags list from categories list and currentFlags or allFlags (depending on
+         * processing needs) */
+        val newFlags = getFlagsFromCategories(
+            allFlags = uiState.value.allFlags,
+            currentFlags = uiState.value.currentFlags,
+            isDeselect = isDeselect,
+            newSuperCategory = newSuperCategory,
+            superCategories = superCategories,
+            subCategories = subCategories,
+        )
+
+
+        /* Update state with new categories lists and currentFlags list */
+        _uiState.update { currentState ->
+            currentState.copy(
+                currentFlags = newFlags,
+                currentSuperCategories = superCategories,
+                currentSubCategories = subCategories,
+            )
         }
     }
 

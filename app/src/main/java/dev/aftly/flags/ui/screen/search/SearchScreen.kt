@@ -101,14 +101,19 @@ fun SearchScreen(
         canNavigateBack = canNavigateBack,
         currentCategoryTitle = uiState.currentCategoryTitle,
         currentSuperCategory = uiState.currentSuperCategory,
+        currentSuperCategories = uiState.currentSuperCategories,
+        currentSubCategories = uiState.currentSubCategories,
         fontScale = configuration.fontScale,
         userSearch = viewModel.searchQuery,
         isUserSearch = viewModel.isSearchQuery,
         searchResults = searchResults,
         onUserSearchChange = { viewModel.onSearchQueryChange(it) },
         onNavigateUp = onNavigateUp,
-        onCategorySelect = { newSuperCategory: FlagSuperCategory?, newSubCategory: FlagCategory? ->
+        onCategorySelect = { newSuperCategory, newSubCategory ->
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
+        },
+        onCategoryMultiSelect = { selectSuperCategory, selectSubCategory ->
+            viewModel.updateCurrentCategories(selectSuperCategory, selectSubCategory)
         },
         onFlagSelect = { onNavigateDetails(getFlagNavArg(flag = it)) }
     )
@@ -124,6 +129,8 @@ private fun SearchScaffold(
     containerColor2: Color = MaterialTheme.colorScheme.secondary,
     @StringRes currentCategoryTitle: Int,
     currentSuperCategory: FlagSuperCategory,
+    currentSuperCategories: List<FlagSuperCategory>?,
+    currentSubCategories: List<FlagCategory>?,
     fontScale: Float,
     userSearch: String,
     isUserSearch: Boolean,
@@ -131,6 +138,7 @@ private fun SearchScaffold(
     onUserSearchChange: (String) -> Unit,
     onNavigateUp: () -> Unit,
     onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onCategoryMultiSelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onFlagSelect: (FlagResources) -> Unit,
 ) {
     /* Controls FilterFlagsButton menu expansion amd tracks current button height
@@ -237,13 +245,16 @@ private fun SearchScaffold(
             fontScale = fontScale,
             currentCategoryTitle = currentCategoryTitle,
             currentSuperCategory = currentSuperCategory,
-            currentSuperCategories = emptyList(), // TODO
-            currentSubCategories = emptyList(), // TODO
+            currentSuperCategories = currentSuperCategories,
+            currentSubCategories = currentSubCategories,
             onCategorySelect = { flagSuperCategory, flagSubCategory ->
                 onCategorySelect(flagSuperCategory, flagSubCategory)
                 coroutineScope.launch { listState.animateScrollToItem(index = 0) }
             },
-            onCategoryMultiSelect = { selectSuper, selectSub -> } // TODO
+            onCategoryMultiSelect = { flagSuperCategory, flagSubCategory ->
+                onCategoryMultiSelect(flagSuperCategory, flagSubCategory)
+                coroutineScope.launch { listState.animateScrollToItem(index = 0) }
+            },
         )
     }
 }
