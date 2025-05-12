@@ -14,7 +14,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,6 +38,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -115,10 +119,18 @@ fun FullscreenImage(
     Box(
         modifier = Modifier.fillMaxSize()
             .background(color = surfaceDark)
-            .combinedClickable(
-                onClick = { isSystemBars = !isSystemBars },
-                onDoubleClick = onExitFullScreen,
-            )
+            .pointerInput(key1 = (Unit)) {
+                detectTapGestures(
+                    onTap = { isSystemBars = !isSystemBars },
+                    onDoubleTap = { onExitFullScreen() },
+                )
+            }
+            .onKeyEvent {
+                if (it.key == Key.Escape) {
+                    onExitFullScreen()
+                    true
+                } else false
+            },
     ) {
         /* Flag image */
         Box(
