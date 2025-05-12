@@ -143,10 +143,24 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 subCategories = subCategories,
             )
         }
-        /* Return updateCurrentCategory() if deselection to 0 categories or only All super */
-        if (isDeselect && subCategories.isEmpty() && (superCategories.isEmpty() || superCategories
-            .size == 1 && superCategories.first() == All)) {
-            return updateCurrentCategory(newSuperCategory = All, newSubCategory = null)
+        /* Return updateCurrentCategory() if deselection to only 1 super category */
+        if (isDeselect) {
+            if (subCategories.isEmpty()) {
+                if (superCategories.isEmpty()) {
+                    return updateCurrentCategory(newSuperCategory = All, newSubCategory = null)
+
+                } else if (superCategories.size == 1) {
+                    return updateCurrentCategory(
+                        newSuperCategory = superCategories.first(), newSubCategory = null
+                    )
+                }
+            } else if (subCategories.size == 1 && superCategories.size == 1 &&
+                superCategories.first().subCategories.size == 1 &&
+                subCategories.first() == superCategories.first().subCategories.first()) {
+                return updateCurrentCategory(
+                    newSuperCategory = superCategories.first(), newSubCategory = null
+                )
+            }
         }
 
 
