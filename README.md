@@ -8,8 +8,8 @@
 
 [![Android](https://img.shields.io/badge/Android-Platform?label=Platform&color=62a900)](https://www.android.com/)
 [![Min API: 24](https://img.shields.io/badge/24-minSdkVersion?label=minSdkVersion&color=62a900)](https://developer.android.com/tools/releases/platforms#7.0)
-[![GitHub Releases](https://img.shields.io/badge/GitLab_Releases-Download?label=Download&color=62a900)](https://gitlab.com/aftly/flags/-/blob/main/releases)
-[![Latest release version](https://img.shields.io/gitlab/v/release/aftly/flags?include_prereleases&color=dc5d18)](https://gitlab.com/aftly/flags/-/blob/main/releases)
+[![GitLab Releases](https://img.shields.io/badge/GitLab_Releases-Download?label=Download&color=62a900)](https://gitlab.com/aftly/flags/-/releases)
+[![Latest release version](https://img.shields.io/gitlab/v/release/aftly/flags?include_prereleases&color=dc5d18)](https://gitlab.com/aftly/flags/-/releases)
 [![License: MPL 2.0](https://img.shields.io/badge/license-MPL%202.0-blue.svg)](https://gitlab.com/aftly/flags/-/blob/main/LICENSE)
 
 </div>
