@@ -25,7 +25,7 @@
 <br>
 
 ## 📱 Installation
-[GitLab Releases](https://gitlab.com/aftly/flags/-/blob/main/releases)
+[**GitLab Releases**](https://gitlab.com/aftly/flags/-/blob/main/releases)
 
 **Verification info**:
 - Package & APK Signing Certificate hash (SHA-256):
