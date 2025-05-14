@@ -60,7 +60,6 @@ import dev.aftly.flags.ui.component.Scrim
 import dev.aftly.flags.ui.component.ScrollToTopButton
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timings
-import dev.aftly.flags.ui.util.getFlagNavArg
 import kotlinx.coroutines.launch
 
 
@@ -72,7 +71,7 @@ fun ListFlagsScreen(
     currentScreen: Screen,
     canNavigateBack: Boolean,
     onNavigateUp: () -> Unit,
-    onNavigateDetails: (String) -> Unit,
+    onNavigateDetails: (Int, List<Int>) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -102,7 +101,12 @@ fun ListFlagsScreen(
         onCategoryMultiSelect = { selectSuperCategory, selectSubCategory ->
             viewModel.updateCurrentCategories(selectSuperCategory, selectSubCategory)
         },
-        onFlagSelect = { onNavigateDetails(getFlagNavArg(flag = it)) },
+        onFlagSelect = { flag ->
+            onNavigateDetails(
+                flag.id,
+                uiState.currentFlags.map { it.id }
+            )
+        },
     )
 }
 

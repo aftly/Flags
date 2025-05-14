@@ -2,29 +2,31 @@ package dev.aftly.flags.ui.screen.flag
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.allFlagsList
 import dev.aftly.flags.data.DataSource.flagsMap
+import dev.aftly.flags.data.DataSource.flagsMapId
 import dev.aftly.flags.model.FlagCategory
-import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
-import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
-import dev.aftly.flags.model.FlagCategory.DEVOLVED_GOVERNMENT
-import dev.aftly.flags.model.FlagCategory.OBLAST
-import dev.aftly.flags.model.FlagCategory.SUPRANATIONAL_UNION
-import dev.aftly.flags.model.FlagCategory.INTERNATIONAL_ORGANIZATION
-import dev.aftly.flags.model.FlagCategory.HISTORICAL
 import dev.aftly.flags.model.FlagCategory.CONSTITUTIONAL
-import dev.aftly.flags.model.FlagCategory.MONARCHY
-import dev.aftly.flags.model.FlagCategory.ONE_PARTY
-import dev.aftly.flags.model.FlagCategory.THEOCRACY
-import dev.aftly.flags.model.FlagCategory.MILITARY_JUNTA
-import dev.aftly.flags.model.FlagCategory.PROVISIONAL_GOVERNMENT
-import dev.aftly.flags.model.FlagCategory.SOCIAL
+import dev.aftly.flags.model.FlagCategory.DEVOLVED_GOVERNMENT
 import dev.aftly.flags.model.FlagCategory.ETHNIC
+import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
+import dev.aftly.flags.model.FlagCategory.HISTORICAL
+import dev.aftly.flags.model.FlagCategory.INTERNATIONAL_ORGANIZATION
+import dev.aftly.flags.model.FlagCategory.MILITARY_JUNTA
+import dev.aftly.flags.model.FlagCategory.MONARCHY
+import dev.aftly.flags.model.FlagCategory.OBLAST
+import dev.aftly.flags.model.FlagCategory.ONE_PARTY
 import dev.aftly.flags.model.FlagCategory.POLITICAL
-import dev.aftly.flags.model.FlagCategory.RELIGIOUS
+import dev.aftly.flags.model.FlagCategory.PROVISIONAL_GOVERNMENT
 import dev.aftly.flags.model.FlagCategory.REGIONAL
+import dev.aftly.flags.model.FlagCategory.RELIGIOUS
+import dev.aftly.flags.model.FlagCategory.SOCIAL
+import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
+import dev.aftly.flags.model.FlagCategory.SUPRANATIONAL_UNION
+import dev.aftly.flags.model.FlagCategory.THEOCRACY
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,18 +35,41 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 
-class FlagViewModel(application: Application) : AndroidViewModel(application) {
+class FlagViewModel(
+    application: Application,
+    savedStateHandle: SavedStateHandle,
+) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow(FlagUiState())
     val uiState: StateFlow<FlagUiState> = _uiState.asStateFlow()
 
+    init {
+        /* Initialise state from nav arg via SavedStateHandle */
+        val flagArg = savedStateHandle.get<Int>("flag")
+        val flagsArg = savedStateHandle.get<String>("flags")
 
-    fun initialiseUiState(argFlagId: String?) {
-        if (argFlagId != null) {
-            val flag = flagsMap.getValue(argFlagId)
+        if (flagArg != null && flagsArg != null) {
+            val flag = flagsMapId.getValue(flagArg)
+            val flags = flagsArg.split(",").mapNotNull { it.toIntOrNull() }
+
             _uiState.update { currentState ->
                 currentState.copy(
                     flag = flag,
-                    descriptionStringResIds = getDescriptionIds(flag = flag)
+                    flags = flags,
+                    descriptionStringResIds = getDescriptionIds(flag = flag),
+                )
+            }
+            updateDescriptionString()
+        }
+    }
+
+
+    fun updateFlag(flagId: Int) {
+        val newFlag = flagsMapId.getValue(flagId)
+        if (newFlag != uiState.value.flag) {
+            _uiState.update {
+                it.copy(
+                    flag = newFlag,
+                    descriptionStringResIds = getDescriptionIds(flag = newFlag)
                 )
             }
             updateDescriptionString()

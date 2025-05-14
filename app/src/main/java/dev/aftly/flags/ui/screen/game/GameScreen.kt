@@ -85,6 +85,7 @@ fun GameScreen(
     currentScreen: Screen,
     canNavigateBack: Boolean,
     onNavigateUp: () -> Unit,
+    onFullscreen: (Int, Boolean) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -142,6 +143,9 @@ fun GameScreen(
         onSkip = { viewModel.skipFlag() },
         onEndGame = { viewModel.endGame() },
         onNavigateUp = onNavigateUp,
+        onFullscreen = { isLandscape ->
+            onFullscreen(uiState.currentFlag.id, isLandscape)
+        },
         onCategorySelect = { newSuperCategory, newSubCategory ->
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
         },
@@ -177,6 +181,7 @@ private fun GameScaffold(
     onSkip: () -> Unit,
     onEndGame: () -> Unit,
     onNavigateUp: () -> Unit,
+    onFullscreen: (Boolean) -> Unit,
     onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onCategoryMultiSelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
 ) {
@@ -189,6 +194,7 @@ private fun GameScaffold(
     var scaffoldBottomPadding by remember { mutableStateOf(value = 0.dp) }
 
     /* Managing state and screen orientation for fullscreen flag view */
+    /*
     var isFullScreen by rememberSaveable { mutableStateOf(value = false) }
     val orientationController = LocalOrientationController.current
     var isFlagWide by rememberSaveable { mutableStateOf(value = true) }
@@ -201,6 +207,8 @@ private fun GameScaffold(
         }
     }
     val coroutineScope = rememberCoroutineScope()
+     */
+    var isFlagWide by rememberSaveable { mutableStateOf(value = true) }
 
 
     /* Scaffold within box so that FilterFlagsButton & it's associated surface can overlay it */
@@ -208,6 +216,13 @@ private fun GameScaffold(
         Scaffold(
             modifier = modifier.fillMaxSize(),
             topBar = {
+                StaticTopAppBar(
+                    currentScreen = currentScreen,
+                    canNavigateBack = canNavigateBack,
+                    onNavigateUp = onNavigateUp,
+                    onNavigateDetails = {},
+                )
+                /*
                 if (!isFullScreen) {
                     StaticTopAppBar(
                         currentScreen = currentScreen,
@@ -216,11 +231,33 @@ private fun GameScaffold(
                         onNavigateDetails = { },
                     )
                 }
+                 */
             }
         ) { scaffoldPadding ->
             scaffoldTopPadding = scaffoldPadding.calculateTopPadding()
             scaffoldBottomPadding = scaffoldPadding.calculateBottomPadding()
 
+            GameContent(
+                modifier = Modifier.padding(scaffoldPadding),
+                isWideScreen = isWideScreen,
+                filterButtonHeight = buttonHeight,
+                totalFlagCount = totalFlagCount,
+                correctGuessCount = correctGuessCount,
+                currentFlag = currentFlag,
+                userGuess = userGuess,
+                onUserGuessChange = onUserGuessChange,
+                isGuessCorrect = isGuessCorrect,
+                isGuessCorrectEvent = isGuessCorrectEvent,
+                isGuessWrong = isGuessWrong,
+                isGuessWrongEvent = isGuessWrongEvent,
+                onKeyboardDoneAction = onKeyboardDoneAction,
+                onSubmit = onSubmit,
+                onSkip = onSkip,
+                onEndGame = onEndGame,
+                onImageWide = { isFlagWide = it },
+                onFullscreen = { onFullscreen(isFlagWide) },
+            )
+            /*
             if (!isFullScreen) {
                 GameContent(
                     modifier = Modifier.padding(scaffoldPadding),
@@ -263,10 +300,48 @@ private fun GameScaffold(
                     },
                 )
             }
+             */
+        }
+
+        /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */
+        AnimatedVisibility(
+            visible = buttonExpanded,
+            enter = fadeIn(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
+            exit = fadeOut(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
+        ) {
+            Scrim(
+                modifier = Modifier.fillMaxSize()
+                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
+                onAction = { buttonExpanded = !buttonExpanded }
+            )
         }
 
 
+        /* Custom quasi-DropdownMenu elevated above screen content with animated nested menus for
+         * selecting super or sub category to filter flags by */
+        FilterFlagsButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    top = scaffoldTopPadding,
+                    bottom = scaffoldBottomPadding,
+                    start = Dimens.marginHorizontal16,
+                    end = Dimens.marginHorizontal16,
+                ),
+            onButtonHeightChange = { buttonHeight = it },
+            buttonExpanded = buttonExpanded,
+            onButtonExpand = { buttonExpanded = !buttonExpanded },
+            fontScale = fontScale,
+            currentCategoryTitle = currentCategoryTitle,
+            currentSuperCategory = currentSuperCategory,
+            currentSuperCategories = currentSuperCategories,
+            currentSubCategories = currentSubCategories,
+            onCategorySelect = onCategorySelect,
+            onCategoryMultiSelect = onCategoryMultiSelect,
+        )
+
         /* Show FilterFlagsButton components when not in fullscreen view */
+        /*
         if (!isFullScreen) {
 
             /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */
@@ -306,6 +381,7 @@ private fun GameScaffold(
                 onCategoryMultiSelect = onCategoryMultiSelect,
             )
         }
+         */
     }
 }
 

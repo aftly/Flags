@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -22,7 +24,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -43,31 +44,39 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.FullscreenButton
-import dev.aftly.flags.ui.component.FullscreenImage
-import dev.aftly.flags.ui.component.LocalOrientationController
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.theme.Dimens
-import kotlinx.coroutines.launch
 
 
 @Composable
 fun FlagScreen(
     viewModel: FlagViewModel = viewModel(),
-    navArgFlagId: String?,
+    navController: NavHostController,
     currentScreen: Screen,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
+    onFullscreen: (Int, List<Int>, Boolean) -> Unit,
     onNavigateError: () -> Unit,
 ) {
-    viewModel.initialiseUiState(navArgFlagId)
-    val uiState by viewModel.uiState.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(Unit) {
+        navController.currentBackStackEntry?.savedStateHandle?.getLiveData<Int>("flag")
+            ?.observe(lifecycleOwner) { flagId ->
+                if (flagId != null) {
+                    viewModel.updateFlag(flagId)
+                }
+            }
+    }
 
+    val uiState by viewModel.uiState.collectAsState()
     if (uiState.flag == DataSource.nullFlag) onNavigateError()
 
     /* Update flag description string when language configuration changes */
@@ -81,6 +90,13 @@ fun FlagScreen(
         flag = uiState.flag,
         description = uiState.description,
         boldWordPositions = uiState.descriptionBoldWordIndexes,
+        onFullscreen = { isLandscape ->
+            onFullscreen(
+                uiState.flag.id,
+                uiState.flags,
+                isLandscape
+            )
+        }
     )
 }
 
@@ -94,64 +110,29 @@ private fun FlagScaffold(
     flag: FlagResources,
     description: List<String>,
     boldWordPositions: List<Int>,
+    onFullscreen: (Boolean) -> Unit,
 ) {
-    /* Managing state and screen orientation for fullscreen flag view */
-    var isFullScreen by rememberSaveable { mutableStateOf(value = false) }
-    val orientationController = LocalOrientationController.current
     var isFlagWide by rememberSaveable { mutableStateOf(value = true) }
-    var isLandscapeOrientation by rememberSaveable { mutableStateOf(value = true) }
-
-    LaunchedEffect(isLandscapeOrientation) {
-        when (isFullScreen to isLandscapeOrientation) {
-            true to true -> orientationController.setLandscapeOrientation()
-            true to false -> orientationController.unsetLandscapeOrientation()
-        }
-    }
-    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
-            if (!isFullScreen) {
-                StaticTopAppBar(
-                    currentScreen = currentScreen,
-                    canNavigateBack = canNavigateBack,
-                    onNavigateUp = navigateUp,
-                    onNavigateDetails = { },
-                )
-            }
+            StaticTopAppBar(
+                currentScreen = currentScreen,
+                canNavigateBack = canNavigateBack,
+                onNavigateUp = navigateUp,
+                onNavigateDetails = {},
+            )
         }
     ) { scaffoldPadding ->
-        if (!isFullScreen) {
-            FlagContent(
-                modifier = Modifier.padding(scaffoldPadding),
-                flag = flag,
-                description = description,
-                boldWordPositions = boldWordPositions,
-                onImageWide = { isFlagWide = it },
-                onFullscreen = {
-                    coroutineScope.launch {
-                        if (isFlagWide) isLandscapeOrientation = true
-                        if (isFlagWide) orientationController.setLandscapeOrientation()
-                        isFullScreen = true
-                    }
-                },
-            )
-        } else {
-            FullscreenImage(
-                flag = flag,
-                isFlagWide = isFlagWide,
-                isLandscapeLock = isLandscapeOrientation,
-                onLandscapeLockChange = { isLandscapeOrientation = !isLandscapeOrientation },
-                onExitFullScreen = {
-                    coroutineScope.launch {
-                        orientationController.unsetLandscapeOrientation()
-                        isFullScreen = false
-                        isLandscapeOrientation = false
-                    }
-                },
-            )
-        }
+        FlagContent(
+            modifier = Modifier.padding(scaffoldPadding),
+            flag = flag,
+            description = description,
+            boldWordPositions = boldWordPositions,
+            onImageWide = { isFlagWide = it },
+            onFullscreen = { onFullscreen(isFlagWide) },
+        )
     }
 }
 
@@ -244,11 +225,13 @@ private fun FlagContent(
             contentAlignment = Alignment.BottomEnd
         ) {
             Surface(
-                modifier = Modifier.shadow(Dimens.extraSmall4),
+                modifier = Modifier.wrapContentSize()
+                    .shadow(Dimens.extraSmall4),
             ) {
                 Image(
                     painter = painterResource(flag.image),
-                    modifier = Modifier
+                    modifier = Modifier.fillMaxWidth(),
+                        /*
                         .onSizeChanged { size ->
                             imageHeight = size.height
 
@@ -263,8 +246,9 @@ private fun FlagContent(
                             onImageWide(size.width > size.height)
                         }
                         .then(imageHeightModifier), /* concatenate height mod after onSizeChanged */
+                         */
                     contentDescription = null,
-                    contentScale = ContentScale.Fit,
+                    contentScale = ContentScale.FillWidth,
                 )
             }
 

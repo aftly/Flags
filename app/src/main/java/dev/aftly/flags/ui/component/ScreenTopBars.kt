@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Text
@@ -34,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.theme.Dimens
+import dev.aftly.flags.ui.theme.surfaceLight
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -189,6 +191,15 @@ fun StaticTopAppBar(
                 else -> { }
             }
         },
+        colors = when (currentScreen) {
+            Screen.Fullscreen -> TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f),
+                navigationIconContentColor = surfaceLight,
+                titleContentColor = surfaceLight,
+
+            )
+            else -> TopAppBarDefaults.topAppBarColors()
+        }
     )
 }
 

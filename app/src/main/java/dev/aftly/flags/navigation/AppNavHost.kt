@@ -1,10 +1,17 @@
 package dev.aftly.flags.navigation
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -13,6 +20,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dev.aftly.flags.ui.screen.flag.FlagScreen
+import dev.aftly.flags.ui.screen.fullscreen.FullScreen
 import dev.aftly.flags.ui.screen.game.GameScreen
 import dev.aftly.flags.ui.screen.list.ListFlagsScreen
 import dev.aftly.flags.ui.screen.search.SearchScreen
@@ -80,9 +88,29 @@ fun AppNavHost(
                 currentScreen = Screen.List,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 onNavigateUp = { navController.navigateUp() },
-                onNavigateDetails = { flagNavArg ->
+                onNavigateDetails = { flagArg, flagsArg ->
+                    val flagsAsString = flagsArg.joinToString(separator = ",")
+
                     navController.navigate(
-                        route = "${Screen.Flag.route}/$flagNavArg"
+                        route = "${Screen.Flag.route}/$flagArg/$flagsAsString"
+                    ) { launchSingleTop = true }
+                },
+            )
+        }
+
+        /* SearchScreen NavGraph */
+        composable(
+            route = Screen.Search.route
+        ) {
+            SearchScreen(
+                currentScreen = Screen.Search,
+                canNavigateBack = navController.previousBackStackEntry != null,
+                onNavigateUp = { navController.navigateUp() },
+                onNavigateDetails = { flagArg, flagsArg ->
+                    val flagsAsString = flagsArg.joinToString(separator = ",")
+
+                    navController.navigate(
+                        route = "${Screen.Flag.route}/$flagArg/$flagsAsString"
                     ) { launchSingleTop = true }
                 },
             )
@@ -90,13 +118,21 @@ fun AppNavHost(
 
         /* FlagScreen NavGraph */
         composable(
-            route = "${Screen.Flag.route}/{flag}",
+            route = "${Screen.Flag.route}/{flag}/{flags}",
             arguments = listOf(
-                navArgument(name = "flag") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val flagArgument = backStackEntry.arguments?.getString("flag")
+                navArgument(name = "flag") { type = NavType.IntType },
+                /* Although String type, is functionally List<Int> with immediate CSV conversions */
+                navArgument(name = "flags") { type = NavType.StringType }
+            ),
+            exitTransition = {
+                when (navController.currentBackStackEntry?.destination?.route) {
+                    in listOf(Screen.List.route, Screen.Search.route) -> null
+                    else -> ExitTransition.None
+                }
+            },
+            popEnterTransition = { EnterTransition.None },
 
+        ) {
             /* Handling null error navigation to FlagScreen() by popping back to current ?: home */
             val onNullError: () -> Unit = {
                 navController.popBackStack(
@@ -106,34 +142,69 @@ fun AppNavHost(
             }
 
             FlagScreen(
-                navArgFlagId = flagArgument,
+                navController = navController,
                 currentScreen = Screen.Flag,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 navigateUp = { navController.navigateUp() },
+                onFullscreen = { flagArg, flagsArg, isLandscape ->
+                    val flagsAsString = flagsArg.joinToString(separator = ",")
+
+                    navController.navigate(
+                        route = "${Screen.Fullscreen.route}/$flagArg/$flagsAsString/$isLandscape"
+                    ) { launchSingleTop = true }
+                },
                 onNavigateError = onNullError,
             )
         }
 
-        /* SearchScreen NavGraph */
-        composable(route = Screen.Search.route) {
-            SearchScreen(
-                currentScreen = Screen.Search,
-                canNavigateBack = navController.previousBackStackEntry != null,
-                onNavigateUp = { navController.navigateUp() },
-                onNavigateDetails = { flagNavArg ->
-                    navController.navigate(
-                        route = "${Screen.Flag.route}/$flagNavArg"
-                    ) { launchSingleTop = true }
-                },
-            )
-        }
-
         /* GameScreen NavGraph */
-        composable(route = Screen.Game.route) {
+        composable(
+            route = Screen.Game.route,
+            exitTransition = {
+                when (navController.currentBackStackEntry?.destination?.route) {
+                    Screen.StartMenu.route -> null
+                    else -> ExitTransition.None
+                }
+            },
+            popEnterTransition = { EnterTransition.None }
+
+        ) {
             GameScreen(
                 currentScreen = Screen.Game,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 onNavigateUp = { navController.navigateUp() },
+                onFullscreen = { flagArg, isLandscape ->
+                    val flagsArg = "$flagArg"
+
+                    navController.navigate(
+                        route = "${Screen.Fullscreen.route}/$flagArg/$flagsArg/$isLandscape"
+                    ) { launchSingleTop = true }
+                }
+            )
+        }
+
+        /* FullScreen NavGraph */
+        composable(
+            route = "${Screen.Fullscreen.route}/{flag}/{flags}/{landscape}",
+            arguments = listOf(
+                navArgument(name = "flag") { type = NavType.IntType },
+                /* Although String type, is functionally List<Int> with immediate CSV conversions */
+                navArgument(name = "flags") { type = NavType.StringType },
+                navArgument(name = "landscape") { type = NavType.BoolType }
+            ),
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
+        ) { backStackEntry ->
+            val isLandscape = backStackEntry.arguments?.getBoolean("landscape") ?: false
+
+            FullScreen(
+                currentScreen = Screen.Fullscreen,
+                canNavigateBack = navController.previousBackStackEntry != null,
+                isLandscape = isLandscape,
+                onExitFullScreen = { flagId ->
+                    navController.previousBackStackEntry?.savedStateHandle?.set("flag", flagId)
+                    navController.navigateUp()
+                },
             )
         }
 
