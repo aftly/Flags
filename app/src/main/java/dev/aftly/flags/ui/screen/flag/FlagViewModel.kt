@@ -7,6 +7,7 @@ import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.allFlagsList
 import dev.aftly.flags.data.DataSource.flagsMap
 import dev.aftly.flags.data.DataSource.flagsMapId
+import dev.aftly.flags.data.DataSource.reverseFlagsMap
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
 import dev.aftly.flags.model.FlagCategory.CONSTITUTIONAL
@@ -29,6 +30,7 @@ import dev.aftly.flags.model.FlagCategory.SUPRANATIONAL_UNION
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
+import dev.aftly.flags.ui.util.normalizeString
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -50,11 +52,14 @@ class FlagViewModel(
         if (flagArg != null && flagsArg != null) {
             val flag = flagsMapId.getValue(flagArg)
             val flags = flagsArg.split(",").mapNotNull { it.toIntOrNull() }
+            val relatedFlags = getRelatedFlags(flag)
 
             _uiState.update { currentState ->
                 currentState.copy(
-                    flag = flag,
-                    flags = flags,
+                    initialFlag = flag,
+                    currentFlag = flag,
+                    relatedFlags = relatedFlags,
+                    flagsFromList = flags,
                     descriptionStringResIds = getDescriptionIds(flag = flag),
                 )
             }
@@ -63,12 +68,19 @@ class FlagViewModel(
     }
 
 
-    fun updateFlag(flagId: Int) {
-        val newFlag = flagsMapId.getValue(flagId)
-        if (newFlag != uiState.value.flag) {
+    fun updateFlag(
+        flagId: Int?,
+        flag: FlagResources?,
+    ) {
+        val newFlag = when (flagId) {
+            null -> flag
+            else -> flagsMapId.getValue(flagId)
+        }
+
+        if (newFlag != null && newFlag != uiState.value.currentFlag) {
             _uiState.update {
                 it.copy(
-                    flag = newFlag,
+                    currentFlag = newFlag,
                     descriptionStringResIds = getDescriptionIds(flag = newFlag)
                 )
             }
@@ -383,5 +395,36 @@ class FlagViewModel(
                 whitespaceExceptions.add(element = stringIds.lastIndex)
             }
         }
+    }
+
+
+    /* Get related flags list from flagResource */
+    private fun getRelatedFlags(flag: FlagResources): List<FlagResources> {
+        val list = mutableListOf(flag)
+
+        flag.sovereignState?.let { sovereignState ->
+            val siblings = flagsMap.values.filter {
+                it.sovereignState == sovereignState
+            }
+            list.addAll(siblings)
+            list.add(flagsMap.getValue(sovereignState))
+        }
+
+        flag.associatedState?.let { associatedState ->
+            val siblings = flagsMap.values.filter {
+                it.associatedState == associatedState
+            }
+            list.addAll(siblings)
+            list.add(flagsMap.getValue(associatedState))
+        }
+
+        val flagKey = reverseFlagsMap.getValue(flag)
+        val children = flagsMap.values.filter {
+            it.sovereignState == flagKey || it.associatedState == flagKey
+        }
+        list.addAll(children)
+
+        val appResources = getApplication<Application>().applicationContext.resources
+        return list.distinct().sortedBy { normalizeString(appResources.getString(it.flagOf)) }
     }
 }

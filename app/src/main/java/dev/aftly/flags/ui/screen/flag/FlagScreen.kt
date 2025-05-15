@@ -1,6 +1,11 @@
 package dev.aftly.flags.ui.screen.flag
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,6 +47,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -52,8 +58,11 @@ import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.FullscreenButton
+import dev.aftly.flags.ui.component.RelatedFlagsButton
+import dev.aftly.flags.ui.component.Scrim
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.theme.Dimens
+import dev.aftly.flags.ui.theme.Timings
 
 
 @Composable
@@ -71,29 +80,37 @@ fun FlagScreen(
         navController.currentBackStackEntry?.savedStateHandle?.getLiveData<Int>("flag")
             ?.observe(lifecycleOwner) { flagId ->
                 if (flagId != null) {
-                    viewModel.updateFlag(flagId)
+                    viewModel.updateFlag(flagId = flagId, flag = null)
                 }
             }
     }
 
     val uiState by viewModel.uiState.collectAsState()
-    if (uiState.flag == DataSource.nullFlag) onNavigateError()
+    if (uiState.currentFlag == DataSource.nullFlag) onNavigateError()
 
     /* Update flag description string when language configuration changes */
-    val locale = LocalConfiguration.current.locales[0]
+    val configuration = LocalConfiguration.current
+    val locale = configuration.locales[0]
     LaunchedEffect(locale) { viewModel.updateDescriptionString() }
 
     FlagScaffold(
         currentScreen = currentScreen,
         canNavigateBack = canNavigateBack,
         navigateUp = navigateUp,
-        flag = uiState.flag,
+        currentFlag = uiState.currentFlag,
+        relatedFlags = uiState.relatedFlags,
         description = uiState.description,
         boldWordPositions = uiState.descriptionBoldWordIndexes,
+        fontScale = configuration.fontScale,
+        onNewFlag = { viewModel.updateFlag(flagId = null, flag = it) },
         onFullscreen = { isLandscape ->
+            val flags = when (uiState.currentFlag) {
+                uiState.initialFlag -> uiState.flagsFromList
+                else -> listOf(uiState.currentFlag.id)
+            }
             onFullscreen(
-                uiState.flag.id,
-                uiState.flags,
+                uiState.currentFlag.id,
+                flags,
                 isLandscape
             )
         }
@@ -107,32 +124,94 @@ private fun FlagScaffold(
     currentScreen: Screen,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
-    flag: FlagResources,
+    currentFlag: FlagResources,
+    relatedFlags: List<FlagResources>,
     description: List<String>,
     boldWordPositions: List<Int>,
+    fontScale: Float,
+    onNewFlag: (FlagResources) -> Unit,
     onFullscreen: (Boolean) -> Unit,
 ) {
+    val isRelatedFlagsButton = relatedFlags.size > 1
+
+    /* Controls FilterFlagsButton menu expansion amd tracks current button height
+     * Also for FilterFlagsButton to access Scaffold() padding */
+    var buttonExpanded by rememberSaveable { mutableStateOf(value = false) }
+    var buttonHeight by remember { mutableStateOf(0.dp) }
+    var scaffoldTopPadding by remember { mutableStateOf(value = 0.dp) }
+    var scaffoldBottomPadding by remember { mutableStateOf(value = 0.dp) }
+
     var isFlagWide by rememberSaveable { mutableStateOf(value = true) }
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        topBar = {
-            StaticTopAppBar(
-                currentScreen = currentScreen,
-                canNavigateBack = canNavigateBack,
-                onNavigateUp = navigateUp,
-                onNavigateDetails = {},
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            modifier = modifier.fillMaxSize(),
+            topBar = {
+                StaticTopAppBar(
+                    currentScreen = currentScreen,
+                    canNavigateBack = canNavigateBack,
+                    onNavigateUp = navigateUp,
+                    onNavigateDetails = {},
+                )
+            }
+        ) { scaffoldPadding ->
+            scaffoldTopPadding = scaffoldPadding.calculateTopPadding()
+            scaffoldBottomPadding = scaffoldPadding.calculateBottomPadding()
+
+            FlagContent(
+                modifier = Modifier.padding(scaffoldPadding),
+                relatedFlagsButtonHeight = when (isRelatedFlagsButton) {
+                    true -> buttonHeight
+                    else -> 0.dp
+                },
+                flag = currentFlag,
+                description = description,
+                boldWordPositions = boldWordPositions,
+                onImageWide = { isFlagWide = it },
+                onFullscreen = { onFullscreen(isFlagWide) },
             )
         }
-    ) { scaffoldPadding ->
-        FlagContent(
-            modifier = Modifier.padding(scaffoldPadding),
-            flag = flag,
-            description = description,
-            boldWordPositions = boldWordPositions,
-            onImageWide = { isFlagWide = it },
-            onFullscreen = { onFullscreen(isFlagWide) },
-        )
+
+        if (isRelatedFlagsButton) {
+
+            /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */
+            AnimatedVisibility(
+                visible = buttonExpanded,
+                enter = fadeIn(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
+                exit = fadeOut(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
+            ) {
+                Scrim(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
+                    onAction = { buttonExpanded = !buttonExpanded }
+                )
+            }
+
+            RelatedFlagsButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        top = scaffoldTopPadding,
+                        bottom = scaffoldBottomPadding,
+                        start = Dimens.marginHorizontal16,
+                        end = Dimens.marginHorizontal16,
+                    ),
+                buttonExpanded = buttonExpanded,
+                onButtonExpand = { buttonExpanded = !buttonExpanded },
+                onButtonHeightChange = { buttonHeight = it },
+                fontScale = fontScale,
+                currentFlag = currentFlag,
+                relatedFlags = relatedFlags,
+                onFlagSelect = { newFlag ->
+                    if (newFlag != currentFlag) {
+                        buttonExpanded = false
+                        onNewFlag(newFlag)
+                    }
+                },
+            )
+        }
     }
 }
 
@@ -140,6 +219,7 @@ private fun FlagScaffold(
 @Composable
 private fun FlagContent(
     modifier: Modifier = Modifier,
+    relatedFlagsButtonHeight: Dp,
     flag: FlagResources,
     description: List<String>,
     boldWordPositions: List<Int>,
@@ -158,8 +238,13 @@ private fun FlagContent(
 
     /* Flag Content */
     Column(
-        modifier = modifier.fillMaxSize()
-            .padding(horizontal = Dimens.medium16)
+        modifier = modifier
+            .fillMaxSize()
+            .padding(
+                top = relatedFlagsButtonHeight,
+                start = Dimens.marginHorizontal16,
+                end = Dimens.marginHorizontal16
+            )
             .onSizeChanged { size ->
                 columnHeight = size.height
 
@@ -217,7 +302,8 @@ private fun FlagContent(
 
         /* Image and fullscreen button contents */
         Box(
-            modifier = Modifier.padding(vertical = Dimens.extraLarge32)
+            modifier = Modifier
+                .padding(vertical = Dimens.extraLarge32)
                 .combinedClickable(
                     onClick = { isFullScreenButton = !isFullScreenButton },
                     onDoubleClick = onFullscreen,
@@ -225,7 +311,8 @@ private fun FlagContent(
             contentAlignment = Alignment.BottomEnd
         ) {
             Surface(
-                modifier = Modifier.wrapContentSize()
+                modifier = Modifier
+                    .wrapContentSize()
                     .shadow(Dimens.extraSmall4),
             ) {
                 Image(
