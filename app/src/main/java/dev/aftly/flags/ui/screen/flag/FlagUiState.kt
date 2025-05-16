@@ -12,4 +12,5 @@ data class FlagUiState(
     val descriptionIdsWhitespaceExceptions: List<Int> = emptyList(),
     val description: List<String> = emptyList(),
     val descriptionBoldWordIndexes: List<Int> = emptyList(),
+    val isNavigatingRelated: Boolean = false,
 )

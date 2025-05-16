@@ -1,6 +1,7 @@
 package dev.aftly.flags.ui.screen.fullscreen
 
 import android.app.Application
+import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import dev.aftly.flags.data.DataSource.flagsMapId
@@ -27,12 +28,16 @@ class FullscreenViewModel(
             _uiState.value = FullscreenUiState(
                 initialFlag = flag,
                 currentFlagId = flag.id,
+                currentFlagTitle = flag.flagOf,
                 flags = flagsMapId.filterKeys { it in flags }.values.toList(),
             )
         }
     }
 
-    fun updateCurrentFlagId(flagId: Int) {
-        _uiState.update { it.copy(currentFlagId = flagId) }
+    fun updateCurrentFlagId(
+        flagId: Int,
+        @StringRes flagTitle: Int,
+    ) {
+        _uiState.update { it.copy(currentFlagId = flagId, currentFlagTitle = flagTitle) }
     }
 }

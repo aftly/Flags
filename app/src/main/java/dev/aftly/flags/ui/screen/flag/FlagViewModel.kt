@@ -68,6 +68,23 @@ class FlagViewModel(
     }
 
 
+    fun callOnFullScreen(
+        onFullscreenUp: (Int, List<Int>, Boolean) -> Unit,
+    ): (Boolean) -> Unit {
+        val currentFlag = uiState.value.currentFlag
+
+        val flags = when (uiState.value.isNavigatingRelated) {
+            false -> uiState.value.flagsFromList
+            true -> uiState.value.relatedFlags.map { it.id }
+        }
+
+        val onFullScreenDown: (Boolean) -> Unit = { isLandscape ->
+            onFullscreenUp(currentFlag.id, flags, isLandscape)
+        }
+        return onFullScreenDown
+    }
+
+
     fun updateFlag(
         flagId: Int?,
         flag: FlagResources?,
@@ -81,11 +98,13 @@ class FlagViewModel(
             _uiState.update {
                 it.copy(
                     currentFlag = newFlag,
-                    descriptionStringResIds = getDescriptionIds(flag = newFlag)
+                    descriptionStringResIds = getDescriptionIds(flag = newFlag),
+                    isNavigatingRelated = flagId == null,
                 )
             }
             updateDescriptionString()
         }
+
     }
 
 

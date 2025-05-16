@@ -42,7 +42,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -67,8 +66,6 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.FilterFlagsButton
 import dev.aftly.flags.ui.component.FullscreenButton
-import dev.aftly.flags.ui.component.FullscreenImage
-import dev.aftly.flags.ui.component.LocalOrientationController
 import dev.aftly.flags.ui.component.Scrim
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.component.shareText
@@ -76,7 +73,6 @@ import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timings
 import dev.aftly.flags.ui.theme.successLight
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 
 @Composable
@@ -193,21 +189,6 @@ private fun GameScaffold(
     var scaffoldTopPadding by remember { mutableStateOf(value = 0.dp) }
     var scaffoldBottomPadding by remember { mutableStateOf(value = 0.dp) }
 
-    /* Managing state and screen orientation for fullscreen flag view */
-    /*
-    var isFullScreen by rememberSaveable { mutableStateOf(value = false) }
-    val orientationController = LocalOrientationController.current
-    var isFlagWide by rememberSaveable { mutableStateOf(value = true) }
-    var isLandscapeOrientation by rememberSaveable { mutableStateOf(value = false) }
-
-    LaunchedEffect(isLandscapeOrientation) {
-        when (isFullScreen to isLandscapeOrientation) {
-            true to true -> orientationController.setLandscapeOrientation()
-            true to false -> orientationController.unsetLandscapeOrientation()
-        }
-    }
-    val coroutineScope = rememberCoroutineScope()
-     */
     var isFlagWide by rememberSaveable { mutableStateOf(value = true) }
 
 
@@ -222,16 +203,6 @@ private fun GameScaffold(
                     onNavigateUp = onNavigateUp,
                     onNavigateDetails = {},
                 )
-                /*
-                if (!isFullScreen) {
-                    StaticTopAppBar(
-                        currentScreen = currentScreen,
-                        canNavigateBack = canNavigateBack,
-                        onNavigateUp = onNavigateUp,
-                        onNavigateDetails = { },
-                    )
-                }
-                 */
             }
         ) { scaffoldPadding ->
             scaffoldTopPadding = scaffoldPadding.calculateTopPadding()
@@ -257,50 +228,6 @@ private fun GameScaffold(
                 onImageWide = { isFlagWide = it },
                 onFullscreen = { onFullscreen(isFlagWide) },
             )
-            /*
-            if (!isFullScreen) {
-                GameContent(
-                    modifier = Modifier.padding(scaffoldPadding),
-                    isWideScreen = isWideScreen,
-                    filterButtonHeight = buttonHeight,
-                    totalFlagCount = totalFlagCount,
-                    correctGuessCount = correctGuessCount,
-                    currentFlag = currentFlag,
-                    userGuess = userGuess,
-                    onUserGuessChange = onUserGuessChange,
-                    isGuessCorrect = isGuessCorrect,
-                    isGuessCorrectEvent = isGuessCorrectEvent,
-                    isGuessWrong = isGuessWrong,
-                    isGuessWrongEvent = isGuessWrongEvent,
-                    onKeyboardDoneAction = onKeyboardDoneAction,
-                    onSubmit = onSubmit,
-                    onSkip = onSkip,
-                    onEndGame = onEndGame,
-                    onImageWide = { isFlagWide = it },
-                    onFullscreen = {
-                        coroutineScope.launch {
-                            if (isFlagWide) isLandscapeOrientation = true
-                            if (isFlagWide) orientationController.setLandscapeOrientation()
-                            isFullScreen = true
-                        }
-                    },
-                )
-            } else {
-                FullscreenImage(
-                    flag = currentFlag,
-                    isFlagWide = isFlagWide,
-                    isLandscapeLock = isLandscapeOrientation,
-                    onLandscapeLockChange = { isLandscapeOrientation = !isLandscapeOrientation },
-                    onExitFullScreen = {
-                        coroutineScope.launch {
-                            orientationController.unsetLandscapeOrientation()
-                            isFullScreen = false
-                            isLandscapeOrientation = false
-                        }
-                    },
-                )
-            }
-             */
         }
 
         /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */
@@ -339,49 +266,6 @@ private fun GameScaffold(
             onCategorySelect = onCategorySelect,
             onCategoryMultiSelect = onCategoryMultiSelect,
         )
-
-        /* Show FilterFlagsButton components when not in fullscreen view */
-        /*
-        if (!isFullScreen) {
-
-            /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */
-            AnimatedVisibility(
-                visible = buttonExpanded,
-                enter = fadeIn(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
-                exit = fadeOut(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
-            ) {
-                Scrim(
-                    modifier = Modifier.fillMaxSize()
-                        .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
-                    onAction = { buttonExpanded = !buttonExpanded }
-                )
-            }
-
-
-            /* Custom quasi-DropdownMenu elevated above screen content with animated nested menus for
-             * selecting super or sub category to filter flags by */
-            FilterFlagsButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        top = scaffoldTopPadding,
-                        bottom = scaffoldBottomPadding,
-                        start = Dimens.marginHorizontal16,
-                        end = Dimens.marginHorizontal16,
-                    ),
-                onButtonHeightChange = { buttonHeight = it },
-                buttonExpanded = buttonExpanded,
-                onButtonExpand = { buttonExpanded = !buttonExpanded },
-                fontScale = fontScale,
-                currentCategoryTitle = currentCategoryTitle,
-                currentSuperCategory = currentSuperCategory,
-                currentSuperCategories = currentSuperCategories,
-                currentSubCategories = currentSubCategories,
-                onCategorySelect = onCategorySelect,
-                onCategoryMultiSelect = onCategoryMultiSelect,
-            )
-        }
-         */
     }
 }
 

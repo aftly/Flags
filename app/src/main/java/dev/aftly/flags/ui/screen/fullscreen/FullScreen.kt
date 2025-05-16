@@ -28,13 +28,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.carousel.CarouselDefaults
-import androidx.compose.material3.carousel.CarouselState
 import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +48,8 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -58,13 +60,13 @@ import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.FullscreenButton
 import dev.aftly.flags.ui.component.LocalOrientationController
-import dev.aftly.flags.ui.component.OrientationController
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timings
 import dev.aftly.flags.ui.theme.surfaceDark
 import dev.aftly.flags.ui.theme.surfaceLight
 import kotlinx.coroutines.delay
+import kotlin.math.abs
 
 
 @Composable
@@ -72,31 +74,44 @@ fun FullScreen(
     viewModel: FullscreenViewModel = viewModel(),
     currentScreen: Screen,
     canNavigateBack: Boolean,
-    isLandscape: Boolean,
+    isFlagWide: Boolean,
     onExitFullScreen: (Int) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val orientationController = LocalOrientationController.current
-
-    BackHandler { onExitFullScreen(uiState.currentFlagId) }
+    var isLandscape by rememberSaveable { mutableStateOf(value = isFlagWide) }
 
     /* Initialise with correct orientation & ensure composition is delayed until end of coroutine */
     var isInit by rememberSaveable { mutableStateOf(value = false) }
     LaunchedEffect(Unit) {
-        if (isLandscape) orientationController.setLandscapeOrientation()
+        if (isFlagWide) orientationController.setLandscapeOrientation()
         isInit = true
+    }
+
+    LaunchedEffect(isLandscape) {
+        when (isLandscape) {
+            true -> orientationController.setLandscapeOrientation()
+            false -> orientationController.unsetLandscapeOrientation()
+        }
     }
 
     if (isInit) {
         FullscreenScaffold(
             currentScreen = currentScreen,
+            currentTitle = uiState.currentFlagTitle,
             canNavigateBack = canNavigateBack,
-            orientationController = orientationController,
-            isFlagWide = isLandscape,
+            isFlagWide = isFlagWide,
+            isLandscape = isLandscape,
+            onLandscapeChange = { isLandscape = !isLandscape },
             flag = uiState.initialFlag,
             flags = uiState.flags,
-            onExitFullscreen = { onExitFullScreen(uiState.currentFlagId) },
-            onCarouselRotation = { viewModel.updateCurrentFlagId(it) },
+            onExitFullscreen = {
+                orientationController.unsetLandscapeOrientation()
+                onExitFullScreen(uiState.currentFlagId)
+            },
+            onCarouselRotation = { id, title ->
+                viewModel.updateCurrentFlagId(id, title)
+            },
         )
     }
 }
@@ -107,23 +122,19 @@ fun FullScreen(
 private fun FullscreenScaffold(
     modifier: Modifier = Modifier,
     currentScreen: Screen,
+    currentTitle: Int,
     canNavigateBack: Boolean,
-    orientationController: OrientationController,
     isFlagWide: Boolean,
+    isLandscape: Boolean,
+    onLandscapeChange: () -> Unit,
     flag: FlagResources,
     flags: List<FlagResources>,
     onExitFullscreen: () -> Unit,
-    onCarouselRotation: (Int) -> Unit,
+    onCarouselRotation: (Int, Int) -> Unit,
 ) {
-    var counter by rememberSaveable { mutableIntStateOf(value = 0) }
-    var isLandscape by rememberSaveable { mutableStateOf(value = isFlagWide) }
+    BackHandler { onExitFullscreen() }
 
-    LaunchedEffect(isLandscape) {
-        when (isLandscape) {
-            true -> orientationController.setLandscapeOrientation()
-            false -> orientationController.unsetLandscapeOrientation()
-        }
-    }
+    var counter by rememberSaveable { mutableIntStateOf(value = 0) }
 
     val isApi30 = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
     var isSystemBars by rememberSaveable { mutableStateOf(value = isApi30) }
@@ -179,15 +190,11 @@ private fun FullscreenScaffold(
             .pointerInput(key1 = (Unit)) {
                 detectTapGestures(
                     onTap = { isSystemBars = !isSystemBars },
-                    onDoubleTap = {
-                        orientationController.unsetLandscapeOrientation()
-                        onExitFullscreen()
-                    },
+                    onDoubleTap = { onExitFullscreen() },
                 )
             }
             .onKeyEvent {
                 if (it.key == Key.Escape) {
-                    orientationController.unsetLandscapeOrientation()
                     onExitFullscreen()
                     true
                 } else false
@@ -203,11 +210,9 @@ private fun FullscreenScaffold(
                 ) {
                     StaticTopAppBar(
                         currentScreen = currentScreen,
+                        currentTitle = currentTitle,
                         canNavigateBack = canNavigateBack,
-                        onNavigateUp = {
-                            orientationController.unsetLandscapeOrientation()
-                            onExitFullscreen()
-                        },
+                        onNavigateUp = onExitFullscreen,
                         onNavigateDetails = {}
                     )
                 }
@@ -221,11 +226,8 @@ private fun FullscreenScaffold(
                 flag = flag,
                 flags = flags,
                 isLandscape = isLandscape,
-                onLandscapeChange = { isLandscape = !isLandscape },
-                onExitFullScreen = {
-                    orientationController.unsetLandscapeOrientation()
-                    onExitFullscreen()
-                },
+                onLandscapeChange = onLandscapeChange,
+                onExitFullScreen = onExitFullscreen,
                 onCarouselRotation = onCarouselRotation,
             )
         }
@@ -246,21 +248,44 @@ private fun FullscreenContent(
     isLandscape: Boolean,
     onLandscapeChange: () -> Unit,
     onExitFullScreen: () -> Unit,
-    onCarouselRotation: (Int) -> Unit,
+    onCarouselRotation: (Int, Int) -> Unit,
 ) {
     val displayMetrics = LocalContext.current.resources.displayMetrics
     val density = LocalDensity.current
+
+    val screenWidthPx = remember { displayMetrics.widthPixels.toFloat() }
+    val screenWidthDp = remember { with(density) { screenWidthPx.toDp() } }
 
     val carouselState = rememberCarouselState(
         initialItem = flags.indexOf(flag),
         itemCount = { flags.count() },
     )
 
+    var carouselOffset by remember { mutableFloatStateOf(value = 100f) }
+    var lastItemCarouselOffset by remember { mutableFloatStateOf(value = 0f) }
+    var isLastItem by remember { mutableStateOf(value = false) }
+
+    LaunchedEffect(isLastItem) {
+        if (isLastItem) {
+            lastItemCarouselOffset = carouselOffset
+        }
+    }
+
+    /*
+    var scrollToBeginning by remember { mutableStateOf(value = false) }
+    LaunchedEffect(scrollToBeginning) {
+        if (scrollToBeginning) {
+            delay(timeMillis = 2000)
+            carouselState.animateScrollBy(value = -10_000_000f)
+        }
+    }
+     */
+
+
     HorizontalUncontainedCarousel(
         state = carouselState,
-        itemWidth = with(density) { displayMetrics.widthPixels.toDp() },
-        modifier = modifier
-            .fillMaxSize()
+        itemWidth = screenWidthDp,
+        modifier = modifier.fillMaxSize()
             .background(surfaceDark),
         flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(
             state = carouselState,
@@ -268,8 +293,24 @@ private fun FullscreenContent(
         )
     ) { i ->
         val item = flags[i]
-        /* Pass current flag to update UiState */
-        onCarouselRotation(item.id)
+
+        var leftEdgeFromWindowLeft by remember { mutableFloatStateOf(value = 0f) }
+        var rightEdgeFromWindowRight by remember { mutableFloatStateOf(value = 100f) }
+
+        /* If item becomes centred on screen update external item state */
+        LaunchedEffect(
+            key1 = leftEdgeFromWindowLeft,
+            key2 = rightEdgeFromWindowRight
+        ) {
+            if (abs(x = leftEdgeFromWindowLeft - rightEdgeFromWindowRight) <= 2f) {
+                onCarouselRotation(item.id, item.flagOf)
+                /*
+                if (i == flags.size - 1) {
+                    scrollToBeginning = true
+                }
+                 */
+            }
+        }
 
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -284,6 +325,12 @@ private fun FullscreenContent(
                     modifier = when (isAspectRatioWide) {
                         true -> Modifier.fillMaxHeight()
                         false -> Modifier.fillMaxWidth()
+
+                    }.onGloballyPositioned { layout ->
+                        leftEdgeFromWindowLeft = layout.positionInWindow().x
+                        rightEdgeFromWindowRight =
+                            screenWidthPx - (leftEdgeFromWindowLeft + layout.size.width.toFloat())
+
                     },
                     contentScale = when (isAspectRatioWide) {
                         true -> ContentScale.FillHeight
@@ -291,7 +338,7 @@ private fun FullscreenContent(
                     },
                 )
 
-                if (isFlagWide) {
+                if (isFlagWide || flags.size > 1) {
                     /* Toggle landscape orientation */
                     OrientationLockButton(
                         modifier = Modifier.align(Alignment.BottomStart),

@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.theme.Dimens
+import dev.aftly.flags.ui.theme.surfaceDark
 import dev.aftly.flags.ui.theme.surfaceLight
 
 
@@ -122,6 +123,7 @@ fun ExpandableTopAppBar(
 fun StaticTopAppBar(
     modifier: Modifier = Modifier,
     currentScreen: Screen,
+    @StringRes currentTitle: Int? = null,
     canNavigateBack: Boolean = false,
     canNavigateBackTitlePadding: Dp = Dimens.canNavigateBack0,
     onNavigateUp: () -> Unit,
@@ -132,6 +134,7 @@ fun StaticTopAppBar(
 
     @StringRes val title = when (currentScreen) {
         Screen.StartMenu -> null
+        Screen.Fullscreen -> currentTitle
         else -> currentScreen.title
     }
 
@@ -193,7 +196,7 @@ fun StaticTopAppBar(
         },
         colors = when (currentScreen) {
             Screen.Fullscreen -> TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f),
+                containerColor = surfaceDark.copy(alpha = 0.6f),
                 navigationIconContentColor = surfaceLight,
                 titleContentColor = surfaceLight,
 

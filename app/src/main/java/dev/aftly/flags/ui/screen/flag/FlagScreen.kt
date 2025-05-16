@@ -102,18 +102,8 @@ fun FlagScreen(
         description = uiState.description,
         boldWordPositions = uiState.descriptionBoldWordIndexes,
         fontScale = configuration.fontScale,
-        onNewFlag = { viewModel.updateFlag(flagId = null, flag = it) },
-        onFullscreen = { isLandscape ->
-            val flags = when (uiState.currentFlag) {
-                uiState.initialFlag -> uiState.flagsFromList
-                else -> listOf(uiState.currentFlag.id)
-            }
-            onFullscreen(
-                uiState.currentFlag.id,
-                flags,
-                isLandscape
-            )
-        }
+        onRelatedFlag = { viewModel.updateFlag(flagId = null, flag = it) },
+        onFullscreen = viewModel.callOnFullScreen(onFullscreen),
     )
 }
 
@@ -129,7 +119,7 @@ private fun FlagScaffold(
     description: List<String>,
     boldWordPositions: List<Int>,
     fontScale: Float,
-    onNewFlag: (FlagResources) -> Unit,
+    onRelatedFlag: (FlagResources) -> Unit,
     onFullscreen: (Boolean) -> Unit,
 ) {
     val isRelatedFlagsButton = relatedFlags.size > 1
@@ -207,7 +197,7 @@ private fun FlagScaffold(
                 onFlagSelect = { newFlag ->
                     if (newFlag != currentFlag) {
                         buttonExpanded = false
-                        onNewFlag(newFlag)
+                        onRelatedFlag(newFlag)
                     }
                 },
             )
@@ -317,9 +307,13 @@ private fun FlagContent(
             ) {
                 Image(
                     painter = painterResource(flag.image),
-                    modifier = Modifier.fillMaxWidth(),
-                        /*
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .onSizeChanged { size ->
+                            /* For fullscreen orientation */
+                            onImageWide(size.width > size.height)
+
+                            /*
                             imageHeight = size.height
 
                             /* Set image height modifier */
@@ -328,12 +322,9 @@ private fun FlagContent(
                             } else {
                                 Modifier.height(height = (imageHeight / density).dp)
                             }
-
-                            /* For fullscreen orientation */
-                            onImageWide(size.width > size.height)
-                        }
-                        .then(imageHeightModifier), /* concatenate height mod after onSizeChanged */
-                         */
+                             */
+                        },
+                        //.then(imageHeightModifier) /* concatenate height mod after onSizeChanged */
                     contentDescription = null,
                     contentScale = ContentScale.FillWidth,
                 )
