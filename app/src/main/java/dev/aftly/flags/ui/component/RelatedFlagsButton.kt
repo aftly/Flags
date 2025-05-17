@@ -61,8 +61,8 @@ import dev.aftly.flags.ui.theme.Timings
 fun RelatedFlagsButton(
     modifier: Modifier = Modifier,
     buttonExpanded: Boolean,
-    onButtonExpand: () -> Unit,
-    onButtonHeightChange: (Dp) -> Unit,
+    //onButtonExpand: () -> Unit,
+    //onButtonHeightChange: (Dp) -> Unit,
     containerColor: Color = MaterialTheme.colorScheme.secondary,
     cardColors: CardColors = CardDefaults.cardColors(containerColor = containerColor),
     buttonColors: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor),
@@ -71,7 +71,49 @@ fun RelatedFlagsButton(
     relatedFlags: List<FlagResources>,
     onFlagSelect: (FlagResources) -> Unit,
 ) {
+    AnimatedVisibility(
+        visible = buttonExpanded,
+        modifier = modifier,
+        enter = expandVertically(
+            animationSpec = tween(durationMillis = Timings.MENU_EXPAND),
+            expandFrom = Alignment.Top,
+        ),
+        exit = shrinkVertically(
+            animationSpec = tween(durationMillis = Timings.MENU_COLLAPSE),
+            shrinkTowards = Alignment.Top,
+        ),
+    ) {
+        Card(
+            shape = Shapes.large,
+            colors = cardColors,
+        ) {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(
+                    top = Dimens.small8,
+                    bottom = Dimens.small10,
+                ),
+            ) {
+                items(
+                    count = relatedFlags.size,
+                    key = { index -> relatedFlags[index].id }
+                ) { index ->
+                    ListItem(
+                        modifier = Modifier.fillMaxWidth(),
+                        flag = relatedFlags[index],
+                        currentFlag = currentFlag,
+                        buttonColors = buttonColors,
+                        fontScale = fontScale,
+                        onFlagSelect = onFlagSelect,
+                    )
+                }
+            }
+        }
+    }
+
+
     /* Manage button height */
+    /*
     val oneLineButtonHeight = Dimens.defaultFilterButtonHeight30 * fontScale
     val twoLineButtonHeight = Dimens.defaultFilterButtonHeight50 * fontScale
     var buttonHeight by remember {
@@ -84,12 +126,13 @@ fun RelatedFlagsButton(
         }
     }
     val density = LocalDensity.current
-
+     */
 
     /* Filter button content */
+    /*
     Column(modifier = modifier) {
         Button(
-            onClick = { onButtonExpand() },
+            onClick = onButtonExpand,
             modifier = Modifier.padding(bottom = Dimens.small8) /* Separate Button from Menu */
                 .height(buttonHeight),
             shape = MaterialTheme.shapes.large,
@@ -196,6 +239,7 @@ fun RelatedFlagsButton(
             }
         }
     }
+     */
 }
 
 

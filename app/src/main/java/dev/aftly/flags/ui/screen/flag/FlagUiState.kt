@@ -8,7 +8,6 @@ data class FlagUiState(
     val currentFlag: FlagResources = nullFlag,
     val relatedFlags: List<FlagResources> = emptyList(),
     val flagsFromList: List<Int> = emptyList(),
-    val descriptionStringResIds: List<Int> = emptyList(),
     val descriptionIdsWhitespaceExceptions: List<Int> = emptyList(),
     val description: List<String> = emptyList(),
     val descriptionBoldWordIndexes: List<Int> = emptyList(),

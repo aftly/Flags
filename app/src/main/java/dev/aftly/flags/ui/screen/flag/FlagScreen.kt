@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,7 +34,18 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
@@ -48,6 +60,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -71,7 +84,7 @@ fun FlagScreen(
     navController: NavHostController,
     currentScreen: Screen,
     canNavigateBack: Boolean,
-    navigateUp: () -> Unit,
+    onNavigateUp: () -> Unit,
     onFullscreen: (Int, List<Int>, Boolean) -> Unit,
     onNavigateError: () -> Unit,
 ) {
@@ -91,12 +104,12 @@ fun FlagScreen(
     /* Update flag description string when language configuration changes */
     val configuration = LocalConfiguration.current
     val locale = configuration.locales[0]
-    LaunchedEffect(locale) { viewModel.updateDescriptionString() }
+    LaunchedEffect(locale) { viewModel.updateDescriptionString(flag = uiState.currentFlag) }
 
     FlagScaffold(
         currentScreen = currentScreen,
         canNavigateBack = canNavigateBack,
-        navigateUp = navigateUp,
+        navigateUp = onNavigateUp,
         currentFlag = uiState.currentFlag,
         relatedFlags = uiState.relatedFlags,
         description = uiState.description,
@@ -130,6 +143,8 @@ private fun FlagScaffold(
     var buttonHeight by remember { mutableStateOf(0.dp) }
     var scaffoldTopPadding by remember { mutableStateOf(value = 0.dp) }
     var scaffoldBottomPadding by remember { mutableStateOf(value = 0.dp) }
+    var buttonOffset by remember { mutableStateOf(value = Offset(x = 0f, y = 0f)) }
+    var buttonSize by remember { mutableStateOf(value = Size(width = 0f, height = 0f)) }
 
     var isFlagWide by rememberSaveable { mutableStateOf(value = true) }
 
@@ -138,11 +153,39 @@ private fun FlagScaffold(
         Scaffold(
             modifier = modifier.fillMaxSize(),
             topBar = {
+                /*
+                FlagScreenTopBar(
+                    modifier = Modifier.fillMaxWidth(),
+                    canNavigateBack = canNavigateBack,
+                    isButton = isRelatedFlagsButton,
+                    buttonExpanded = buttonExpanded,
+                    onButtonExpand = { buttonExpanded = !buttonExpanded },
+                    onButtonHeightChange = { buttonHeight = it },
+                    fontScale = fontScale,
+                    currentFlag = currentFlag,
+                    relatedFlags = relatedFlags,
+                    onFlagSelect = { newFlag ->
+                        if (newFlag != currentFlag) {
+                            buttonExpanded = false
+                            onRelatedFlag(newFlag)
+                        }
+                    },
+                    onNavigateUp = navigateUp,
+                    onAction = {},
+                )
+                 */
                 StaticTopAppBar(
                     currentScreen = currentScreen,
                     canNavigateBack = canNavigateBack,
+                    isRelatedFlagsButton = isRelatedFlagsButton,
+                    buttonExpanded = buttonExpanded,
+                    onButtonExpand = { buttonExpanded = !buttonExpanded },
+                    fontScale = fontScale,
+                    onButtonPosition = { buttonOffset = it },
+                    onButtonSize = { buttonSize = it },
                     onNavigateUp = navigateUp,
                     onNavigateDetails = {},
+                    onAction = {},
                 )
             }
         ) { scaffoldPadding ->
@@ -163,6 +206,100 @@ private fun FlagScaffold(
             )
         }
 
+        if (isRelatedFlagsButton) {
+
+            /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */
+            AnimatedVisibility(
+                visible = buttonExpanded,
+                enter = fadeIn(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
+                exit = fadeOut(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
+            ) {
+                /*
+                val radius = MaterialTheme.shapes.large.topStart.toPx(
+                    shapeSize = buttonSize,
+                    density = LocalDensity.current
+                )
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                        .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f))
+                        /*
+                        .drawBehind {
+                            drawRoundRect(
+                                color = Color.White,
+                                size = Size(width = 1000000f, height = 1000000f)
+                            )
+                        }
+                         */
+                        /*
+                        .graphicsLayer {
+                            alpha = 0.5f
+                            clip = true
+                            shape
+                        }
+                         */
+                        /*
+                        .drawWithContent {
+                            drawRoundRect(
+                                color = Color.Transparent,
+                                topLeft = buttonOffset,
+                                size = buttonSize,
+                                cornerRadius = CornerRadius(x = radius, y = radius)
+                            )
+                        }
+                         */
+                        /*
+                        .drawBehind {
+                            drawRoundRect(
+                                color = Color.Red,
+                                topLeft = buttonOffset,
+                                size = buttonSize,
+                                cornerRadius = CornerRadius(x = radius, y = radius)
+                            )
+                        }
+                         */
+                        //.background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f))
+                        .pointerInput(buttonExpanded) {
+                            detectTapGestures { buttonExpanded = !buttonExpanded }
+                        }
+                        .onKeyEvent {
+                            if (it.key == Key.Escape) {
+                                buttonExpanded = !buttonExpanded
+                                true
+                            } else false
+                        }
+                ) {
+                    //Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)))
+                }
+                 */
+                Scrim(
+                    modifier = Modifier.fillMaxSize()
+                        .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
+                    onAction = { buttonExpanded = !buttonExpanded }
+                )
+            }
+
+            RelatedFlagsButton(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(
+                        top = (scaffoldTopPadding - Dimens.small10).coerceAtLeast(0.dp),
+                        bottom = scaffoldBottomPadding,
+                        start = Dimens.marginHorizontal16,
+                        end = Dimens.marginHorizontal16,
+                    ),
+                buttonExpanded = buttonExpanded,
+                fontScale = fontScale,
+                currentFlag = currentFlag,
+                relatedFlags = relatedFlags,
+                onFlagSelect = { newFlag ->
+                    if (newFlag != currentFlag) {
+                        buttonExpanded = false
+                        onRelatedFlag(newFlag)
+                    }
+                },
+            )
+        }
+
+        /*
         if (isRelatedFlagsButton) {
 
             /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */
@@ -202,6 +339,7 @@ private fun FlagScaffold(
                 },
             )
         }
+         */
     }
 }
 

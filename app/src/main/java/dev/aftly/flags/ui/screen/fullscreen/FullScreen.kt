@@ -139,6 +139,7 @@ private fun FullscreenScaffold(
     val isApi30 = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
     var isSystemBars by rememberSaveable { mutableStateOf(value = isApi30) }
     var isButtons by rememberSaveable { mutableStateOf(value = true) }
+    var isTopBarLocked by rememberSaveable { mutableStateOf(value = true) }
 
     /* Configure animation timings depending on API version due to different behaviors */
     val systemBarsExitDelay = if (isApi30) 0 else Timings.SYSTEM_BARS_HANG.toLong()
@@ -204,7 +205,10 @@ private fun FullscreenScaffold(
             modifier = modifier.fillMaxSize(),
             topBar = {
                 AnimatedVisibility(
-                    visible = isSystemBars,
+                    visible = when (isTopBarLocked) {
+                        true -> true
+                        false -> isSystemBars
+                    },
                     enter = fadeIn(animationSpec = tween(durationMillis = Timings.SYSTEM_BARS)),
                     exit = fadeOut(animationSpec = tween(durationMillis = Timings.SYSTEM_BARS)),
                 ) {
@@ -212,8 +216,10 @@ private fun FullscreenScaffold(
                         currentScreen = currentScreen,
                         currentTitle = currentTitle,
                         canNavigateBack = canNavigateBack,
+                        isActionOn = isTopBarLocked,
                         onNavigateUp = onExitFullscreen,
-                        onNavigateDetails = {}
+                        onNavigateDetails = {},
+                        onAction = { isTopBarLocked = !isTopBarLocked },
                     )
                 }
             },
@@ -285,7 +291,8 @@ private fun FullscreenContent(
     HorizontalUncontainedCarousel(
         state = carouselState,
         itemWidth = screenWidthDp,
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
             .background(surfaceDark),
         flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(
             state = carouselState,

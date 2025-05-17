@@ -56,12 +56,15 @@ private fun StartMenuScaffold(
                 currentScreen = currentScreen,
                 canNavigateBack = canNavigateBack,
                 /* Padding for when can't navigate back */
+                /*
                 canNavigateBackTitlePadding = when (canNavigateBack) {
                     false -> Dimens.small8
                     true -> Dimens.canNavigateBack0
                 },
+                 */
                 onNavigateUp = navigateUp,
                 onNavigateDetails = onNavigateDetails,
+                onAction = {},
             )
         },
     ) { scaffoldPadding ->

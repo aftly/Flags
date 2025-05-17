@@ -140,7 +140,7 @@ fun AppNavHost(
                 navController = navController,
                 currentScreen = Screen.Flag,
                 canNavigateBack = navController.previousBackStackEntry != null,
-                navigateUp = { navController.navigateUp() },
+                onNavigateUp = { navController.navigateUp() },
                 onFullscreen = { flagArg, flagsArg, isLandscape ->
                     val flagsAsString = flagsArg.joinToString(separator = ",")
 

@@ -60,10 +60,9 @@ class FlagViewModel(
                     currentFlag = flag,
                     relatedFlags = relatedFlags,
                     flagsFromList = flags,
-                    descriptionStringResIds = getDescriptionIds(flag = flag),
                 )
             }
-            updateDescriptionString()
+            updateDescriptionString(flag = flag)
         }
     }
 
@@ -98,11 +97,10 @@ class FlagViewModel(
             _uiState.update {
                 it.copy(
                     currentFlag = newFlag,
-                    descriptionStringResIds = getDescriptionIds(flag = newFlag),
                     isNavigatingRelated = flagId == null,
                 )
             }
-            updateDescriptionString()
+            updateDescriptionString(flag = newFlag)
         }
 
     }
@@ -110,19 +108,13 @@ class FlagViewModel(
 
     /* Convert the @StringRes list into a legible string
      * Also for execution upon locale/language configuration changes */
-    fun updateDescriptionString() {
+    fun updateDescriptionString(flag: FlagResources) {
         val appResources = getApplication<Application>().applicationContext.resources
-        val stringIds = uiState.value.descriptionStringResIds
+        val stringIds = getDescriptionIds(flag = flag)
         val whitespaceExceptions = uiState.value.descriptionIdsWhitespaceExceptions
         val strings = mutableListOf<String>()
-        val flagOfIndexes = when (uiState.value.descriptionBoldWordIndexes) {
-            emptyList<Int>() -> mutableListOf<Int>()
-            else -> null
-        }
-        val allFlagOfIds = when (flagOfIndexes) {
-            null -> emptyList()
-            else -> allFlagsList.map { it.flagOf }
-        }
+        val flagOfIndexes = mutableListOf<Int>()
+        val allFlagOfIds = allFlagsList.map { it.flagOf }
 
         /* Loop through stringResIds and add their corresponding strings to stringList
          * (and with whitespace when appropriate) */
@@ -133,18 +125,14 @@ class FlagViewModel(
             strings.add(appResources.getString(stringId))
 
             /* Add index of word in stringList to flagOfPositions if it is a flag name */
-            if (flagOfIndexes != null) {
-                if (stringId in allFlagOfIds) {
-                    flagOfIndexes.add(element = strings.lastIndex)
-                }
+            if (stringId in allFlagOfIds) {
+                flagOfIndexes.add(element = strings.lastIndex)
             }
         }
 
-        /* If boldWordPositions state has not yet been set, update it with flagOf positions */
-        if (flagOfIndexes != null) {
-            _uiState.update { currentState ->
-                currentState.copy(descriptionBoldWordIndexes = flagOfIndexes.toList())
-            }
+        /* Update boldWordIndexes state with flagOf positions */
+        _uiState.update { currentState ->
+            currentState.copy(descriptionBoldWordIndexes = flagOfIndexes.toList())
         }
 
         /* Update description state with stringList */

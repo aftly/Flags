@@ -202,6 +202,7 @@ private fun GameScaffold(
                     canNavigateBack = canNavigateBack,
                     onNavigateUp = onNavigateUp,
                     onNavigateDetails = {},
+                    onAction = {},
                 )
             }
         ) { scaffoldPadding ->
