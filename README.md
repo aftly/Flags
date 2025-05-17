@@ -43,7 +43,7 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - Button/menu for filtering flags by category(s)
 <br>
 
- **📌 TODO for version 1.0:**
+ **📌 TODO:**
 - [x] ~~Create app icon~~
 - [x] ~~Add scroll to top button on list and search screens~~
 - [x] ~~Fullscreen flag image view~~
@@ -68,14 +68,16 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [ ] **Persistent Settings features**: Themes, strictness of user guesses for game, disable animations for older devices
 - [ ] **Info screen**: For information about the app and links to app resources
 - [ ] Save flags to custom list
-- [ ] *Add flag ISO codes?*
 - [ ] Add screenshots of app to **README**
 - [ ] Download flag image to local files feature
+- [ ] Pop up warning messages when invalid/not allowed user action
+- [ ] Add flag ISO codes
 - [ ] Optimize app for different screen resolutions and aspect ratios
 - [ ] Implement tests and production optimizations
 - [ ] Language translations
 - [ ] Release app on the Google Play Store
 <br>
+
 
 ## 🛠 Design
 - Built with Jetpack Compose in Kotlin, following architecture best practises described on Android Developers such as UDF, SSOT and ViewModels for managing business state and logic.
