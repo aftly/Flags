@@ -180,6 +180,7 @@
     <string name="flag_search_no_results_title">No flags found</string>
     <string name="flag_search_no_results_description">Queries will match common &amp; official names</string>
     <string name="flag_search_no_results_description_2">(Matches are special character agnostic)</string>
+    <string name="list_flags_no_results_description">Try selecting less or different categories</string>
     <string name="menu_related_flags">Related Flags</string>
     <string name="menu_multiple_selection">Multiple Categories Selected</string>
     <string name="menu_icon_expand">expand menu</string>

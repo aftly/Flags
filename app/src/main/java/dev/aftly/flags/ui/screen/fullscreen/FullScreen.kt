@@ -13,6 +13,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -49,7 +50,7 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -267,32 +268,20 @@ private fun FullscreenContent(
         itemCount = { flags.count() },
     )
 
-    var carouselOffset by remember { mutableFloatStateOf(value = 100f) }
-    var lastItemCarouselOffset by remember { mutableFloatStateOf(value = 0f) }
     var isLastItem by remember { mutableStateOf(value = false) }
 
-    LaunchedEffect(isLastItem) {
-        if (isLastItem) {
-            lastItemCarouselOffset = carouselOffset
-        }
-    }
-
-    /*
     var scrollToBeginning by remember { mutableStateOf(value = false) }
     LaunchedEffect(scrollToBeginning) {
         if (scrollToBeginning) {
-            delay(timeMillis = 2000)
             carouselState.animateScrollBy(value = -10_000_000f)
         }
     }
-     */
 
 
     HorizontalUncontainedCarousel(
         state = carouselState,
         itemWidth = screenWidthDp,
-        modifier = modifier
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
             .background(surfaceDark),
         flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(
             state = carouselState,
@@ -311,13 +300,13 @@ private fun FullscreenContent(
         ) {
             if (abs(x = leftEdgeFromWindowLeft - rightEdgeFromWindowRight) <= 2f) {
                 onCarouselRotation(item.id, item.flagOf)
-                /*
+
                 if (i == flags.size - 1) {
-                    scrollToBeginning = true
+                    isLastItem = true
                 }
-                 */
             }
         }
+
 
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -334,7 +323,7 @@ private fun FullscreenContent(
                         false -> Modifier.fillMaxWidth()
 
                     }.onGloballyPositioned { layout ->
-                        leftEdgeFromWindowLeft = layout.positionInWindow().x
+                        leftEdgeFromWindowLeft = layout.positionOnScreen().x
                         rightEdgeFromWindowRight =
                             screenWidthPx - (leftEdgeFromWindowLeft + layout.size.width.toFloat())
 
@@ -406,3 +395,10 @@ private fun OrientationLockButton(
         }
     }
 }
+
+
+/*
+@Composable
+private fun ScrollToFirstButton() {
+}
+ */

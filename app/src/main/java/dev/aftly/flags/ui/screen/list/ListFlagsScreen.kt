@@ -57,6 +57,7 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.ExpandableTopAppBar
 import dev.aftly.flags.ui.component.FilterFlagsButton
+import dev.aftly.flags.ui.component.NoResultsFound
 import dev.aftly.flags.ui.component.Scrim
 import dev.aftly.flags.ui.component.ScrollToTopButton
 import dev.aftly.flags.ui.theme.Dimens
@@ -180,6 +181,7 @@ private fun ListFlagsScaffold(
                         start = Dimens.marginHorizontal16,
                         end = Dimens.marginHorizontal16,
                     ),
+                currentScreen = currentScreen,
                 filterButtonHeight = buttonHeight,
                 scaffoldPadding = scaffoldPadding,
                 scrollBehaviour = scrollBehaviour,
@@ -242,6 +244,7 @@ private fun ListFlagsScaffold(
 @Composable
 private fun ListFlagsContent(
     modifier: Modifier = Modifier,
+    currentScreen: Screen,
     filterButtonHeight: Dp,
     scaffoldPadding: PaddingValues,
     scrollBehaviour: TopAppBarScrollBehavior,
@@ -259,31 +262,38 @@ private fun ListFlagsContent(
                 .height(filterButtonHeight / 2)
         )
 
-        /* Flags list */
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .nestedScroll(scrollBehaviour.nestedScrollConnection),
-            state = listState,
-            contentPadding = PaddingValues(
-                bottom = scaffoldPadding.calculateBottomPadding(),
-                top = filterButtonHeight / 2 + listItemVerticalPadding,
-            ),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start,
-        ) {
-            items(
-                count = currentFlagsList.size,
-                key = { index -> currentFlagsList[index].id }
-            ) { index ->
-                ListItem(
-                    modifier = Modifier.fillMaxWidth(),
-                    fontScale = fontScale,
-                    verticalPadding = listItemVerticalPadding,
-                    flag = currentFlagsList[index],
-                    onFlagSelect = onFlagSelect,
-                )
+        if (currentFlagsList.isNotEmpty()) {
+            /* Flags list */
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .nestedScroll(scrollBehaviour.nestedScrollConnection),
+                state = listState,
+                contentPadding = PaddingValues(
+                    bottom = scaffoldPadding.calculateBottomPadding(),
+                    top = filterButtonHeight / 2 + listItemVerticalPadding,
+                ),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.Start,
+            ) {
+                items(
+                    count = currentFlagsList.size,
+                    key = { index -> currentFlagsList[index].id }
+                ) { index ->
+                    ListItem(
+                        modifier = Modifier.fillMaxWidth(),
+                        fontScale = fontScale,
+                        verticalPadding = listItemVerticalPadding,
+                        flag = currentFlagsList[index],
+                        onFlagSelect = onFlagSelect,
+                    )
+                }
             }
+        } else {
+            NoResultsFound(
+                modifier = Modifier.fillMaxSize(),
+                screen = currentScreen,
+            )
         }
     }
 }

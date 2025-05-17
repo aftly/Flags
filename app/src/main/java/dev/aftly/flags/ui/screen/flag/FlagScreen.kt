@@ -214,6 +214,12 @@ private fun FlagScaffold(
                 enter = fadeIn(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
                 exit = fadeOut(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
             ) {
+                Scrim(
+                    modifier = Modifier.fillMaxSize()
+                        .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
+                    onAction = { buttonExpanded = !buttonExpanded }
+                )
+
                 /*
                 val radius = MaterialTheme.shapes.large.topStart.toPx(
                     shapeSize = buttonSize,
@@ -222,14 +228,14 @@ private fun FlagScaffold(
                 Box(
                     modifier = Modifier.fillMaxSize()
                         .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f))
-                        /*
+
                         .drawBehind {
                             drawRoundRect(
                                 color = Color.White,
                                 size = Size(width = 1000000f, height = 1000000f)
                             )
                         }
-                         */
+
                         /*
                         .graphicsLayer {
                             alpha = 0.5f
@@ -271,11 +277,6 @@ private fun FlagScaffold(
                     //Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)))
                 }
                  */
-                Scrim(
-                    modifier = Modifier.fillMaxSize()
-                        .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
-                    onAction = { buttonExpanded = !buttonExpanded }
-                )
             }
 
             RelatedFlagsButton(

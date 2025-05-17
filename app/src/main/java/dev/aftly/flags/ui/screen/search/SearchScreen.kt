@@ -64,6 +64,7 @@ import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.FilterFlagsButton
+import dev.aftly.flags.ui.component.NoResultsFound
 import dev.aftly.flags.ui.component.Scrim
 import dev.aftly.flags.ui.component.ScrollToTopButton
 import dev.aftly.flags.ui.component.StaticTopAppBar
@@ -205,6 +206,7 @@ private fun SearchScaffold(
                         end = Dimens.marginHorizontal16,
                     ),
                 scaffoldPadding = scaffoldPadding,
+                currentScreen = currentScreen,
                 listState = listState,
                 fontScale = fontScale,
                 userSearch = userSearch,
@@ -267,6 +269,7 @@ private fun SearchScaffold(
 private fun SearchContent(
     modifier: Modifier = Modifier,
     scaffoldPadding: PaddingValues,
+    currentScreen: Screen,
     listState: LazyListState,
     surfaceColor: Color = MaterialTheme.colorScheme.surface,
     fontScale: Float,
@@ -335,11 +338,7 @@ private fun SearchContent(
                 shrinkTowards = Alignment.Top,
             ),
         ) {
-            if (searchResults.isEmpty()) {
-                NoResultsFoundContent(
-                    modifier = Modifier.fillMaxSize()
-                )
-            } else {
+            if (searchResults.isNotEmpty()) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     state = listState,
@@ -360,6 +359,11 @@ private fun SearchContent(
                         )
                     }
                 }
+            } else {
+                NoResultsFound(
+                    modifier = Modifier.fillMaxSize(),
+                    screen = currentScreen,
+                )
             }
         }
     }
@@ -422,6 +426,7 @@ fun SearchItem(
 }
 
 
+/*
 @Composable
 fun NoResultsFoundContent(
     modifier: Modifier = Modifier,
@@ -452,6 +457,7 @@ fun NoResultsFoundContent(
         Spacer(modifier = Modifier.height(Dimens.bottomSpacer80))
     }
 }
+ */
 
 
 /* Preview screen in Android Studio */
