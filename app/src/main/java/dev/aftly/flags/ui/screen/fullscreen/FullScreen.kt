@@ -140,7 +140,7 @@ private fun FullscreenScaffold(
     val isApi30 = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
     var isSystemBars by rememberSaveable { mutableStateOf(value = isApi30) }
     var isButtons by rememberSaveable { mutableStateOf(value = true) }
-    var isTopBarLocked by rememberSaveable { mutableStateOf(value = true) }
+    var isTopBarLocked by rememberSaveable { mutableStateOf(value = false) }
 
     /* Configure animation timings depending on API version due to different behaviors */
     val systemBarsExitDelay = if (isApi30) 0 else Timings.SYSTEM_BARS_HANG.toLong()
