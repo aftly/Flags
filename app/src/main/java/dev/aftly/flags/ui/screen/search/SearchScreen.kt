@@ -437,39 +437,5 @@ fun SearchItem(
 }
 
 
-/*
-@Composable
-fun NoResultsFoundContent(
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(
-            text = stringResource(R.string.flag_search_no_results_title),
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.headlineSmall,
-        )
-        Text(
-            text = stringResource(R.string.flag_search_no_results_description),
-            modifier = Modifier.padding(vertical = Dimens.extraSmall6),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyLarge,
-        )
-        Text(
-            text = stringResource(R.string.flag_search_no_results_description_2),
-            textAlign = TextAlign.Center,
-            fontStyle = FontStyle.Italic,
-            style = MaterialTheme.typography.bodyMedium,
-        )
-
-        Spacer(modifier = Modifier.height(Dimens.bottomSpacer80))
-    }
-}
- */
-
-
 /* Preview screen in Android Studio */
 /* TODO */
