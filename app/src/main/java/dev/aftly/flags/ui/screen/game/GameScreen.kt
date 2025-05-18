@@ -192,6 +192,13 @@ private fun GameScaffold(
 
     var isFlagWide by rememberSaveable { mutableStateOf(value = true) }
 
+    /* Minimize filter menu when keyboard input */
+    LaunchedEffect(userGuess) {
+        if (userGuess.isNotEmpty() && buttonExpanded) {
+            buttonExpanded = false
+        }
+    }
+
 
     /* Scaffold within box so that FilterFlagsButton & it's associated surface can overlay it */
     Box(modifier = Modifier.fillMaxSize()) {

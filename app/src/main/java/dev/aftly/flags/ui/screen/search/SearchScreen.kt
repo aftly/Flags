@@ -167,10 +167,16 @@ private fun SearchScaffold(
             coroutineScope.launch { listState.scrollToItem(index = 0) }
         }
     }
-    /* Reset scroll state after each userSearch character entry unless empty */
+
     LaunchedEffect(userSearch) {
+        /* Reset scroll state after each userSearch character entry unless empty */
         if (isUserSearch && !isAtTop) {
             coroutineScope.launch { listState.scrollToItem(index = 0) }
+        }
+
+        /* Minimize filter menu when keyboard input */
+        if (isUserSearch && buttonExpanded) {
+            buttonExpanded = false
         }
     }
 
