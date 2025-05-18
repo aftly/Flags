@@ -147,13 +147,13 @@ private fun FullscreenScaffold(
     val exitButtonAnimationTiming = if (isApi30) Timing.SYSTEM_BARS / 2 else Timing.SYSTEM_BARS
 
     /* Properties for controlling system bars */
-    val window = LocalActivity.current?.window
-    val windowInsetsController = window?.let { WindowInsetsControllerCompat(it, it.decorView) }
+    val activity = LocalActivity.current
+    val windowInsetsController = activity?.window?.let { WindowInsetsControllerCompat(it, it.decorView) }
     windowInsetsController?.isAppearanceLightStatusBars = false /* Makes top bar icons white */
 
     /* Following feature requires SDK version 30+ (app minimum SDK version is 24) */
     if (isApi30) {
-        window?.insetsController?.apply {
+        activity?.window?.insetsController?.apply {
             systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
     }
@@ -181,7 +181,8 @@ private fun FullscreenScaffold(
     }
 
     /* To determine screen aspect ratio for image modifier so FullScreenButton can align with it */
-    val displayMetrics = LocalContext.current.resources.displayMetrics
+    val context = LocalContext.current
+    val displayMetrics = context.resources.displayMetrics
     val isAspectRatioWide = displayMetrics.widthPixels >= displayMetrics.heightPixels
 
 

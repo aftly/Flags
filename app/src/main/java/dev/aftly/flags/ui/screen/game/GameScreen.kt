@@ -56,6 +56,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -311,7 +312,7 @@ private fun GameContent(
     var imageWidth by remember { mutableStateOf(value = 0.dp) }
     var imageHeightModifier by remember { mutableStateOf<Modifier>(value = Modifier) }
     var cardWidthModifier by remember { mutableStateOf<Modifier>(value = Modifier) }
-    val density = LocalDensity.current.density
+    val density = LocalDensity.current
     val contentTopPadding = Dimens.defaultFilterButtonHeight30 / 2
 
     val aspectRatioTopPadding = when (isWideScreen) {
@@ -331,7 +332,7 @@ private fun GameContent(
                 end = Dimens.marginHorizontal16,
             )
             .onSizeChanged { size ->
-                columnHeight = (size.height.toFloat() / density).dp - contentTopPadding
+                columnHeight = with(density) { size.height.toDp() } - contentTopPadding
 
                 /* Set image height modifier */
                 if (columnHeight - contentTopPadding < imageHeight) {
@@ -405,7 +406,7 @@ private fun GameContent(
 private fun GameCard(
     modifier: Modifier = Modifier,
     currentScreen: Screen,
-    density: Float,
+    density: Density,
     contentColumnHeight: Dp,
     cardImageWidth: Dp,
     onCardImageWidthChange: (Dp) -> Unit,
@@ -550,10 +551,10 @@ private fun GameCard(
                         modifier = Modifier
                             .onSizeChanged { size ->
                                 onCardImageHeightChange(
-                                    (size.height.toFloat() / density).dp
+                                    with(density) { size.height.toDp() }
                                 )
                                 onCardImageWidthChange(
-                                    (size.width.toFloat() / density).dp
+                                    with(density) { size.width.toDp() }
                                 )
 
                                 /* Set image height modifier */
