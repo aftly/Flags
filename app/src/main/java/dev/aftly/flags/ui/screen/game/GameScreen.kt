@@ -265,6 +265,7 @@ private fun GameScaffold(
                     start = Dimens.marginHorizontal16,
                     end = Dimens.marginHorizontal16,
                 ),
+            screen = currentScreen,
             onButtonHeightChange = { buttonHeight = it },
             buttonExpanded = buttonExpanded,
             onButtonExpand = { buttonExpanded = !buttonExpanded },

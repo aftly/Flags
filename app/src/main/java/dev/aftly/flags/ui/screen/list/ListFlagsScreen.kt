@@ -41,10 +41,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -140,7 +142,6 @@ private fun ListFlagsScaffold(
     var scaffoldTopPadding by remember { mutableStateOf(value = 0.dp) }
     var scaffoldBottomPadding by remember { mutableStateOf(value = 0.dp) }
 
-
     /* Properties for ScrollToTopButton & reset scroll position when category changed in menu */
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -152,7 +153,10 @@ private fun ListFlagsScaffold(
 
 
     /* Scaffold within box so FilterFlagsButton & it's associated surface can overlay it */
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopEnd,
+    ) {
         Scaffold(
             modifier = modifier,
             topBar = {
@@ -217,6 +221,8 @@ private fun ListFlagsScaffold(
                     start = Dimens.marginHorizontal16,
                     end = Dimens.marginHorizontal16,
                 ),
+            screen = currentScreen,
+            flagCount = currentFlagsList.size,
             onButtonHeightChange = { buttonHeight = it },
             buttonExpanded = buttonExpanded,
             onButtonExpand = { buttonExpanded = !buttonExpanded },

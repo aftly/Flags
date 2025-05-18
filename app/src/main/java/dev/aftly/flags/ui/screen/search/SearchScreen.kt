@@ -205,7 +205,8 @@ private fun SearchScaffold(
             scaffoldBottomPadding = scaffoldPadding.calculateBottomPadding()
 
             SearchContent(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .padding(
                         top = scaffoldTopPadding + buttonHeight,
                         start = Dimens.marginHorizontal16,
@@ -231,7 +232,8 @@ private fun SearchScaffold(
             exit = fadeOut(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
         ) {
             Scrim(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
                 onAction = { buttonExpanded = !buttonExpanded }
             )
@@ -241,13 +243,19 @@ private fun SearchScaffold(
         /* Custom quasi-DropdownMenu elevated above screen content with animated nested menus for
          * selecting super or sub category to filter flags by */
         FilterFlagsButton(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(
                     top = scaffoldTopPadding,
                     bottom = scaffoldBottomPadding,
                     start = Dimens.marginHorizontal16,
                     end = Dimens.marginHorizontal16,
                 ),
+            screen = currentScreen,
+            flagCount = when (isUserSearch) {
+                true -> searchResults.size
+                false -> 0
+            },
             onButtonHeightChange = { buttonHeight = it },
             buttonExpanded = buttonExpanded,
             onButtonExpand = { buttonExpanded = !buttonExpanded },

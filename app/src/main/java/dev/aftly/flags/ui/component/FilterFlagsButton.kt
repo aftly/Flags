@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.requiredWidthIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -46,9 +48,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
@@ -69,6 +73,7 @@ import dev.aftly.flags.model.FlagSuperCategory.International
 import dev.aftly.flags.model.FlagSuperCategory.NonAdministrative
 import dev.aftly.flags.model.FlagSuperCategory.Political
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
+import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Shapes
 import dev.aftly.flags.ui.theme.Timings
@@ -77,6 +82,8 @@ import dev.aftly.flags.ui.theme.Timings
 @Composable
 fun FilterFlagsButton(
     modifier: Modifier = Modifier,
+    screen: Screen,
+    flagCount: Int = 0,
     onButtonHeightChange: (Dp) -> Unit,
     buttonExpanded: Boolean,
     onButtonExpand: () -> Unit,
@@ -125,6 +132,7 @@ fun FilterFlagsButton(
     /* Manage button height */
     val oneLineButtonHeight = Dimens.defaultFilterButtonHeight30 * fontScale
     val twoLineButtonHeight = Dimens.defaultFilterButtonHeight50 * fontScale
+    var isOneLine by remember { mutableStateOf(value = true) }
     var buttonHeight by remember {
         mutableStateOf(value = Dimens.defaultFilterButtonHeight30 * fontScale)
     }
@@ -153,6 +161,12 @@ fun FilterFlagsButton(
         fontWeight = FontWeight.Medium,
         letterSpacing = 0.15.sp,
     )
+
+    var flagCountWidth by remember { mutableStateOf(Dimens.standardIconSize24) }
+    val flagCountShape = when (isOneLine) {
+        true -> MaterialTheme.shapes.large
+        false -> MaterialTheme.shapes.medium
+    }
 
     val density = LocalDensity.current
     val haptics = LocalHapticFeedback.current
@@ -184,46 +198,79 @@ fun FilterFlagsButton(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Spacer(
-                        modifier = Modifier.width(width =
-                            if (textWidth + iconsTotalSize < buttonWidth) {
-                                iconSizePadding
-                            } else 0.dp
+                    /* If not game screen show flag count indicator,
+                     * else spacer (for text centering) */
+                    if (screen != Screen.Game) {
+                        Box(
+                            modifier = Modifier.onSizeChanged { size ->
+                                flagCountWidth = with(density) { size.width.toDp() }
+                            },
+                        ) {
+                            Text(
+                                text = "$flagCount",
+                                modifier = Modifier.requiredWidthIn(min = Dimens.standardIconSize24)
+                                    .clip(flagCountShape)
+                                    .background(MaterialTheme.colorScheme.surface)
+                                    .padding(
+                                        vertical = 2.dp * fontScale,
+                                        horizontal = 6.dp * fontScale
+                                    ),
+                                textAlign = TextAlign.Center,
+                                color = containerColor2,
+                                style = MaterialTheme.typography.titleSmall,
+                            )
+                        }
+                    } else {
+                        Spacer(
+                            modifier = Modifier.width(width =
+                                if (textWidth + iconsTotalSize < buttonWidth) {
+                                    iconSizePadding
+                                } else 0.dp
+                            )
                         )
-                    )
+                    }
 
+                    /* Button title */
                     Text(
                         text = buttonTitle,
-                        modifier = Modifier.weight(weight = 1f, fill = false),
+                        modifier = Modifier.weight(weight = 1f, fill = false)
+                            .padding(horizontal = iconPadding),
                         textAlign = TextAlign.Center,
                         onTextLayout = { textLayoutResult ->
                             with(density) { textWidth = textLayoutResult.size.width.toDp() }
 
                             if (textLayoutResult.lineCount > 1) {
                                 buttonHeight = twoLineButtonHeight
-                            } else if (buttonHeight != oneLineButtonHeight) {
+                                isOneLine = false
+                            } else {
                                 buttonHeight = oneLineButtonHeight
+                                isOneLine = true
                             }
                         },
                         style = MaterialTheme.typography.titleMedium,
                     )
 
-                    if (!buttonExpanded) {
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowDown,
-                            contentDescription = stringResource(R.string.menu_icon_expand),
-                            modifier = Modifier.size(iconSize)
-                                .padding(start = iconPadding),
-                            tint = buttonColors1.contentColor,
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowUp,
-                            contentDescription = stringResource(R.string.menu_icon_collapse),
-                            modifier = Modifier.size(iconSize)
-                                .padding(start = iconPadding),
-                            tint = buttonColors1.contentColor,
-                        )
+                    /* Drop down icon, minimum size of standard icon size * font scale, otherwise
+                     * width of flag counter, for button title centering */
+                    Box(
+                        modifier = Modifier.width(flagCountWidth),
+                        contentAlignment = Alignment.CenterEnd,
+                    ) {
+                        if (!buttonExpanded) {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowDown,
+                                contentDescription = stringResource(R.string.menu_icon_expand),
+                                modifier = Modifier.size(iconSize),
+                                tint = buttonColors1.contentColor,
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowUp,
+                                contentDescription = stringResource(R.string.menu_icon_collapse),
+                                modifier = Modifier.size(iconSize),
+                                tint = buttonColors1.contentColor,
+                            )
+                        }
                     }
                 }
             }
