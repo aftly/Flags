@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
+import dev.aftly.flags.data.DataSource.nullFlag
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
@@ -54,7 +55,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         userGuess = ""
 
         val newFlag = getRandomFlag()
-        val newFlagStrings = getStringsList(flag = newFlag)
+        val newFlagStrings = when (newFlag) {
+            nullFlag -> emptyList()
+            else -> getStringsList(flag = newFlag)
+        }
 
         _uiState.update { currentState ->
             currentState.copy(
@@ -289,11 +293,17 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
 
     private fun getRandomFlag(): FlagResources {
-        val newFlag = uiState.value.currentFlags.random()
+        val currentFlags = uiState.value.currentFlags
 
-        /* Recurs until (random) newFlag not currentFlag or in guessedFlags or in skippedFlags */
-        return if (newFlag == uiState.value.currentFlag ||
-            newFlag in guessedFlags || newFlag in skippedFlags) getRandomFlag() else newFlag
+        if (currentFlags.isNotEmpty()) {
+            val newFlag = currentFlags.random()
+
+            /* Recurs until (random) newFlag not currentFlag or in guessedFlags or in skippedFlags */
+            return if (newFlag == uiState.value.currentFlag ||
+                newFlag in guessedFlags || newFlag in skippedFlags) getRandomFlag() else newFlag
+        } else {
+            return nullFlag
+        }
     }
 
 

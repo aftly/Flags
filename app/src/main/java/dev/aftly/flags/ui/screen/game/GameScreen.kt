@@ -66,6 +66,7 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.FilterFlagsButton
 import dev.aftly.flags.ui.component.FullscreenButton
+import dev.aftly.flags.ui.component.NoResultsFound
 import dev.aftly.flags.ui.component.Scrim
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.component.shareText
@@ -211,6 +212,7 @@ private fun GameScaffold(
 
             GameContent(
                 modifier = Modifier.padding(scaffoldPadding),
+                currentScreen = currentScreen,
                 isWideScreen = isWideScreen,
                 filterButtonHeight = buttonHeight,
                 totalFlagCount = totalFlagCount,
@@ -274,6 +276,7 @@ private fun GameScaffold(
 @Composable
 private fun GameContent(
     modifier: Modifier = Modifier,
+    currentScreen: Screen,
     isWideScreen: Boolean,
     filterButtonHeight: Dp,
     totalFlagCount: Int,
@@ -341,6 +344,7 @@ private fun GameContent(
         )
 
         GameCard(
+            currentScreen = currentScreen,
             density = density,
             contentColumnHeight = columnHeight,
             cardImageWidth = imageWidth,
@@ -392,6 +396,7 @@ private fun GameContent(
 @Composable
 private fun GameCard(
     modifier: Modifier = Modifier,
+    currentScreen: Screen,
     density: Float,
     contentColumnHeight: Dp,
     cardImageWidth: Dp,
@@ -532,49 +537,57 @@ private fun GameCard(
                     ),
                 contentAlignment = Alignment.BottomEnd,
             ) {
-                Image(
-                    modifier = Modifier
-                        .onSizeChanged { size ->
-                            onCardImageHeightChange(
-                                (size.height.toFloat() / density).dp
-                            )
-                            onCardImageWidthChange(
-                                (size.width.toFloat() / density).dp
-                            )
+                if (totalFlagCount != 0) {
+                    Image(
+                        modifier = Modifier
+                            .onSizeChanged { size ->
+                                onCardImageHeightChange(
+                                    (size.height.toFloat() / density).dp
+                                )
+                                onCardImageWidthChange(
+                                    (size.width.toFloat() / density).dp
+                                )
 
-                            /* Set image height modifier */
-                            if (contentColumnHeight < cardImageHeight) {
-                                onCardImageHeightModifierChange(
-                                    Modifier.height(height = contentColumnHeight)
-                                )
-                                onCardWidthModifierChange(
-                                    Modifier.width(width = (cardImageWidth.value * 1.25).dp)
-                                )
-                            } else {
-                                onCardImageHeightModifierChange(
-                                    Modifier.height(height = cardImageHeight)
-                                )
-                                onCardWidthModifierChange(
-                                    Modifier.fillMaxWidth()
-                                )
+                                /* Set image height modifier */
+                                if (contentColumnHeight < cardImageHeight) {
+                                    onCardImageHeightModifierChange(
+                                        Modifier.height(height = contentColumnHeight)
+                                    )
+                                    onCardWidthModifierChange(
+                                        Modifier.width(width = (cardImageWidth.value * 1.25).dp)
+                                    )
+                                } else {
+                                    onCardImageHeightModifierChange(
+                                        Modifier.height(height = cardImageHeight)
+                                    )
+                                    onCardWidthModifierChange(
+                                        Modifier.fillMaxWidth()
+                                    )
+                                }
+
+                                /* For fullscreen orientation */
+                                onImageWide(size.width > size.height)
                             }
+                            .then(cardImageHeightModifier) /* concatenate height after onSizeChanged */
+                            /* Force aspect ratio to keep game card shape consistent */
+                            .aspectRatio(ratio = 3f / 2f),
+                        painter = painterResource(currentFlag.image),
+                        contentDescription = "flag of ${stringResource(currentFlag.flagOf)}",
+                        contentScale = ContentScale.Fit,
+                    )
 
-                            /* For fullscreen orientation */
-                            onImageWide(size.width > size.height)
-                        }
-                        .then(cardImageHeightModifier) /* concatenate height after onSizeChanged */
-                        /* Force aspect ratio to keep game card shape consistent */
-                        .aspectRatio(ratio = 3f / 2f),
-                    painter = painterResource(currentFlag.image),
-                    contentDescription = "flag of ${stringResource(currentFlag.flagOf)}",
-                    contentScale = ContentScale.Fit,
-                )
-
-                FullscreenButton(
-                    visible = isFullScreenButton,
-                    onInvisible = { isFullScreenButton = false },
-                    onFullScreen = onFullscreen,
-                )
+                    FullscreenButton(
+                        visible = isFullScreenButton,
+                        onInvisible = { isFullScreenButton = false },
+                        onFullScreen = onFullscreen,
+                    )
+                } else {
+                    NoResultsFound(
+                        modifier = Modifier.aspectRatio(ratio = 2f / 1f)
+                            .fillMaxSize(),
+                        screen = currentScreen,
+                    )
+                }
             }
 
             OutlinedTextField(

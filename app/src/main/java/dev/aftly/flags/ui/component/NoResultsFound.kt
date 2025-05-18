@@ -24,8 +24,13 @@ fun NoResultsFound(
     modifier: Modifier = Modifier,
     screen: Screen,
 ) {
+    val categoryScreen = listOf(
+        Screen.List,
+        Screen.Game
+    )
+
     @StringRes val description1 = when (screen) {
-        Screen.List -> R.string.list_flags_no_results_description
+        in categoryScreen -> R.string.list_flags_no_results_description
         else -> R.string.flag_search_no_results_description
     }
     @StringRes val description2 = when (screen) {
@@ -60,6 +65,8 @@ fun NoResultsFound(
             )
         }
 
-        Spacer(modifier = Modifier.height(Dimens.bottomSpacer80))
+        if (screen != Screen.Game) {
+            Spacer(modifier = Modifier.height(Dimens.bottomSpacer80))
+        }
     }
 }
