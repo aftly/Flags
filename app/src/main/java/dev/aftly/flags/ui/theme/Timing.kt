@@ -1,7 +1,7 @@
 package dev.aftly.flags.ui.theme
 
 /* Standardize animation timings */
-object Timings {
+object Timing {
     const val SCREEN_NAV: Int = 700
     const val MENU_EXPAND: Int = 500
     const val MENU_COLLAPSE: Int = 375

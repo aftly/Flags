@@ -10,7 +10,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import dev.aftly.flags.ui.theme.Timings
+import dev.aftly.flags.ui.theme.Timing
 
 @Composable
 fun ScrollToTopButton(
@@ -20,8 +20,8 @@ fun ScrollToTopButton(
 ) {
     AnimatedVisibility(
         visible = isVisible,
-        enter = scaleIn(animationSpec = tween(durationMillis = Timings.SCROLL_BUTTON)),
-        exit = scaleOut(animationSpec = tween(durationMillis = Timings.SCROLL_BUTTON)),
+        enter = scaleIn(animationSpec = tween(durationMillis = Timing.SCROLL_BUTTON)),
+        exit = scaleOut(animationSpec = tween(durationMillis = Timing.SCROLL_BUTTON)),
     ) {
         FloatingActionButton(
             onClick = onClick,

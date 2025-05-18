@@ -63,7 +63,7 @@ import dev.aftly.flags.ui.component.FullscreenButton
 import dev.aftly.flags.ui.component.LocalOrientationController
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.theme.Dimens
-import dev.aftly.flags.ui.theme.Timings
+import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.theme.surfaceDark
 import dev.aftly.flags.ui.theme.surfaceLight
 import kotlinx.coroutines.delay
@@ -143,8 +143,8 @@ private fun FullscreenScaffold(
     var isTopBarLocked by rememberSaveable { mutableStateOf(value = false) }
 
     /* Configure animation timings depending on API version due to different behaviors */
-    val systemBarsExitDelay = if (isApi30) 0 else Timings.SYSTEM_BARS_HANG.toLong()
-    val exitButtonAnimationTiming = if (isApi30) Timings.SYSTEM_BARS / 2 else Timings.SYSTEM_BARS
+    val systemBarsExitDelay = if (isApi30) 0 else Timing.SYSTEM_BARS_HANG.toLong()
+    val exitButtonAnimationTiming = if (isApi30) Timing.SYSTEM_BARS / 2 else Timing.SYSTEM_BARS
 
     /* Properties for controlling system bars */
     val window = LocalActivity.current?.window
@@ -165,7 +165,7 @@ private fun FullscreenScaffold(
 
             /* Auto disable system bars and exit button after delay */
             delay(
-                timeMillis = Timings.SYSTEM_BARS.let {
+                timeMillis = Timing.SYSTEM_BARS.let {
                     if (counter > 0) it * 2 else it / 1.5
                 }.toLong()
             )
@@ -210,8 +210,8 @@ private fun FullscreenScaffold(
                         true -> true
                         false -> isSystemBars
                     },
-                    enter = fadeIn(animationSpec = tween(durationMillis = Timings.SYSTEM_BARS)),
-                    exit = fadeOut(animationSpec = tween(durationMillis = Timings.SYSTEM_BARS)),
+                    enter = fadeIn(animationSpec = tween(durationMillis = Timing.SYSTEM_BARS)),
+                    exit = fadeOut(animationSpec = tween(durationMillis = Timing.SYSTEM_BARS)),
                 ) {
                     StaticTopAppBar(
                         currentScreen = currentScreen,

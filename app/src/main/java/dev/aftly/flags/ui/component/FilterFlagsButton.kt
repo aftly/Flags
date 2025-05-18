@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.requiredWidthIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -76,7 +75,7 @@ import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Shapes
-import dev.aftly.flags.ui.theme.Timings
+import dev.aftly.flags.ui.theme.Timing
 
 
 @Composable
@@ -279,11 +278,11 @@ fun FilterFlagsButton(
         AnimatedVisibility(
             visible = buttonExpanded,
             enter = expandVertically(
-                animationSpec = tween(durationMillis = Timings.MENU_EXPAND),
+                animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
                 expandFrom = Alignment.Top,
             ),
             exit = shrinkVertically(
-                animationSpec = tween(durationMillis = Timings.MENU_COLLAPSE),
+                animationSpec = tween(durationMillis = Timing.MENU_COLLAPSE),
                 shrinkTowards = Alignment.Top,
             ),
         ) {
@@ -600,11 +599,11 @@ private fun MenuItemExpandable(
         AnimatedVisibility(
             visible = isMultiSelected ?: menuExpanded,
             enter = expandVertically(
-                animationSpec = tween(durationMillis = Timings.MENU_EXPAND),
+                animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
                 expandFrom = Alignment.Top,
             ),
             exit = shrinkVertically(
-                animationSpec = tween(durationMillis = Timings.MENU_EXPAND),
+                animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
                 shrinkTowards = Alignment.Top,
             )
         ) {
@@ -796,11 +795,11 @@ private fun MenuSuperItem(
             AnimatedVisibility(
                 visible = isMultiSelected ?: parentExpanded,
                 enter = expandVertically(
-                    animationSpec = tween(durationMillis = Timings.MENU_EXPAND),
+                    animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
                     expandFrom = Alignment.Top,
                 ),
                 exit = shrinkVertically(
-                    animationSpec = tween(durationMillis = Timings.MENU_EXPAND),
+                    animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
                     shrinkTowards = Alignment.Top,
                 )
             ) {

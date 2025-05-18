@@ -52,9 +52,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -69,7 +66,7 @@ import dev.aftly.flags.ui.component.Scrim
 import dev.aftly.flags.ui.component.ScrollToTopButton
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.theme.Dimens
-import dev.aftly.flags.ui.theme.Timings
+import dev.aftly.flags.ui.theme.Timing
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -163,7 +160,7 @@ private fun SearchScaffold(
     /* Reset scroll state after clearing user search & LazyColumn animation finishes */
     LaunchedEffect(isUserSearch) {
         if (!isUserSearch && !isAtTop) {
-            delay(timeMillis = Timings.MENU_EXPAND.toLong())
+            delay(timeMillis = Timing.MENU_EXPAND.toLong())
             coroutineScope.launch { listState.scrollToItem(index = 0) }
         }
     }
@@ -228,8 +225,8 @@ private fun SearchScaffold(
         /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */
         AnimatedVisibility(
             visible = buttonExpanded,
-            enter = fadeIn(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
-            exit = fadeOut(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
+            enter = fadeIn(animationSpec = tween(durationMillis = Timing.MENU_EXPAND)),
+            exit = fadeOut(animationSpec = tween(durationMillis = Timing.MENU_EXPAND)),
         ) {
             Scrim(
                 modifier = Modifier
@@ -298,7 +295,7 @@ private fun SearchContent(
 
     val animatedTextFieldContainerColor by animateColorAsState(
         targetValue = if (isUserSearch) surfaceColor else textFieldColors.focusedContainerColor,
-        animationSpec = tween(durationMillis = Timings.MENU_EXPAND / 2),
+        animationSpec = tween(durationMillis = Timing.MENU_EXPAND / 2),
     )
 
 
@@ -344,11 +341,11 @@ private fun SearchContent(
         AnimatedVisibility(
             visible = isUserSearch,
             enter = expandVertically(
-                animationSpec = tween(durationMillis = Timings.MENU_EXPAND),
+                animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
                 expandFrom = Alignment.Top,
             ),
             exit = shrinkVertically(
-                animationSpec = tween(durationMillis = Timings.MENU_EXPAND),
+                animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
                 shrinkTowards = Alignment.Top,
             ),
         ) {

@@ -71,7 +71,7 @@ import dev.aftly.flags.ui.component.Scrim
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.component.shareText
 import dev.aftly.flags.ui.theme.Dimens
-import dev.aftly.flags.ui.theme.Timings
+import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.theme.successLight
 import kotlinx.coroutines.delay
 
@@ -243,8 +243,8 @@ private fun GameScaffold(
         /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */
         AnimatedVisibility(
             visible = buttonExpanded,
-            enter = fadeIn(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
-            exit = fadeOut(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
+            enter = fadeIn(animationSpec = tween(durationMillis = Timing.MENU_EXPAND)),
+            exit = fadeOut(animationSpec = tween(durationMillis = Timing.MENU_EXPAND)),
         ) {
             Scrim(
                 modifier = Modifier.fillMaxSize()
@@ -434,7 +434,7 @@ private fun GameCard(
     val focusedContainerColor: Color = MaterialTheme.colorScheme.surface
 
     val animationSpecEnter = tween<Color>(durationMillis = 0)
-    val animationSpecExit = tween<Color>(durationMillis = Timings.GUESS_STATE_EXIT)
+    val animationSpecExit = tween<Color>(durationMillis = Timing.GUESS_STATE_EXIT)
     var animationSpecSuccess by remember { mutableStateOf(value = animationSpecEnter) }
     var animationSpecError by remember { mutableStateOf(value = animationSpecEnter) }
 
@@ -465,11 +465,11 @@ private fun GameCard(
             isSuccessColor = true
             labelState = labelSuccess
 
-            delay(timeMillis = Timings.GUESS_STATE_DURATION.toLong())
+            delay(timeMillis = Timing.GUESS_STATE_DURATION.toLong())
             animationSpecSuccess = animationSpecExit
             isSuccessColor = false
 
-            delay(timeMillis = Timings.GUESS_STATE_EXIT.toLong())
+            delay(timeMillis = Timing.GUESS_STATE_EXIT.toLong())
             /* If other LaunchedEffect is triggered before this one finishes, don't reset label */
             labelState = if (labelState == labelError) labelError else labelDefault
         }
@@ -480,11 +480,11 @@ private fun GameCard(
             isErrorColor = true
             labelState = labelError
 
-            delay(timeMillis = Timings.GUESS_STATE_DURATION.toLong())
+            delay(timeMillis = Timing.GUESS_STATE_DURATION.toLong())
             animationSpecError = animationSpecExit
             isErrorColor = false
 
-            delay(timeMillis = Timings.GUESS_STATE_EXIT.toLong())
+            delay(timeMillis = Timing.GUESS_STATE_EXIT.toLong())
             /* If other LaunchedEffect is triggered before this one finishes, don't reset label */
             labelState = if (labelState == labelSuccess) labelSuccess else labelDefault
         }

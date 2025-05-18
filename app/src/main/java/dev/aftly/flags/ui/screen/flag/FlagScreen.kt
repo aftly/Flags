@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,18 +33,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
@@ -75,7 +65,7 @@ import dev.aftly.flags.ui.component.RelatedFlagsButton
 import dev.aftly.flags.ui.component.Scrim
 import dev.aftly.flags.ui.component.StaticTopAppBar
 import dev.aftly.flags.ui.theme.Dimens
-import dev.aftly.flags.ui.theme.Timings
+import dev.aftly.flags.ui.theme.Timing
 
 
 @Composable
@@ -211,8 +201,8 @@ private fun FlagScaffold(
             /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */
             AnimatedVisibility(
                 visible = buttonExpanded,
-                enter = fadeIn(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
-                exit = fadeOut(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
+                enter = fadeIn(animationSpec = tween(durationMillis = Timing.MENU_EXPAND)),
+                exit = fadeOut(animationSpec = tween(durationMillis = Timing.MENU_EXPAND)),
             ) {
                 Scrim(
                     modifier = Modifier.fillMaxSize()

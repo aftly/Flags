@@ -16,7 +16,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import dev.aftly.flags.ui.theme.Dimens
-import dev.aftly.flags.ui.theme.Timings
+import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.theme.surfaceLight
 import kotlinx.coroutines.delay
 
@@ -32,7 +32,7 @@ fun FullscreenButton(
         LaunchedEffect(visible) {
             /* Disable fullscreen button automatically when not clicked */
             if (visible) {
-                delay(timeMillis = Timings.SYSTEM_BARS_HANG.toLong() * 4)
+                delay(timeMillis = Timing.SYSTEM_BARS_HANG.toLong() * 4)
                 onInvisible()
             }
         }
@@ -41,10 +41,10 @@ fun FullscreenButton(
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn(
-            animationSpec = tween(durationMillis = animationTiming ?: Timings.FULLSCREEN_BUTTON)
+            animationSpec = tween(durationMillis = animationTiming ?: Timing.FULLSCREEN_BUTTON)
         ),
         exit = fadeOut(
-            animationSpec = tween(durationMillis = animationTiming ?: Timings.FULLSCREEN_BUTTON)
+            animationSpec = tween(durationMillis = animationTiming ?: Timing.FULLSCREEN_BUTTON)
         ),
     ) {
         IconButton(

@@ -20,7 +20,7 @@ import dev.aftly.flags.ui.screen.game.GameScreen
 import dev.aftly.flags.ui.screen.list.ListFlagsScreen
 import dev.aftly.flags.ui.screen.search.SearchScreen
 import dev.aftly.flags.ui.screen.startmenu.StartMenuScreen
-import dev.aftly.flags.ui.theme.Timings
+import dev.aftly.flags.ui.theme.Timing
 
 
 @Composable
@@ -37,25 +37,25 @@ fun AppNavHost(
         startDestination = startDestination,
         enterTransition = {
             slideInHorizontally(
-                animationSpec = tween(durationMillis = Timings.SCREEN_NAV),
+                animationSpec = tween(durationMillis = Timing.SCREEN_NAV),
                 initialOffsetX = { it },
             )
         },
         exitTransition = {
             slideOutHorizontally(
-                animationSpec = tween(durationMillis = Timings.SCREEN_NAV),
+                animationSpec = tween(durationMillis = Timing.SCREEN_NAV),
                 targetOffsetX = { -it },
             )
         },
         popEnterTransition = {
             slideInHorizontally(
-                animationSpec = tween(durationMillis = Timings.SCREEN_NAV),
+                animationSpec = tween(durationMillis = Timing.SCREEN_NAV),
                 initialOffsetX = { -it },
             )
         },
         popExitTransition = {
             slideOutHorizontally(
-                animationSpec = tween(durationMillis = Timings.SCREEN_NAV),
+                animationSpec = tween(durationMillis = Timing.SCREEN_NAV),
                 targetOffsetX = { it },
             )
         },
