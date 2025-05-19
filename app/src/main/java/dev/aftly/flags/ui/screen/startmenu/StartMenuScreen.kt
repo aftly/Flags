@@ -3,7 +3,9 @@ package dev.aftly.flags.ui.screen.startmenu
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -126,10 +128,9 @@ private fun StartMenuContent(
             screen = Screen.List,
             selectScreen = onNavigateDetails,
         )
-        ScreenCard(
-            screen = Screen.Search,
-            selectScreen = onNavigateDetails,
-        )
+
+        Spacer(modifier = Modifier.height(Dimens.medium16))
+
         ScreenCard(
             screen = Screen.Game,
             selectScreen = onNavigateDetails,
@@ -148,11 +149,12 @@ private fun ScreenCard(
         modifier = modifier
             .clickable {
                 selectScreen(screen)
-            }
-            .padding(bottom = Dimens.medium16),
+            },
     ) {
         Box {
-            Column(modifier = Modifier.padding(Dimens.medium16)) {
+            Column(
+                modifier = Modifier.padding(Dimens.medium16)
+            ) {
                 Text(
                     text = stringResource(screen.title ?: 0),
                     color = MaterialTheme.colorScheme.onPrimaryContainer,

@@ -269,6 +269,7 @@ private fun FullscreenContent(
         itemCount = { flags.count() },
     )
 
+    // TODO rememberSaveable?
     var isLastItem by remember { mutableStateOf(value = false) }
 
     var scrollToBeginning by remember { mutableStateOf(value = false) }
@@ -307,7 +308,6 @@ private fun FullscreenContent(
                 }
             }
         }
-
 
         Box(
             modifier = Modifier.fillMaxSize(),

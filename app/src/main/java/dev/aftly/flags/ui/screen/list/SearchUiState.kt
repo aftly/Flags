@@ -1,4 +1,4 @@
-package dev.aftly.flags.ui.screen.search
+package dev.aftly.flags.ui.screen.list
 
 import androidx.annotation.StringRes
 import dev.aftly.flags.data.DataSource.allFlagsList

@@ -49,7 +49,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
@@ -61,6 +63,7 @@ import dev.aftly.flags.ui.component.Scrim
 import dev.aftly.flags.ui.component.ScrollToTopButton
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -69,12 +72,14 @@ import kotlinx.coroutines.launch
 @Composable
 fun ListFlagsScreen(
     viewModel: ListFlagsViewModel = viewModel(),
+    searchModel: SearchViewModel = viewModel(),
     currentScreen: Screen,
     canNavigateBack: Boolean,
     onNavigateUp: () -> Unit,
     onNavigateDetails: (Int, List<Int>) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val searchResults by searchModel.searchResults.collectAsStateWithLifecycle()
 
     val scrollBehaviour = TopAppBarDefaults
         .exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
@@ -94,13 +99,19 @@ fun ListFlagsScreen(
         currentSuperCategories = uiState.currentSuperCategories,
         currentSubCategories = uiState.currentSubCategories,
         fontScale = configuration.fontScale,
+        userSearch = searchModel.searchQuery,
+        isUserSearch = searchModel.isSearchQuery,
+        searchResults = searchResults,
+        onUserSearchChange = { searchModel.onSearchQueryChange(it) },
         currentFlagsList = uiState.currentFlags,
         onNavigateUp = onNavigateUp,
         onCategorySelect = { newSuperCategory, newSubCategory ->
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
+            searchModel.updateCurrentCategory(newSuperCategory, newSubCategory)
         },
         onCategoryMultiSelect = { selectSuperCategory, selectSubCategory ->
             viewModel.updateCurrentCategories(selectSuperCategory, selectSubCategory)
+            searchModel.updateCurrentCategories(selectSuperCategory, selectSubCategory)
         },
         onFlagSelect = { flag ->
             onNavigateDetails(
@@ -126,6 +137,10 @@ private fun ListFlagsScaffold(
     currentSuperCategories: List<FlagSuperCategory>?,
     currentSubCategories: List<FlagCategory>?,
     fontScale: Float,
+    userSearch: String,
+    isUserSearch: Boolean,
+    searchResults: List<FlagResources>,
+    onUserSearchChange: (String) -> Unit,
     currentFlagsList: List<FlagResources>,
     onNavigateUp: () -> Unit,
     onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
@@ -148,6 +163,42 @@ private fun ListFlagsScaffold(
         }
     }
 
+    /* Controls search bar and list state */
+    var isSearchBar by rememberSaveable { mutableStateOf(value = false) }
+    LaunchedEffect(isSearchBar) {
+        when (isSearchBar) {
+            true -> {
+                if (!currentFlagsList.containsAll(DataSource.allFlagsList)) {
+                    onCategorySelect(FlagSuperCategory.All, null)
+                    if (!isAtTop) {
+                        coroutineScope.launch { listState.animateScrollToItem(index = 0) }
+                    }
+                }
+            }
+            false -> {
+                delay(Timing.MENU_COLLAPSE.toLong())
+                if (!isSearchBar && isUserSearch) {
+                    onUserSearchChange("")
+                    if (!isAtTop) {
+                        coroutineScope.launch { listState.animateScrollToItem(index = 0) }
+                    }
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(userSearch) {
+        /* Reset scroll state after each userSearch character entry unless empty */
+        if (isUserSearch && !isAtTop) {
+            coroutineScope.launch { listState.scrollToItem(index = 0) }
+        }
+
+        /* Minimize filter menu when keyboard input */
+        if (isUserSearch && buttonExpanded) {
+            buttonExpanded = false
+        }
+    }
+
 
     /* Scaffold within box so FilterFlagsButton & it's associated surface can overlay it */
     Box(
@@ -161,6 +212,11 @@ private fun ListFlagsScaffold(
                     currentScreen = currentScreen,
                     scrollBehaviour = scrollBehaviour,
                     canNavigateBack = canNavigateBack,
+                    userSearch = userSearch,
+                    isUserSearch = isUserSearch,
+                    onUserSearchChange = onUserSearchChange,
+                    isSearchBar = isSearchBar,
+                    onIsSearchBar = { isSearchBar = !isSearchBar },
                     onNavigateUp = onNavigateUp,
                 )
             },
@@ -176,7 +232,8 @@ private fun ListFlagsScaffold(
             scaffoldBottomPadding = scaffoldPadding.calculateBottomPadding()
 
             ListFlagsContent(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .padding(
                         top = scaffoldTopPadding,
                         start = Dimens.marginHorizontal16,
@@ -184,10 +241,12 @@ private fun ListFlagsScaffold(
                     ),
                 currentScreen = currentScreen,
                 filterButtonHeight = buttonHeight,
-                scaffoldPadding = scaffoldPadding,
+                scaffoldBottomPadding = scaffoldBottomPadding,
                 scrollBehaviour = scrollBehaviour,
                 listState = listState,
                 fontScale = fontScale,
+                isUserSearch = isUserSearch,
+                searchResults = searchResults,
                 currentFlagsList = currentFlagsList,
                 onFlagSelect = onFlagSelect,
             )
@@ -201,7 +260,8 @@ private fun ListFlagsScaffold(
             exit = fadeOut(animationSpec = tween(durationMillis = Timing.MENU_EXPAND)),
         ) {
             Scrim(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
                 onAction = { buttonExpanded = !buttonExpanded }
             )
@@ -211,7 +271,8 @@ private fun ListFlagsScaffold(
         /* Custom quasi-DropdownMenu elevated above screen content with animated nested menus for
          * selecting super or sub category to filter flags by */
         FilterFlagsButton(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(
                     top = scaffoldTopPadding,
                     bottom = scaffoldBottomPadding,
@@ -219,7 +280,10 @@ private fun ListFlagsScaffold(
                     end = Dimens.marginHorizontal16,
                 ),
             screen = currentScreen,
-            flagCount = currentFlagsList.size,
+            flagCount = when (isUserSearch) {
+                false -> currentFlagsList.size
+                true -> searchResults.size
+            },
             onButtonHeightChange = { buttonHeight = it },
             buttonExpanded = buttonExpanded,
             onButtonExpand = { buttonExpanded = !buttonExpanded },
@@ -249,10 +313,12 @@ private fun ListFlagsContent(
     modifier: Modifier = Modifier,
     currentScreen: Screen,
     filterButtonHeight: Dp,
-    scaffoldPadding: PaddingValues,
+    scaffoldBottomPadding: Dp,
     scrollBehaviour: TopAppBarScrollBehavior,
     listState: LazyListState,
     fontScale: Float,
+    isUserSearch: Boolean,
+    searchResults: List<FlagResources>,
     currentFlagsList: List<FlagResources>,
     onFlagSelect: (FlagResources) -> Unit,
 ) {
@@ -261,42 +327,76 @@ private fun ListFlagsContent(
     Column(modifier = modifier) {
         /* To make LazyColumn scroll disappear into center of FilterFlagsButton */
         Spacer(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .height(filterButtonHeight / 2)
         )
 
-        if (currentFlagsList.isNotEmpty()) {
-            /* Flags list */
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .nestedScroll(scrollBehaviour.nestedScrollConnection),
-                state = listState,
-                contentPadding = PaddingValues(
-                    bottom = scaffoldPadding.calculateBottomPadding(),
-                    top = filterButtonHeight / 2 + listItemVerticalPadding,
-                ),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.Start,
-            ) {
-                items(
-                    count = currentFlagsList.size,
-                    key = { index -> currentFlagsList[index].id }
-                ) { index ->
-                    ListItem(
-                        modifier = Modifier.fillMaxWidth(),
-                        fontScale = fontScale,
-                        verticalPadding = listItemVerticalPadding,
-                        flag = currentFlagsList[index],
-                        onFlagSelect = onFlagSelect,
+        when (isUserSearch) {
+            false -> {
+                if (currentFlagsList.isNotEmpty()) {
+                    /* Flags list */
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .nestedScroll(scrollBehaviour.nestedScrollConnection),
+                        state = listState,
+                        contentPadding = PaddingValues(
+                            top = filterButtonHeight / 2 + listItemVerticalPadding,
+                            bottom = scaffoldBottomPadding,
+                        ),
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.Start,
+                    ) {
+                        items(
+                            count = currentFlagsList.size,
+                            key = { index -> currentFlagsList[index].id }
+                        ) { index ->
+                            ListItem(
+                                modifier = Modifier.fillMaxWidth(),
+                                fontScale = fontScale,
+                                verticalPadding = listItemVerticalPadding,
+                                flag = currentFlagsList[index],
+                                onFlagSelect = onFlagSelect,
+                            )
+                        }
+                    }
+                } else {
+                    NoResultsFound(modifier = Modifier.fillMaxSize())
+                }
+            }
+            true -> {
+                if (searchResults.isNotEmpty()) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .nestedScroll(scrollBehaviour.nestedScrollConnection),
+                        state = listState,
+                        contentPadding = PaddingValues(
+                            top = filterButtonHeight / 2 + listItemVerticalPadding,
+                            bottom = scaffoldBottomPadding,
+                        ),
+                    ) {
+                        items(
+                            count = searchResults.size,
+                            key = { index -> searchResults[index].id }
+                        ) { index ->
+                            ListItem(
+                                modifier = Modifier.fillMaxWidth(),
+                                fontScale = fontScale,
+                                verticalPadding = listItemVerticalPadding,
+                                flag = searchResults[index],
+                                onFlagSelect = onFlagSelect,
+                            )
+                        }
+                    }
+                } else {
+                    NoResultsFound(
+                        modifier = Modifier.fillMaxSize(),
+                        isSearch = true,
                     )
                 }
             }
-        } else {
-            NoResultsFound(
-                modifier = Modifier.fillMaxSize(),
-                screen = currentScreen,
-            )
         }
     }
 }
@@ -335,7 +435,8 @@ private fun ListItem(
                 Box(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(flag.flagOf),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             /* Separate text from image */
                             .padding(end = Dimens.small8),
                         style = MaterialTheme.typography.titleMedium,

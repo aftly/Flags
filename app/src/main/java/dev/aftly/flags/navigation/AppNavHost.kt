@@ -18,7 +18,6 @@ import dev.aftly.flags.ui.screen.flag.FlagScreen
 import dev.aftly.flags.ui.screen.fullscreen.FullScreen
 import dev.aftly.flags.ui.screen.game.GameScreen
 import dev.aftly.flags.ui.screen.list.ListFlagsScreen
-import dev.aftly.flags.ui.screen.search.SearchScreen
 import dev.aftly.flags.ui.screen.startmenu.StartMenuScreen
 import dev.aftly.flags.ui.theme.Timing
 
@@ -93,24 +92,6 @@ fun AppNavHost(
             )
         }
 
-        /* SearchScreen NavGraph */
-        composable(
-            route = Screen.Search.route
-        ) {
-            SearchScreen(
-                currentScreen = Screen.Search,
-                canNavigateBack = navController.previousBackStackEntry != null,
-                onNavigateUp = { navController.navigateUp() },
-                onNavigateDetails = { flagArg, flagsArg ->
-                    val flagsAsString = flagsArg.joinToString(separator = ",")
-
-                    navController.navigate(
-                        route = "${Screen.Flag.route}/$flagArg/$flagsAsString"
-                    ) { launchSingleTop = true }
-                },
-            )
-        }
-
         /* FlagScreen NavGraph */
         composable(
             route = "${Screen.Flag.route}/{flag}/{flags}",
@@ -121,7 +102,7 @@ fun AppNavHost(
             ),
             exitTransition = {
                 when (navController.currentBackStackEntry?.destination?.route) {
-                    in listOf(Screen.List.route, Screen.Search.route) -> null
+                    Screen.List.route -> null
                     else -> ExitTransition.None
                 }
             },

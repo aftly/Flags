@@ -594,7 +594,7 @@ private fun GameCard(
                     NoResultsFound(
                         modifier = Modifier.aspectRatio(ratio = 2f / 1f)
                             .fillMaxSize(),
-                        screen = currentScreen,
+                        isGame = true,
                     )
                 }
             }

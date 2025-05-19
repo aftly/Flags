@@ -20,12 +20,6 @@ sealed class Screen(
         description = R.string.flag_list_description,
     )
 
-    data object Search : Screen(
-        route = "search_screen",
-        title = R.string.flag_search_title,
-        description = R.string.flag_search_description,
-    )
-
     data object Flag : Screen(
         route = "flag_screen",
     )

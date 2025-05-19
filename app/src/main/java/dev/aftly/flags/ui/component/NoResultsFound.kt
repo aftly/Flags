@@ -22,20 +22,21 @@ import dev.aftly.flags.ui.theme.Dimens
 @Composable
 fun NoResultsFound(
     modifier: Modifier = Modifier,
-    screen: Screen,
+    isSearch: Boolean = false,
+    isGame: Boolean = false,
 ) {
     val categoryScreen = listOf(
         Screen.List,
         Screen.Game
     )
 
-    @StringRes val description1 = when (screen) {
-        in categoryScreen -> R.string.list_flags_no_results_description
-        else -> R.string.flag_search_no_results_description
+    @StringRes val description1 = when (isSearch) {
+        true -> R.string.flag_search_no_results_description
+        false -> R.string.list_flags_no_results_description
     }
-    @StringRes val description2 = when (screen) {
-        Screen.Search -> R.string.flag_search_no_results_description_2
-        else -> null
+    @StringRes val description2 = when (isSearch) {
+        true -> R.string.flag_search_no_results_description_2
+        false -> null
     }
 
     Column(
@@ -65,7 +66,7 @@ fun NoResultsFound(
             )
         }
 
-        if (screen != Screen.Game) {
+        if (!isGame) {
             Spacer(modifier = Modifier.height(Dimens.bottomSpacer80))
         }
     }
