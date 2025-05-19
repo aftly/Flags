@@ -202,6 +202,8 @@
     <string name="string_whitespace">\ </string>
     <string name="string_with_a">with a</string>
     <string name="string_within">within</string>
+    <string name="wikipedia_button">Open in Wikipedia</string>
+    <string name="wikipedia_site_prefix">https://en.wikipedia.org/wiki/</string>
     <string name="abkhazia">Abkhazia</string>
     <string name="abkhazia_official">Republic of Abkhazia</string>
     <string name="abkhazia_alt_1">Abkhazia</string>
@@ -2615,6 +2617,7 @@
     <string name="united_kingdom_alt_13">Great Britain and Northern Ireland</string>
     <string name="united_kingdom_alt_14">The United Kingdom of Great Britain and Northern Ireland</string>
     <string name="united_kingdom_alt_15">The UK</string>
+    <string name="united_kingdom_url_path">United_Kingdom</string>
     <string name="united_nations">United Nations</string>
     <string name="united_nations_official">United Nations</string>
     <string name="united_nations_alt_1">United Nations Organization</string>
