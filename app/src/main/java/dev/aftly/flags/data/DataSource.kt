@@ -7740,6 +7740,7 @@ data object DataSource {
 
         "unitedKingdom" to FlagResources(
             id = 303,
+            wikipediaUrlPath = R.string.united_kingdom_url_path,
             image = R.drawable.flag_of_the_united_kingdom__1_2_,
             imagePreview = R.drawable.flag_of_the_united_kingdom__1_2_,
             flagOf = R.string.united_kingdom,

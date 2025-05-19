@@ -39,6 +39,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -64,6 +65,7 @@ import dev.aftly.flags.ui.component.FullscreenButton
 import dev.aftly.flags.ui.component.RelatedFlagsButton
 import dev.aftly.flags.ui.component.Scrim
 import dev.aftly.flags.ui.component.GeneralTopBar
+import dev.aftly.flags.ui.component.WikipediaButton
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
 
@@ -375,7 +377,7 @@ private fun FlagContent(
                 }
             }
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         /* Determine name title properties */
@@ -411,71 +413,89 @@ private fun FlagContent(
             }
         }
 
+        Spacer(modifier = Modifier.height(0.dp))
 
-        /* Flag official name */
-        Text(
-            text = annotatedName,
-            style = nameStyle,
-            textAlign = TextAlign.Center,
-        )
 
-        /* Image and fullscreen button contents */
-        Box(
-            modifier = Modifier
-                .padding(vertical = Dimens.extraLarge32)
-                .combinedClickable(
-                    onClick = { isFullScreenButton = !isFullScreenButton },
-                    onDoubleClick = onFullscreen,
-                ),
-            contentAlignment = Alignment.BottomEnd
-        ) {
-            Surface(
+        Column(modifier = Modifier.fillMaxWidth()) {
+            /* Flag official name */
+            Text(
+                text = annotatedName,
+                style = nameStyle,
+                textAlign = TextAlign.Center,
+            )
+
+            /* Image and fullscreen button contents */
+            Box(
                 modifier = Modifier
-                    .wrapContentSize()
-                    .shadow(Dimens.extraSmall4),
+                    .padding(vertical = Dimens.extraLarge32)
+                    .combinedClickable(
+                        onClick = { isFullScreenButton = !isFullScreenButton },
+                        onDoubleClick = onFullscreen,
+                    ),
+                contentAlignment = Alignment.BottomEnd
             ) {
-                Image(
-                    painter = painterResource(flag.image),
+                Surface(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .onSizeChanged { size ->
-                            /* For fullscreen orientation */
-                            onImageWide(size.width > size.height)
+                        .wrapContentSize()
+                        .shadow(Dimens.extraSmall4),
+                ) {
+                    Image(
+                        painter = painterResource(flag.image),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onSizeChanged { size ->
+                                /* For fullscreen orientation */
+                                onImageWide(size.width > size.height)
 
-                            /*
-                            imageHeight = size.height
+                                /*
+                                imageHeight = size.height
 
-                            /* Set image height modifier */
-                            imageHeightModifier = if (columnHeight < imageHeight) {
-                                Modifier.height(height = (columnHeight / density).dp)
-                            } else {
-                                Modifier.height(height = (imageHeight / density).dp)
-                            }
-                             */
-                        },
+                                /* Set image height modifier */
+                                imageHeightModifier = if (columnHeight < imageHeight) {
+                                    Modifier.height(height = (columnHeight / density).dp)
+                                } else {
+                                    Modifier.height(height = (imageHeight / density).dp)
+                                }
+                                 */
+                            },
                         //.then(imageHeightModifier) /* concatenate height mod after onSizeChanged */
-                    contentDescription = null,
-                    contentScale = ContentScale.FillWidth,
+                        contentDescription = null,
+                        contentScale = ContentScale.FillWidth,
+                    )
+                }
+
+                FullscreenButton(
+                    visible = isFullScreenButton,
+                    onInvisible = { isFullScreenButton = false },
+                    onFullScreen = onFullscreen,
                 )
             }
 
-            FullscreenButton(
-                visible = isFullScreenButton,
-                onInvisible = { isFullScreenButton = false },
-                onFullScreen = onFullscreen,
+            /* Natural language description of flag entity from it's categories */
+            Text(
+                text = annotatedDescription,
+                fontSize = 24.sp,
+                textAlign = TextAlign.Center,
+                lineHeight = 28.sp,
+                style = TextStyle(fontStyle = FontStyle.Italic),
             )
+
+            Spacer(modifier = Modifier.height(20.dp))
         }
 
-        /* Natural language description of flag entity from it's categories */
-        Text(
-            text = annotatedDescription,
-            fontSize = 24.sp,
-            textAlign = TextAlign.Center,
-            lineHeight = 28.sp,
-            style = TextStyle(fontStyle = FontStyle.Italic),
-        )
+        when (flag.wikipediaUrlPath) {
+            null -> Spacer(modifier = Modifier.height(0.dp))
+            else -> {
+                val wikiLink = stringResource(R.string.wikipedia_site_prefix) +
+                        stringResource(flag.wikipediaUrlPath)
 
-        Spacer(modifier = Modifier.height(Dimens.bottomSpacer80))
+                WikipediaButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    context = LocalContext.current,
+                    wikiLink = wikiLink,
+                )
+            }
+        }
     }
 }
 
