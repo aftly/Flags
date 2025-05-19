@@ -23,7 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import dev.aftly.flags.R
 import dev.aftly.flags.navigation.Screen
-import dev.aftly.flags.ui.component.StaticTopAppBar
+import dev.aftly.flags.ui.component.GeneralTopBar
 import dev.aftly.flags.ui.theme.Dimens
 
 
@@ -54,7 +54,7 @@ private fun StartMenuScaffold(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
-            StaticTopAppBar(
+            GeneralTopBar(
                 currentScreen = currentScreen,
                 canNavigateBack = canNavigateBack,
                 /* Padding for when can't navigate back */

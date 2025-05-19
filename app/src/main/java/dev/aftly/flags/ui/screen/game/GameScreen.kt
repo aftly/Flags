@@ -69,7 +69,7 @@ import dev.aftly.flags.ui.component.FilterFlagsButton
 import dev.aftly.flags.ui.component.FullscreenButton
 import dev.aftly.flags.ui.component.NoResultsFound
 import dev.aftly.flags.ui.component.Scrim
-import dev.aftly.flags.ui.component.StaticTopAppBar
+import dev.aftly.flags.ui.component.GeneralTopBar
 import dev.aftly.flags.ui.component.shareText
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
@@ -206,7 +206,7 @@ private fun GameScaffold(
         Scaffold(
             modifier = modifier.fillMaxSize(),
             topBar = {
-                StaticTopAppBar(
+                GeneralTopBar(
                     currentScreen = currentScreen,
                     canNavigateBack = canNavigateBack,
                     onNavigateUp = onNavigateUp,

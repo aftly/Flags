@@ -61,7 +61,7 @@ import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.FullscreenButton
 import dev.aftly.flags.ui.component.LocalOrientationController
-import dev.aftly.flags.ui.component.StaticTopAppBar
+import dev.aftly.flags.ui.component.GeneralTopBar
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.theme.surfaceDark
@@ -214,7 +214,7 @@ private fun FullscreenScaffold(
                     enter = fadeIn(animationSpec = tween(durationMillis = Timing.SYSTEM_BARS)),
                     exit = fadeOut(animationSpec = tween(durationMillis = Timing.SYSTEM_BARS)),
                 ) {
-                    StaticTopAppBar(
+                    GeneralTopBar(
                         currentScreen = currentScreen,
                         currentTitle = currentTitle,
                         canNavigateBack = canNavigateBack,

@@ -56,7 +56,7 @@ import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.navigation.Screen
-import dev.aftly.flags.ui.component.ExpandableTopAppBar
+import dev.aftly.flags.ui.component.ListScreenTopBar
 import dev.aftly.flags.ui.component.FilterFlagsButton
 import dev.aftly.flags.ui.component.NoResultsFound
 import dev.aftly.flags.ui.component.Scrim
@@ -208,7 +208,7 @@ private fun ListFlagsScaffold(
         Scaffold(
             modifier = modifier,
             topBar = {
-                ExpandableTopAppBar(
+                ListScreenTopBar(
                     currentScreen = currentScreen,
                     scrollBehaviour = scrollBehaviour,
                     canNavigateBack = canNavigateBack,

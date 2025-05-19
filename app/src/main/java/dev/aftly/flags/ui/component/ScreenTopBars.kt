@@ -85,7 +85,7 @@ import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExpandableTopAppBar(
+fun ListScreenTopBar(
     modifier: Modifier = Modifier,
     currentScreen: Screen,
     scrollBehaviour: TopAppBarScrollBehavior,
@@ -328,7 +328,7 @@ fun ExpandableTopAppBar(
 /* Simple top bar with differing properties depending on Screen */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StaticTopAppBar(
+fun GeneralTopBar(
     modifier: Modifier = Modifier,
     currentScreen: Screen,
     @StringRes currentTitle: Int? = null,

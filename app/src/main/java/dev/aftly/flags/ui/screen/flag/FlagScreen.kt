@@ -63,7 +63,7 @@ import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.FullscreenButton
 import dev.aftly.flags.ui.component.RelatedFlagsButton
 import dev.aftly.flags.ui.component.Scrim
-import dev.aftly.flags.ui.component.StaticTopAppBar
+import dev.aftly.flags.ui.component.GeneralTopBar
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
 
@@ -164,7 +164,7 @@ private fun FlagScaffold(
                     onAction = {},
                 )
                  */
-                StaticTopAppBar(
+                GeneralTopBar(
                     currentScreen = currentScreen,
                     canNavigateBack = canNavigateBack,
                     isRelatedFlagsButton = isRelatedFlagsButton,
