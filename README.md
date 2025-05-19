@@ -55,13 +55,13 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [x] ~~Show and select politically related flags on flag view screen (with button in top bar)~~
 - [x] ~~Full screen carousel for flags in current list & flag name as header~~
 - [x] ~~UI Counter to show number of flags in current list on View/List screen~~
+- [x] Move search function into list flags screen - **(Not in releases yet)**
 - [x] Optimize app for different system Font sizes - **(Partially Complete)**
 - [ ] Add more flags *(to less populated categories and more popular related flags)*
 - [ ] Add open in Wikipedia button to Flag screen
 - [ ] Add regime type categories (for political flags) from **OurWorldInData**
 - [ ] Add Python scripts to repository
 - [ ] Deselect keyboard and text fields when tap off
-- [ ] Move search function into list flags screen
 - [ ] **Game**: Button to show correct answer & list in game over details
 - [ ] **Game**: Timer feature/mode
 - [ ] **Persistent Game features**: Score history & exporting scores *(for sharing)*
