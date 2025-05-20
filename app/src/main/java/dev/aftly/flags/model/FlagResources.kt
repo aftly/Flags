@@ -5,7 +5,7 @@ import androidx.annotation.StringRes
 
 data class FlagResources(
     val id: Int, // For LazyColumn's items() key param
-    @StringRes val wikipediaUrlPath: Int? = null,
+    @StringRes val wikipediaUrlPath: Int, // So that other locales can use a different wikipedia
     @DrawableRes val image: Int,
     @DrawableRes val imagePreview: Int, // Smaller image for lists (if relevant)
     @StringRes val flagOf: Int, // flagOf<> params are for common, official & alt names (of entity)

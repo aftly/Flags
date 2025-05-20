@@ -54,6 +54,7 @@ data object DataSource {
 
     val nullFlag = FlagResources(
         id = 0,
+        wikipediaUrlPath = 0,
         image = 0,
         imagePreview = 0,
         flagOf = 0,
@@ -69,6 +70,7 @@ data object DataSource {
     val flagsMap = mapOf(
         "abkhazia" to FlagResources(
             id = 1,
+            wikipediaUrlPath = R.string.abkhazia_wikipedia_url_path,
             image = R.drawable.flag_of_the_republic_of_abkhazia,
             imagePreview = R.drawable.flag_of_the_republic_of_abkhazia,
             flagOf = R.string.abkhazia,
@@ -95,6 +97,7 @@ data object DataSource {
 
         "adjara" to FlagResources(
             id = 2,
+            wikipediaUrlPath = R.string.adjara_wikipedia_url_path,
             image = R.drawable.flag_of_adjara,
             imagePreview = R.drawable.flag_of_adjara_preview,
             flagOf = R.string.adjara,
@@ -123,6 +126,7 @@ data object DataSource {
 
         "adygea" to FlagResources(
             id = 3,
+            wikipediaUrlPath = R.string.adygea_wikipedia_url_path,
             image = R.drawable.circassian_flag,
             imagePreview = R.drawable.circassian_flag,
             flagOf = R.string.adygea,
@@ -148,6 +152,7 @@ data object DataSource {
 
         "afghanistan" to FlagResources(
             id = 4,
+            wikipediaUrlPath = R.string.afghanistan_wikipedia_url_path,
             image = R.drawable.flag_of_the_taliban,
             imagePreview = R.drawable.flag_of_the_taliban,
             flagOf = R.string.afghanistan,
@@ -174,6 +179,7 @@ data object DataSource {
 
         "africanUnion" to FlagResources(
             id = 5,
+            wikipediaUrlPath = R.string.african_union_wikipedia_url_path,
             image = R.drawable.flag_of_the_african_union,
             imagePreview = R.drawable.flag_of_the_african_union_preview,
             flagOf = R.string.african_union,
@@ -198,6 +204,7 @@ data object DataSource {
 
         "aland" to FlagResources(
             id = 6,
+            wikipediaUrlPath = R.string.aland_wikipedia_url_path,
             image = R.drawable.flag_of__land,
             imagePreview = R.drawable.flag_of__land,
             flagOf = R.string.aland,
@@ -226,6 +233,7 @@ data object DataSource {
 
         "albania" to FlagResources(
             id = 7,
+            wikipediaUrlPath = R.string.albania_wikipedia_url_path,
             image = R.drawable.flag_of_albania,
             imagePreview = R.drawable.flag_of_albania,
             flagOf = R.string.albania,
@@ -256,6 +264,7 @@ data object DataSource {
 
         "algeria" to FlagResources(
             id = 8,
+            wikipediaUrlPath = R.string.algeria_wikipedia_url_path,
             image = R.drawable.flag_of_algeria,
             imagePreview = R.drawable.flag_of_algeria,
             flagOf = R.string.algeria,
@@ -282,6 +291,7 @@ data object DataSource {
 
         "americanSamoa" to FlagResources(
             id = 9,
+            wikipediaUrlPath = R.string.american_samoa_wikipedia_url_path,
             image = R.drawable.flag_of_american_samoa,
             imagePreview = R.drawable.flag_of_american_samoa,
             flagOf = R.string.american_samoa,
@@ -313,6 +323,7 @@ data object DataSource {
 
         "andalusia" to FlagResources(
             id = 10,
+            wikipediaUrlPath = R.string.andalusia_wikipedia_url_path,
             image = R.drawable.flag_of_andaluc_a,
             imagePreview = R.drawable.flag_of_andaluc_a_preview,
             flagOf = R.string.andalusia,
@@ -334,6 +345,7 @@ data object DataSource {
 
         "andorra" to FlagResources(
             id = 11,
+            wikipediaUrlPath = R.string.andorra_wikipedia_url_path,
             image = R.drawable.flag_of_andorra,
             imagePreview = R.drawable.flag_of_andorra_preview,
             flagOf = R.string.andorra,
@@ -359,6 +371,7 @@ data object DataSource {
 
         "angola" to FlagResources(
             id = 12,
+            wikipediaUrlPath = R.string.angola_wikipedia_url_path,
             image = R.drawable.flag_of_angola,
             imagePreview = R.drawable.flag_of_angola,
             flagOf = R.string.angola,
@@ -384,6 +397,7 @@ data object DataSource {
 
         "anguilla" to FlagResources(
             id = 13,
+            wikipediaUrlPath = R.string.anguilla_wikipedia_url_path,
             image = R.drawable.flag_of_anguilla,
             imagePreview = R.drawable.flag_of_anguilla,
             flagOf = R.string.anguilla,
@@ -406,6 +420,7 @@ data object DataSource {
 
         "antiguaAndBarbuda" to FlagResources(
             id = 14,
+            wikipediaUrlPath = R.string.antigua_and_barbuda_wikipedia_url_path,
             image = R.drawable.flag_of_antigua_and_barbuda,
             imagePreview = R.drawable.flag_of_antigua_and_barbuda,
             flagOf = R.string.antigua_and_barbuda,
@@ -432,6 +447,7 @@ data object DataSource {
 
         "arabLeague" to FlagResources(
             id = 15,
+            wikipediaUrlPath = R.string.arab_league_wikipedia_url_path,
             image = R.drawable.flag_of_the_arab_league,
             imagePreview = R.drawable.flag_of_the_arab_league,
             flagOf = R.string.arab_league,
@@ -450,6 +466,7 @@ data object DataSource {
 
         "aragon" to FlagResources(
             id = 16,
+            wikipediaUrlPath = R.string.aragon_wikipedia_url_path,
             image = R.drawable.flag_of_aragon,
             imagePreview = R.drawable.flag_of_aragon_preview,
             flagOf = R.string.aragon,
@@ -468,6 +485,7 @@ data object DataSource {
 
         "argentina" to FlagResources(
             id = 17,
+            wikipediaUrlPath = R.string.argentina_wikipedia_url_path,
             image = R.drawable.flag_of_argentina,
             imagePreview = R.drawable.flag_of_argentina,
             flagOf = R.string.argentina,
@@ -492,6 +510,7 @@ data object DataSource {
 
         "armenia" to FlagResources(
             id = 18,
+            wikipediaUrlPath = R.string.armenia_wikipedia_url_path,
             image = R.drawable.flag_of_armenia,
             imagePreview = R.drawable.flag_of_armenia,
             flagOf = R.string.armenia,
@@ -518,6 +537,7 @@ data object DataSource {
 
         "artsakh" to FlagResources(
             id = 19,
+            wikipediaUrlPath = R.string.artsakh_wikipedia_url_path,
             image = R.drawable.flag_of_artsakh,
             imagePreview = R.drawable.flag_of_artsakh,
             flagOf = R.string.artsakh,
@@ -540,6 +560,7 @@ data object DataSource {
 
         "aruba" to FlagResources(
             id = 20,
+            wikipediaUrlPath = R.string.aruba_wikipedia_url_path,
             image = R.drawable.flag_of_aruba,
             imagePreview = R.drawable.flag_of_aruba,
             flagOf = R.string.aruba,
@@ -563,6 +584,7 @@ data object DataSource {
 
         "ascensionIsland" to FlagResources(
             id = 21,
+            wikipediaUrlPath = R.string.ascension_island_wikipedia_url_path,
             image = R.drawable.flag_of_ascension_island,
             imagePreview = R.drawable.flag_of_ascension_island_preview,
             flagOf = R.string.ascension_island,
@@ -581,6 +603,7 @@ data object DataSource {
 
         "asturias" to FlagResources(
             id = 22,
+            wikipediaUrlPath = R.string.asturias_wikipedia_url_path,
             image = R.drawable.flag_of_asturias,
             imagePreview = R.drawable.flag_of_asturias,
             flagOf = R.string.asturias,
@@ -603,6 +626,7 @@ data object DataSource {
 
         "australia" to FlagResources(
             id = 23,
+            wikipediaUrlPath = R.string.australia_wikipedia_url_path,
             image = R.drawable.flag_of_australia__converted_,
             imagePreview = R.drawable.flag_of_australia__converted__preview,
             flagOf = R.string.australia,
@@ -637,6 +661,7 @@ data object DataSource {
 
         "austria" to FlagResources(
             id = 24,
+            wikipediaUrlPath = R.string.austria_wikipedia_url_path,
             image = R.drawable.flag_of_austria,
             imagePreview = R.drawable.flag_of_austria,
             flagOf = R.string.austria,
@@ -661,6 +686,7 @@ data object DataSource {
 
         "azawad" to FlagResources(
             id = 25,
+            wikipediaUrlPath = R.string.azawad_wikipedia_url_path,
             image = R.drawable.mnla_flag,
             imagePreview = R.drawable.mnla_flag,
             flagOf = R.string.azawad,
@@ -681,6 +707,7 @@ data object DataSource {
 
         "azerbaijan" to FlagResources(
             id = 26,
+            wikipediaUrlPath = R.string.azerbaijan_wikipedia_url_path,
             image = R.drawable.flag_of_azerbaijan,
             imagePreview = R.drawable.flag_of_azerbaijan,
             flagOf = R.string.azerbaijan,
@@ -707,6 +734,7 @@ data object DataSource {
 
         "azores" to FlagResources(
             id = 27,
+            wikipediaUrlPath = R.string.azores_wikipedia_url_path,
             image = R.drawable.flag_of_the_azores,
             imagePreview = R.drawable.flag_of_the_azores_preview,
             flagOf = R.string.azores,
@@ -734,6 +762,7 @@ data object DataSource {
 
         "bahrain" to FlagResources(
             id = 28,
+            wikipediaUrlPath = R.string.bahrain_wikipedia_url_path,
             image = R.drawable.flag_of_bahrain,
             imagePreview = R.drawable.flag_of_bahrain,
             flagOf = R.string.bahrain,
@@ -762,6 +791,7 @@ data object DataSource {
 
         "balearicIslands" to FlagResources(
             id = 29,
+            wikipediaUrlPath = R.string.balearic_islands_wikipedia_url_path,
             image = R.drawable.flag_of_the_balearic_islands,
             imagePreview = R.drawable.flag_of_the_balearic_islands,
             flagOf = R.string.balearic_islands,
@@ -783,6 +813,7 @@ data object DataSource {
 
         "bangladesh" to FlagResources(
             id = 30,
+            wikipediaUrlPath = R.string.bangladesh_wikipedia_url_path,
             image = R.drawable.flag_of_bangladesh,
             imagePreview = R.drawable.flag_of_bangladesh_preview,
             flagOf = R.string.bangladesh,
@@ -809,6 +840,7 @@ data object DataSource {
 
         "barbados" to FlagResources(
             id = 31,
+            wikipediaUrlPath = R.string.barbados_wikipedia_url_path,
             image = R.drawable.flag_of_barbados,
             imagePreview = R.drawable.flag_of_barbados,
             flagOf = R.string.barbados,
@@ -835,6 +867,7 @@ data object DataSource {
 
         "basqueCountry" to FlagResources(
             id = 32,
+            wikipediaUrlPath = R.string.basque_country_wikipedia_url_path,
             image = R.drawable.flag_of_the_basque_country,
             imagePreview = R.drawable.flag_of_the_basque_country,
             flagOf = R.string.basque_country,
@@ -863,6 +896,7 @@ data object DataSource {
 
         "belarus" to FlagResources(
             id = 33,
+            wikipediaUrlPath = R.string.belarus_wikipedia_url_path,
             image = R.drawable.flag_of_belarus,
             imagePreview = R.drawable.flag_of_belarus,
             flagOf = R.string.belarus,
@@ -897,6 +931,7 @@ data object DataSource {
 
         "belgium" to FlagResources(
             id = 34,
+            wikipediaUrlPath = R.string.belgium_wikipedia_url_path,
             image = R.drawable.flag_of_belgium,
             imagePreview = R.drawable.flag_of_belgium,
             flagOf = R.string.belgium,
@@ -923,6 +958,7 @@ data object DataSource {
 
         "belize" to FlagResources(
             id = 35,
+            wikipediaUrlPath = R.string.belize_wikipedia_url_path,
             image = R.drawable.flag_of_belize,
             imagePreview = R.drawable.flag_of_belize_preview,
             flagOf = R.string.belize,
@@ -943,6 +979,7 @@ data object DataSource {
 
         "benin" to FlagResources(
             id = 36,
+            wikipediaUrlPath = R.string.benin_wikipedia_url_path,
             image = R.drawable.flag_of_benin,
             imagePreview = R.drawable.flag_of_benin,
             flagOf = R.string.benin,
@@ -969,6 +1006,7 @@ data object DataSource {
 
         "bermuda" to FlagResources(
             id = 37,
+            wikipediaUrlPath = R.string.bermuda_wikipedia_url_path,
             image = R.drawable.flag_of_bermuda,
             imagePreview = R.drawable.flag_of_bermuda,
             flagOf = R.string.bermuda,
@@ -1009,6 +1047,7 @@ data object DataSource {
 
         "bhutan" to FlagResources(
             id = 38,
+            wikipediaUrlPath = R.string.bhutan_wikipedia_url_path,
             image = R.drawable.flag_of_bhutan,
             imagePreview = R.drawable.flag_of_bhutan,
             flagOf = R.string.bhutan,
@@ -1033,6 +1072,7 @@ data object DataSource {
 
         "bolivia" to FlagResources(
             id = 39,
+            wikipediaUrlPath = R.string.bolivia_wikipedia_url_path,
             image = R.drawable.bandera_de_bolivia__estado_,
             imagePreview = R.drawable.bandera_de_bolivia__estado__preview,
             flagOf = R.string.bolivia,
@@ -1060,6 +1100,7 @@ data object DataSource {
 
         "bonaire" to FlagResources(
             id = 40,
+            wikipediaUrlPath = R.string.bonaire_wikipedia_url_path,
             image = R.drawable.flag_of_bonaire,
             imagePreview = R.drawable.flag_of_bonaire,
             flagOf = R.string.bonaire,
@@ -1074,6 +1115,7 @@ data object DataSource {
 
         "bosniaAndHerzegovina" to FlagResources(
             id = 41,
+            wikipediaUrlPath = R.string.bosnia_and_herzegovina_wikipedia_url_path,
             image = R.drawable.flag_of_bosnia_and_herzegovina,
             imagePreview = R.drawable.flag_of_bosnia_and_herzegovina,
             flagOf = R.string.bosnia_and_herzegovina,
@@ -1098,12 +1140,13 @@ data object DataSource {
                 FlagCategory.FEDERAL,
                 FlagCategory.PARLIAMENTARY,
                 FlagCategory.CONSTITUTIONAL,
-                FlagCategory.REPUBLIC,
+                FlagCategory.REPUBLIC
             ),
         ),
 
         "botswana" to FlagResources(
             id = 42,
+            wikipediaUrlPath = R.string.botswana_wikipedia_url_path,
             image = R.drawable.flag_of_botswana,
             imagePreview = R.drawable.flag_of_botswana,
             flagOf = R.string.botswana,
@@ -1129,6 +1172,7 @@ data object DataSource {
 
         "bougainville" to FlagResources(
             id = 43,
+            wikipediaUrlPath = R.string.bougainville_wikipedia_url_path,
             image = R.drawable.flag_of_bougainville,
             imagePreview = R.drawable.flag_of_bougainville,
             flagOf = R.string.bougainville,
@@ -1152,6 +1196,7 @@ data object DataSource {
 
         "brazil" to FlagResources(
             id = 44,
+            wikipediaUrlPath = R.string.brazil_wikipedia_url_path,
             image = R.drawable.flag_of_brazil,
             imagePreview = R.drawable.flag_of_brazil_preview,
             flagOf = R.string.brazil,
@@ -1176,6 +1221,7 @@ data object DataSource {
 
         "britishIndianOceanTerritory" to FlagResources(
             id = 45,
+            wikipediaUrlPath = R.string.british_indian_ocean_territory_wikipedia_url_path,
             image = R.drawable.flag_of_the_commissioner_of_the_british_indian_ocean_territory,
             imagePreview = R.drawable.flag_of_the_commissioner_of_the_british_indian_ocean_territory_preview,
             flagOf = R.string.british_indian_ocean_territory,
@@ -1195,6 +1241,7 @@ data object DataSource {
 
         "britishVirginIslands" to FlagResources(
             id = 46,
+            wikipediaUrlPath = R.string.british_virgin_islands_wikipedia_url_path,
             image = R.drawable.flag_of_the_british_virgin_islands,
             imagePreview = R.drawable.flag_of_the_british_virgin_islands,
             flagOf = R.string.british_virgin_islands,
@@ -1219,6 +1266,7 @@ data object DataSource {
 
         "brunei" to FlagResources(
             id = 47,
+            wikipediaUrlPath = R.string.brunei_wikipedia_url_path,
             image = R.drawable.flag_of_brunei,
             imagePreview = R.drawable.flag_of_brunei,
             flagOf = R.string.brunei,
@@ -1245,6 +1293,7 @@ data object DataSource {
 
         "bulgaria" to FlagResources(
             id = 48,
+            wikipediaUrlPath = R.string.bulgaria_wikipedia_url_path,
             image = R.drawable.flag_of_bulgaria,
             imagePreview = R.drawable.flag_of_bulgaria,
             flagOf = R.string.bulgaria,
@@ -1270,6 +1319,7 @@ data object DataSource {
 
         "burkinaFaso" to FlagResources(
             id = 49,
+            wikipediaUrlPath = R.string.burkina_faso_wikipedia_url_path,
             image = R.drawable.flag_of_burkina_faso,
             imagePreview = R.drawable.flag_of_burkina_faso,
             flagOf = R.string.burkina_faso,
@@ -1293,6 +1343,7 @@ data object DataSource {
 
         "burundi" to FlagResources(
             id = 50,
+            wikipediaUrlPath = R.string.burundi_wikipedia_url_path,
             image = R.drawable.flag_of_burundi,
             imagePreview = R.drawable.flag_of_burundi,
             flagOf = R.string.burundi,
@@ -1318,6 +1369,7 @@ data object DataSource {
 
         "cambodia" to FlagResources(
             id = 51,
+            wikipediaUrlPath = R.string.cambodia_wikipedia_url_path,
             image = R.drawable.flag_of_cambodia,
             imagePreview = R.drawable.flag_of_cambodia,
             flagOf = R.string.cambodia,
@@ -1347,6 +1399,7 @@ data object DataSource {
 
         "cameroon" to FlagResources(
             id = 52,
+            wikipediaUrlPath = R.string.cameroon_wikipedia_url_path,
             image = R.drawable.flag_of_cameroon,
             imagePreview = R.drawable.flag_of_cameroon,
             flagOf = R.string.cameroon,
@@ -1372,6 +1425,7 @@ data object DataSource {
 
         "canada" to FlagResources(
             id = 53,
+            wikipediaUrlPath = R.string.canada_wikipedia_url_path,
             image = R.drawable.flag_of_canada__pantone_,
             imagePreview = R.drawable.flag_of_canada__pantone_,
             flagOf = R.string.canada,
@@ -1397,6 +1451,7 @@ data object DataSource {
 
         "canaryIslands" to FlagResources(
             id = 54,
+            wikipediaUrlPath = R.string.canary_islands_wikipedia_url_path,
             image = R.drawable.flag_of_the_canary_islands__simple_,
             imagePreview = R.drawable.flag_of_the_canary_islands__simple_,
             flagOf = R.string.canary_islands,
@@ -1422,6 +1477,7 @@ data object DataSource {
 
         "cantabria" to FlagResources(
             id = 55,
+            wikipediaUrlPath = R.string.cantabria_wikipedia_url_path,
             image = R.drawable.flag_of_cantabria__official_,
             imagePreview = R.drawable.flag_of_cantabria__official__preview,
             flagOf = R.string.cantabria,
@@ -1440,6 +1496,7 @@ data object DataSource {
 
         "capeVerde" to FlagResources(
             id = 56,
+            wikipediaUrlPath = R.string.cape_verde_wikipedia_url_path,
             image = R.drawable.flag_of_cape_verde,
             imagePreview = R.drawable.flag_of_cape_verde,
             flagOf = R.string.cape_verde,
@@ -1469,6 +1526,7 @@ data object DataSource {
 
         "castileAndLeon" to FlagResources(
             id = 57,
+            wikipediaUrlPath = R.string.castile_and_leon_wikipedia_url_path,
             image = R.drawable.flag_of_castile_and_le_n,
             imagePreview = R.drawable.flag_of_castile_and_le_n,
             flagOf = R.string.castile_and_leon,
@@ -1491,6 +1549,7 @@ data object DataSource {
 
         "castillaLaMancha" to FlagResources(
             id = 58,
+            wikipediaUrlPath = R.string.castilla_la_mancha_wikipedia_url_path,
             image = R.drawable.flag_of_castile_la_mancha,
             imagePreview = R.drawable.flag_of_castile_la_mancha_preview,
             flagOf = R.string.castilla_la_mancha,
@@ -1514,6 +1573,7 @@ data object DataSource {
 
         "catalonia" to FlagResources(
             id = 59,
+            wikipediaUrlPath = R.string.catalonia_wikipedia_url_path,
             image = R.drawable.flag_of_catalonia,
             imagePreview = R.drawable.flag_of_catalonia,
             flagOf = R.string.catalonia,
@@ -1541,6 +1601,7 @@ data object DataSource {
 
         "caymanIslands" to FlagResources(
             id = 60,
+            wikipediaUrlPath = R.string.cayman_islands_wikipedia_url_path,
             image = R.drawable.flag_of_the_cayman_islands,
             imagePreview = R.drawable.flag_of_the_cayman_islands_preview,
             flagOf = R.string.cayman_islands,
@@ -1563,6 +1624,7 @@ data object DataSource {
 
         "centralAfricanRepublic" to FlagResources(
             id = 61,
+            wikipediaUrlPath = R.string.central_african_republic_wikipedia_url_path,
             image = R.drawable.flag_of_the_central_african_republic,
             imagePreview = R.drawable.flag_of_the_central_african_republic,
             flagOf = R.string.central_african_republic,
@@ -1589,6 +1651,7 @@ data object DataSource {
 
         "ceuta" to FlagResources(
             id = 62,
+            wikipediaUrlPath = R.string.ceuta_wikipedia_url_path,
             image = R.drawable.flag_of_ceuta,
             imagePreview = R.drawable.flag_of_ceuta_preview,
             flagOf = R.string.ceuta,
@@ -1607,6 +1670,7 @@ data object DataSource {
 
         "chad" to FlagResources(
             id = 63,
+            wikipediaUrlPath = R.string.chad_wikipedia_url_path,
             image = R.drawable.flag_of_chad,
             imagePreview = R.drawable.flag_of_chad,
             flagOf = R.string.chad,
@@ -1633,6 +1697,7 @@ data object DataSource {
 
         "chile" to FlagResources(
             id = 64,
+            wikipediaUrlPath = R.string.chile_wikipedia_url_path,
             image = R.drawable.flag_of_chile,
             imagePreview = R.drawable.flag_of_chile,
             flagOf = R.string.chile,
@@ -1659,6 +1724,7 @@ data object DataSource {
 
         "china" to FlagResources(
             id = 65,
+            wikipediaUrlPath = R.string.china_wikipedia_url_path,
             image = R.drawable.flag_of_the_people_s_republic_of_china,
             imagePreview = R.drawable.flag_of_the_people_s_republic_of_china,
             flagOf = R.string.china,
@@ -1695,6 +1761,7 @@ data object DataSource {
 
         "christmasIsland" to FlagResources(
             id = 66,
+            wikipediaUrlPath = R.string.christmas_island_wikipedia_url_path,
             image = R.drawable.flag_of_christmas_island,
             imagePreview = R.drawable.flag_of_christmas_island,
             flagOf = R.string.christmas_island,
@@ -1714,6 +1781,7 @@ data object DataSource {
 
         "chuuk" to FlagResources(
             id = 67,
+            wikipediaUrlPath = R.string.chuuk_wikipedia_url_path,
             image = R.drawable.flag_of_chuuk,
             imagePreview = R.drawable.flag_of_chuuk,
             flagOf = R.string.chuuk,
@@ -1732,6 +1800,7 @@ data object DataSource {
 
         "cocosKeelingIslands" to FlagResources(
             id = 68,
+            wikipediaUrlPath = R.string.cocos_keeling_islands_wikipedia_url_path,
             image = R.drawable.flag_of_the_cocos__keeling__islands,
             imagePreview = R.drawable.flag_of_the_cocos__keeling__islands,
             flagOf = R.string.cocos_keeling_islands,
@@ -1751,6 +1820,7 @@ data object DataSource {
 
         "colombia" to FlagResources(
             id = 69,
+            wikipediaUrlPath = R.string.colombia_wikipedia_url_path,
             image = R.drawable.flag_of_colombia,
             imagePreview = R.drawable.flag_of_colombia,
             flagOf = R.string.colombia,
@@ -1779,6 +1849,7 @@ data object DataSource {
 
         "comoros" to FlagResources(
             id = 70,
+            wikipediaUrlPath = R.string.comoros_wikipedia_url_path,
             image = R.drawable.flag_of_the_comoros,
             imagePreview = R.drawable.flag_of_the_comoros,
             flagOf = R.string.comoros,
@@ -1811,6 +1882,7 @@ data object DataSource {
 
         "cookIslands" to FlagResources(
             id = 71,
+            wikipediaUrlPath = R.string.cook_islands_wikipedia_url_path,
             image = R.drawable.flag_of_the_cook_islands,
             imagePreview = R.drawable.flag_of_the_cook_islands,
             flagOf = R.string.cook_islands,
@@ -1835,6 +1907,7 @@ data object DataSource {
 
         "cornwall" to FlagResources(
             id = 72,
+            wikipediaUrlPath = R.string.cornwall_wikipedia_url_path,
             image = R.drawable.flag_of_cornwall,
             imagePreview = R.drawable.flag_of_cornwall,
             flagOf = R.string.cornwall,
@@ -1852,6 +1925,7 @@ data object DataSource {
 
         "costaRica" to FlagResources(
             id = 73,
+            wikipediaUrlPath = R.string.costa_rica_wikipedia_url_path,
             image = R.drawable.flag_of_costa_rica,
             imagePreview = R.drawable.flag_of_costa_rica,
             flagOf = R.string.costa_rica,
@@ -1878,6 +1952,7 @@ data object DataSource {
 
         "crimea" to FlagResources(
             id = 74,
+            wikipediaUrlPath = R.string.crimea_wikipedia_url_path,
             image = R.drawable.flag_of_crimea,
             imagePreview = R.drawable.flag_of_crimea,
             flagOf = R.string.crimea,
@@ -1907,6 +1982,7 @@ data object DataSource {
 
         "croatia" to FlagResources(
             id = 75,
+            wikipediaUrlPath = R.string.croatia_wikipedia_url_path,
             image = R.drawable.flag_of_croatia,
             imagePreview = R.drawable.flag_of_croatia_preview,
             flagOf = R.string.croatia,
@@ -1933,6 +2009,7 @@ data object DataSource {
 
         "cuba" to FlagResources(
             id = 76,
+            wikipediaUrlPath = R.string.cuba_wikipedia_url_path,
             image = R.drawable.flag_of_cuba,
             imagePreview = R.drawable.flag_of_cuba,
             flagOf = R.string.cuba,
@@ -1957,6 +2034,7 @@ data object DataSource {
 
         "curacao" to FlagResources(
             id = 77,
+            wikipediaUrlPath = R.string.curacao_wikipedia_url_path,
             image = R.drawable.flag_of_cura_ao,
             imagePreview = R.drawable.flag_of_cura_ao,
             flagOf = R.string.curacao,
@@ -1987,6 +2065,7 @@ data object DataSource {
 
         "cyprus" to FlagResources(
             id = 78,
+            wikipediaUrlPath = R.string.cyprus_wikipedia_url_path,
             image = R.drawable.flag_of_cyprus,
             imagePreview = R.drawable.flag_of_cyprus,
             flagOf = R.string.cyprus,
@@ -2013,6 +2092,7 @@ data object DataSource {
 
         "czechRepublic" to FlagResources(
             id = 79,
+            wikipediaUrlPath = R.string.czech_republic_wikipedia_url_path,
             image = R.drawable.flag_of_the_czech_republic,
             imagePreview = R.drawable.flag_of_the_czech_republic,
             flagOf = R.string.czech_republic,
@@ -2038,6 +2118,7 @@ data object DataSource {
 
         "democraticRepublicOfTheCongo" to FlagResources(
             id = 80,
+            wikipediaUrlPath = R.string.democratic_republic_of_the_congo_wikipedia_url_path,
             image = R.drawable.flag_of_the_democratic_republic_of_the_congo,
             imagePreview = R.drawable.flag_of_the_democratic_republic_of_the_congo,
             flagOf = R.string.democratic_republic_of_the_congo,
@@ -2073,6 +2154,7 @@ data object DataSource {
 
         "denmark" to FlagResources(
             id = 81,
+            wikipediaUrlPath = R.string.denmark_wikipedia_url_path,
             image = R.drawable.flag_of_denmark,
             imagePreview = R.drawable.flag_of_denmark_preview,
             flagOf = R.string.denmark,
@@ -2103,6 +2185,7 @@ data object DataSource {
 
         "djibouti" to FlagResources(
             id = 82,
+            wikipediaUrlPath = R.string.djibouti_wikipedia_url_path,
             image = R.drawable.flag_of_djibouti,
             imagePreview = R.drawable.flag_of_djibouti,
             flagOf = R.string.djibouti,
@@ -2129,6 +2212,7 @@ data object DataSource {
 
         "dominica" to FlagResources(
             id = 83,
+            wikipediaUrlPath = R.string.dominica_wikipedia_url_path,
             image = R.drawable.flag_of_dominica,
             imagePreview = R.drawable.flag_of_dominica_preview,
             flagOf = R.string.dominica,
@@ -2159,6 +2243,7 @@ data object DataSource {
 
         "dominicanRepublic" to FlagResources(
             id = 84,
+            wikipediaUrlPath = R.string.dominican_republic_wikipedia_url_path,
             image = R.drawable.flag_of_the_dominican_republic,
             imagePreview = R.drawable.flag_of_the_dominican_republic_preview,
             flagOf = R.string.dominican_republic,
@@ -2188,6 +2273,7 @@ data object DataSource {
 
         "donetskOblast" to FlagResources(
             id = 85,
+            wikipediaUrlPath = R.string.donetsk_oblast_wikipedia_url_path,
             image = R.drawable.flag_of_donetsk_oblast,
             imagePreview = R.drawable.flag_of_donetsk_oblast_preview,
             flagOf = R.string.donetsk_oblast,
@@ -2206,6 +2292,7 @@ data object DataSource {
 
         "donetskPeoplesRepublic" to FlagResources(
             id = 86,
+            wikipediaUrlPath = R.string.donetsk_peoples_republic_wikipedia_url_path,
             image = R.drawable.flag_of_donetsk_people_s_republic,
             imagePreview = R.drawable.flag_of_donetsk_people_s_republic_preview,
             flagOf = R.string.donetsk_peoples_republic,
@@ -2227,6 +2314,7 @@ data object DataSource {
 
         "eastTimor" to FlagResources(
             id = 87,
+            wikipediaUrlPath = R.string.east_timor_wikipedia_url_path,
             image = R.drawable.flag_of_east_timor,
             imagePreview = R.drawable.flag_of_east_timor,
             flagOf = R.string.east_timor,
@@ -2251,6 +2339,7 @@ data object DataSource {
 
         "eastTurkestan" to FlagResources(
             id = 88,
+            wikipediaUrlPath = R.string.east_turkestan_wikipedia_url_path,
             image = R.drawable.kokbayraq_flag,
             imagePreview = R.drawable.kokbayraq_flag,
             flagOf = R.string.east_turkestan,
@@ -2274,6 +2363,7 @@ data object DataSource {
 
         "easterIsland" to FlagResources(
             id = 89,
+            wikipediaUrlPath = R.string.easter_island_wikipedia_url_path,
             image = R.drawable.flag_of_rapa_nui__chile,
             imagePreview = R.drawable.flag_of_rapa_nui__chile,
             flagOf = R.string.easter_island,
@@ -2295,6 +2385,7 @@ data object DataSource {
 
         "ecuador" to FlagResources(
             id = 90,
+            wikipediaUrlPath = R.string.ecuador_wikipedia_url_path,
             image = R.drawable.flag_of_ecuador,
             imagePreview = R.drawable.flag_of_ecuador_preview,
             flagOf = R.string.ecuador,
@@ -2319,6 +2410,7 @@ data object DataSource {
 
         "egypt" to FlagResources(
             id = 91,
+            wikipediaUrlPath = R.string.egypt_wikipedia_url_path,
             image = R.drawable.flag_of_egypt,
             imagePreview = R.drawable.flag_of_egypt_preview,
             flagOf = R.string.egypt,
@@ -2346,6 +2438,7 @@ data object DataSource {
 
         "elSalvador" to FlagResources(
             id = 92,
+            wikipediaUrlPath = R.string.el_salvador_wikipedia_url_path,
             image = R.drawable.flag_of_el_salvador,
             imagePreview = R.drawable.flag_of_el_salvador_preview,
             flagOf = R.string.el_salvador,
@@ -2372,6 +2465,7 @@ data object DataSource {
 
         "england" to FlagResources(
             id = 93,
+            wikipediaUrlPath = R.string.england_wikipedia_url_path,
             image = R.drawable.flag_of_england,
             imagePreview = R.drawable.flag_of_england,
             flagOf = R.string.england,
@@ -2390,6 +2484,7 @@ data object DataSource {
 
         "equatorialGuinea" to FlagResources(
             id = 94,
+            wikipediaUrlPath = R.string.equatorial_guinea_wikipedia_url_path,
             image = R.drawable.flag_of_equatorial_guinea,
             imagePreview = R.drawable.flag_of_equatorial_guinea,
             flagOf = R.string.equatorial_guinea,
@@ -2414,6 +2509,7 @@ data object DataSource {
 
         "eritrea" to FlagResources(
             id = 95,
+            wikipediaUrlPath = R.string.eritrea_wikipedia_url_path,
             image = R.drawable.flag_of_eritrea,
             imagePreview = R.drawable.flag_of_eritrea,
             flagOf = R.string.eritrea,
@@ -2440,6 +2536,7 @@ data object DataSource {
 
         "estonia" to FlagResources(
             id = 96,
+            wikipediaUrlPath = R.string.estonia_wikipedia_url_path,
             image = R.drawable.flag_of_estonia,
             imagePreview = R.drawable.flag_of_estonia,
             flagOf = R.string.estonia,
@@ -2467,6 +2564,7 @@ data object DataSource {
 
         "eswatini" to FlagResources(
             id = 97,
+            wikipediaUrlPath = R.string.eswatini_wikipedia_url_path,
             image = R.drawable.flag_of_eswatini,
             imagePreview = R.drawable.flag_of_eswatini_preview,
             flagOf = R.string.eswatini,
@@ -2493,6 +2591,7 @@ data object DataSource {
 
         "ethiopia" to FlagResources(
             id = 98,
+            wikipediaUrlPath = R.string.ethiopia_wikipedia_url_path,
             image = R.drawable.flag_of_ethiopia,
             imagePreview = R.drawable.flag_of_ethiopia,
             flagOf = R.string.ethiopia,
@@ -2517,6 +2616,7 @@ data object DataSource {
 
         "europeanUnion" to FlagResources(
             id = 99,
+            wikipediaUrlPath = R.string.european_union_wikipedia_url_path,
             image = R.drawable.flag_of_europe,
             imagePreview = R.drawable.flag_of_europe_preview,
             flagOf = R.string.european_union,
@@ -2540,6 +2640,7 @@ data object DataSource {
 
         "extremadura" to FlagResources(
             id = 100,
+            wikipediaUrlPath = R.string.extremadura_wikipedia_url_path,
             image = R.drawable.flag_of_extremadura__spain__with_coat_of_arms_,
             imagePreview = R.drawable.flag_of_extremadura__spain__with_coat_of_arms__preview,
             flagOf = R.string.extremadura,
@@ -2558,6 +2659,7 @@ data object DataSource {
 
         "falklandIslands" to FlagResources(
             id = 101,
+            wikipediaUrlPath = R.string.falkland_islands_wikipedia_url_path,
             image = R.drawable.flag_of_the_falkland_islands,
             imagePreview = R.drawable.flag_of_the_falkland_islands_preview,
             flagOf = R.string.falkland_islands,
@@ -2582,6 +2684,7 @@ data object DataSource {
 
         "faroeIslands" to FlagResources(
             id = 102,
+            wikipediaUrlPath = R.string.faroe_islands_wikipedia_url_path,
             image = R.drawable.flag_of_the_faroe_islands,
             imagePreview = R.drawable.flag_of_the_faroe_islands,
             flagOf = R.string.faroe_islands,
@@ -2637,6 +2740,7 @@ data object DataSource {
 
         "fiji" to FlagResources(
             id = 103,
+            wikipediaUrlPath = R.string.fiji_wikipedia_url_path,
             image = R.drawable.flag_of_fiji,
             imagePreview = R.drawable.flag_of_fiji_preview,
             flagOf = R.string.fiji,
@@ -2666,6 +2770,7 @@ data object DataSource {
 
         "finland" to FlagResources(
             id = 104,
+            wikipediaUrlPath = R.string.finland_wikipedia_url_path,
             image = R.drawable.flag_of_finland,
             imagePreview = R.drawable.flag_of_finland,
             flagOf = R.string.finland,
@@ -2696,6 +2801,7 @@ data object DataSource {
 
         "france" to FlagResources(
             id = 105,
+            wikipediaUrlPath = R.string.france_wikipedia_url_path,
             image = R.drawable.flag_of_france,
             imagePreview = R.drawable.flag_of_france,
             flagOf = R.string.france,
@@ -2720,6 +2826,7 @@ data object DataSource {
 
         "frenchGuiana" to FlagResources(
             id = 106,
+            wikipediaUrlPath = R.string.french_guiana_wikipedia_url_path,
             image = R.drawable.flag_of_french_guiana,
             imagePreview = R.drawable.flag_of_french_guiana,
             flagOf = R.string.french_guiana,
@@ -2741,6 +2848,7 @@ data object DataSource {
 
         "frenchPolynesia" to FlagResources(
             id = 107,
+            wikipediaUrlPath = R.string.french_polynesia_wikipedia_url_path,
             image = R.drawable.flag_of_french_polynesia,
             imagePreview = R.drawable.flag_of_french_polynesia,
             flagOf = R.string.french_polynesia,
@@ -2765,6 +2873,7 @@ data object DataSource {
 
         "frenchSouthernAndAntarcticLands" to FlagResources(
             id = 108,
+            wikipediaUrlPath = R.string.french_southern_and_antarctic_lands_wikipedia_url_path,
             image = R.drawable.flag_of_the_french_southern_and_antarctic_lands,
             imagePreview = R.drawable.flag_of_the_french_southern_and_antarctic_lands,
             flagOf = R.string.french_southern_and_antarctic_lands,
@@ -2783,6 +2892,7 @@ data object DataSource {
 
         "gabon" to FlagResources(
             id = 109,
+            wikipediaUrlPath = R.string.gabon_wikipedia_url_path,
             image = R.drawable.flag_of_gabon,
             imagePreview = R.drawable.flag_of_gabon,
             flagOf = R.string.gabon,
@@ -2809,6 +2919,7 @@ data object DataSource {
 
         "gagauzia" to FlagResources(
             id = 110,
+            wikipediaUrlPath = R.string.gagauzia_wikipedia_url_path,
             image = R.drawable.flag_of_gagauzia,
             imagePreview = R.drawable.flag_of_gagauzia_preview,
             flagOf = R.string.gagauzia,
@@ -2831,6 +2942,7 @@ data object DataSource {
 
         "galiciaSpain" to FlagResources(
             id = 111,
+            wikipediaUrlPath = R.string.galicia_spain_wikipedia_url_path,
             image = R.drawable.flag_of_galicia,
             imagePreview = R.drawable.flag_of_galicia_preview,
             flagOf = R.string.galicia_spain,
@@ -2852,6 +2964,7 @@ data object DataSource {
 
         "georgia" to FlagResources(
             id = 112,
+            wikipediaUrlPath = R.string.georgia_wikipedia_url_path,
             image = R.drawable.flag_of_georgia,
             imagePreview = R.drawable.flag_of_georgia,
             flagOf = R.string.georgia,
@@ -2876,6 +2989,7 @@ data object DataSource {
 
         "germany" to FlagResources(
             id = 113,
+            wikipediaUrlPath = R.string.germany_wikipedia_url_path,
             image = R.drawable.flag_of_germany,
             imagePreview = R.drawable.flag_of_germany,
             flagOf = R.string.germany,
@@ -2901,6 +3015,7 @@ data object DataSource {
 
         "ghana" to FlagResources(
             id = 114,
+            wikipediaUrlPath = R.string.ghana_wikipedia_url_path,
             image = R.drawable.flag_of_ghana,
             imagePreview = R.drawable.flag_of_ghana,
             flagOf = R.string.ghana,
@@ -2925,6 +3040,7 @@ data object DataSource {
 
         "gibraltar" to FlagResources(
             id = 115,
+            wikipediaUrlPath = R.string.gibraltar_wikipedia_url_path,
             image = R.drawable.flag_of_gibraltar,
             imagePreview = R.drawable.flag_of_gibraltar,
             flagOf = R.string.gibraltar,
@@ -2947,6 +3063,7 @@ data object DataSource {
 
         "greece" to FlagResources(
             id = 116,
+            wikipediaUrlPath = R.string.greece_wikipedia_url_path,
             image = R.drawable.flag_of_greece,
             imagePreview = R.drawable.flag_of_greece,
             flagOf = R.string.greece,
@@ -2975,6 +3092,7 @@ data object DataSource {
 
         "greenland" to FlagResources(
             id = 117,
+            wikipediaUrlPath = R.string.greenland_wikipedia_url_path,
             image = R.drawable.flag_of_greenland,
             imagePreview = R.drawable.flag_of_greenland,
             flagOf = R.string.greenland,
@@ -2997,6 +3115,7 @@ data object DataSource {
 
         "grenada" to FlagResources(
             id = 118,
+            wikipediaUrlPath = R.string.grenada_wikipedia_url_path,
             image = R.drawable.flag_of_grenada,
             imagePreview = R.drawable.flag_of_grenada,
             flagOf = R.string.grenada,
@@ -3020,6 +3139,7 @@ data object DataSource {
 
         "guadeloupe" to FlagResources(
             id = 119,
+            wikipediaUrlPath = R.string.guadeloupe_wikipedia_url_path,
             image = R.drawable.unofficial_flag_of_guadeloupe__local_,
             imagePreview = R.drawable.unofficial_flag_of_guadeloupe__local_,
             flagOf = R.string.guadeloupe,
@@ -3041,6 +3161,7 @@ data object DataSource {
 
         "guam" to FlagResources(
             id = 120,
+            wikipediaUrlPath = R.string.guam_wikipedia_url_path,
             image = R.drawable.flag_of_guam,
             imagePreview = R.drawable.flag_of_guam,
             flagOf = R.string.guam,
@@ -3070,6 +3191,7 @@ data object DataSource {
 
         "guatemala" to FlagResources(
             id = 121,
+            wikipediaUrlPath = R.string.guatemala_wikipedia_url_path,
             image = R.drawable.flag_of_guatemala,
             imagePreview = R.drawable.flag_of_guatemala_preview,
             flagOf = R.string.guatemala,
@@ -3094,6 +3216,7 @@ data object DataSource {
 
         "guernsey" to FlagResources(
             id = 122,
+            wikipediaUrlPath = R.string.guernsey_wikipedia_url_path,
             image = R.drawable.flag_of_guernsey,
             imagePreview = R.drawable.flag_of_guernsey,
             flagOf = R.string.guernsey,
@@ -3123,6 +3246,7 @@ data object DataSource {
 
         "guinea" to FlagResources(
             id = 123,
+            wikipediaUrlPath = R.string.guinea_wikipedia_url_path,
             image = R.drawable.flag_of_guinea,
             imagePreview = R.drawable.flag_of_guinea,
             flagOf = R.string.guinea,
@@ -3147,6 +3271,7 @@ data object DataSource {
 
         "guineaBissau" to FlagResources(
             id = 124,
+            wikipediaUrlPath = R.string.guinea_bissau_wikipedia_url_path,
             image = R.drawable.flag_of_guinea_bissau,
             imagePreview = R.drawable.flag_of_guinea_bissau,
             flagOf = R.string.guinea_bissau,
@@ -3171,6 +3296,7 @@ data object DataSource {
 
         "guyana" to FlagResources(
             id = 125,
+            wikipediaUrlPath = R.string.guyana_wikipedia_url_path,
             image = R.drawable.flag_of_guyana,
             imagePreview = R.drawable.flag_of_guyana,
             flagOf = R.string.guyana,
@@ -3196,6 +3322,7 @@ data object DataSource {
 
         "haiti" to FlagResources(
             id = 126,
+            wikipediaUrlPath = R.string.haiti_wikipedia_url_path,
             image = R.drawable.flag_of_haiti,
             imagePreview = R.drawable.flag_of_haiti_preview,
             flagOf = R.string.haiti,
@@ -3223,6 +3350,7 @@ data object DataSource {
 
         "honduras" to FlagResources(
             id = 127,
+            wikipediaUrlPath = R.string.honduras_wikipedia_url_path,
             image = R.drawable.flag_of_honduras,
             imagePreview = R.drawable.flag_of_honduras,
             flagOf = R.string.honduras,
@@ -3250,6 +3378,7 @@ data object DataSource {
 
         "hongKong" to FlagResources(
             id = 128,
+            wikipediaUrlPath = R.string.hong_kong_wikipedia_url_path,
             image = R.drawable.flag_of_hong_kong,
             imagePreview = R.drawable.flag_of_hong_kong,
             flagOf = R.string.hong_kong,
@@ -3276,6 +3405,7 @@ data object DataSource {
 
         "hungary" to FlagResources(
             id = 129,
+            wikipediaUrlPath = R.string.hungary_wikipedia_url_path,
             image = R.drawable.flag_of_hungary,
             imagePreview = R.drawable.flag_of_hungary,
             flagOf = R.string.hungary,
@@ -3300,6 +3430,7 @@ data object DataSource {
 
         "iceland" to FlagResources(
             id = 130,
+            wikipediaUrlPath = R.string.iceland_wikipedia_url_path,
             image = R.drawable.flag_of_iceland,
             imagePreview = R.drawable.flag_of_iceland,
             flagOf = R.string.iceland,
@@ -3323,6 +3454,7 @@ data object DataSource {
 
         "india" to FlagResources(
             id = 131,
+            wikipediaUrlPath = R.string.india_wikipedia_url_path,
             image = R.drawable.flag_of_india,
             imagePreview = R.drawable.flag_of_india,
             flagOf = R.string.india,
@@ -3354,6 +3486,7 @@ data object DataSource {
 
         "indonesia" to FlagResources(
             id = 132,
+            wikipediaUrlPath = R.string.indonesia_wikipedia_url_path,
             image = R.drawable.flag_of_indonesia,
             imagePreview = R.drawable.flag_of_indonesia,
             flagOf = R.string.indonesia,
@@ -3380,6 +3513,7 @@ data object DataSource {
 
         "iran" to FlagResources(
             id = 133,
+            wikipediaUrlPath = R.string.iran_wikipedia_url_path,
             image = R.drawable.flag_of_iran__official_,
             imagePreview = R.drawable.flag_of_iran__official__preview,
             flagOf = R.string.iran,
@@ -3406,6 +3540,7 @@ data object DataSource {
 
         "iraq" to FlagResources(
             id = 134,
+            wikipediaUrlPath = R.string.iraq_wikipedia_url_path,
             image = R.drawable.flag_of_iraq,
             imagePreview = R.drawable.flag_of_iraq,
             flagOf = R.string.iraq,
@@ -3430,6 +3565,7 @@ data object DataSource {
 
         "ireland" to FlagResources(
             id = 135,
+            wikipediaUrlPath = R.string.ireland_wikipedia_url_path,
             image = R.drawable.flag_of_ireland,
             imagePreview = R.drawable.flag_of_ireland,
             flagOf = R.string.ireland,
@@ -3456,6 +3592,7 @@ data object DataSource {
 
         "isleOfMan" to FlagResources(
             id = 136,
+            wikipediaUrlPath = R.string.isle_of_man_wikipedia_url_path,
             image = R.drawable.flag_of_the_isle_of_mann,
             imagePreview = R.drawable.flag_of_the_isle_of_mann,
             flagOf = R.string.isle_of_man,
@@ -3483,6 +3620,7 @@ data object DataSource {
 
         "israel" to FlagResources(
             id = 137,
+            wikipediaUrlPath = R.string.israel_wikipedia_url_path,
             image = R.drawable.flag_of_israel,
             imagePreview = R.drawable.flag_of_israel_preview,
             flagOf = R.string.israel,
@@ -3509,6 +3647,7 @@ data object DataSource {
 
         "italy" to FlagResources(
             id = 138,
+            wikipediaUrlPath = R.string.italy_wikipedia_url_path,
             image = R.drawable.flag_of_italy,
             imagePreview = R.drawable.flag_of_italy,
             flagOf = R.string.italy,
@@ -3537,6 +3676,7 @@ data object DataSource {
 
         "ivoryCoast" to FlagResources(
             id = 139,
+            wikipediaUrlPath = R.string.ivory_coast_wikipedia_url_path,
             image = R.drawable.flag_of_c_te_d_ivoire,
             imagePreview = R.drawable.flag_of_c_te_d_ivoire,
             flagOf = R.string.ivory_coast,
@@ -3572,6 +3712,7 @@ data object DataSource {
 
         "jamaica" to FlagResources(
             id = 140,
+            wikipediaUrlPath = R.string.jamaica_wikipedia_url_path,
             image = R.drawable.flag_of_jamaica,
             imagePreview = R.drawable.flag_of_jamaica,
             flagOf = R.string.jamaica,
@@ -3597,6 +3738,7 @@ data object DataSource {
 
         "japan" to FlagResources(
             id = 141,
+            wikipediaUrlPath = R.string.japan_wikipedia_url_path,
             image = R.drawable.flag_of_japan,
             imagePreview = R.drawable.flag_of_japan,
             flagOf = R.string.japan,
@@ -3634,6 +3776,7 @@ data object DataSource {
 
         "jersey" to FlagResources(
             id = 142,
+            wikipediaUrlPath = R.string.jersey_wikipedia_url_path,
             image = R.drawable.flag_of_jersey,
             imagePreview = R.drawable.flag_of_jersey_preview,
             flagOf = R.string.jersey,
@@ -3667,6 +3810,7 @@ data object DataSource {
 
         "jordan" to FlagResources(
             id = 143,
+            wikipediaUrlPath = R.string.jordan_wikipedia_url_path,
             image = R.drawable.flag_of_jordan,
             imagePreview = R.drawable.flag_of_jordan,
             flagOf = R.string.jordan,
@@ -3697,6 +3841,7 @@ data object DataSource {
 
         "kanakAndSocialistNationalLiberationFront" to FlagResources(
             id = 144,
+            wikipediaUrlPath = R.string.kanak_and_socialist_national_liberation_front_wikipedia_url_path,
             image = R.drawable.flag_of_flnks,
             imagePreview = R.drawable.flag_of_flnks,
             flagOf = R.string.kanak_and_socialist_national_liberation_front,
@@ -3711,6 +3856,7 @@ data object DataSource {
 
         "kazakhstan" to FlagResources(
             id = 145,
+            wikipediaUrlPath = R.string.kazakhstan_wikipedia_url_path,
             image = R.drawable.flag_of_kazakhstan,
             imagePreview = R.drawable.flag_of_kazakhstan,
             flagOf = R.string.kazakhstan,
@@ -3737,6 +3883,7 @@ data object DataSource {
 
         "kenya" to FlagResources(
             id = 146,
+            wikipediaUrlPath = R.string.kenya_wikipedia_url_path,
             image = R.drawable.flag_of_kenya,
             imagePreview = R.drawable.flag_of_kenya,
             flagOf = R.string.kenya,
@@ -3762,6 +3909,7 @@ data object DataSource {
 
         "kiribati" to FlagResources(
             id = 147,
+            wikipediaUrlPath = R.string.kiribati_wikipedia_url_path,
             image = R.drawable.flag_of_kiribati,
             imagePreview = R.drawable.flag_of_kiribati_preview,
             flagOf = R.string.kiribati,
@@ -3786,6 +3934,7 @@ data object DataSource {
 
         "knightsTemplar" to FlagResources(
             id = 148,
+            wikipediaUrlPath = R.string.knights_templar_wikipedia_url_path,
             image = R.drawable.bandeira_templ_ria,
             imagePreview = R.drawable.bandeira_templ_ria,
             flagOf = R.string.knights_templar,
@@ -3808,6 +3957,7 @@ data object DataSource {
 
         "kosovo" to FlagResources(
             id = 149,
+            wikipediaUrlPath = R.string.kosovo_wikipedia_url_path,
             image = R.drawable.flag_of_kosovo,
             imagePreview = R.drawable.flag_of_kosovo,
             flagOf = R.string.kosovo,
@@ -3837,6 +3987,7 @@ data object DataSource {
 
         "kosrae" to FlagResources(
             id = 150,
+            wikipediaUrlPath = R.string.kosrae_wikipedia_url_path,
             image = R.drawable.flag_of_kosrae,
             imagePreview = R.drawable.flag_of_kosrae,
             flagOf = R.string.kosrae,
@@ -3851,6 +4002,7 @@ data object DataSource {
 
         "kurdistan" to FlagResources(
             id = 151,
+            wikipediaUrlPath = R.string.kurdistan_wikipedia_url_path,
             image = R.drawable.flag_of_kurdistan,
             imagePreview = R.drawable.flag_of_kurdistan,
             flagOf = R.string.kurdistan,
@@ -3873,6 +4025,7 @@ data object DataSource {
 
         "kuwait" to FlagResources(
             id = 152,
+            wikipediaUrlPath = R.string.kuwait_wikipedia_url_path,
             image = R.drawable.flag_of_kuwait,
             imagePreview = R.drawable.flag_of_kuwait,
             flagOf = R.string.kuwait,
@@ -3896,6 +4049,7 @@ data object DataSource {
 
         "kyrgyzstan" to FlagResources(
             id = 153,
+            wikipediaUrlPath = R.string.kyrgyzstan_wikipedia_url_path,
             image = R.drawable.flag_of_kyrgyzstan,
             imagePreview = R.drawable.flag_of_kyrgyzstan,
             flagOf = R.string.kyrgyzstan,
@@ -3920,6 +4074,7 @@ data object DataSource {
 
         "lgbtq" to FlagResources(
             id = 154,
+            wikipediaUrlPath = R.string.lgbtq_wikipedia_url_path,
             image = R.drawable.gay_pride_flag,
             imagePreview = R.drawable.gay_pride_flag,
             flagOf = R.string.lgbtq,
@@ -3958,6 +4113,7 @@ data object DataSource {
 
         "laRioja" to FlagResources(
             id = 155,
+            wikipediaUrlPath = R.string.la_rioja_wikipedia_url_path,
             image = R.drawable.flag_of_la_rioja__with_coat_of_arms_,
             imagePreview = R.drawable.flag_of_la_rioja__with_coat_of_arms__preview,
             flagOf = R.string.la_rioja,
@@ -3979,6 +4135,7 @@ data object DataSource {
 
         "laos" to FlagResources(
             id = 156,
+            wikipediaUrlPath = R.string.laos_wikipedia_url_path,
             image = R.drawable.flag_of_laos,
             imagePreview = R.drawable.flag_of_laos,
             flagOf = R.string.laos,
@@ -4004,6 +4161,7 @@ data object DataSource {
 
         "latvia" to FlagResources(
             id = 157,
+            wikipediaUrlPath = R.string.latvia_wikipedia_url_path,
             image = R.drawable.flag_of_latvia,
             imagePreview = R.drawable.flag_of_latvia,
             flagOf = R.string.latvia,
@@ -4036,6 +4194,7 @@ data object DataSource {
 
         "lebanon" to FlagResources(
             id = 158,
+            wikipediaUrlPath = R.string.lebanon_wikipedia_url_path,
             image = R.drawable.flag_of_lebanon,
             imagePreview = R.drawable.flag_of_lebanon,
             flagOf = R.string.lebanon,
@@ -4064,6 +4223,7 @@ data object DataSource {
 
         "lesotho" to FlagResources(
             id = 159,
+            wikipediaUrlPath = R.string.lesotho_wikipedia_url_path,
             image = R.drawable.flag_of_lesotho,
             imagePreview = R.drawable.flag_of_lesotho,
             flagOf = R.string.lesotho,
@@ -4089,6 +4249,7 @@ data object DataSource {
 
         "liberia" to FlagResources(
             id = 160,
+            wikipediaUrlPath = R.string.liberia_wikipedia_url_path,
             image = R.drawable.flag_of_liberia,
             imagePreview = R.drawable.flag_of_liberia,
             flagOf = R.string.liberia,
@@ -4114,6 +4275,7 @@ data object DataSource {
 
         "libya" to FlagResources(
             id = 161,
+            wikipediaUrlPath = R.string.libya_wikipedia_url_path,
             image = R.drawable.flag_of_libya,
             imagePreview = R.drawable.flag_of_libya,
             flagOf = R.string.libya,
@@ -4137,6 +4299,7 @@ data object DataSource {
 
         "liechtenstein" to FlagResources(
             id = 162,
+            wikipediaUrlPath = R.string.liechtenstein_wikipedia_url_path,
             image = R.drawable.flag_of_liechtenstein,
             imagePreview = R.drawable.flag_of_liechtenstein,
             flagOf = R.string.liechtenstein,
@@ -4162,6 +4325,7 @@ data object DataSource {
 
         "lithuania" to FlagResources(
             id = 163,
+            wikipediaUrlPath = R.string.lithuania_wikipedia_url_path,
             image = R.drawable.flag_of_lithuania,
             imagePreview = R.drawable.flag_of_lithuania,
             flagOf = R.string.lithuania,
@@ -4188,6 +4352,7 @@ data object DataSource {
 
         "luhanskOblast" to FlagResources(
             id = 164,
+            wikipediaUrlPath = R.string.luhansk_oblast_wikipedia_url_path,
             image = R.drawable.flag_of_luhansk_oblast,
             imagePreview = R.drawable.flag_of_luhansk_oblast_preview,
             flagOf = R.string.luhansk_oblast,
@@ -4208,6 +4373,7 @@ data object DataSource {
 
         "luhanskPeoplesRepublic" to FlagResources(
             id = 165,
+            wikipediaUrlPath = R.string.luhansk_peoples_republic_wikipedia_url_path,
             image = R.drawable.flag_of_the_luhansk_people_s_republic,
             imagePreview = R.drawable.flag_of_the_luhansk_people_s_republic,
             flagOf = R.string.luhansk_peoples_republic,
@@ -4231,6 +4397,7 @@ data object DataSource {
 
         "luxembourg" to FlagResources(
             id = 166,
+            wikipediaUrlPath = R.string.luxembourg_wikipedia_url_path,
             image = R.drawable.flag_of_luxembourg,
             imagePreview = R.drawable.flag_of_luxembourg_preview,
             flagOf = R.string.luxembourg,
@@ -4256,6 +4423,7 @@ data object DataSource {
 
         "macau" to FlagResources(
             id = 167,
+            wikipediaUrlPath = R.string.macau_wikipedia_url_path,
             image = R.drawable.flag_of_macau,
             imagePreview = R.drawable.flag_of_macau_preview,
             flagOf = R.string.macau,
@@ -4283,6 +4451,7 @@ data object DataSource {
 
         "madagascar" to FlagResources(
             id = 168,
+            wikipediaUrlPath = R.string.madagascar_wikipedia_url_path,
             image = R.drawable.flag_of_madagascar,
             imagePreview = R.drawable.flag_of_madagascar,
             flagOf = R.string.madagascar,
@@ -4310,6 +4479,7 @@ data object DataSource {
 
         "madeira" to FlagResources(
             id = 169,
+            wikipediaUrlPath = R.string.madeira_wikipedia_url_path,
             image = R.drawable.flag_of_madeira,
             imagePreview = R.drawable.flag_of_madeira,
             flagOf = R.string.madeira,
@@ -4331,6 +4501,7 @@ data object DataSource {
 
         "madridCommunity" to FlagResources(
             id = 170,
+            wikipediaUrlPath = R.string.madrid_community_wikipedia_url_path,
             image = R.drawable.flag_of_the_community_of_madrid,
             imagePreview = R.drawable.flag_of_the_community_of_madrid_preview,
             flagOf = R.string.madrid_community,
@@ -4353,6 +4524,7 @@ data object DataSource {
 
         "malawi" to FlagResources(
             id = 171,
+            wikipediaUrlPath = R.string.malawi_wikipedia_url_path,
             image = R.drawable.flag_of_malawi,
             imagePreview = R.drawable.flag_of_malawi,
             flagOf = R.string.malawi,
@@ -4377,6 +4549,7 @@ data object DataSource {
 
         "malaysia" to FlagResources(
             id = 172,
+            wikipediaUrlPath = R.string.malaysia_wikipedia_url_path,
             image = R.drawable.flag_of_malaysia,
             imagePreview = R.drawable.flag_of_malaysia_preview,
             flagOf = R.string.malaysia,
@@ -4404,6 +4577,7 @@ data object DataSource {
 
         "maldives" to FlagResources(
             id = 173,
+            wikipediaUrlPath = R.string.maldives_wikipedia_url_path,
             image = R.drawable.flag_of_maldives,
             imagePreview = R.drawable.flag_of_maldives_preview,
             flagOf = R.string.maldives,
@@ -4429,6 +4603,7 @@ data object DataSource {
 
         "mali" to FlagResources(
             id = 174,
+            wikipediaUrlPath = R.string.mali_wikipedia_url_path,
             image = R.drawable.flag_of_mali,
             imagePreview = R.drawable.flag_of_mali,
             flagOf = R.string.mali,
@@ -4452,6 +4627,7 @@ data object DataSource {
 
         "malta" to FlagResources(
             id = 175,
+            wikipediaUrlPath = R.string.malta_wikipedia_url_path,
             image = R.drawable.flag_of_malta,
             imagePreview = R.drawable.flag_of_malta,
             flagOf = R.string.malta,
@@ -4476,6 +4652,7 @@ data object DataSource {
 
         "marshallIslands" to FlagResources(
             id = 176,
+            wikipediaUrlPath = R.string.marshall_islands_wikipedia_url_path,
             image = R.drawable.flag_of_the_marshall_islands,
             imagePreview = R.drawable.flag_of_the_marshall_islands,
             flagOf = R.string.marshall_islands,
@@ -4501,6 +4678,7 @@ data object DataSource {
 
         "martinique" to FlagResources(
             id = 177,
+            wikipediaUrlPath = R.string.martinique_wikipedia_url_path,
             image = R.drawable.flag_of_martinique,
             imagePreview = R.drawable.flag_of_martinique,
             flagOf = R.string.martinique,
@@ -4526,6 +4704,7 @@ data object DataSource {
 
         "mauritania" to FlagResources(
             id = 178,
+            wikipediaUrlPath = R.string.mauritania_wikipedia_url_path,
             image = R.drawable.flag_of_mauritania,
             imagePreview = R.drawable.flag_of_mauritania,
             flagOf = R.string.mauritania,
@@ -4558,6 +4737,7 @@ data object DataSource {
 
         "mauritius" to FlagResources(
             id = 179,
+            wikipediaUrlPath = R.string.mauritius_wikipedia_url_path,
             image = R.drawable.flag_of_mauritius,
             imagePreview = R.drawable.flag_of_mauritius,
             flagOf = R.string.mauritius,
@@ -4584,6 +4764,7 @@ data object DataSource {
 
         "mayotte" to FlagResources(
             id = 180,
+            wikipediaUrlPath = R.string.mayotte_wikipedia_url_path,
             image = R.drawable.flag_of_mayotte__local_,
             imagePreview = R.drawable.flag_of_mayotte__local__preview,
             flagOf = R.string.mayotte,
@@ -4602,6 +4783,7 @@ data object DataSource {
 
         "melilla" to FlagResources(
             id = 181,
+            wikipediaUrlPath = R.string.melilla_wikipedia_url_path,
             image = R.drawable.flag_of_melilla,
             imagePreview = R.drawable.flag_of_melilla_preview,
             flagOf = R.string.melilla,
@@ -4620,6 +4802,7 @@ data object DataSource {
 
         "mexico" to FlagResources(
             id = 182,
+            wikipediaUrlPath = R.string.mexico_wikipedia_url_path,
             image = R.drawable.flag_of_mexico,
             imagePreview = R.drawable.flag_of_mexico_preview,
             flagOf = R.string.mexico,
@@ -4649,6 +4832,7 @@ data object DataSource {
 
         "micronesia" to FlagResources(
             id = 183,
+            wikipediaUrlPath = R.string.micronesia_wikipedia_url_path,
             image = R.drawable.flag_of_the_federated_states_of_micronesia,
             imagePreview = R.drawable.flag_of_the_federated_states_of_micronesia,
             flagOf = R.string.micronesia,
@@ -4677,6 +4861,7 @@ data object DataSource {
 
         "moldova" to FlagResources(
             id = 184,
+            wikipediaUrlPath = R.string.moldova_wikipedia_url_path,
             image = R.drawable.flag_of_moldova,
             imagePreview = R.drawable.flag_of_moldova,
             flagOf = R.string.moldova,
@@ -4703,6 +4888,7 @@ data object DataSource {
 
         "monaco" to FlagResources(
             id = 185,
+            wikipediaUrlPath = R.string.monaco_wikipedia_url_path,
             image = R.drawable.flag_of_monaco,
             imagePreview = R.drawable.flag_of_monaco,
             flagOf = R.string.monaco,
@@ -4734,6 +4920,7 @@ data object DataSource {
 
         "mongolia" to FlagResources(
             id = 186,
+            wikipediaUrlPath = R.string.mongolia_wikipedia_url_path,
             image = R.drawable.flag_of_mongolia,
             imagePreview = R.drawable.flag_of_mongolia,
             flagOf = R.string.mongolia,
@@ -4757,6 +4944,7 @@ data object DataSource {
 
         "montenegro" to FlagResources(
             id = 187,
+            wikipediaUrlPath = R.string.montenegro_wikipedia_url_path,
             image = R.drawable.flag_of_montenegro,
             imagePreview = R.drawable.flag_of_montenegro_preview,
             flagOf = R.string.montenegro,
@@ -4781,6 +4969,7 @@ data object DataSource {
 
         "montserrat" to FlagResources(
             id = 188,
+            wikipediaUrlPath = R.string.montserrat_wikipedia_url_path,
             image = R.drawable.flag_of_montserrat,
             imagePreview = R.drawable.flag_of_montserrat,
             flagOf = R.string.montserrat,
@@ -4799,6 +4988,7 @@ data object DataSource {
 
         "morocco" to FlagResources(
             id = 189,
+            wikipediaUrlPath = R.string.morocco_wikipedia_url_path,
             image = R.drawable.flag_of_morocco,
             imagePreview = R.drawable.flag_of_morocco,
             flagOf = R.string.morocco,
@@ -4827,6 +5017,7 @@ data object DataSource {
 
         "mozambique" to FlagResources(
             id = 190,
+            wikipediaUrlPath = R.string.mozambique_wikipedia_url_path,
             image = R.drawable.flag_of_mozambique,
             imagePreview = R.drawable.flag_of_mozambique,
             flagOf = R.string.mozambique,
@@ -4854,6 +5045,7 @@ data object DataSource {
 
         "murciaCommunity" to FlagResources(
             id = 191,
+            wikipediaUrlPath = R.string.murcia_community_wikipedia_url_path,
             image = R.drawable.flag_of_the_region_of_murcia,
             imagePreview = R.drawable.flag_of_the_region_of_murcia,
             flagOf = R.string.murcia_community,
@@ -4882,6 +5074,7 @@ data object DataSource {
 
         "myanmar" to FlagResources(
             id = 192,
+            wikipediaUrlPath = R.string.myanmar_wikipedia_url_path,
             image = R.drawable.flag_of_myanmar,
             imagePreview = R.drawable.flag_of_myanmar,
             flagOf = R.string.myanmar,
@@ -4908,6 +5101,7 @@ data object DataSource {
 
         "nato" to FlagResources(
             id = 193,
+            wikipediaUrlPath = R.string.nato_wikipedia_url_path,
             image = R.drawable.flag_of_nato,
             imagePreview = R.drawable.flag_of_nato,
             flagOf = R.string.nato,
@@ -4930,6 +5124,7 @@ data object DataSource {
 
         "namibia" to FlagResources(
             id = 194,
+            wikipediaUrlPath = R.string.namibia_wikipedia_url_path,
             image = R.drawable.flag_of_namibia,
             imagePreview = R.drawable.flag_of_namibia,
             flagOf = R.string.namibia,
@@ -4954,6 +5149,7 @@ data object DataSource {
 
         "nauru" to FlagResources(
             id = 195,
+            wikipediaUrlPath = R.string.nauru_wikipedia_url_path,
             image = R.drawable.flag_of_nauru,
             imagePreview = R.drawable.flag_of_nauru,
             flagOf = R.string.nauru,
@@ -4979,6 +5175,7 @@ data object DataSource {
 
         "navarre" to FlagResources(
             id = 196,
+            wikipediaUrlPath = R.string.navarre_wikipedia_url_path,
             image = R.drawable.bandera_de_navarra,
             imagePreview = R.drawable.bandera_de_navarra_preview,
             flagOf = R.string.navarre,
@@ -5002,6 +5199,7 @@ data object DataSource {
 
         "naziGermany" to FlagResources(
             id = 197,
+            wikipediaUrlPath = R.string.nazi_germany_wikipedia_url_path,
             image = R.drawable.flag_of_germany__19351945_,
             imagePreview = R.drawable.flag_of_germany__19351945_,
             flagOf = R.string.nazi_germany,
@@ -5028,6 +5226,7 @@ data object DataSource {
 
         "nepal" to FlagResources(
             id = 198,
+            wikipediaUrlPath = R.string.nepal_wikipedia_url_path,
             image = R.drawable.flag_of_nepal,
             imagePreview = R.drawable.flag_of_nepal,
             flagOf = R.string.nepal,
@@ -5082,6 +5281,7 @@ data object DataSource {
 
         "netherlands" to FlagResources(
             id = 199,
+            wikipediaUrlPath = R.string.netherlands_wikipedia_url_path,
             image = R.drawable.flag_of_the_netherlands,
             imagePreview = R.drawable.flag_of_the_netherlands,
             flagOf = R.string.netherlands,
@@ -5107,6 +5307,7 @@ data object DataSource {
 
         "newCaledonia" to FlagResources(
             id = 200,
+            wikipediaUrlPath = R.string.new_caledonia_wikipedia_url_path,
             image = R.drawable.flag_of_flnks,
             imagePreview = R.drawable.flag_of_flnks,
             flagOf = R.string.new_caledonia,
@@ -5131,6 +5332,7 @@ data object DataSource {
 
         "newZealand" to FlagResources(
             id = 201,
+            wikipediaUrlPath = R.string.new_zealand_wikipedia_url_path,
             image = R.drawable.flag_of_new_zealand,
             imagePreview = R.drawable.flag_of_new_zealand,
             flagOf = R.string.new_zealand,
@@ -5162,6 +5364,7 @@ data object DataSource {
 
         "nicaragua" to FlagResources(
             id = 202,
+            wikipediaUrlPath = R.string.nicaragua_wikipedia_url_path,
             image = R.drawable.flag_of_nicaragua,
             imagePreview = R.drawable.flag_of_nicaragua,
             flagOf = R.string.nicaragua,
@@ -5188,6 +5391,7 @@ data object DataSource {
 
         "niger" to FlagResources(
             id = 203,
+            wikipediaUrlPath = R.string.niger_wikipedia_url_path,
             image = R.drawable.flag_of_niger,
             imagePreview = R.drawable.flag_of_niger,
             flagOf = R.string.niger,
@@ -5213,6 +5417,7 @@ data object DataSource {
 
         "nigeria" to FlagResources(
             id = 204,
+            wikipediaUrlPath = R.string.nigeria_wikipedia_url_path,
             image = R.drawable.flag_of_nigeria,
             imagePreview = R.drawable.flag_of_nigeria,
             flagOf = R.string.nigeria,
@@ -5240,6 +5445,7 @@ data object DataSource {
 
         "niue" to FlagResources(
             id = 205,
+            wikipediaUrlPath = R.string.niue_wikipedia_url_path,
             image = R.drawable.flag_of_niue,
             imagePreview = R.drawable.flag_of_niue,
             flagOf = R.string.niue,
@@ -5261,6 +5467,7 @@ data object DataSource {
 
         "norfolkIsland" to FlagResources(
             id = 206,
+            wikipediaUrlPath = R.string.norfolk_island_wikipedia_url_path,
             image = R.drawable.flag_of_norfolk_island,
             imagePreview = R.drawable.flag_of_norfolk_island,
             flagOf = R.string.norfolk_island,
@@ -5280,6 +5487,7 @@ data object DataSource {
 
         "northKorea" to FlagResources(
             id = 207,
+            wikipediaUrlPath = R.string.north_korea_wikipedia_url_path,
             image = R.drawable.flag_of_north_korea,
             imagePreview = R.drawable.flag_of_north_korea,
             flagOf = R.string.north_korea,
@@ -5307,6 +5515,7 @@ data object DataSource {
 
         "northMacedonia" to FlagResources(
             id = 208,
+            wikipediaUrlPath = R.string.north_macedonia_wikipedia_url_path,
             image = R.drawable.flag_of_north_macedonia,
             imagePreview = R.drawable.flag_of_north_macedonia,
             flagOf = R.string.north_macedonia,
@@ -5336,6 +5545,7 @@ data object DataSource {
 
         "northernCyprus" to FlagResources(
             id = 209,
+            wikipediaUrlPath = R.string.northern_cyprus_wikipedia_url_path,
             image = R.drawable.flag_of_the_turkish_republic_of_northern_cyprus,
             imagePreview = R.drawable.flag_of_the_turkish_republic_of_northern_cyprus,
             flagOf = R.string.northern_cyprus,
@@ -5367,6 +5577,7 @@ data object DataSource {
 
         "northernIreland" to FlagResources(
             id = 210,
+            wikipediaUrlPath = R.string.northern_ireland_wikipedia_url_path,
             image = R.drawable.saint_patrick_s_saltire,
             imagePreview = R.drawable.saint_patrick_s_saltire,
             flagOf = R.string.northern_ireland,
@@ -5393,6 +5604,7 @@ data object DataSource {
 
         "northernMarianaIslands" to FlagResources(
             id = 211,
+            wikipediaUrlPath = R.string.northern_mariana_islands_wikipedia_url_path,
             image = R.drawable.flag_of_the_northern_mariana_islands,
             imagePreview = R.drawable.flag_of_the_northern_mariana_islands_preview,
             flagOf = R.string.northern_mariana_islands,
@@ -5422,6 +5634,7 @@ data object DataSource {
 
         "norway" to FlagResources(
             id = 212,
+            wikipediaUrlPath = R.string.norway_wikipedia_url_path,
             image = R.drawable.flag_of_norway,
             imagePreview = R.drawable.flag_of_norway_preview,
             flagOf = R.string.norway,
@@ -5442,6 +5655,7 @@ data object DataSource {
 
         "novorossiyaConfederation" to FlagResources(
             id = 213,
+            wikipediaUrlPath = R.string.novorossiya_confederation_wikipedia_url_path,
             image = R.drawable.war_flag_of_novorussia,
             imagePreview = R.drawable.war_flag_of_novorussia,
             flagOf = R.string.novorossiya_confederation,
@@ -5465,6 +5679,7 @@ data object DataSource {
 
         "oman" to FlagResources(
             id = 214,
+            wikipediaUrlPath = R.string.oman_wikipedia_url_path,
             image = R.drawable.flag_of_oman,
             imagePreview = R.drawable.flag_of_oman_preview,
             flagOf = R.string.oman,
@@ -5490,6 +5705,7 @@ data object DataSource {
 
         "orderOfTheHolySepulchre" to FlagResources(
             id = 215,
+            wikipediaUrlPath = R.string.order_of_the_holy_sepulchre_wikipedia_url_path,
             image = R.drawable.drapeau_du_saint_s_pulcre,
             imagePreview = R.drawable.drapeau_du_saint_s_pulcre,
             flagOf = R.string.order_of_the_holy_sepulchre,
@@ -5509,6 +5725,7 @@ data object DataSource {
 
         "pakistan" to FlagResources(
             id = 216,
+            wikipediaUrlPath = R.string.pakistan_wikipedia_url_path,
             image = R.drawable.flag_of_pakistan,
             imagePreview = R.drawable.flag_of_pakistan,
             flagOf = R.string.pakistan,
@@ -5535,6 +5752,7 @@ data object DataSource {
 
         "palau" to FlagResources(
             id = 217,
+            wikipediaUrlPath = R.string.palau_wikipedia_url_path,
             image = R.drawable.flag_of_palau,
             imagePreview = R.drawable.flag_of_palau,
             flagOf = R.string.palau,
@@ -5565,6 +5783,7 @@ data object DataSource {
 
         "palestine" to FlagResources(
             id = 218,
+            wikipediaUrlPath = R.string.palestine_wikipedia_url_path,
             image = R.drawable.flag_of_palestine,
             imagePreview = R.drawable.flag_of_palestine,
             flagOf = R.string.palestine,
@@ -5589,6 +5808,7 @@ data object DataSource {
 
         "panama" to FlagResources(
             id = 219,
+            wikipediaUrlPath = R.string.panama_wikipedia_url_path,
             image = R.drawable.flag_of_panama,
             imagePreview = R.drawable.flag_of_panama,
             flagOf = R.string.panama,
@@ -5612,6 +5832,7 @@ data object DataSource {
 
         "papuaNewGuinea" to FlagResources(
             id = 220,
+            wikipediaUrlPath = R.string.papua_new_guinea_wikipedia_url_path,
             image = R.drawable.flag_of_papua_new_guinea,
             imagePreview = R.drawable.flag_of_papua_new_guinea,
             flagOf = R.string.papua_new_guinea,
@@ -5636,6 +5857,7 @@ data object DataSource {
 
         "paraguay" to FlagResources(
             id = 221,
+            wikipediaUrlPath = R.string.paraguay_wikipedia_url_path,
             image = R.drawable.flag_of_paraguay,
             imagePreview = R.drawable.flag_of_paraguay,
             flagOf = R.string.paraguay,
@@ -5661,6 +5883,7 @@ data object DataSource {
 
         "peoplesUnionForTheLiberationOfGuadeloupe" to FlagResources(
             id = 222,
+            wikipediaUrlPath = R.string.peoples_union_for_the_liberation_of_guadeloupe_wikipedia_url_path,
             image = R.drawable.flag_of_guadeloupe__uplg_,
             imagePreview = R.drawable.flag_of_guadeloupe__uplg_,
             flagOf = R.string.peoples_union_for_the_liberation_of_guadeloupe,
@@ -5678,6 +5901,7 @@ data object DataSource {
 
         "peru" to FlagResources(
             id = 223,
+            wikipediaUrlPath = R.string.peru_wikipedia_url_path,
             image = R.drawable.flag_of_peru,
             imagePreview = R.drawable.flag_of_peru,
             flagOf = R.string.peru,
@@ -5704,6 +5928,7 @@ data object DataSource {
 
         "philippines" to FlagResources(
             id = 224,
+            wikipediaUrlPath = R.string.philippines_wikipedia_url_path,
             image = R.drawable.flag_of_the_philippines,
             imagePreview = R.drawable.flag_of_the_philippines,
             flagOf = R.string.philippines,
@@ -5733,6 +5958,7 @@ data object DataSource {
 
         "pitcairnIslands" to FlagResources(
             id = 225,
+            wikipediaUrlPath = R.string.pitcairn_islands_wikipedia_url_path,
             image = R.drawable.flag_of_the_pitcairn_islands,
             imagePreview = R.drawable.flag_of_the_pitcairn_islands,
             flagOf = R.string.pitcairn_islands,
@@ -5752,6 +5978,7 @@ data object DataSource {
 
         "pohnpei" to FlagResources(
             id = 226,
+            wikipediaUrlPath = R.string.pohnpei_wikipedia_url_path,
             image = R.drawable.flag_of_pohnpei,
             imagePreview = R.drawable.flag_of_pohnpei,
             flagOf = R.string.pohnpei,
@@ -5769,6 +5996,7 @@ data object DataSource {
 
         "poland" to FlagResources(
             id = 227,
+            wikipediaUrlPath = R.string.poland_wikipedia_url_path,
             image = R.drawable.flag_of_poland,
             imagePreview = R.drawable.flag_of_poland,
             flagOf = R.string.poland,
@@ -5789,6 +6017,7 @@ data object DataSource {
 
         "portugal" to FlagResources(
             id = 228,
+            wikipediaUrlPath = R.string.portugal_wikipedia_url_path,
             image = R.drawable.flag_of_portugal__alternate_,
             imagePreview = R.drawable.flag_of_portugal__alternate_,
             flagOf = R.string.portugal,
@@ -5813,6 +6042,7 @@ data object DataSource {
 
         "puertoRico" to FlagResources(
             id = 229,
+            wikipediaUrlPath = R.string.puerto_rico_wikipedia_url_path,
             image = R.drawable.flag_of_puerto_rico,
             imagePreview = R.drawable.flag_of_puerto_rico,
             flagOf = R.string.puerto_rico,
@@ -5846,6 +6076,7 @@ data object DataSource {
 
         "puntland" to FlagResources(
             id = 230,
+            wikipediaUrlPath = R.string.puntland_wikipedia_url_path,
             image = R.drawable.flag_of_puntland,
             imagePreview = R.drawable.flag_of_puntland,
             flagOf = R.string.puntland,
@@ -5869,6 +6100,7 @@ data object DataSource {
 
         "qatar" to FlagResources(
             id = 231,
+            wikipediaUrlPath = R.string.qatar_wikipedia_url_path,
             image = R.drawable.flag_of_qatar,
             imagePreview = R.drawable.flag_of_qatar,
             flagOf = R.string.qatar,
@@ -5892,6 +6124,7 @@ data object DataSource {
 
         "quebec" to FlagResources(
             id = 232,
+            wikipediaUrlPath = R.string.quebec_wikipedia_url_path,
             image = R.drawable.flag_of_quebec,
             imagePreview = R.drawable.flag_of_quebec,
             flagOf = R.string.quebec,
@@ -5915,6 +6148,7 @@ data object DataSource {
 
         "republicOfTheCongo" to FlagResources(
             id = 233,
+            wikipediaUrlPath = R.string.republic_of_the_congo_wikipedia_url_path,
             image = R.drawable.flag_of_the_republic_of_the_congo,
             imagePreview = R.drawable.flag_of_the_republic_of_the_congo,
             flagOf = R.string.republic_of_the_congo,
@@ -5947,6 +6181,7 @@ data object DataSource {
 
         "reunion" to FlagResources(
             id = 234,
+            wikipediaUrlPath = R.string.reunion_wikipedia_url_path,
             image = R.drawable.proposed_flag_of_r_union__var_,
             imagePreview = R.drawable.proposed_flag_of_r_union__var_,
             flagOf = R.string.reunion,
@@ -5973,6 +6208,7 @@ data object DataSource {
 
         "romania" to FlagResources(
             id = 235,
+            wikipediaUrlPath = R.string.romania_wikipedia_url_path,
             image = R.drawable.flag_of_romania,
             imagePreview = R.drawable.flag_of_romania,
             flagOf = R.string.romania,
@@ -5999,6 +6235,7 @@ data object DataSource {
 
         "russia" to FlagResources(
             id = 236,
+            wikipediaUrlPath = R.string.russia_wikipedia_url_path,
             image = R.drawable.flag_of_russia,
             imagePreview = R.drawable.flag_of_russia,
             flagOf = R.string.russia,
@@ -6026,6 +6263,7 @@ data object DataSource {
 
         "rwanda" to FlagResources(
             id = 237,
+            wikipediaUrlPath = R.string.rwanda_wikipedia_url_path,
             image = R.drawable.flag_of_rwanda,
             imagePreview = R.drawable.flag_of_rwanda,
             flagOf = R.string.rwanda,
@@ -6050,6 +6288,7 @@ data object DataSource {
 
         "saba" to FlagResources(
             id = 238,
+            wikipediaUrlPath = R.string.saba_wikipedia_url_path,
             image = R.drawable.flag_of_saba,
             imagePreview = R.drawable.flag_of_saba,
             flagOf = R.string.saba,
@@ -6064,6 +6303,7 @@ data object DataSource {
 
         "sahrawiArabDemocraticRepublic" to FlagResources(
             id = 239,
+            wikipediaUrlPath = R.string.sahrawi_arab_democratic_republic_wikipedia_url_path,
             image = R.drawable.flag_of_the_sahrawi_arab_democratic_republic,
             imagePreview = R.drawable.flag_of_the_sahrawi_arab_democratic_republic,
             flagOf = R.string.sahrawi_arab_democratic_republic,
@@ -6087,6 +6327,7 @@ data object DataSource {
 
         "saintBarthelemy" to FlagResources(
             id = 240,
+            wikipediaUrlPath = R.string.saint_barthelemy_wikipedia_url_path,
             image = R.drawable.flag_of_saint_barth_lemy__local_,
             imagePreview = R.drawable.flag_of_saint_barth_lemy__local_,
             flagOf = R.string.saint_barthelemy,
@@ -6133,6 +6374,7 @@ data object DataSource {
 
         "saintHelena" to FlagResources(
             id = 241,
+            wikipediaUrlPath = R.string.saint_helena_wikipedia_url_path,
             image = R.drawable.flag_of_saint_helena,
             imagePreview = R.drawable.flag_of_saint_helena_preview,
             flagOf = R.string.saint_helena,
@@ -6152,6 +6394,7 @@ data object DataSource {
 
         "saintKittsAndNevis" to FlagResources(
             id = 242,
+            wikipediaUrlPath = R.string.saint_kitts_and_nevis_wikipedia_url_path,
             image = R.drawable.flag_of_saint_kitts_and_nevis,
             imagePreview = R.drawable.flag_of_saint_kitts_and_nevis,
             flagOf = R.string.saint_kitts_and_nevis,
@@ -6182,6 +6425,7 @@ data object DataSource {
 
         "saintLucia" to FlagResources(
             id = 243,
+            wikipediaUrlPath = R.string.saint_lucia_wikipedia_url_path,
             image = R.drawable.flag_of_saint_lucia,
             imagePreview = R.drawable.flag_of_saint_lucia,
             flagOf = R.string.saint_lucia,
@@ -6209,6 +6453,7 @@ data object DataSource {
 
         "saintPierreAndMiquelon" to FlagResources(
             id = 244,
+            wikipediaUrlPath = R.string.saint_pierre_and_miquelon_wikipedia_url_path,
             image = R.drawable.flag_of_saint_pierre_and_miquelon,
             imagePreview = R.drawable.flag_of_saint_pierre_and_miquelon_preview,
             flagOf = R.string.saint_pierre_and_miquelon,
@@ -6242,6 +6487,7 @@ data object DataSource {
 
         "saintVincentAndTheGrenadines" to FlagResources(
             id = 245,
+            wikipediaUrlPath = R.string.saint_vincent_and_the_grenadines_wikipedia_url_path,
             image = R.drawable.flag_of_saint_vincent_and_the_grenadines,
             imagePreview = R.drawable.flag_of_saint_vincent_and_the_grenadines,
             flagOf = R.string.saint_vincent_and_the_grenadines,
@@ -6270,6 +6516,7 @@ data object DataSource {
 
         "sakha" to FlagResources(
             id = 246,
+            wikipediaUrlPath = R.string.sakha_wikipedia_url_path,
             image = R.drawable.flag_of_sakha,
             imagePreview = R.drawable.flag_of_sakha_preview,
             flagOf = R.string.sakha,
@@ -6293,6 +6540,7 @@ data object DataSource {
 
         "samoa" to FlagResources(
             id = 247,
+            wikipediaUrlPath = R.string.samoa_wikipedia_url_path,
             image = R.drawable.flag_of_samoa,
             imagePreview = R.drawable.flag_of_samoa,
             flagOf = R.string.samoa,
@@ -6318,6 +6566,7 @@ data object DataSource {
 
         "sanMarino" to FlagResources(
             id = 248,
+            wikipediaUrlPath = R.string.san_marino_wikipedia_url_path,
             image = R.drawable.flag_of_san_marino,
             imagePreview = R.drawable.flag_of_san_marino_preview,
             flagOf = R.string.san_marino,
@@ -6342,6 +6591,7 @@ data object DataSource {
 
         "saoTomeAndPrincipe" to FlagResources(
             id = 249,
+            wikipediaUrlPath = R.string.sao_tome_and_principe_wikipedia_url_path,
             image = R.drawable.flag_of_s_o_tom__and_pr_ncipe,
             imagePreview = R.drawable.flag_of_s_o_tom__and_pr_ncipe,
             flagOf = R.string.sao_tome_and_principe,
@@ -6369,6 +6619,7 @@ data object DataSource {
 
         "sapmi" to FlagResources(
             id = 250,
+            wikipediaUrlPath = R.string.sapmi_wikipedia_url_path,
             image = R.drawable.sami_flag,
             imagePreview = R.drawable.sami_flag,
             flagOf = R.string.sapmi,
@@ -6389,6 +6640,7 @@ data object DataSource {
 
         "sardinia" to FlagResources(
             id = 251,
+            wikipediaUrlPath = R.string.sardinia_wikipedia_url_path,
             image = R.drawable.flag_of_sardinia,
             imagePreview = R.drawable.flag_of_sardinia,
             flagOf = R.string.sardinia,
@@ -6414,6 +6666,7 @@ data object DataSource {
 
         "saudiArabia" to FlagResources(
             id = 252,
+            wikipediaUrlPath = R.string.saudi_arabia_wikipedia_url_path,
             image = R.drawable.flag_of_saudi_arabia,
             imagePreview = R.drawable.flag_of_saudi_arabia,
             flagOf = R.string.saudi_arabia,
@@ -6443,6 +6696,7 @@ data object DataSource {
 
         "scotland" to FlagResources(
             id = 253,
+            wikipediaUrlPath = R.string.scotland_wikipedia_url_path,
             image = R.drawable.flag_of_scotland,
             imagePreview = R.drawable.flag_of_scotland,
             flagOf = R.string.scotland,
@@ -6469,6 +6723,7 @@ data object DataSource {
 
         "senegal" to FlagResources(
             id = 254,
+            wikipediaUrlPath = R.string.senegal_wikipedia_url_path,
             image = R.drawable.flag_of_senegal,
             imagePreview = R.drawable.flag_of_senegal,
             flagOf = R.string.senegal,
@@ -6494,6 +6749,7 @@ data object DataSource {
 
         "serbia" to FlagResources(
             id = 255,
+            wikipediaUrlPath = R.string.serbia_wikipedia_url_path,
             image = R.drawable.flag_of_serbia,
             imagePreview = R.drawable.flag_of_serbia_preview,
             flagOf = R.string.serbia,
@@ -6520,6 +6776,7 @@ data object DataSource {
 
         "seychelles" to FlagResources(
             id = 256,
+            wikipediaUrlPath = R.string.seychelles_wikipedia_url_path,
             image = R.drawable.flag_of_seychelles,
             imagePreview = R.drawable.flag_of_seychelles,
             flagOf = R.string.seychelles,
@@ -6545,6 +6802,7 @@ data object DataSource {
 
         "sierraLeone" to FlagResources(
             id = 257,
+            wikipediaUrlPath = R.string.sierra_leone_wikipedia_url_path,
             image = R.drawable.flag_of_sierra_leone,
             imagePreview = R.drawable.flag_of_sierra_leone,
             flagOf = R.string.sierra_leone,
@@ -6569,6 +6827,7 @@ data object DataSource {
 
         "singapore" to FlagResources(
             id = 258,
+            wikipediaUrlPath = R.string.singapore_wikipedia_url_path,
             image = R.drawable.flag_of_singapore,
             imagePreview = R.drawable.flag_of_singapore,
             flagOf = R.string.singapore,
@@ -6599,6 +6858,7 @@ data object DataSource {
 
         "sintEustatius" to FlagResources(
             id = 259,
+            wikipediaUrlPath = R.string.sint_eustatius_wikipedia_url_path,
             image = R.drawable.flag_of_sint_eustatius,
             imagePreview = R.drawable.flag_of_sint_eustatius,
             flagOf = R.string.sint_eustatius,
@@ -6618,6 +6878,7 @@ data object DataSource {
 
         "sintMaarten" to FlagResources(
             id = 260,
+            wikipediaUrlPath = R.string.sint_maarten_wikipedia_url_path,
             image = R.drawable.flag_of_sint_maarten,
             imagePreview = R.drawable.flag_of_sint_maarten,
             flagOf = R.string.sint_maarten,
@@ -6645,6 +6906,7 @@ data object DataSource {
 
         "slovakia" to FlagResources(
             id = 261,
+            wikipediaUrlPath = R.string.slovakia_wikipedia_url_path,
             image = R.drawable.flag_of_slovakia,
             imagePreview = R.drawable.flag_of_slovakia,
             flagOf = R.string.slovakia,
@@ -6669,6 +6931,7 @@ data object DataSource {
 
         "slovenia" to FlagResources(
             id = 262,
+            wikipediaUrlPath = R.string.slovenia_wikipedia_url_path,
             image = R.drawable.flag_of_slovenia,
             imagePreview = R.drawable.flag_of_slovenia,
             flagOf = R.string.slovenia,
@@ -6697,6 +6960,7 @@ data object DataSource {
 
         "solomonIslands" to FlagResources(
             id = 263,
+            wikipediaUrlPath = R.string.solomon_islands_wikipedia_url_path,
             image = R.drawable.flag_of_the_solomon_islands,
             imagePreview = R.drawable.flag_of_the_solomon_islands,
             flagOf = R.string.solomon_islands,
@@ -6720,6 +6984,7 @@ data object DataSource {
 
         "somalia" to FlagResources(
             id = 264,
+            wikipediaUrlPath = R.string.somalia_wikipedia_url_path,
             image = R.drawable.flag_of_somalia,
             imagePreview = R.drawable.flag_of_somalia,
             flagOf = R.string.somalia,
@@ -6740,6 +7005,7 @@ data object DataSource {
 
         "somaliland" to FlagResources(
             id = 265,
+            wikipediaUrlPath = R.string.somaliland_wikipedia_url_path,
             image = R.drawable.flag_of_somaliland,
             imagePreview = R.drawable.flag_of_somaliland,
             flagOf = R.string.somaliland,
@@ -6757,6 +7023,7 @@ data object DataSource {
 
         "southAfrica" to FlagResources(
             id = 266,
+            wikipediaUrlPath = R.string.south_africa_wikipedia_url_path,
             image = R.drawable.flag_of_south_africa,
             imagePreview = R.drawable.flag_of_south_africa,
             flagOf = R.string.south_africa,
@@ -6784,6 +7051,7 @@ data object DataSource {
 
         "southGeorgiaAndTheSouthSandwichIslands" to FlagResources(
             id = 267,
+            wikipediaUrlPath = R.string.south_georgia_and_the_south_sandwich_islands_wikipedia_url_path,
             image = R.drawable.flag_of_south_georgia_and_the_south_sandwich_islands,
             imagePreview = R.drawable.flag_of_south_georgia_and_the_south_sandwich_islands_preview,
             flagOf = R.string.south_georgia_and_the_south_sandwich_islands,
@@ -6804,6 +7072,7 @@ data object DataSource {
 
         "southKorea" to FlagResources(
             id = 268,
+            wikipediaUrlPath = R.string.south_korea_wikipedia_url_path,
             image = R.drawable.flag_of_south_korea,
             imagePreview = R.drawable.flag_of_south_korea,
             flagOf = R.string.south_korea,
@@ -6840,6 +7109,7 @@ data object DataSource {
 
         "southOssetia" to FlagResources(
             id = 269,
+            wikipediaUrlPath = R.string.south_ossetia_wikipedia_url_path,
             image = R.drawable.flag_of_south_ossetia,
             imagePreview = R.drawable.flag_of_south_ossetia,
             flagOf = R.string.south_ossetia,
@@ -6870,6 +7140,7 @@ data object DataSource {
 
         "southSudan" to FlagResources(
             id = 270,
+            wikipediaUrlPath = R.string.south_sudan_wikipedia_url_path,
             image = R.drawable.flag_of_south_sudan,
             imagePreview = R.drawable.flag_of_south_sudan,
             flagOf = R.string.south_sudan,
@@ -6894,6 +7165,7 @@ data object DataSource {
 
         "sovietUnion" to FlagResources(
             id = 271,
+            wikipediaUrlPath = R.string.soviet_union_wikipedia_url_path,
             image = R.drawable.flag_of_the_soviet_union,
             imagePreview = R.drawable.flag_of_the_soviet_union,
             flagOf = R.string.soviet_union,
@@ -6928,6 +7200,7 @@ data object DataSource {
 
         "spain" to FlagResources(
             id = 272,
+            wikipediaUrlPath = R.string.spain_wikipedia_url_path,
             image = R.drawable.flag_of_spain,
             imagePreview = R.drawable.flag_of_spain_preview,
             flagOf = R.string.spain,
@@ -6948,6 +7221,7 @@ data object DataSource {
 
         "sriLanka" to FlagResources(
             id = 273,
+            wikipediaUrlPath = R.string.sri_lanka_wikipedia_url_path,
             image = R.drawable.flag_of_sri_lanka,
             imagePreview = R.drawable.flag_of_sri_lanka,
             flagOf = R.string.sri_lanka,
@@ -6983,6 +7257,7 @@ data object DataSource {
 
         "sudan" to FlagResources(
             id = 274,
+            wikipediaUrlPath = R.string.sudan_wikipedia_url_path,
             image = R.drawable.flag_of_sudan,
             imagePreview = R.drawable.flag_of_sudan,
             flagOf = R.string.sudan,
@@ -7013,6 +7288,7 @@ data object DataSource {
 
         "sultanateOfZanzibar" to FlagResources(
             id = 275,
+            wikipediaUrlPath = R.string.sultanate_of_zanzibar_wikipedia_url_path,
             image = R.drawable.flag_of_the_sultanate_of_zanzibar__1963_,
             imagePreview = R.drawable.flag_of_the_sultanate_of_zanzibar__1963_,
             flagOf = R.string.sultanate_of_zanzibar,
@@ -7033,6 +7309,7 @@ data object DataSource {
 
         "suriname" to FlagResources(
             id = 276,
+            wikipediaUrlPath = R.string.suriname_wikipedia_url_path,
             image = R.drawable.flag_of_suriname,
             imagePreview = R.drawable.flag_of_suriname,
             flagOf = R.string.suriname,
@@ -7061,6 +7338,7 @@ data object DataSource {
 
         "sweden" to FlagResources(
             id = 277,
+            wikipediaUrlPath = R.string.sweden_wikipedia_url_path,
             image = R.drawable.flag_of_sweden,
             imagePreview = R.drawable.flag_of_sweden,
             flagOf = R.string.sweden,
@@ -7088,6 +7366,7 @@ data object DataSource {
 
         "switzerland" to FlagResources(
             id = 278,
+            wikipediaUrlPath = R.string.switzerland_wikipedia_url_path,
             image = R.drawable.flag_of_switzerland__pantone_,
             imagePreview = R.drawable.flag_of_switzerland__pantone_,
             flagOf = R.string.switzerland,
@@ -7112,6 +7391,7 @@ data object DataSource {
 
         "syria" to FlagResources(
             id = 279,
+            wikipediaUrlPath = R.string.syria_wikipedia_url_path,
             image = R.drawable.flag_of_the_syrian_revolution,
             imagePreview = R.drawable.flag_of_the_syrian_revolution,
             flagOf = R.string.syria,
@@ -7136,6 +7416,7 @@ data object DataSource {
 
         "taiwan" to FlagResources(
             id = 280,
+            wikipediaUrlPath = R.string.taiwan_wikipedia_url_path,
             image = R.drawable.flag_of_the_republic_of_china,
             imagePreview = R.drawable.flag_of_the_republic_of_china,
             flagOf = R.string.taiwan,
@@ -7178,6 +7459,7 @@ data object DataSource {
 
         "tajikistan" to FlagResources(
             id = 281,
+            wikipediaUrlPath = R.string.tajikistan_wikipedia_url_path,
             image = R.drawable.flag_of_tajikistan,
             imagePreview = R.drawable.flag_of_tajikistan,
             flagOf = R.string.tajikistan,
@@ -7202,6 +7484,7 @@ data object DataSource {
 
         "tanzania" to FlagResources(
             id = 282,
+            wikipediaUrlPath = R.string.tanzania_wikipedia_url_path,
             image = R.drawable.flag_of_tanzania,
             imagePreview = R.drawable.flag_of_tanzania,
             flagOf = R.string.tanzania,
@@ -7228,6 +7511,7 @@ data object DataSource {
 
         "teutonicOrder" to FlagResources(
             id = 283,
+            wikipediaUrlPath = R.string.teutonic_order_wikipedia_url_path,
             image = R.drawable.flag_of_the_state_of_the_teutonic_order,
             imagePreview = R.drawable.flag_of_the_state_of_the_teutonic_order,
             flagOf = R.string.teutonic_order,
@@ -7248,6 +7532,7 @@ data object DataSource {
 
         "thailand" to FlagResources(
             id = 284,
+            wikipediaUrlPath = R.string.thailand_wikipedia_url_path,
             image = R.drawable.flag_of_thailand,
             imagePreview = R.drawable.flag_of_thailand,
             flagOf = R.string.thailand,
@@ -7274,6 +7559,7 @@ data object DataSource {
 
         "theBahamas" to FlagResources(
             id = 285,
+            wikipediaUrlPath = R.string.the_bahamas_wikipedia_url_path,
             image = R.drawable.flag_of_the_bahamas,
             imagePreview = R.drawable.flag_of_the_bahamas,
             flagOf = R.string.the_bahamas,
@@ -7301,6 +7587,7 @@ data object DataSource {
 
         "theGambia" to FlagResources(
             id = 286,
+            wikipediaUrlPath = R.string.the_gambia_wikipedia_url_path,
             image = R.drawable.flag_of_the_gambia,
             imagePreview = R.drawable.flag_of_the_gambia,
             flagOf = R.string.the_gambia,
@@ -7328,6 +7615,7 @@ data object DataSource {
 
         "tibet" to FlagResources(
             id = 287,
+            wikipediaUrlPath = R.string.tibet_wikipedia_url_path,
             image = R.drawable.flag_of_tibet,
             imagePreview = R.drawable.flag_of_tibet_preview,
             flagOf = R.string.tibet,
@@ -7356,6 +7644,7 @@ data object DataSource {
 
         "togo" to FlagResources(
             id = 288,
+            wikipediaUrlPath = R.string.togo_wikipedia_url_path,
             image = R.drawable.flag_of_togo,
             imagePreview = R.drawable.flag_of_togo,
             flagOf = R.string.togo,
@@ -7380,6 +7669,7 @@ data object DataSource {
 
         "tokelau" to FlagResources(
             id = 289,
+            wikipediaUrlPath = R.string.tokelau_wikipedia_url_path,
             image = R.drawable.flag_of_tokelau,
             imagePreview = R.drawable.flag_of_tokelau,
             flagOf = R.string.tokelau,
@@ -7401,6 +7691,7 @@ data object DataSource {
 
         "tonga" to FlagResources(
             id = 290,
+            wikipediaUrlPath = R.string.tonga_wikipedia_url_path,
             image = R.drawable.flag_of_tonga,
             imagePreview = R.drawable.flag_of_tonga,
             flagOf = R.string.tonga,
@@ -7427,6 +7718,7 @@ data object DataSource {
 
         "transgender" to FlagResources(
             id = 291,
+            wikipediaUrlPath = R.string.transgender_wikipedia_url_path,
             image = R.drawable.transgender_pride_flag,
             imagePreview = R.drawable.transgender_pride_flag,
             flagOf = R.string.transgender,
@@ -7461,6 +7753,7 @@ data object DataSource {
 
         "transnistria" to FlagResources(
             id = 292,
+            wikipediaUrlPath = R.string.transnistria_wikipedia_url_path,
             image = R.drawable.flag_of_transnistria__state_,
             imagePreview = R.drawable.flag_of_transnistria__state_,
             flagOf = R.string.transnistria,
@@ -7490,6 +7783,7 @@ data object DataSource {
 
         "trinidadAndTobago" to FlagResources(
             id = 293,
+            wikipediaUrlPath = R.string.trinidad_and_tobago_wikipedia_url_path,
             image = R.drawable.flag_of_trinidad_and_tobago,
             imagePreview = R.drawable.flag_of_trinidad_and_tobago,
             flagOf = R.string.trinidad_and_tobago,
@@ -7516,6 +7810,7 @@ data object DataSource {
 
         "tristanDaCunha" to FlagResources(
             id = 294,
+            wikipediaUrlPath = R.string.tristan_da_cunha_wikipedia_url_path,
             image = R.drawable.flag_of_tristan_da_cunha,
             imagePreview = R.drawable.flag_of_tristan_da_cunha_preview,
             flagOf = R.string.tristan_da_cunha,
@@ -7535,6 +7830,7 @@ data object DataSource {
 
         "tunisia" to FlagResources(
             id = 295,
+            wikipediaUrlPath = R.string.tunisia_wikipedia_url_path,
             image = R.drawable.flag_of_tunisia,
             imagePreview = R.drawable.flag_of_tunisia,
             flagOf = R.string.tunisia,
@@ -7560,6 +7856,7 @@ data object DataSource {
 
         "turkey" to FlagResources(
             id = 296,
+            wikipediaUrlPath = R.string.turkey_wikipedia_url_path,
             image = R.drawable.flag_of_turkey,
             imagePreview = R.drawable.flag_of_turkey,
             flagOf = R.string.turkey,
@@ -7587,6 +7884,7 @@ data object DataSource {
 
         "turkmenistan" to FlagResources(
             id = 297,
+            wikipediaUrlPath = R.string.turkmenistan_wikipedia_url_path,
             image = R.drawable.flag_of_turkmenistan,
             imagePreview = R.drawable.flag_of_turkmenistan_preview,
             flagOf = R.string.turkmenistan,
@@ -7611,6 +7909,7 @@ data object DataSource {
 
         "turksAndCaicosIslands" to FlagResources(
             id = 298,
+            wikipediaUrlPath = R.string.turks_and_caicos_islands_wikipedia_url_path,
             image = R.drawable.flag_of_the_turks_and_caicos_islands,
             imagePreview = R.drawable.flag_of_the_turks_and_caicos_islands,
             flagOf = R.string.turks_and_caicos_islands,
@@ -7633,6 +7932,7 @@ data object DataSource {
 
         "tuvalu" to FlagResources(
             id = 299,
+            wikipediaUrlPath = R.string.tuvalu_wikipedia_url_path,
             image = R.drawable.flag_of_tuvalu,
             imagePreview = R.drawable.flag_of_tuvalu,
             flagOf = R.string.tuvalu,
@@ -7657,6 +7957,7 @@ data object DataSource {
 
         "uganda" to FlagResources(
             id = 300,
+            wikipediaUrlPath = R.string.uganda_wikipedia_url_path,
             image = R.drawable.flag_of_uganda,
             imagePreview = R.drawable.flag_of_uganda,
             flagOf = R.string.uganda,
@@ -7684,6 +7985,7 @@ data object DataSource {
 
         "ukraine" to FlagResources(
             id = 301,
+            wikipediaUrlPath = R.string.ukraine_wikipedia_url_path,
             image = R.drawable.flag_of_ukraine,
             imagePreview = R.drawable.flag_of_ukraine,
             flagOf = R.string.ukraine,
@@ -7711,6 +8013,7 @@ data object DataSource {
 
         "unitedArabEmirates" to FlagResources(
             id = 302,
+            wikipediaUrlPath = R.string.united_arab_emirates_wikipedia_url_path,
             image = R.drawable.flag_of_the_united_arab_emirates,
             imagePreview = R.drawable.flag_of_the_united_arab_emirates,
             flagOf = R.string.united_arab_emirates,
@@ -7740,7 +8043,7 @@ data object DataSource {
 
         "unitedKingdom" to FlagResources(
             id = 303,
-            wikipediaUrlPath = R.string.united_kingdom_url_path,
+            wikipediaUrlPath = R.string.united_kingdom_wikipedia_url_path,
             image = R.drawable.flag_of_the_united_kingdom__1_2_,
             imagePreview = R.drawable.flag_of_the_united_kingdom__1_2_,
             flagOf = R.string.united_kingdom,
@@ -7777,6 +8080,7 @@ data object DataSource {
 
         "unitedNations" to FlagResources(
             id = 304,
+            wikipediaUrlPath = R.string.united_nations_wikipedia_url_path,
             image = R.drawable.flag_of_the_united_nations,
             imagePreview = R.drawable.flag_of_the_united_nations,
             flagOf = R.string.united_nations,
@@ -7802,6 +8106,7 @@ data object DataSource {
 
         "unitedStates" to FlagResources(
             id = 305,
+            wikipediaUrlPath = R.string.united_states_wikipedia_url_path,
             image = R.drawable.flag_of_the_united_states__dos_eca_color_standard_,
             imagePreview = R.drawable.flag_of_the_united_states__dos_eca_color_standard_,
             flagOf = R.string.united_states,
@@ -7848,6 +8153,7 @@ data object DataSource {
 
         "unitedStatesVirginIslands" to FlagResources(
             id = 306,
+            wikipediaUrlPath = R.string.united_states_virgin_islands_wikipedia_url_path,
             image = R.drawable.flag_of_the_united_states_virgin_islands,
             imagePreview = R.drawable.flag_of_the_united_states_virgin_islands,
             flagOf = R.string.united_states_virgin_islands,
@@ -7875,6 +8181,7 @@ data object DataSource {
 
         "uruguay" to FlagResources(
             id = 307,
+            wikipediaUrlPath = R.string.uruguay_wikipedia_url_path,
             image = R.drawable.flag_of_uruguay,
             imagePreview = R.drawable.flag_of_uruguay_preview,
             flagOf = R.string.uruguay,
@@ -7900,6 +8207,7 @@ data object DataSource {
 
         "uzbekistan" to FlagResources(
             id = 308,
+            wikipediaUrlPath = R.string.uzbekistan_wikipedia_url_path,
             image = R.drawable.flag_of_uzbekistan,
             imagePreview = R.drawable.flag_of_uzbekistan_preview,
             flagOf = R.string.uzbekistan,
@@ -7920,6 +8228,7 @@ data object DataSource {
 
         "valencianCommunity" to FlagResources(
             id = 309,
+            wikipediaUrlPath = R.string.valencian_community_wikipedia_url_path,
             image = R.drawable.flag_of_the_valencian_community__2x3_,
             imagePreview = R.drawable.flag_of_the_valencian_community__2x3_,
             flagOf = R.string.valencian_community,
@@ -7945,6 +8254,7 @@ data object DataSource {
 
         "vanuatu" to FlagResources(
             id = 310,
+            wikipediaUrlPath = R.string.vanuatu_wikipedia_url_path,
             image = R.drawable.flag_of_vanuatu,
             imagePreview = R.drawable.flag_of_vanuatu,
             flagOf = R.string.vanuatu,
@@ -7971,6 +8281,7 @@ data object DataSource {
 
         "vaticanCity" to FlagResources(
             id = 311,
+            wikipediaUrlPath = R.string.vatican_city_wikipedia_url_path,
             image = R.drawable.flag_of_vatican_city__2023present_,
             imagePreview = R.drawable.flag_of_vatican_city__2023present__preview,
             flagOf = R.string.vatican_city,
@@ -8002,6 +8313,7 @@ data object DataSource {
 
         "venezuela" to FlagResources(
             id = 312,
+            wikipediaUrlPath = R.string.venezuela_wikipedia_url_path,
             image = R.drawable.flag_of_venezuela,
             imagePreview = R.drawable.flag_of_venezuela,
             flagOf = R.string.venezuela,
@@ -8025,6 +8337,7 @@ data object DataSource {
 
         "vietnam" to FlagResources(
             id = 313,
+            wikipediaUrlPath = R.string.vietnam_wikipedia_url_path,
             image = R.drawable.flag_of_vietnam,
             imagePreview = R.drawable.flag_of_vietnam,
             flagOf = R.string.vietnam,
@@ -8053,6 +8366,7 @@ data object DataSource {
 
         "vojvodina" to FlagResources(
             id = 314,
+            wikipediaUrlPath = R.string.vojvodina_wikipedia_url_path,
             image = R.drawable.flag_of_vojvodina,
             imagePreview = R.drawable.flag_of_vojvodina,
             flagOf = R.string.vojvodina,
@@ -8074,6 +8388,7 @@ data object DataSource {
 
         "wales" to FlagResources(
             id = 315,
+            wikipediaUrlPath = R.string.wales_wikipedia_url_path,
             image = R.drawable.flag_of_wales,
             imagePreview = R.drawable.flag_of_wales,
             flagOf = R.string.wales,
@@ -8096,6 +8411,7 @@ data object DataSource {
 
         "wallisAndFutuna" to FlagResources(
             id = 316,
+            wikipediaUrlPath = R.string.wallis_and_futuna_wikipedia_url_path,
             image = R.drawable.flag_of_wallis_and_futuna,
             imagePreview = R.drawable.flag_of_wallis_and_futuna,
             flagOf = R.string.wallis_and_futuna,
@@ -8116,6 +8432,7 @@ data object DataSource {
 
         "washingtonDc" to FlagResources(
             id = 317,
+            wikipediaUrlPath = R.string.washington_dc_wikipedia_url_path,
             image = R.drawable.flag_of_washington__d_c,
             imagePreview = R.drawable.flag_of_washington__d_c,
             flagOf = R.string.washington_dc,
@@ -8135,6 +8452,7 @@ data object DataSource {
 
         "yap" to FlagResources(
             id = 318,
+            wikipediaUrlPath = R.string.yap_wikipedia_url_path,
             image = R.drawable.flag_of_yap,
             imagePreview = R.drawable.flag_of_yap,
             flagOf = R.string.yap,
@@ -8149,6 +8467,7 @@ data object DataSource {
 
         "yemen" to FlagResources(
             id = 319,
+            wikipediaUrlPath = R.string.yemen_wikipedia_url_path,
             image = R.drawable.flag_of_yemen,
             imagePreview = R.drawable.flag_of_yemen,
             flagOf = R.string.yemen,
@@ -8175,6 +8494,7 @@ data object DataSource {
 
         "zambia" to FlagResources(
             id = 320,
+            wikipediaUrlPath = R.string.zambia_wikipedia_url_path,
             image = R.drawable.flag_of_zambia,
             imagePreview = R.drawable.flag_of_zambia,
             flagOf = R.string.zambia,
@@ -8200,6 +8520,7 @@ data object DataSource {
 
         "zanzibar" to FlagResources(
             id = 321,
+            wikipediaUrlPath = R.string.zanzibar_wikipedia_url_path,
             image = R.drawable.flag_of_zanzibar,
             imagePreview = R.drawable.flag_of_zanzibar_preview,
             flagOf = R.string.zanzibar,
@@ -8217,6 +8538,7 @@ data object DataSource {
 
         "zimbabwe" to FlagResources(
             id = 322,
+            wikipediaUrlPath = R.string.zimbabwe_wikipedia_url_path,
             image = R.drawable.flag_of_zimbabwe,
             imagePreview = R.drawable.flag_of_zimbabwe,
             flagOf = R.string.zimbabwe,
