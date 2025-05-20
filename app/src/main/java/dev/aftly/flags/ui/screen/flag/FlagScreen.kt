@@ -1,6 +1,7 @@
 package dev.aftly.flags.ui.screen.flag
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -11,10 +12,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -35,7 +38,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
@@ -50,7 +52,6 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -62,9 +63,10 @@ import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.FullscreenButton
+import dev.aftly.flags.ui.component.GeneralTopBar
+import dev.aftly.flags.ui.component.RelatedFlagsButton
 import dev.aftly.flags.ui.component.RelatedFlagsMenu
 import dev.aftly.flags.ui.component.Scrim
-import dev.aftly.flags.ui.component.GeneralTopBar
 import dev.aftly.flags.ui.component.WikipediaButton
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
@@ -130,11 +132,11 @@ private fun FlagScaffold(
     /* Controls FilterFlagsButton menu expansion amd tracks current button height
      * Also for FilterFlagsButton to access Scaffold() padding */
     var buttonExpanded by rememberSaveable { mutableStateOf(value = false) }
-    var buttonHeight by remember { mutableStateOf(0.dp) }
     var scaffoldTopPadding by remember { mutableStateOf(value = 0.dp) }
     var scaffoldBottomPadding by remember { mutableStateOf(value = 0.dp) }
     var buttonOffset by remember { mutableStateOf(value = Offset(x = 0f, y = 0f)) }
-    var buttonSize by remember { mutableStateOf(value = Size(width = 0f, height = 0f)) }
+    var buttonWidth by remember { mutableIntStateOf(value = 0) }
+    val density = LocalDensity.current
 
     var isFlagWide by rememberSaveable { mutableStateOf(value = true) }
 
@@ -151,7 +153,7 @@ private fun FlagScaffold(
                     onButtonExpand = { buttonExpanded = !buttonExpanded },
                     fontScale = fontScale,
                     onButtonPosition = { buttonOffset = it },
-                    onButtonSize = { buttonSize = it },
+                    onButtonWidth = { buttonWidth = it },
                     onNavigateUp = navigateUp,
                     onNavigateDetails = {},
                     onAction = {},
@@ -163,10 +165,6 @@ private fun FlagScaffold(
 
             FlagContent(
                 modifier = Modifier.padding(scaffoldPadding),
-                relatedFlagsButtonHeight = when (isRelatedFlagsButton) {
-                    true -> buttonHeight
-                    else -> 0.dp
-                },
                 flag = currentFlag,
                 description = description,
                 boldWordPositions = boldWordPositions,
@@ -175,79 +173,45 @@ private fun FlagScaffold(
             )
         }
 
-        if (isRelatedFlagsButton) {
 
-            /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */
+        if (isRelatedFlagsButton) {
+            /* Scrim to receive taps when RelatedFlagsMenu is expanded, to collapse it */
             AnimatedVisibility(
                 visible = buttonExpanded,
                 enter = fadeIn(animationSpec = tween(durationMillis = Timing.MENU_EXPAND)),
-                exit = fadeOut(animationSpec = tween(durationMillis = Timing.MENU_EXPAND)),
+                exit = fadeOut(animationSpec = tween(durationMillis = Timing.MENU_COLLAPSE)),
             ) {
                 Scrim(
                     modifier = Modifier.fillMaxSize()
                         .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
                     onAction = { buttonExpanded = !buttonExpanded }
                 )
-
-                /*
-                val radius = MaterialTheme.shapes.large.topStart.toPx(
-                    shapeSize = buttonSize,
-                    density = LocalDensity.current
-                )
-                Box(
-                    modifier = Modifier.fillMaxSize()
-                        .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f))
-
-                        .drawBehind {
-                            drawRoundRect(
-                                color = Color.White,
-                                size = Size(width = 1000000f, height = 1000000f)
-                            )
-                        }
-
-                        /*
-                        .graphicsLayer {
-                            alpha = 0.5f
-                            clip = true
-                            shape
-                        }
-                         */
-                        /*
-                        .drawWithContent {
-                            drawRoundRect(
-                                color = Color.Transparent,
-                                topLeft = buttonOffset,
-                                size = buttonSize,
-                                cornerRadius = CornerRadius(x = radius, y = radius)
-                            )
-                        }
-                         */
-                        /*
-                        .drawBehind {
-                            drawRoundRect(
-                                color = Color.Red,
-                                topLeft = buttonOffset,
-                                size = buttonSize,
-                                cornerRadius = CornerRadius(x = radius, y = radius)
-                            )
-                        }
-                         */
-                        //.background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f))
-                        .pointerInput(buttonExpanded) {
-                            detectTapGestures { buttonExpanded = !buttonExpanded }
-                        }
-                        .onKeyEvent {
-                            if (it.key == Key.Escape) {
-                                buttonExpanded = !buttonExpanded
-                                true
-                            } else false
-                        }
-                ) {
-                    //Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)))
-                }
-                 */
             }
 
+            /* Duplicate related flags button to cover scrim */
+            AnimatedVisibility(
+                visible = buttonExpanded,
+                enter = EnterTransition.None,
+                exit = fadeOut(animationSpec = tween(durationMillis = Timing.MENU_COLLAPSE)),
+            ) {
+                Box(modifier = Modifier.fillMaxHeight()
+                    .padding(
+                        top = with(density) { buttonOffset.y.toDp() },
+                        start = with(density) { buttonOffset.x.toDp() }
+                    )
+                    .width(width = with(density) { buttonWidth.toDp() })
+                ) {
+                    RelatedFlagsButton(
+                        buttonExpanded = buttonExpanded,
+                        onButtonExpand = { buttonExpanded = !buttonExpanded },
+                        fontScale = fontScale,
+                        onButtonPosition = {},
+                        onButtonWidth = {},
+                    )
+                }
+            }
+
+            /* Related flags content */
             RelatedFlagsMenu(
                 modifier = Modifier.fillMaxWidth()
                     .padding(
@@ -275,7 +239,6 @@ private fun FlagScaffold(
 @Composable
 private fun FlagContent(
     modifier: Modifier = Modifier,
-    relatedFlagsButtonHeight: Dp,
     flag: FlagResources,
     description: List<String>,
     boldWordPositions: List<Int>,
@@ -297,7 +260,6 @@ private fun FlagContent(
         modifier = modifier
             .fillMaxSize()
             .padding(
-                top = relatedFlagsButtonHeight,
                 start = Dimens.marginHorizontal16,
                 end = Dimens.marginHorizontal16
             )

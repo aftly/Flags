@@ -10,7 +10,6 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,15 +23,10 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -59,20 +53,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
-import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.lerp
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.lerp
 import dev.aftly.flags.R
 import dev.aftly.flags.navigation.Screen
@@ -339,7 +329,7 @@ fun GeneralTopBar(
     onButtonExpand: () -> Unit = {},
     fontScale: Float = 0f,
     onButtonPosition: (Offset) -> Unit = {},
-    onButtonSize: (Size) -> Unit = {},
+    onButtonWidth: (Int) -> Unit = {},
     onNavigateUp: () -> Unit,
     onNavigateDetails: (Screen) -> Unit,
     onAction: () -> Unit,
@@ -373,12 +363,12 @@ fun GeneralTopBar(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center,
                         ) {
-                            RelatedFlagsButton2(
+                            RelatedFlagsButton(
                                 buttonExpanded = buttonExpanded,
                                 onButtonExpand = onButtonExpand,
                                 fontScale = fontScale,
                                 onButtonPosition = onButtonPosition,
-                                onButtonSize = onButtonSize,
+                                onButtonWidth = onButtonWidth,
                             )
                         }
                     }
@@ -461,135 +451,6 @@ fun GeneralTopBar(
             else -> TopAppBarDefaults.topAppBarColors()
         }
     )
-}
-
-/*
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun FlagScreenTopBar(
-    modifier: Modifier = Modifier,
-    canNavigateBack: Boolean = false,
-    isButton: Boolean,
-    buttonExpanded: Boolean,
-    onButtonExpand: () -> Unit,
-    onButtonHeightChange: (Dp) -> Unit,
-    fontScale: Float,
-    currentFlag: FlagResources,
-    relatedFlags: List<FlagResources>,
-    onFlagSelect: (FlagResources) -> Unit,
-    onNavigateUp: () -> Unit,
-    onAction: () -> Unit,
-) {
-    /* Ensures navigationIcon persists throughout the lifecycle */
-    val canNavigateBackStatic by remember { mutableStateOf(canNavigateBack) }
-
-    TopAppBar(
-        title = {
-            if (isButton) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                ) {
-                    RelatedFlagsButton(
-                        buttonExpanded = buttonExpanded,
-                        onButtonExpand = onButtonExpand,
-                        onButtonHeightChange = onButtonHeightChange,
-                        fontScale = fontScale,
-                        currentFlag = currentFlag,
-                        relatedFlags = relatedFlags,
-                        onFlagSelect = onFlagSelect,
-                    )
-                }
-            }
-        },
-        modifier = modifier,
-        navigationIcon = {
-            if (canNavigateBackStatic) {
-                IconButton(onClick = onNavigateUp) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                        contentDescription = "back",
-                    )
-                }
-            }
-        },
-        actions = {
-            // TODO: Implement (persistent) saved list
-            IconButton(onClick = { /*TODO*/ }) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "make favorite",
-                )
-            }
-        },
-    )
-}
- */
-
-
-@Composable
-private fun RelatedFlagsButton2(
-    buttonExpanded: Boolean,
-    onButtonExpand: () -> Unit,
-    containerColor: Color = MaterialTheme.colorScheme.secondary,
-    buttonColors: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor),
-    fontScale: Float,
-    onButtonPosition: (Offset) -> Unit,
-    onButtonSize: (Size) -> Unit,
-) {
-    val iconSize = Dimens.standardIconSize24 * fontScale
-    val iconPadding = 2.dp * fontScale
-    val iconSizePadding = iconSize + iconPadding
-
-    Button(
-        onClick = onButtonExpand,
-        modifier = Modifier
-            .height(Dimens.defaultFilterButtonHeight30 * fontScale)
-            .onGloballyPositioned { layout ->
-                onButtonPosition(layout.positionOnScreen())
-                onButtonSize(layout.size.toSize())
-            },
-        shape = MaterialTheme.shapes.large,
-        colors = buttonColors,
-        contentPadding = PaddingValues(horizontal = Dimens.medium16),
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Spacer(
-                modifier = Modifier.width(iconSizePadding)
-            )
-
-            Text(
-                text = stringResource(R.string.menu_related_flags),
-                modifier = Modifier.weight(1f, fill = false),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleMedium,
-            )
-
-            if (!buttonExpanded) {
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = stringResource(R.string.menu_icon_expand),
-                    modifier = Modifier
-                        .size(iconSize)
-                        .padding(start = iconPadding),
-                    tint = buttonColors.contentColor,
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowUp,
-                    contentDescription = stringResource(R.string.menu_icon_collapse),
-                    modifier = Modifier
-                        .size(iconSize)
-                        .padding(start = iconPadding),
-                    tint = buttonColors.contentColor,
-                )
-            }
-        }
-    }
 }
 
 
