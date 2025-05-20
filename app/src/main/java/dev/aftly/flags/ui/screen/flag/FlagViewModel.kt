@@ -84,25 +84,32 @@ class FlagViewModel(
     }
 
 
-    fun updateFlag(
-        flagId: Int?,
-        flag: FlagResources?,
-    ) {
-        val newFlag = when (flagId) {
-            null -> flag
-            else -> flagsMapId.getValue(flagId)
-        }
+    fun updateFlagNav(flagId: Int) {
+        val flag = flagsMapId.getValue(flagId)
 
-        if (newFlag != null && newFlag != uiState.value.currentFlag) {
+        if (flag != uiState.value.currentFlag) {
             _uiState.update {
                 it.copy(
-                    currentFlag = newFlag,
-                    isNavigatingRelated = flagId == null,
+                    currentFlag = flag,
+                    relatedFlags = getRelatedFlags(flag),
                 )
             }
-            updateDescriptionString(flag = newFlag)
+            updateDescriptionString(flag = flag)
         }
+    }
 
+
+    fun updateFlagRelated(flag: FlagResources) {
+        if (flag != uiState.value.currentFlag) {
+            _uiState.update {
+                it.copy(
+                    currentFlag = flag,
+                    relatedFlags = getRelatedFlags(flag),
+                    isNavigatingRelated = true,
+                )
+            }
+            updateDescriptionString(flag = flag)
+        }
     }
 
 

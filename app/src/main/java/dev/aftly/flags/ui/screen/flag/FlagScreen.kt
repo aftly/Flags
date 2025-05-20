@@ -84,9 +84,7 @@ fun FlagScreen(
     LaunchedEffect(Unit) {
         navController.currentBackStackEntry?.savedStateHandle?.getLiveData<Int>("flag")
             ?.observe(lifecycleOwner) { flagId ->
-                if (flagId != null) {
-                    viewModel.updateFlag(flagId = flagId, flag = null)
-                }
+                flagId?.let { viewModel.updateFlagNav(flagId = it) }
             }
     }
 
@@ -107,7 +105,7 @@ fun FlagScreen(
         description = uiState.description,
         boldWordPositions = uiState.descriptionBoldWordIndexes,
         fontScale = configuration.fontScale,
-        onRelatedFlag = { viewModel.updateFlag(flagId = null, flag = it) },
+        onRelatedFlag = { viewModel.updateFlagRelated(flag = it) },
         onFullscreen = viewModel.callOnFullScreen(onFullscreen),
     )
 }
@@ -145,27 +143,6 @@ private fun FlagScaffold(
         Scaffold(
             modifier = modifier.fillMaxSize(),
             topBar = {
-                /*
-                FlagScreenTopBar(
-                    modifier = Modifier.fillMaxWidth(),
-                    canNavigateBack = canNavigateBack,
-                    isButton = isRelatedFlagsButton,
-                    buttonExpanded = buttonExpanded,
-                    onButtonExpand = { buttonExpanded = !buttonExpanded },
-                    onButtonHeightChange = { buttonHeight = it },
-                    fontScale = fontScale,
-                    currentFlag = currentFlag,
-                    relatedFlags = relatedFlags,
-                    onFlagSelect = { newFlag ->
-                        if (newFlag != currentFlag) {
-                            buttonExpanded = false
-                            onRelatedFlag(newFlag)
-                        }
-                    },
-                    onNavigateUp = navigateUp,
-                    onAction = {},
-                )
-                 */
                 GeneralTopBar(
                     currentScreen = currentScreen,
                     canNavigateBack = canNavigateBack,
@@ -416,7 +393,10 @@ private fun FlagContent(
         Spacer(modifier = Modifier.height(0.dp))
 
 
-        Column(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             /* Flag official name */
             Text(
                 text = annotatedName,

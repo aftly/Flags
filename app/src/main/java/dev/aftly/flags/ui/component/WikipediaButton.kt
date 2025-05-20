@@ -44,7 +44,6 @@ fun WikipediaButton(
         ) {
             Text(
                 text = stringResource(R.string.wikipedia_button),
-                //modifier = Modifier.padding(end = Dimens.small8)
             )
             Icon(
                 imageVector = Icons.AutoMirrored.Default.OpenInNew,
