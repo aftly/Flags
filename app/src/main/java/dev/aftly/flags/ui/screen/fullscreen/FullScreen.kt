@@ -75,6 +75,7 @@ fun FullScreen(
     viewModel: FullscreenViewModel = viewModel(),
     currentScreen: Screen,
     canNavigateBack: Boolean,
+    isGame: Boolean,
     isFlagWide: Boolean,
     onExitFullScreen: (Int) -> Unit,
 ) {
@@ -99,7 +100,10 @@ fun FullScreen(
     if (isInit) {
         FullscreenScaffold(
             currentScreen = currentScreen,
-            currentTitle = uiState.currentFlagTitle,
+            currentTitle = when (isGame) {
+                false -> uiState.currentFlagTitle
+                true -> null
+            },
             canNavigateBack = canNavigateBack,
             isFlagWide = isFlagWide,
             isLandscape = isLandscape,
@@ -123,7 +127,7 @@ fun FullScreen(
 private fun FullscreenScaffold(
     modifier: Modifier = Modifier,
     currentScreen: Screen,
-    currentTitle: Int,
+    currentTitle: Int?,
     canNavigateBack: Boolean,
     isFlagWide: Boolean,
     isLandscape: Boolean,
@@ -283,7 +287,8 @@ private fun FullscreenContent(
     HorizontalUncontainedCarousel(
         state = carouselState,
         itemWidth = screenWidthDp,
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
             .background(surfaceDark),
         flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(
             state = carouselState,

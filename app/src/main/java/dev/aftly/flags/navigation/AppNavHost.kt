@@ -3,6 +3,8 @@ package dev.aftly.flags.navigation
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
@@ -172,10 +174,14 @@ fun AppNavHost(
             exitTransition = { ExitTransition.None },
         ) { backStackEntry ->
             val isLandscape = backStackEntry.arguments?.getBoolean("landscape") ?: false
+            val isGame =
+                navController.previousBackStackEntry?.destination?.route == Screen.Game.route
+
 
             FullScreen(
                 currentScreen = Screen.Fullscreen,
                 canNavigateBack = navController.previousBackStackEntry != null,
+                isGame = isGame,
                 isFlagWide = isLandscape,
                 onExitFullScreen = { flagId ->
                     navController.previousBackStackEntry?.savedStateHandle?.set("flag", flagId)
