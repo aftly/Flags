@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -44,9 +45,11 @@ import dev.aftly.flags.ui.theme.Timing
 fun RelatedFlagsMenu(
     modifier: Modifier = Modifier,
     buttonExpanded: Boolean,
-    containerColor: Color = MaterialTheme.colorScheme.secondary,
-    cardColors: CardColors = CardDefaults.cardColors(containerColor = containerColor),
-    buttonColors: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor),
+    containerColor1: Color = MaterialTheme.colorScheme.secondary,
+    containerColor2: Color = MaterialTheme.colorScheme.onSecondaryContainer,
+    cardColors: CardColors = CardDefaults.cardColors(containerColor = containerColor1),
+    buttonColors1: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor1),
+    buttonColors2: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor2),
     fontScale: Float,
     currentFlag: FlagResources,
     relatedFlags: List<FlagResources>,
@@ -83,7 +86,8 @@ fun RelatedFlagsMenu(
                         modifier = Modifier.fillMaxWidth(),
                         flag = relatedFlags[index],
                         currentFlag = currentFlag,
-                        buttonColors = buttonColors,
+                        buttonColors1 = buttonColors1,
+                        buttonColor2 = buttonColors2,
                         fontScale = fontScale,
                         onFlagSelect = onFlagSelect,
                     )
@@ -99,7 +103,8 @@ private fun ListItem(
     modifier: Modifier = Modifier,
     flag: FlagResources,
     currentFlag: FlagResources,
-    buttonColors: ButtonColors,
+    buttonColors1: ButtonColors,
+    buttonColor2: ButtonColors,
     fontScale: Float,
     onFlagSelect: (FlagResources) -> Unit,
 ) {
@@ -110,7 +115,10 @@ private fun ListItem(
         onClick = { onFlagSelect(flag) },
         modifier = modifier,
         shape = RoundedCornerShape(0.dp),
-        colors = buttonColors,
+        colors = when (flag) {
+            currentFlag -> buttonColor2
+            else -> buttonColors1
+        },
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -123,19 +131,24 @@ private fun ListItem(
                     modifier = Modifier.padding(end = Dimens.small8)
                 )
             }
-            if (flag != currentFlag) {
+            Box(contentAlignment = Alignment.Center) {
                 Image(
                     painter = painterResource(id = flag.imagePreview),
                     contentDescription = null,
                     modifier = Modifier.height(dynamicHeight - verticalPadding * 2),
                     contentScale = ContentScale.Fit,
                 )
-            } else {
-                Icon(
-                    imageVector = Icons.Default.Check,
-                    contentDescription = null,
-                    modifier = Modifier.size(Dimens.standardIconSize24 * fontScale)
-                )
+                if (flag == currentFlag) {
+                    Box(
+                        modifier = Modifier.matchParentSize()
+                            .background(color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f)),
+                    )
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = null,
+                        modifier = Modifier.size(Dimens.standardIconSize24 * fontScale)
+                    )
+                }
             }
         }
     }
