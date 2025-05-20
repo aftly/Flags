@@ -62,7 +62,7 @@ import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.FullscreenButton
-import dev.aftly.flags.ui.component.RelatedFlagsButton
+import dev.aftly.flags.ui.component.RelatedFlagsMenu
 import dev.aftly.flags.ui.component.Scrim
 import dev.aftly.flags.ui.component.GeneralTopBar
 import dev.aftly.flags.ui.component.WikipediaButton
@@ -248,7 +248,7 @@ private fun FlagScaffold(
                  */
             }
 
-            RelatedFlagsButton(
+            RelatedFlagsMenu(
                 modifier = Modifier.fillMaxWidth()
                     .padding(
                         top = (scaffoldTopPadding - Dimens.small10).coerceAtLeast(0.dp),
@@ -268,48 +268,6 @@ private fun FlagScaffold(
                 },
             )
         }
-
-        /*
-        if (isRelatedFlagsButton) {
-
-            /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */
-            AnimatedVisibility(
-                visible = buttonExpanded,
-                enter = fadeIn(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
-                exit = fadeOut(animationSpec = tween(durationMillis = Timings.MENU_EXPAND)),
-            ) {
-                Scrim(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
-                    onAction = { buttonExpanded = !buttonExpanded }
-                )
-            }
-
-            RelatedFlagsButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        top = scaffoldTopPadding,
-                        bottom = scaffoldBottomPadding,
-                        start = Dimens.marginHorizontal16,
-                        end = Dimens.marginHorizontal16,
-                    ),
-                buttonExpanded = buttonExpanded,
-                onButtonExpand = { buttonExpanded = !buttonExpanded },
-                onButtonHeightChange = { buttonHeight = it },
-                fontScale = fontScale,
-                currentFlag = currentFlag,
-                relatedFlags = relatedFlags,
-                onFlagSelect = { newFlag ->
-                    if (newFlag != currentFlag) {
-                        buttonExpanded = false
-                        onRelatedFlag(newFlag)
-                    }
-                },
-            )
-        }
-         */
     }
 }
 
