@@ -148,6 +148,7 @@ fun AppNavHost(
 
         ) {
             GameScreen(
+                navController = navController,
                 currentScreen = Screen.Game,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 onNavigateUp = { navController.navigateUp() },

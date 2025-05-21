@@ -1,10 +1,8 @@
 package dev.aftly.flags.ui.screen.fullscreen
 
 import android.annotation.SuppressLint
-import android.os.Build
-import android.view.WindowInsetsController
+import android.app.Activity
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -53,9 +51,8 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.navigation.Screen
@@ -66,6 +63,7 @@ import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.theme.surfaceDark
 import dev.aftly.flags.ui.theme.surfaceLight
+import dev.aftly.flags.ui.util.SystemUiController
 import kotlinx.coroutines.delay
 import kotlin.math.abs
 
@@ -97,6 +95,11 @@ fun FullScreen(
         }
     }
 
+    /* Properties for controlling system bars */
+    val view = LocalView.current
+    val window = (view.context as Activity).window
+    val systemUiController = remember { SystemUiController(window, view) }
+
     if (isInit) {
         FullscreenScaffold(
             currentScreen = currentScreen,
@@ -105,14 +108,15 @@ fun FullScreen(
                 true -> null
             },
             canNavigateBack = canNavigateBack,
+            systemUiController = systemUiController,
             isFlagWide = isFlagWide,
             isLandscape = isLandscape,
             onLandscapeChange = { isLandscape = !isLandscape },
             flag = uiState.initialFlag,
             flags = uiState.flags,
             onExitFullscreen = {
-                orientationController.unsetLandscapeOrientation()
                 onExitFullScreen(uiState.currentFlagId)
+                orientationController.unsetLandscapeOrientation()
             },
             onCarouselRotation = { id, title ->
                 viewModel.updateCurrentFlagId(id, title)
@@ -129,6 +133,7 @@ private fun FullscreenScaffold(
     currentScreen: Screen,
     currentTitle: Int?,
     canNavigateBack: Boolean,
+    systemUiController: SystemUiController,
     isFlagWide: Boolean,
     isLandscape: Boolean,
     onLandscapeChange: () -> Unit,
@@ -141,7 +146,7 @@ private fun FullscreenScaffold(
 
     var counter by rememberSaveable { mutableIntStateOf(value = 0) }
 
-    val isApi30 = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+    val isApi30 = systemUiController.isApi30
     var isSystemBars by rememberSaveable { mutableStateOf(value = isApi30) }
     var isButtons by rememberSaveable { mutableStateOf(value = true) }
     var isTopBarLocked by rememberSaveable { mutableStateOf(value = !isFlagWide) }
@@ -150,21 +155,15 @@ private fun FullscreenScaffold(
     val systemBarsExitDelay = if (isApi30) 0 else Timing.SYSTEM_BARS_HANG.toLong()
     val exitButtonAnimationTiming = if (isApi30) Timing.SYSTEM_BARS / 2 else Timing.SYSTEM_BARS
 
-    /* Properties for controlling system bars */
-    val activity = LocalActivity.current
-    val windowInsetsController = activity?.window?.let { WindowInsetsControllerCompat(it, it.decorView) }
-    windowInsetsController?.isAppearanceLightStatusBars = false /* Makes top bar icons white */
+    systemUiController.setLightStatusBar(light = false) /* Makes top bar icons white */
 
-    /* Following feature requires SDK version 30+ (app minimum SDK version is 24) */
-    if (isApi30) {
-        activity?.window?.insetsController?.apply {
-            systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        }
-    }
+    /* For when device SDK version is 30+ (app minimum SDK version is 24) */
+    systemUiController.setSystemBarsSwipeBehaviour()
+
     /* Control system bars when user interaction */
     LaunchedEffect(isSystemBars) {
         if (isSystemBars) {
-            windowInsetsController?.show(WindowInsetsCompat.Type.systemBars())
+            systemUiController.setSystemBars(visible = true)
             isButtons = true
 
             /* Auto disable system bars and exit button after delay */
@@ -177,7 +176,7 @@ private fun FullscreenScaffold(
             isSystemBars = false
         } else {
             counter++
-            windowInsetsController?.hide(WindowInsetsCompat.Type.systemBars())
+            systemUiController.setSystemBars(visible = false)
 
             delay(timeMillis = systemBarsExitDelay)
             if (!isSystemBars) isButtons = false
@@ -197,7 +196,9 @@ private fun FullscreenScaffold(
             .pointerInput(key1 = (Unit)) {
                 detectTapGestures(
                     onTap = { isSystemBars = !isSystemBars },
-                    onDoubleTap = { onExitFullscreen() },
+                    onDoubleTap = {
+                        onExitFullscreen()
+                    },
                 )
             }
             .onKeyEvent {

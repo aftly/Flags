@@ -1,5 +1,6 @@
 package dev.aftly.flags.ui.screen.game
 
+import android.app.Activity
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -9,6 +10,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +44,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -53,6 +56,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -60,6 +64,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import dev.aftly.flags.R
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
@@ -74,18 +80,33 @@ import dev.aftly.flags.ui.component.shareText
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.theme.successLight
+import dev.aftly.flags.ui.util.SystemUiController
 import kotlinx.coroutines.delay
 
 
 @Composable
 fun GameScreen(
     viewModel: GameViewModel = viewModel(),
+    navController: NavHostController,
     currentScreen: Screen,
     canNavigateBack: Boolean,
     onNavigateUp: () -> Unit,
     onFullscreen: (Int, Boolean) -> Unit,
 ) {
+    /* Expose screen and backStack state */
     val uiState by viewModel.uiState.collectAsState()
+    val backStackEntry = navController.currentBackStackEntryAsState()
+
+    /* Manage system bars and flag state after returning from FullScreen */
+    val view = LocalView.current
+    val window = (view.context as Activity).window
+    val systemUiController = remember { SystemUiController(window, view) }
+    val isDarkTheme by rememberUpdatedState(newValue = isSystemInDarkTheme())
+
+    LaunchedEffect(backStackEntry) {
+        systemUiController.setLightStatusBar(light = !isDarkTheme)
+        systemUiController.setSystemBars(visible = true)
+    }
 
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
