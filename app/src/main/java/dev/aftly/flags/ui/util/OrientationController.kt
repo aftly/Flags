@@ -1,4 +1,4 @@
-package dev.aftly.flags.ui.component
+package dev.aftly.flags.ui.util
 
 import android.content.pm.ActivityInfo
 import androidx.activity.ComponentActivity

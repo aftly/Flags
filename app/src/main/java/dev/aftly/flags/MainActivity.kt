@@ -6,8 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.CompositionLocalProvider
 import dev.aftly.flags.navigation.AppNavHost
-import dev.aftly.flags.ui.component.LocalOrientationController
-import dev.aftly.flags.ui.component.OrientationController
+import dev.aftly.flags.ui.util.LocalOrientationController
+import dev.aftly.flags.ui.util.OrientationController
 import dev.aftly.flags.ui.theme.FlagsTheme
 
 

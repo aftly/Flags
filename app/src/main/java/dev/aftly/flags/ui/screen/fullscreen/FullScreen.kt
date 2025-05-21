@@ -57,7 +57,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.FullscreenButton
-import dev.aftly.flags.ui.component.LocalOrientationController
+import dev.aftly.flags.ui.util.LocalOrientationController
 import dev.aftly.flags.ui.component.GeneralTopBar
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
