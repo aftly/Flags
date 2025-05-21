@@ -113,7 +113,8 @@ fun FlagScreen(
     /* Update flag description string when language configuration changes */
     val configuration = LocalConfiguration.current
     val locale = configuration.locales[0]
-    LaunchedEffect(locale) { viewModel.updateDescriptionString(flag = uiState.currentFlag) }
+    //LaunchedEffect(locale) { viewModel.updateDescriptionString(flag = uiState.currentFlag) }
+
 
     FlagScaffold(
         currentScreen = currentScreen,
@@ -327,6 +328,11 @@ private fun FlagContent(
             }
         }
 
+        val wikiLink =
+            stringResource(R.string.wikipedia_site_prefix) + stringResource(flag.wikipediaUrlPath)
+
+
+        /* Ui content */
         Spacer(modifier = Modifier.height(0.dp))
 
 
@@ -400,19 +406,12 @@ private fun FlagContent(
             Spacer(modifier = Modifier.height(20.dp))
         }
 
-        when (flag.wikipediaUrlPath) {
-            null -> Spacer(modifier = Modifier.height(0.dp))
-            else -> {
-                val wikiLink = stringResource(R.string.wikipedia_site_prefix) +
-                        stringResource(flag.wikipediaUrlPath)
 
-                WikipediaButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    context = LocalContext.current,
-                    wikiLink = wikiLink,
-                )
-            }
-        }
+        WikipediaButton(
+            modifier = Modifier.fillMaxWidth(),
+            context = LocalContext.current,
+            wikiLink = wikiLink,
+        )
     }
 }
 
