@@ -62,6 +62,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.lerp
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import dev.aftly.flags.R
@@ -343,6 +344,17 @@ fun GeneralTopBar(
         else -> currentScreen.title
     }
 
+    var lineCounter by remember { mutableIntStateOf(value = 0) }
+    val textStyle1 = MaterialTheme.typography.headlineLarge
+    val textStyle2 = MaterialTheme.typography.headlineMedium
+    val textStyle3 = MaterialTheme.typography.headlineSmall
+    val textStyle = when (lineCounter) {
+        0 -> textStyle1
+        1 -> textStyle2
+        else -> textStyle3
+    }
+
+
     TopAppBar(
         title = {
             when (currentScreen) {
@@ -353,7 +365,13 @@ fun GeneralTopBar(
                     ) {
                         Text(
                             text = stringResource(it),
-                            style = MaterialTheme.typography.headlineLarge,
+                            textAlign = TextAlign.Center,
+                            onTextLayout = { textLayoutResult ->
+                                if (textLayoutResult.lineCount > 1) {
+                                    lineCounter++
+                                }
+                            },
+                            style = textStyle,
                         )
                     }
                 }
