@@ -4,7 +4,6 @@ import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.data.DataSource.nullFlag
 
 data class FlagUiState(
-    val initialFlag: FlagResources = nullFlag,
     val currentFlag: FlagResources = nullFlag,
     val relatedFlags: List<FlagResources> = emptyList(),
     val flagsFromList: List<Int> = emptyList(),

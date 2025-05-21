@@ -56,7 +56,6 @@ class FlagViewModel(
 
             _uiState.update { currentState ->
                 currentState.copy(
-                    initialFlag = flag,
                     currentFlag = flag,
                     relatedFlags = relatedFlags,
                     flagsFromList = flags,
