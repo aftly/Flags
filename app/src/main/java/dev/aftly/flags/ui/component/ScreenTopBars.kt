@@ -328,7 +328,6 @@ fun GeneralTopBar(
     isRelatedFlagsButton: Boolean = false,
     buttonExpanded: Boolean = false,
     onButtonExpand: () -> Unit = {},
-    fontScale: Float = 0f,
     onButtonPosition: (Offset) -> Unit = {},
     onButtonWidth: (Int) -> Unit = {},
     onNavigateUp: () -> Unit,
@@ -384,7 +383,6 @@ fun GeneralTopBar(
                             RelatedFlagsButton(
                                 buttonExpanded = buttonExpanded,
                                 onButtonExpand = onButtonExpand,
-                                fontScale = fontScale,
                                 onButtonPosition = onButtonPosition,
                                 onButtonWidth = onButtonWidth,
                             )

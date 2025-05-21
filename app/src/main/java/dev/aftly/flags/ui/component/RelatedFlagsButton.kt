@@ -26,6 +26,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionOnScreen
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -40,10 +41,11 @@ fun RelatedFlagsButton(
     onButtonExpand: () -> Unit,
     containerColor: Color = MaterialTheme.colorScheme.secondary,
     buttonColors: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor),
-    fontScale: Float,
     onButtonPosition: (Offset) -> Unit,
     onButtonWidth: (Int) -> Unit,
 ) {
+    val configuration = LocalConfiguration.current
+    val fontScale = configuration.fontScale
     val iconSize = Dimens.standardIconSize24 * fontScale
     val iconPadding = 2.dp * fontScale
     val iconSizePadding = iconSize + iconPadding

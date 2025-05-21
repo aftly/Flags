@@ -98,7 +98,6 @@ fun ListFlagsScreen(
         currentSuperCategory = uiState.currentSuperCategory,
         currentSuperCategories = uiState.currentSuperCategories,
         currentSubCategories = uiState.currentSubCategories,
-        fontScale = configuration.fontScale,
         userSearch = searchModel.searchQuery,
         isUserSearch = searchModel.isSearchQuery,
         searchResults = searchResults,
@@ -137,7 +136,6 @@ private fun ListFlagsScaffold(
     currentSuperCategory: FlagSuperCategory,
     currentSuperCategories: List<FlagSuperCategory>?,
     currentSubCategories: List<FlagCategory>?,
-    fontScale: Float,
     userSearch: String,
     isUserSearch: Boolean,
     searchResults: List<FlagResources>,
@@ -240,12 +238,10 @@ private fun ListFlagsScaffold(
                         start = Dimens.marginHorizontal16,
                         end = Dimens.marginHorizontal16,
                     ),
-                currentScreen = currentScreen,
                 filterButtonHeight = buttonHeight,
                 scaffoldBottomPadding = scaffoldBottomPadding,
                 scrollBehaviour = scrollBehaviour,
                 listState = listState,
-                fontScale = fontScale,
                 isUserSearch = isUserSearch,
                 searchResults = searchResults,
                 currentFlagsList = currentFlagsList,
@@ -290,7 +286,6 @@ private fun ListFlagsScaffold(
             onButtonExpand = { buttonExpanded = !buttonExpanded },
             containerColor1 = containerColor1,
             containerColor2 = containerColor2,
-            fontScale = fontScale,
             currentCategoryTitle = currentCategoryTitle,
             currentSuperCategory = currentSuperCategory,
             currentSuperCategories = currentSuperCategories,
@@ -312,12 +307,10 @@ private fun ListFlagsScaffold(
 @Composable
 private fun ListFlagsContent(
     modifier: Modifier = Modifier,
-    currentScreen: Screen,
     filterButtonHeight: Dp,
     scaffoldBottomPadding: Dp,
     scrollBehaviour: TopAppBarScrollBehavior,
     listState: LazyListState,
-    fontScale: Float,
     isUserSearch: Boolean,
     searchResults: List<FlagResources>,
     currentFlagsList: List<FlagResources>,
@@ -355,7 +348,6 @@ private fun ListFlagsContent(
                         ) { index ->
                             ListItem(
                                 modifier = Modifier.fillMaxWidth(),
-                                fontScale = fontScale,
                                 verticalPadding = listItemVerticalPadding,
                                 flag = currentFlagsList[index],
                                 onFlagSelect = onFlagSelect,
@@ -384,7 +376,6 @@ private fun ListFlagsContent(
                         ) { index ->
                             ListItem(
                                 modifier = Modifier.fillMaxWidth(),
-                                fontScale = fontScale,
                                 verticalPadding = listItemVerticalPadding,
                                 flag = searchResults[index],
                                 onFlagSelect = onFlagSelect,
@@ -406,11 +397,12 @@ private fun ListFlagsContent(
 @Composable
 private fun ListItem(
     modifier: Modifier = Modifier,
-    fontScale: Float,
     verticalPadding: Dp,
     flag: FlagResources,
     onFlagSelect: (FlagResources) -> Unit,
 ) {
+    val configuration = LocalConfiguration.current
+    val fontScale = configuration.fontScale
     val dynamicHeight = Dimens.defaultListItemHeight48 * fontScale
 
     Column(modifier = modifier) {
@@ -436,8 +428,7 @@ private fun ListItem(
                 Box(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(flag.flagOf),
-                        modifier = Modifier
-                            .fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                             /* Separate text from image */
                             .padding(end = Dimens.small8),
                         style = MaterialTheme.typography.titleMedium,

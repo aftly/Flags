@@ -60,7 +60,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -122,7 +121,7 @@ fun GameScreen(
     if (uiState.isGameOver) {
         GameOverDialog(
             finalScore = uiState.correctGuessCount,
-            outOf = uiState.totalFlagCount,
+            maxScore = uiState.totalFlagCount,
             gameMode = stringResource(uiState.currentSuperCategory.title),
             onExit = {
                 viewModel.endGame(isGameOver = false)
@@ -143,7 +142,6 @@ fun GameScreen(
         currentScreen = currentScreen,
         canNavigateBack = canNavigateBack,
         isWideScreen = isWideScreen,
-        fontScale = configuration.fontScale,
         totalFlagCount = uiState.totalFlagCount,
         correctGuessCount = uiState.correctGuessCount,
         currentCategoryTitle = uiState.currentCategoryTitle,
@@ -181,7 +179,6 @@ private fun GameScaffold(
     currentScreen: Screen,
     canNavigateBack: Boolean,
     isWideScreen: Boolean,
-    fontScale: Float,
     totalFlagCount: Int,
     correctGuessCount: Int,
     @StringRes currentCategoryTitle: Int,
@@ -241,7 +238,6 @@ private fun GameScaffold(
 
             GameContent(
                 modifier = Modifier.padding(scaffoldPadding),
-                currentScreen = currentScreen,
                 isWideScreen = isWideScreen,
                 filterButtonHeight = buttonHeight,
                 totalFlagCount = totalFlagCount,
@@ -291,7 +287,6 @@ private fun GameScaffold(
             onButtonHeightChange = { buttonHeight = it },
             buttonExpanded = buttonExpanded,
             onButtonExpand = { buttonExpanded = !buttonExpanded },
-            fontScale = fontScale,
             currentCategoryTitle = currentCategoryTitle,
             currentSuperCategory = currentSuperCategory,
             currentSuperCategories = currentSuperCategories,
@@ -306,7 +301,6 @@ private fun GameScaffold(
 @Composable
 private fun GameContent(
     modifier: Modifier = Modifier,
-    currentScreen: Screen,
     isWideScreen: Boolean,
     filterButtonHeight: Dp,
     totalFlagCount: Int,
@@ -374,8 +368,6 @@ private fun GameContent(
         )
 
         GameCard(
-            currentScreen = currentScreen,
-            density = density,
             contentColumnHeight = columnHeight,
             cardImageWidth = imageWidth,
             onCardImageWidthChange = { imageWidth = it },
@@ -426,8 +418,6 @@ private fun GameContent(
 @Composable
 private fun GameCard(
     modifier: Modifier = Modifier,
-    currentScreen: Screen,
-    density: Density,
     contentColumnHeight: Dp,
     cardImageWidth: Dp,
     onCardImageWidthChange: (Dp) -> Unit,
@@ -514,6 +504,8 @@ private fun GameCard(
 
     var isFullScreenButton by rememberSaveable { mutableStateOf(value = false) }
 
+    val density = LocalDensity.current
+
 
     /* Game Card content */
     Card(
@@ -534,8 +526,7 @@ private fun GameCard(
             ) {
                 Text(
                     text = "$correctGuessCount/$totalFlagCount",
-                    modifier = Modifier
-                        .clip(MaterialTheme.shapes.medium)
+                    modifier = Modifier.clip(MaterialTheme.shapes.medium)
                         .background(MaterialTheme.colorScheme.primary)
                         .padding(vertical = Dimens.extraSmall4, horizontal = Dimens.small10),
                     color = MaterialTheme.colorScheme.onPrimary,
@@ -660,20 +651,20 @@ private fun GameCard(
 private fun GameOverDialog(
     modifier: Modifier = Modifier,
     finalScore: Int,
-    outOf: Int,
+    maxScore: Int,
     gameMode: String,
     onExit: () -> Unit,
     onShare: (String) -> Unit,
     onPlayAgain: () -> Unit,
 ) {
     val scoreMessage = when (finalScore) {
-        outOf -> stringResource(R.string.flag_game_over_text_max_score)
+        maxScore -> stringResource(R.string.flag_game_over_text_max_score)
         0 -> stringResource(R.string.flag_game_over_text_min_score)
-        else -> stringResource(R.string.flag_game_over_text, finalScore, outOf)
+        else -> stringResource(R.string.flag_game_over_text, finalScore, maxScore)
     }
 
     val shareScoreMessage = stringResource(
-        R.string.flag_game_over_share_text, finalScore, outOf, gameMode
+        R.string.flag_game_over_share_text, finalScore, maxScore, gameMode
     )
 
     AlertDialog(

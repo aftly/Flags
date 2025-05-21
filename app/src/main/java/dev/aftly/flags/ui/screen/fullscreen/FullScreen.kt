@@ -2,6 +2,7 @@ package dev.aftly.flags.ui.screen.fullscreen
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring

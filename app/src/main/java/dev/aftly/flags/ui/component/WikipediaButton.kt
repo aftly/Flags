@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
 import dev.aftly.flags.R
@@ -25,9 +26,10 @@ import dev.aftly.flags.ui.theme.Dimens
 @Composable
 fun WikipediaButton(
     modifier: Modifier = Modifier,
-    context: Context,
     wikiLink: String,
 ) {
+    val context = LocalContext.current
+
     Button(
         onClick = {
             viewWikipedia(

@@ -34,6 +34,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -52,7 +54,6 @@ fun RelatedFlagsMenu(
     cardColors: CardColors = CardDefaults.cardColors(containerColor = containerColor1),
     buttonColors1: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor1),
     buttonColors2: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor2),
-    fontScale: Float,
     currentFlag: FlagResources,
     relatedFlags: List<FlagResources>,
     onFlagSelect: (FlagResources) -> Unit,
@@ -63,7 +64,11 @@ fun RelatedFlagsMenu(
             listState.scrollToItem(index = relatedFlags.indexOf(currentFlag))
         }
     }
+    val configuration = LocalConfiguration.current
+    val fontScale = configuration.fontScale
 
+
+    /* Menu content */
     AnimatedVisibility(
         visible = buttonExpanded,
         modifier = modifier,
@@ -98,7 +103,6 @@ fun RelatedFlagsMenu(
                         currentFlag = currentFlag,
                         buttonColors1 = buttonColors1,
                         buttonColor2 = buttonColors2,
-                        fontScale = fontScale,
                         onFlagSelect = onFlagSelect,
                     )
                 }
@@ -115,9 +119,10 @@ private fun ListItem(
     currentFlag: FlagResources,
     buttonColors1: ButtonColors,
     buttonColor2: ButtonColors,
-    fontScale: Float,
     onFlagSelect: (FlagResources) -> Unit,
 ) {
+    val configuration = LocalConfiguration.current
+    val fontScale = configuration.fontScale
     val verticalPadding = Dimens.small8
     val dynamicHeight = Dimens.defaultListItemHeight48 * fontScale
 

@@ -52,6 +52,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
@@ -92,7 +93,6 @@ fun FilterFlagsButton(
     cardColors2: CardColors = CardDefaults.cardColors(containerColor = containerColor2),
     buttonColors1: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor1),
     buttonColors2: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor2),
-    fontScale: Float,
     @StringRes currentCategoryTitle: Int,
     currentSuperCategory: FlagSuperCategory,
     currentSuperCategories: List<FlagSuperCategory>?,
@@ -129,6 +129,8 @@ fun FilterFlagsButton(
     }
 
     /* Manage button height */
+    val configuration = LocalConfiguration.current
+    val fontScale = configuration.fontScale
     val oneLineButtonHeight = Dimens.defaultFilterButtonHeight30 * fontScale
     val twoLineButtonHeight = Dimens.defaultFilterButtonHeight50 * fontScale
     var isOneLine by remember { mutableStateOf(value = true) }
@@ -343,8 +345,6 @@ fun FilterFlagsButton(
                                 buttonColors1 = buttonColors,
                                 buttonColors2 = buttonColors2,
                                 cardColors2 = cardColors2,
-                                density = density,
-                                fontScale = fontScale,
                                 isSuperCategorySelectable = true,
                                 currentCategoryTitle = currentCategoryTitle,
                                 superCategory = superCategory,
@@ -366,8 +366,6 @@ fun FilterFlagsButton(
                                 buttonColors2 = buttonColors2,
                                 cardColors1 = cardColors1,
                                 cardColors2 = cardColors2,
-                                density = density,
-                                fontScale = fontScale,
                                 isChildSelectable = false,
                                 currentCategoryTitle = currentCategoryTitle,
                                 parentSuperCategory = superCategory,
@@ -453,8 +451,6 @@ private fun MenuItemExpandable(
     buttonColors1: ButtonColors,
     buttonColors2: ButtonColors,
     cardColors2: CardColors,
-    density: Density,
-    fontScale: Float,
     isSuperCategorySelectable: Boolean,
     @StringRes currentCategoryTitle: Int,
     superCategory: FlagSuperCategory,
@@ -501,6 +497,10 @@ private fun MenuItemExpandable(
         NonAdministrative to true -> 9.dp
         else -> 0.dp
     }
+
+    val density = LocalDensity.current
+    val configuration = LocalConfiguration.current
+    val fontScale = configuration.fontScale
 
 
     /* Menu item content */
@@ -684,8 +684,6 @@ private fun MenuSuperItem(
     buttonColors2: ButtonColors,
     cardColors1: CardColors,
     cardColors2: CardColors,
-    density: Density,
-    fontScale: Float,
     isChildSelectable: Boolean,
     @StringRes currentCategoryTitle: Int,
     parentSuperCategory: FlagSuperCategory,
@@ -714,6 +712,10 @@ private fun MenuSuperItem(
             null
         }
     }
+
+    val density = LocalDensity.current
+    val configuration = LocalConfiguration.current
+    val fontScale = configuration.fontScale
 
 
     /* Menu item content */
@@ -817,8 +819,6 @@ private fun MenuSuperItem(
                                 buttonColors1 = buttonColors2,
                                 buttonColors2 = buttonColors1,
                                 cardColors2 = cardColors1,
-                                density = density,
-                                fontScale = fontScale,
                                 isSuperCategorySelectable = isChildSelectable,
                                 currentCategoryTitle = currentCategoryTitle,
                                 superCategory = superCategory,

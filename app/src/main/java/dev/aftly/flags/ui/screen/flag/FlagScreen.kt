@@ -44,7 +44,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
@@ -59,7 +58,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -124,7 +122,6 @@ fun FlagScreen(
         relatedFlags = uiState.relatedFlags,
         description = uiState.description,
         boldWordPositions = uiState.descriptionBoldWordIndexes,
-        fontScale = configuration.fontScale,
         onRelatedFlag = { viewModel.updateFlagRelated(flag = it) },
         onFullscreen = viewModel.callOnFullScreen(onFullscreen),
     )
@@ -141,7 +138,6 @@ private fun FlagScaffold(
     relatedFlags: List<FlagResources>,
     description: List<String>,
     boldWordPositions: List<Int>,
-    fontScale: Float,
     onRelatedFlag: (FlagResources) -> Unit,
     onFullscreen: (Boolean) -> Unit,
 ) {
@@ -169,7 +165,6 @@ private fun FlagScaffold(
                     isRelatedFlagsButton = isRelatedFlagsButton,
                     buttonExpanded = buttonExpanded,
                     onButtonExpand = { buttonExpanded = !buttonExpanded },
-                    fontScale = fontScale,
                     onButtonPosition = { buttonOffset = it },
                     onButtonWidth = { buttonWidth = it },
                     onNavigateUp = navigateUp,
@@ -222,7 +217,6 @@ private fun FlagScaffold(
                     RelatedFlagsButton(
                         buttonExpanded = buttonExpanded,
                         onButtonExpand = { buttonExpanded = !buttonExpanded },
-                        fontScale = fontScale,
                         onButtonPosition = {},
                         onButtonWidth = {},
                     )
@@ -239,7 +233,6 @@ private fun FlagScaffold(
                         end = Dimens.marginHorizontal16,
                     ),
                 buttonExpanded = buttonExpanded,
-                fontScale = fontScale,
                 currentFlag = currentFlag,
                 relatedFlags = relatedFlags,
                 onFlagSelect = { newFlag ->
@@ -409,7 +402,6 @@ private fun FlagContent(
 
         WikipediaButton(
             modifier = Modifier.fillMaxWidth(),
-            context = LocalContext.current,
             wikiLink = wikiLink,
         )
     }
