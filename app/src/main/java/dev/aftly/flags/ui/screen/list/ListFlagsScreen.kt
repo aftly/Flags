@@ -114,10 +114,11 @@ fun ListFlagsScreen(
             searchModel.updateCurrentCategories(selectSuperCategory, selectSubCategory)
         },
         onFlagSelect = { flag ->
-            onNavigateDetails(
-                flag.id,
-                uiState.currentFlags.map { it.id }
-            )
+            val currentList = when (searchModel.isSearchQuery) {
+                true -> searchResults.map { it.id }
+                false -> uiState.currentFlags.map { it.id }
+            }
+            onNavigateDetails(flag.id, currentList)
         },
     )
 }
