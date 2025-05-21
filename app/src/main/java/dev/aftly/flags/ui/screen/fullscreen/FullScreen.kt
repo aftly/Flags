@@ -67,6 +67,7 @@ import dev.aftly.flags.ui.theme.surfaceDark
 import dev.aftly.flags.ui.theme.surfaceLight
 import dev.aftly.flags.ui.util.SystemUiController
 import dev.aftly.flags.ui.util.isOrientationLandscape
+import dev.aftly.flags.ui.util.isOrientationPortrait
 import kotlinx.coroutines.delay
 import kotlin.math.abs
 
@@ -151,12 +152,18 @@ private fun FullscreenScaffold(
 ) {
     BackHandler { onExitFullscreen() }
 
-    var counter by rememberSaveable { mutableIntStateOf(value = 0) }
+    val configuration = LocalConfiguration.current
+    val isScreenPortrait by remember {
+        mutableStateOf(value = isOrientationPortrait(configuration = configuration))
+    }
 
+    var counter by remember { mutableIntStateOf(value = 0) }
     val isApi30 = systemUiController.isApi30
-    var isSystemBars by rememberSaveable { mutableStateOf(value = isApi30) }
-    var isButtons by rememberSaveable { mutableStateOf(value = true) }
-    var isTopBarLocked by rememberSaveable { mutableStateOf(value = !isFlagWide) }
+    var isSystemBars by remember { mutableStateOf(value = isApi30) }
+    var isButtons by remember { mutableStateOf(value = true) }
+    var isLockPortraitInteraction by remember { mutableStateOf(value = false) }
+
+    var isTopBarLocked by remember { mutableStateOf(value = isScreenPortrait) }
 
     /* Configure animation timings depending on API version due to different behaviors */
     val systemBarsExitDelay = if (isApi30) 0 else Timing.SYSTEM_BARS_HANG.toLong()
@@ -167,26 +174,53 @@ private fun FullscreenScaffold(
     /* For when device SDK version is 30+ (app minimum SDK version is 24) */
     systemUiController.setSystemBarsSwipeBehaviour()
 
-    /* Control system bars when user interaction */
+    /* Control system bars when user interaction (when not top bar lock & portrait orientation) */
     LaunchedEffect(isSystemBars) {
-        if (isSystemBars) {
+        if (!(isTopBarLocked && isScreenPortrait)) {
+            if (isSystemBars) {
+                systemUiController.setSystemBars(visible = true)
+                isButtons = true
+
+                /* Auto disable system bars and buttons after delay */
+                delay(
+                    timeMillis = Timing.SYSTEM_BARS.let {
+                        if (counter > 0) it * 2 else it / 1.5
+                    }.toLong()
+                )
+                counter++
+                isSystemBars = false
+            } else {
+                counter++
+                systemUiController.setSystemBars(visible = false)
+
+                delay(timeMillis = systemBarsExitDelay)
+                if (!isSystemBars) isButtons = false
+            }
+        }
+    }
+
+    /* Control status bars when top bar locked in portrait orientation */
+    LaunchedEffect(isTopBarLocked) {
+        if (isTopBarLocked && isScreenPortrait) {
             systemUiController.setSystemBars(visible = true)
-            isButtons = true
-
-            /* Auto disable system bars and exit button after delay */
-            delay(
-                timeMillis = Timing.SYSTEM_BARS.let {
-                    if (counter > 0) it * 2 else it / 1.5
-                }.toLong()
-            )
-            counter++
             isSystemBars = false
-        } else {
-            counter++
+            delay(timeMillis = Timing.SYSTEM_BARS.toLong())
+            counter ++
+            if (!isLockPortraitInteraction) isButtons = false
+        } else if (!isTopBarLocked && isScreenPortrait) {
             systemUiController.setSystemBars(visible = false)
+        }
+    }
 
-            delay(timeMillis = systemBarsExitDelay)
-            if (!isSystemBars) isButtons = false
+    /* Control buttons when top bar locked and screen in portrait orientation */
+    LaunchedEffect(isLockPortraitInteraction) {
+        if (isLockPortraitInteraction) {
+            counter++
+            isButtons = true
+            delay(timeMillis = Timing.SYSTEM_BARS.toLong() * 2)
+            isLockPortraitInteraction = false
+        } else {
+            if (counter != 0) isButtons = false
         }
     }
 
@@ -202,7 +236,12 @@ private fun FullscreenScaffold(
         modifier = Modifier
             .pointerInput(key1 = (Unit)) {
                 detectTapGestures(
-                    onTap = { isSystemBars = !isSystemBars },
+                    onTap = {
+                        when (isScreenPortrait to isTopBarLocked) {
+                            true to true -> isLockPortraitInteraction = !isLockPortraitInteraction
+                            else -> isSystemBars = !isSystemBars
+                        }
+                    },
                     onDoubleTap = {
                         onExitFullscreen()
                     },
@@ -295,8 +334,7 @@ private fun FullscreenContent(
     HorizontalUncontainedCarousel(
         state = carouselState,
         itemWidth = screenWidthDp,
-        modifier = modifier
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
             .background(surfaceDark),
         flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(
             state = carouselState,
