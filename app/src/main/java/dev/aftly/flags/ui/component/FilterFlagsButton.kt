@@ -209,13 +209,13 @@ fun FilterFlagsButton(
                                 text = "$flagCount",
                                 modifier = Modifier.requiredWidthIn(min = Dimens.standardIconSize24)
                                     .clip(flagCountShape)
-                                    .background(MaterialTheme.colorScheme.surface)
+                                    .background(buttonColors2.contentColor)
                                     .padding(
                                         vertical = 2.dp * fontScale,
                                         horizontal = 6.dp * fontScale
                                     ),
                                 textAlign = TextAlign.Center,
-                                color = containerColor2,
+                                color = buttonColors2.containerColor,
                                 style = MaterialTheme.typography.titleSmall,
                             )
                         }
