@@ -12,6 +12,7 @@ local.properties
 *.log
 
 # Android Studio generated files and folders
+*.apk
 .navigation/
 .externalNativeBuild
 .cxx
