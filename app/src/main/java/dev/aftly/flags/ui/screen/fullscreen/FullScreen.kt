@@ -49,6 +49,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionOnScreen
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -64,6 +65,7 @@ import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.theme.surfaceDark
 import dev.aftly.flags.ui.theme.surfaceLight
 import dev.aftly.flags.ui.util.SystemUiController
+import dev.aftly.flags.ui.util.isOrientationLandscape
 import kotlinx.coroutines.delay
 import kotlin.math.abs
 
@@ -79,15 +81,19 @@ fun FullScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val orientationController = LocalOrientationController.current
-    var isLandscape by rememberSaveable { mutableStateOf(value = isFlagWide) }
+    val configuration = LocalConfiguration.current
 
     /* Initialise with correct orientation & ensure composition is delayed until end of coroutine */
+    val isInitScreenLandscape = isOrientationLandscape(configuration = configuration)
+    var isLandscape by rememberSaveable {
+        mutableStateOf(value = isFlagWide && !isInitScreenLandscape)
+    }
     var isInit by rememberSaveable { mutableStateOf(value = false) }
+
     LaunchedEffect(Unit) {
-        if (isFlagWide) orientationController.setLandscapeOrientation()
+        if (isFlagWide && !isInitScreenLandscape) orientationController.setLandscapeOrientation()
         isInit = true
     }
-
     LaunchedEffect(isLandscape) {
         when (isLandscape) {
             true -> orientationController.setLandscapeOrientation()
