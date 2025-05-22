@@ -43,6 +43,7 @@ import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Shapes
 import dev.aftly.flags.ui.theme.Timing
+import dev.aftly.flags.ui.theme.surfaceLight
 
 
 @Composable
@@ -161,7 +162,8 @@ private fun ListItem(
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
-                        modifier = Modifier.size(Dimens.standardIconSize24 * fontScale)
+                        modifier = Modifier.size(Dimens.standardIconSize24 * fontScale),
+                        tint = surfaceLight,
                     )
                 }
             }
