@@ -8,16 +8,16 @@
 
 [![Android](https://img.shields.io/badge/Android-Platform?label=Platform&color=62a900)](https://www.android.com/)
 [![Min API: 24](https://img.shields.io/badge/24-minSdkVersion?label=minSdkVersion&color=62a900)](https://developer.android.com/tools/releases/platforms#7.0)
-[![GitHub Releases](https://img.shields.io/badge/GitHub_Releases-Download?label=Download&color=62a900)](https://github.com/aftly/Flags/releases)
-[![Latest release version](https://img.shields.io/github/v/release/aftly/Flags?include_prereleases&color=dc5d18)](https://github.com/aftly/Flags/releases)
-[![License: MPL 2.0](https://img.shields.io/badge/license-MPL%202.0-blue.svg)](https://github.com/aftly/Flags/blob/main/LICENSE)
+[![GitLab Releases](https://img.shields.io/badge/GitLab_Releases-Download?label=Download&color=62a900)](https://gitlab.com/aftly/flags/-/releases)
+[![Latest release version](https://img.shields.io/gitlab/v/release/aftly/flags?include_prereleases&color=dc5d18)](https://gitlab.com/aftly/flags/-/releases)
+[![License: MPL 2.0](https://img.shields.io/badge/license-MPL%202.0-blue.svg)](https://gitlab.com/aftly/flags/-/blob/main/LICENSE)
 
 </div>
 
 ## ❔ About
 - **Flags** is a free and open source Android app for displaying various flags of the world with categorisation for descriptions and user sorting and a flag guessing game.
 
-- *This app is currently in alpha and is feature incomplete. Feedback is welcome, please submit feature requests and issues via [GitHub Issues](https://github.com/aftly/Flags/issues).*
+- *This app is currently in alpha and is feature incomplete. Feedback is welcome, please submit feature requests and issues via [GitLab Issues](https://gitlab.com/aftly/flags/-/issues).*
 <br>
 
 ## 📸 Screenshots
@@ -25,9 +25,7 @@
 <br>
 
 ## 📱 Installation
-[<img src="assets/badge_github.png" 
-    alt="Get it on GitHub" 
-    height="80">](https://github.com/aftly/Flags/releases)
+- [**GitLab Releases**](https://gitlab.com/aftly/flags/-/releases)
 
 **Verification info**:
 - Package & APK Signing Certificate hash (SHA-256):
@@ -93,7 +91,7 @@ Flag category info is derived more manually, by filtering from broader categorie
  - Flag information sourced from [Wikipedia](https://en.wikipedia.org/wiki/Main_Page)
 <br>
 
-## 🔖 [License](https://github.com/aftly/Flags/blob/main/LICENSE)
+## 🔖 [License](https://gitlab.com/aftly/flags/-/blob/main/LICENSE)
 ```
 Licensed under the Mozilla Public License, Version 2.0.
 ```
