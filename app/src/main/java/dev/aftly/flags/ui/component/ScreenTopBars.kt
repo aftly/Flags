@@ -148,7 +148,7 @@ fun ListScreenTopBar(
                 AnimatedVisibility(
                     visible = isTopBarTitleDelay,
                     enter = expandHorizontally(
-                        animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
+                        animationSpec = tween(durationMillis = Timing.MENU_EXPAND * 2),
                         expandFrom = Alignment.Start,
                     ),
                     exit = ExitTransition.None,
@@ -228,8 +228,7 @@ fun ListScreenTopBar(
                 Box {
                     /* Background for TextField as clipping issues when setting size directly */
                     Surface(
-                        modifier = Modifier
-                            .offset(y = textFieldOffset)
+                        modifier = Modifier.offset(y = textFieldOffset)
                             .fillMaxWidth()
                             .padding(
                                 end = Dimens.marginHorizontal16 - textFieldOffset,
@@ -278,7 +277,8 @@ fun ListScreenTopBar(
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Default.Clear,
-                                                contentDescription = stringResource(R.string.flag_search_clear),
+                                                contentDescription =
+                                                    stringResource(R.string.flag_search_clear),
                                                 tint = MaterialTheme.colorScheme.onSurface,
                                             )
                                         }
@@ -326,6 +326,7 @@ fun GeneralTopBar(
     canNavigateBack: Boolean = false,
     isActionOn: Boolean = false, /* For buttons with 2 icon states */
     isRelatedFlagsButton: Boolean = false,
+    isPortraitOrientation: Boolean? = null,
     buttonExpanded: Boolean = false,
     onButtonExpand: () -> Unit = {},
     onButtonPosition: (Offset) -> Unit = {},
@@ -343,16 +344,6 @@ fun GeneralTopBar(
         else -> currentScreen.title
     }
 
-    var lineCounter by remember { mutableIntStateOf(value = 0) }
-    val textStyle1 = MaterialTheme.typography.headlineLarge
-    val textStyle2 = MaterialTheme.typography.headlineMedium
-    val textStyle3 = MaterialTheme.typography.headlineSmall
-    val textStyle = when (lineCounter) {
-        0 -> textStyle1
-        1 -> textStyle2
-        else -> textStyle3
-    }
-
 
     TopAppBar(
         title = {
@@ -365,12 +356,10 @@ fun GeneralTopBar(
                         Text(
                             text = stringResource(it),
                             textAlign = TextAlign.Center,
-                            onTextLayout = { textLayoutResult ->
-                                if (textLayoutResult.lineCount > 1) {
-                                    lineCounter++
-                                }
+                            style = when (isPortraitOrientation) {
+                                true -> MaterialTheme.typography.headlineSmall
+                                else -> MaterialTheme.typography.headlineLarge
                             },
-                            style = textStyle,
                         )
                     }
                 }

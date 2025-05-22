@@ -270,6 +270,7 @@ private fun FullscreenScaffold(
                         currentTitle = currentTitle,
                         canNavigateBack = canNavigateBack,
                         isActionOn = isTopBarLocked,
+                        isPortraitOrientation = isScreenPortrait,
                         onNavigateUp = onExitFullscreen,
                         onNavigateDetails = {},
                         onAction = { isTopBarLocked = !isTopBarLocked },
@@ -322,13 +323,14 @@ private fun FullscreenContent(
 
     // TODO rememberSaveable?
     var isLastItem by remember { mutableStateOf(value = false) }
-
+    /*
     var scrollToBeginning by remember { mutableStateOf(value = false) }
     LaunchedEffect(scrollToBeginning) {
         if (scrollToBeginning) {
             carouselState.animateScrollBy(value = -10_000_000f)
         }
     }
+     */
 
 
     HorizontalUncontainedCarousel(
