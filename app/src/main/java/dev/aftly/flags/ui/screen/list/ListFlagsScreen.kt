@@ -213,7 +213,12 @@ private fun ListFlagsScaffold(
                     canNavigateBack = canNavigateBack,
                     userSearch = userSearch,
                     isUserSearch = isUserSearch,
-                    onUserSearchChange = onUserSearchChange,
+                    onUserSearchChange = {
+                        if (it == "" && !isAtTop) {
+                            coroutineScope.launch { listState.animateScrollToItem(index = 0) }
+                        }
+                        onUserSearchChange(it)
+                    },
                     isSearchBar = isSearchBar,
                     onIsSearchBar = { isSearchBar = !isSearchBar },
                     onNavigateUp = onNavigateUp,
@@ -428,7 +433,8 @@ private fun ListItem(
                 Box(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(flag.flagOf),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             /* Separate text from image */
                             .padding(end = Dimens.small8),
                         style = MaterialTheme.typography.titleMedium,
