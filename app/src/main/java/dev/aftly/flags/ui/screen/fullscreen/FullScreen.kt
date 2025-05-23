@@ -23,12 +23,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowLeft
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowRight
 import androidx.compose.material.icons.filled.ScreenLockLandscape
 import androidx.compose.material.icons.filled.StayPrimaryLandscape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.carousel.CarouselDefaults
 import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
@@ -326,16 +329,27 @@ private fun FullscreenContent(
         itemCount = { flags.count() },
     )
 
-    // TODO rememberSaveable?
+    /* For controlling scroll to end/beginning when at first or last item in carousel */
+    var isFirstItem by remember { mutableStateOf(value = false) }
     var isLastItem by remember { mutableStateOf(value = false) }
-    /*
-    var scrollToBeginning by remember { mutableStateOf(value = false) }
-    LaunchedEffect(scrollToBeginning) {
-        if (scrollToBeginning) {
-            carouselState.animateScrollBy(value = -10_000_000f)
+    var scrollToEnd: Boolean? by remember { mutableStateOf(value = null) }
+    var scrollToBeginning: Boolean? by remember { mutableStateOf(value = null) }
+    LaunchedEffect(scrollToEnd) {
+        scrollToEnd?.let {
+            carouselState.animateScrollBy(
+                value = 10_000_000f,
+                animationSpec = tween(durationMillis = 10_000),
+            )
         }
     }
-     */
+    LaunchedEffect(scrollToBeginning) {
+        scrollToBeginning?.let {
+            carouselState.animateScrollBy(
+                value = -10_000_000f,
+                animationSpec = tween(durationMillis = 10_000),
+            )
+        }
+    }
 
 
     HorizontalUncontainedCarousel(
@@ -361,8 +375,14 @@ private fun FullscreenContent(
             if (abs(x = leftEdgeFromWindowLeft - rightEdgeFromWindowRight) <= 2f) {
                 onCarouselRotation(item.id, item.flagOf)
 
-                if (i == flags.size - 1) {
-                    isLastItem = true
+                isFirstItem = when (i) {
+                    0 -> true
+                    else -> false
+                }
+
+                isLastItem = when (i) {
+                    flags.size - 1 -> true
+                    else -> false
                 }
             }
         }
@@ -414,6 +434,77 @@ private fun FullscreenContent(
                 )
             }
 
+            /* Scroll to beginning of list button */
+            if (isFirstItem) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.CenterStart,
+                ) {
+                    AnimatedVisibility(
+                        visible = isButtons,
+                        enter = fadeIn(
+                            animationSpec = tween(durationMillis = exitButtonAnimationTiming)
+                        ),
+                        exit = fadeOut(
+                            animationSpec = tween(durationMillis = exitButtonAnimationTiming)
+                        ),
+                    ) {
+                        IconButton(
+                            onClick = {
+                                if (scrollToEnd == null) scrollToEnd = true
+                                else if (scrollToEnd == true) scrollToEnd = false
+                                else if (scrollToEnd == false) scrollToEnd = true
+                            },
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = surfaceLight,
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardDoubleArrowRight,
+                                contentDescription = null,
+                            )
+                        }
+                    }
+                }
+            }
+
+            /* Scroll to beginning of list button */
+            if (isLastItem) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.CenterEnd,
+                ) {
+                    AnimatedVisibility(
+                        visible = isButtons,
+                        enter = fadeIn(
+                            animationSpec = tween(durationMillis = exitButtonAnimationTiming)
+                        ),
+                        exit = fadeOut(
+                            animationSpec = tween(durationMillis = exitButtonAnimationTiming)
+                        ),
+                    ) {
+                        IconButton(
+                            onClick = {
+                                if (scrollToBeginning == null) scrollToBeginning = true
+                                else if (scrollToBeginning == true) scrollToBeginning = false
+                                else if (scrollToBeginning == false) scrollToBeginning = true
+                            },
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = surfaceLight,
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardDoubleArrowLeft,
+                                contentDescription = null,
+                            )
+                        }
+                    }
+                }
+            }
+
+            /* Status bar scrim */
             if (isGame) {
                 Box(modifier = Modifier.align(Alignment.TopStart)
                     .fillMaxWidth()
