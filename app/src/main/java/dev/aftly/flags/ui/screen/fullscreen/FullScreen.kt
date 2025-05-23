@@ -15,10 +15,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ScreenLockLandscape
 import androidx.compose.material.icons.filled.StayPrimaryLandscape
@@ -111,12 +114,10 @@ fun FullScreen(
     if (isInit) {
         FullscreenScaffold(
             currentScreen = currentScreen,
-            currentTitle = when (isGame) {
-                false -> uiState.currentFlagTitle
-                true -> null
-            },
+            currentTitle = uiState.currentFlagTitle,
             canNavigateBack = canNavigateBack,
             systemUiController = systemUiController,
+            isGame = isGame,
             isFlagWide = isFlagWide,
             isLandscape = isLandscape,
             onLandscapeChange = { isLandscape = !isLandscape },
@@ -139,9 +140,10 @@ fun FullScreen(
 private fun FullscreenScaffold(
     modifier: Modifier = Modifier,
     currentScreen: Screen,
-    currentTitle: Int?,
+    currentTitle: Int,
     canNavigateBack: Boolean,
     systemUiController: SystemUiController,
+    isGame: Boolean,
     isFlagWide: Boolean,
     isLandscape: Boolean,
     onLandscapeChange: () -> Unit,
@@ -230,7 +232,6 @@ private fun FullscreenScaffold(
     val isAspectRatioWide = displayMetrics.widthPixels >= displayMetrics.heightPixels
 
 
-
     /* Full screen content (Box is [default value] TopStart aligned for back button & top bar) */
     Box(
         modifier = Modifier
@@ -271,6 +272,7 @@ private fun FullscreenScaffold(
                         canNavigateBack = canNavigateBack,
                         isActionOn = isTopBarLocked,
                         isPortraitOrientation = isScreenPortrait,
+                        isGame = isGame,
                         onNavigateUp = onExitFullscreen,
                         onNavigateDetails = {},
                         onAction = { isTopBarLocked = !isTopBarLocked },
@@ -279,6 +281,7 @@ private fun FullscreenScaffold(
             },
         ) { _ ->
             FullscreenContent(
+                isGame = isGame,
                 isAspectRatioWide = isAspectRatioWide,
                 isFlagWide = isFlagWide,
                 isButtons = isButtons,
@@ -299,6 +302,7 @@ private fun FullscreenScaffold(
 @Composable
 private fun FullscreenContent(
     modifier: Modifier = Modifier,
+    isGame: Boolean,
     isAspectRatioWide: Boolean,
     isFlagWide: Boolean,
     isButtons: Boolean,
@@ -313,6 +317,7 @@ private fun FullscreenContent(
     val displayMetrics = LocalContext.current.resources.displayMetrics
     val density = LocalDensity.current
 
+    val statusBarHeight = WindowInsets.statusBars.getTop(density = density)
     val screenWidthPx = remember { displayMetrics.widthPixels.toFloat() }
     val screenWidthDp = remember { with(density) { screenWidthPx.toDp() } }
 
@@ -406,6 +411,14 @@ private fun FullscreenContent(
                     animationTiming = exitButtonAnimationTiming,
                     onInvisible = {},
                     onFullScreen = onExitFullScreen,
+                )
+            }
+
+            if (isGame) {
+                Box(modifier = Modifier.align(Alignment.TopStart)
+                    .fillMaxWidth()
+                    .height(with(density) { statusBarHeight.toDp() })
+                    .background(color = surfaceDark.copy(alpha = 0.5f))
                 )
             }
         }

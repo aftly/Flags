@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Surface
@@ -327,6 +328,7 @@ fun GeneralTopBar(
     isActionOn: Boolean = false, /* For buttons with 2 icon states */
     isRelatedFlagsButton: Boolean = false,
     isPortraitOrientation: Boolean? = null,
+    isGame: Boolean = false,
     buttonExpanded: Boolean = false,
     onButtonExpand: () -> Unit = {},
     onButtonPosition: (Offset) -> Unit = {},
@@ -340,7 +342,7 @@ fun GeneralTopBar(
 
     @StringRes val title = when (currentScreen) {
         Screen.StartMenu -> null
-        Screen.Fullscreen -> currentTitle
+        Screen.Fullscreen -> if (isGame == true) null else currentTitle
         else -> currentScreen.title
     }
 
@@ -389,7 +391,15 @@ fun GeneralTopBar(
         modifier = modifier,
         navigationIcon = {
             if (canNavigateBackStatic) {
-                IconButton(onClick = onNavigateUp) {
+                IconButton(
+                    onClick = onNavigateUp,
+                    colors = when (isGame to currentScreen) {
+                        true to Screen.Fullscreen -> IconButtonDefaults.iconButtonColors(
+                            containerColor = surfaceDark.copy(alpha = 0.5f)
+                        )
+                        else -> IconButtonDefaults.iconButtonColors()
+                    }
+                ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Default.ArrowBack,
                         contentDescription = "back",
@@ -428,7 +438,15 @@ fun GeneralTopBar(
                         )
                     }
                 Screen.Fullscreen ->
-                    IconButton(onClick = onAction) {
+                    IconButton(
+                        onClick = onAction,
+                        colors = when (isGame) {
+                            true -> IconButtonDefaults.iconButtonColors(
+                                containerColor = surfaceDark.copy(alpha = 0.5f)
+                            )
+                            false -> IconButtonDefaults.iconButtonColors()
+                        },
+                    ) {
                         when(isActionOn) {
                             true -> 
                                 Icon(
@@ -446,13 +464,21 @@ fun GeneralTopBar(
             }
         },
         colors = when (currentScreen) {
-            Screen.Fullscreen -> TopAppBarDefaults.topAppBarColors(
-                containerColor = surfaceDark.copy(alpha = 0.5f),
-                navigationIconContentColor = surfaceLight,
-                titleContentColor = surfaceLight,
-                actionIconContentColor = surfaceLight,
-
-            )
+            Screen.Fullscreen ->
+                if (isGame == true) {
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        navigationIconContentColor = surfaceLight,
+                        actionIconContentColor = surfaceLight,
+                    )
+                } else {
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = surfaceDark.copy(alpha = 0.5f),
+                        navigationIconContentColor = surfaceLight,
+                        titleContentColor = surfaceLight,
+                        actionIconContentColor = surfaceLight,
+                    )
+                }
             else -> TopAppBarDefaults.topAppBarColors()
         }
     )
