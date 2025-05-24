@@ -3,6 +3,7 @@ package dev.aftly.flags.ui.screen.game
 import android.app.Activity
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -30,6 +31,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -42,6 +44,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -60,6 +63,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -78,7 +82,9 @@ import dev.aftly.flags.ui.component.GeneralTopBar
 import dev.aftly.flags.ui.component.shareText
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
+import dev.aftly.flags.ui.theme.successDark
 import dev.aftly.flags.ui.theme.successLight
+import dev.aftly.flags.ui.theme.surfaceLight
 import dev.aftly.flags.ui.util.SystemUiController
 import kotlinx.coroutines.delay
 
@@ -90,7 +96,7 @@ fun GameScreen(
     currentScreen: Screen,
     canNavigateBack: Boolean,
     onNavigateUp: () -> Unit,
-    onFullscreen: (Int, Boolean) -> Unit,
+    onFullscreen: (Int, Boolean, Boolean) -> Unit,
 ) {
     /* Expose screen and backStack state */
     val uiState by viewModel.uiState.collectAsState()
@@ -130,7 +136,7 @@ fun GameScreen(
             onShare = { text ->
                 shareText(
                     context = context,
-                    subject = R.string.flag_game_over_share_subject,
+                    subject = R.string.game_over_share_subject,
                     textToShare = text,
                 )
             },
@@ -144,6 +150,7 @@ fun GameScreen(
         isWideScreen = isWideScreen,
         totalFlagCount = uiState.totalFlagCount,
         correctGuessCount = uiState.correctGuessCount,
+        shownAnswerCount = uiState.shownAnswerCount,
         currentCategoryTitle = uiState.currentCategoryTitle,
         currentSuperCategory = uiState.currentSuperCategory,
         currentSuperCategories = uiState.currentSuperCategories,
@@ -155,13 +162,15 @@ fun GameScreen(
         isGuessCorrectEvent = uiState.isGuessedFlagCorrectEvent,
         isGuessWrong = uiState.isGuessedFlagWrong,
         isGuessWrongEvent = uiState.isGuessedFlagWrongEvent,
+        isShowAnswer = uiState.isShowAnswer,
         onKeyboardDoneAction = { viewModel.checkUserGuess() },
         onSubmit = { viewModel.checkUserGuess() },
-        onSkip = { viewModel.skipFlag() },
+        onSkip = { viewModel.skipFlag(isAnswerShown = uiState.isShowAnswer) },
+        onShowAnswer = { viewModel.showAnswer() },
         onEndGame = { viewModel.endGame() },
         onNavigateUp = onNavigateUp,
         onFullscreen = { isLandscape ->
-            onFullscreen(uiState.currentFlag.id, isLandscape)
+            onFullscreen(uiState.currentFlag.id, isLandscape, !uiState.isShowAnswer)
         },
         onCategorySelect = { newSuperCategory, newSubCategory ->
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
@@ -181,6 +190,7 @@ private fun GameScaffold(
     isWideScreen: Boolean,
     totalFlagCount: Int,
     correctGuessCount: Int,
+    shownAnswerCount: Int,
     @StringRes currentCategoryTitle: Int,
     currentSuperCategory: FlagSuperCategory,
     currentSuperCategories: List<FlagSuperCategory>?,
@@ -192,9 +202,11 @@ private fun GameScaffold(
     isGuessCorrectEvent: Boolean,
     isGuessWrong: Boolean,
     isGuessWrongEvent: Boolean,
+    isShowAnswer: Boolean,
     onKeyboardDoneAction: () -> Unit,
     onSubmit: () -> Unit,
     onSkip: () -> Unit,
+    onShowAnswer: () -> Unit,
     onEndGame: () -> Unit,
     onNavigateUp: () -> Unit,
     onFullscreen: (Boolean) -> Unit,
@@ -242,6 +254,7 @@ private fun GameScaffold(
                 filterButtonHeight = buttonHeight,
                 totalFlagCount = totalFlagCount,
                 correctGuessCount = correctGuessCount,
+                shownAnswerCount = shownAnswerCount,
                 currentFlag = currentFlag,
                 userGuess = userGuess,
                 onUserGuessChange = onUserGuessChange,
@@ -249,9 +262,11 @@ private fun GameScaffold(
                 isGuessCorrectEvent = isGuessCorrectEvent,
                 isGuessWrong = isGuessWrong,
                 isGuessWrongEvent = isGuessWrongEvent,
+                isShowAnswer = isShowAnswer,
                 onKeyboardDoneAction = onKeyboardDoneAction,
                 onSubmit = onSubmit,
                 onSkip = onSkip,
+                onShowAnswer = onShowAnswer,
                 onEndGame = onEndGame,
                 onImageWide = { isFlagWide = it },
                 onFullscreen = { onFullscreen(isFlagWide) },
@@ -265,7 +280,8 @@ private fun GameScaffold(
             exit = fadeOut(animationSpec = tween(durationMillis = Timing.MENU_EXPAND)),
         ) {
             Scrim(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
                 onAction = { buttonExpanded = !buttonExpanded }
             )
@@ -305,6 +321,7 @@ private fun GameContent(
     filterButtonHeight: Dp,
     totalFlagCount: Int,
     correctGuessCount: Int,
+    shownAnswerCount: Int,
     currentFlag: FlagResources,
     userGuess: String,
     onUserGuessChange: (String) -> Unit,
@@ -312,9 +329,11 @@ private fun GameContent(
     isGuessCorrectEvent: Boolean,
     isGuessWrong: Boolean,
     isGuessWrongEvent: Boolean,
+    isShowAnswer: Boolean,
     onKeyboardDoneAction: () -> Unit,
     onSubmit: () -> Unit,
     onSkip: () -> Unit,
+    onShowAnswer: () -> Unit,
     onEndGame: () -> Unit,
     onImageWide: (Boolean) -> Unit,
     onFullscreen: () -> Unit,
@@ -333,6 +352,23 @@ private fun GameContent(
     val aspectRatioTopPadding = when (isWideScreen) {
         false -> Dimens.large24
         true -> Dimens.large24 / 2
+    }
+
+    /* Manage show answer button */
+    var showAnswerButtonState by rememberSaveable { mutableIntStateOf(value = 0) }
+    val isDarkTheme by rememberUpdatedState(newValue = isSystemInDarkTheme())
+    val showAnswerColor = when (showAnswerButtonState) {
+        1 -> MaterialTheme.colorScheme.error
+        else -> if (isDarkTheme) successDark else successLight
+    }
+    val showAnswerText = when (showAnswerButtonState) {
+        0 -> stringResource(R.string.game_button_show)
+        1 -> stringResource(R.string.game_button_show_confirm)
+        else -> stringResource(R.string.game_button_shown)
+    }
+    /* Reset showAnswerButtonState when isShowAnswer is reset */
+    LaunchedEffect(isShowAnswer) {
+        if (!isShowAnswer) showAnswerButtonState = 0
     }
 
 
@@ -379,6 +415,7 @@ private fun GameContent(
             onCardWidthModifierChange = { cardWidthModifier = it },
             totalFlagCount = totalFlagCount,
             correctGuessCount = correctGuessCount,
+            shownAnswerCount = shownAnswerCount,
             currentFlag = currentFlag,
             userGuess = userGuess,
             onUserGuessChange = onUserGuessChange,
@@ -386,19 +423,23 @@ private fun GameContent(
             isGuessCorrectEvent = isGuessCorrectEvent,
             isGuessWrong = isGuessWrong,
             isGuessWrongEvent = isGuessWrongEvent,
+            isShowAnswer = isShowAnswer,
             onKeyboardDoneAction = onKeyboardDoneAction,
             onEndGame = onEndGame,
             onImageWide = onImageWide,
             onFullscreen = onFullscreen,
         )
+        /* Something makes Submit button's top padding less than Skip button's  */
+        Spacer(modifier = Modifier.height(2.dp))
 
         Button(
             onClick = onSubmit,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = Dimens.medium16),
+            enabled = showAnswerButtonState < 2,
         ) {
-            Text(text = "Submit")
+            Text(text = stringResource(R.string.game_button_submit))
         }
 
         OutlinedButton(
@@ -407,10 +448,22 @@ private fun GameContent(
                 .fillMaxWidth()
                 .padding(top = Dimens.medium16),
         ) {
-            Text(text = "Skip")
+            Text(text = stringResource(R.string.game_button_skip))
         }
 
-        Spacer(modifier = Modifier.height(Dimens.bottomSpacer30))
+        OutlinedButton(
+            onClick = {
+                showAnswerButtonState++
+                if (showAnswerButtonState > 1) onShowAnswer()
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = Dimens.medium16),
+            enabled = showAnswerButtonState < 2,
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = showAnswerColor),
+        ) {
+            Text(text = showAnswerText)
+        }
     }
 }
 
@@ -429,6 +482,7 @@ private fun GameCard(
     onCardWidthModifierChange: (Modifier) -> Unit,
     totalFlagCount: Int,
     correctGuessCount: Int,
+    shownAnswerCount: Int,
     currentFlag: FlagResources,
     userGuess: String,
     onUserGuessChange: (String) -> Unit,
@@ -436,6 +490,7 @@ private fun GameCard(
     isGuessCorrectEvent: Boolean,
     isGuessWrong: Boolean,
     isGuessWrongEvent: Boolean,
+    isShowAnswer: Boolean,
     onKeyboardDoneAction: () -> Unit,
     onEndGame: () -> Unit,
     onImageWide: (Boolean) -> Unit,
@@ -464,9 +519,9 @@ private fun GameCard(
         animationSpec = animationSpecError,
     )
 
-    val labelDefault = stringResource(R.string.flag_game_guess_field_label)
-    val labelSuccess = stringResource(R.string.flag_game_guess_field_label_success)
-    val labelError = stringResource(R.string.flag_game_guess_field_label_error)
+    val labelDefault = stringResource(R.string.game_guess_field_label)
+    val labelSuccess = stringResource(R.string.game_guess_field_label_success)
+    val labelError = stringResource(R.string.game_guess_field_label_error)
     var labelState by remember { mutableStateOf(value = labelDefault) }
 
 
@@ -506,6 +561,14 @@ private fun GameCard(
 
     val density = LocalDensity.current
 
+    /* Referencing currentFlag.flagOf directly in Text() shows next flagOf for 1 frame after skip */
+    @StringRes var correctAnswer by rememberSaveable {
+        mutableIntStateOf(value = R.string.game_button_show)
+    }
+    LaunchedEffect(isShowAnswer) {
+        if (isShowAnswer) correctAnswer = currentFlag.flagOf
+    }
+
 
     /* Game Card content */
     Card(
@@ -524,15 +587,37 @@ private fun GameCard(
                     .padding(bottom = Dimens.medium16),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = "$correctGuessCount/$totalFlagCount",
-                    modifier = Modifier.clip(MaterialTheme.shapes.medium)
-                        .background(MaterialTheme.colorScheme.primary)
-                        .padding(vertical = Dimens.extraSmall4, horizontal = Dimens.small10),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    style = MaterialTheme.typography.titleSmall,
-                )
+                /* Flag counters */
+                Row {
+                    Text(
+                        text = "${correctGuessCount + shownAnswerCount}/$totalFlagCount",
+                        modifier = Modifier
+                            .clip(MaterialTheme.shapes.medium)
+                            .background(MaterialTheme.colorScheme.primary)
+                            .padding(vertical = Dimens.extraSmall4, horizontal = Dimens.small10),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.titleSmall,
+                    )
 
+                    if (shownAnswerCount > 0) {
+                        Spacer(modifier = Modifier.width(2.dp))
+
+                        Text(
+                            text = "$shownAnswerCount",
+                            modifier = Modifier
+                                .clip(MaterialTheme.shapes.medium)
+                                .background(MaterialTheme.colorScheme.error)
+                                .padding(
+                                    vertical = Dimens.extraSmall4,
+                                    horizontal = Dimens.small10,
+                                ),
+                            color = MaterialTheme.colorScheme.onError,
+                            style = MaterialTheme.typography.titleSmall,
+                        )
+                    }
+                }
+
+                /* Finish game button */
                 TextButton(
                     onClick = onEndGame,
                     modifier = Modifier.height(Dimens.extraLarge32),
@@ -550,6 +635,7 @@ private fun GameCard(
                 }
             }
 
+            /* Flag & show answer content */
             Box(
                 modifier = Modifier
                     .combinedClickable(
@@ -589,13 +675,40 @@ private fun GameCard(
                                 /* For fullscreen orientation */
                                 onImageWide(size.width > size.height)
                             }
-                            .then(cardImageHeightModifier) /* concatenate height after onSizeChanged */
+                            /* Concatenate height after onSizeChanged */
+                            .then(cardImageHeightModifier)
                             /* Force aspect ratio to keep game card shape consistent */
                             .aspectRatio(ratio = 3f / 2f),
                         painter = painterResource(currentFlag.image),
-                        contentDescription = "flag of ${stringResource(currentFlag.flagOf)}",
+                        contentDescription = null,
                         contentScale = ContentScale.Fit,
                     )
+
+                    /* Show answer content */
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = isShowAnswer,
+                        modifier = Modifier.matchParentSize(),
+                        enter = fadeIn(
+                            animationSpec = tween(durationMillis = Timing.SCREEN_NAV * 2)
+                        ),
+                        exit = ExitTransition.None,
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                text = stringResource(correctAnswer),
+                                modifier = Modifier
+                                    .clip(MaterialTheme.shapes.large)
+                                    .background(color = Color.Black.copy(alpha = 0.75f))
+                                    .padding(
+                                        vertical = Dimens.small8,
+                                        horizontal = Dimens.medium16,
+                                    ),
+                                color = surfaceLight,
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.headlineLarge,
+                            )
+                        }
+                    }
 
                     FullscreenButton(
                         visible = isFullScreenButton,
@@ -604,13 +717,15 @@ private fun GameCard(
                     )
                 } else {
                     NoResultsFound(
-                        modifier = Modifier.aspectRatio(ratio = 2f / 1f)
+                        modifier = Modifier
+                            .aspectRatio(ratio = 2f / 1f)
                             .fillMaxSize(),
                         isGame = true,
                     )
                 }
             }
 
+            /* User guess field */
             OutlinedTextField(
                 value = userGuess,
                 onValueChange = onUserGuessChange,
@@ -658,34 +773,34 @@ private fun GameOverDialog(
     onPlayAgain: () -> Unit,
 ) {
     val scoreMessage = when (finalScore) {
-        maxScore -> stringResource(R.string.flag_game_over_text_max_score)
-        0 -> stringResource(R.string.flag_game_over_text_min_score)
-        else -> stringResource(R.string.flag_game_over_text, finalScore, maxScore)
+        maxScore -> stringResource(R.string.game_over_text_max_score)
+        0 -> stringResource(R.string.game_over_text_min_score)
+        else -> stringResource(R.string.game_over_text, finalScore, maxScore)
     }
 
     val shareScoreMessage = stringResource(
-        R.string.flag_game_over_share_text, finalScore, maxScore, gameMode
+        R.string.game_over_share_text, finalScore, maxScore, gameMode
     )
 
     AlertDialog(
         onDismissRequest = { },
-        title = { Text(text = stringResource(R.string.flag_game_over_title)) },
+        title = { Text(text = stringResource(R.string.game_over_title)) },
         text = { Text(text = scoreMessage) },
         modifier = modifier,
         dismissButton = {
             TextButton(
                 onClick = onExit,
             ) {
-                Text(text = stringResource(R.string.flag_game_over_exit_button))
+                Text(text = stringResource(R.string.game_over_exit_button))
             }
         },
         confirmButton = {
             Row {
                 TextButton(onClick = { onShare(shareScoreMessage) }) {
-                    Text(text = stringResource(R.string.flag_game_over_share_button))
+                    Text(text = stringResource(R.string.game_over_share_button))
                 }
                 TextButton(onClick = onPlayAgain) {
-                    Text(text = stringResource(R.string.flag_game_over_play_again_button))
+                    Text(text = stringResource(R.string.game_over_play_again_button))
                 }
             }
         },
