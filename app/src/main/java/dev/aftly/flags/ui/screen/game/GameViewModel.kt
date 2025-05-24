@@ -34,6 +34,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private var guessedFlags = mutableSetOf<FlagResources>()
     private var skippedFlags = mutableListOf<FlagResources>()
+    private var shownFlags = mutableListOf<FlagResources>()
 
     var userGuess by mutableStateOf(value = "")
         private set
@@ -52,6 +53,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun resetGame() {
         guessedFlags = mutableSetOf()
         skippedFlags = mutableListOf()
+        shownFlags = mutableListOf()
         userGuess = ""
 
         val newFlag = getRandomFlag()
@@ -60,15 +62,17 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             else -> getStringsList(flag = newFlag)
         }
 
-        _uiState.update { currentState ->
-            currentState.copy(
-                totalFlagCount = currentState.currentFlags.size,
+        _uiState.update {
+            it.copy(
+                totalFlagCount = it.currentFlags.size,
                 currentFlag = newFlag,
                 currentFlagStrings = newFlagStrings,
                 correctGuessCount = 0,
+                shownAnswerCount = 0,
                 isGuessedFlagWrong = false,
                 nextFlagInSkipped = null,
                 isGameOver = false,
+                isShowAnswer = false,
             )
         }
     }
@@ -209,11 +213,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
         if (normalizedUserGuess in normalizedAnswers) {
             userGuess = ""
-            _uiState.update { currentState ->
-                currentState.copy(
-                    correctGuessCount = currentState.correctGuessCount.inc(),
+            _uiState.update {
+                it.copy(
+                    correctGuessCount = it.correctGuessCount.inc(),
                     isGuessedFlagCorrect = true,
-                    isGuessedFlagCorrectEvent = !currentState.isGuessedFlagCorrectEvent,
+                    isGuessedFlagCorrectEvent = !it.isGuessedFlagCorrectEvent,
                     isGuessedFlagWrong = false,
                 )
             }
@@ -221,21 +225,27 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
         } else {
             userGuess = ""
-            _uiState.update { currentState ->
-                currentState.copy(
+            _uiState.update {
+                it.copy(
                     isGuessedFlagCorrect = false,
                     isGuessedFlagWrong = true,
-                    isGuessedFlagWrongEvent = !currentState.isGuessedFlagWrongEvent,
+                    isGuessedFlagWrongEvent = !it.isGuessedFlagWrongEvent,
                 )
             }
         }
     }
 
 
-    fun skipFlag() {
+    fun skipFlag(isAnswerShown: Boolean) {
         updateCurrentFlag(
             isSkip = true,
+            isAnswerShown = isAnswerShown,
         )
+    }
+
+
+    fun showAnswer() {
+        _uiState.update { it.copy(isShowAnswer = true) }
     }
 
 
@@ -257,11 +267,20 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun updateCurrentFlag(
         isSkip: Boolean = false,
+        isAnswerShown: Boolean = false,
     ) {
         val currentFlag: FlagResources = uiState.value.currentFlag
 
-        /* Manage skipped and guessed flags lists depending on args & game conditions */
-        if (isSkip) { /* If user skip & no un-skipped flags remain, add flag to skip list */
+        /* Manage shown, skipped and guessed flags lists depending on args & game conditions */
+        if (isAnswerShown) {
+            shownFlags.add(currentFlag)
+            _uiState.update {
+                it.copy(
+                    shownAnswerCount = it.shownAnswerCount.inc(),
+                    isShowAnswer = false,
+                )
+            }
+        } else if (isSkip) { /* If user skip & un-skipped flags remain, add flag to skip list */
             if (!isSkipMax()) skippedFlags.add(currentFlag)
 
         } else { /* If user guess, add flag to guessed set */
@@ -272,14 +291,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         /* If all flags guessed, end the game */
-        if (guessedFlags.size == uiState.value.currentFlags.size) return endGame()
+        if (shownFlags.size + guessedFlags.size == uiState.value.currentFlags.size) return endGame()
 
         /* If no un-skipped flags remain get skipped flag, else get random flag */
         val newFlag = if (isSkipMax()) getSkippedFlag() else getRandomFlag()
         val newFlagStrings = getStringsList(newFlag)
 
-        _uiState.update { currentState ->
-            currentState.copy(
+        _uiState.update {
+            it.copy(
                 currentFlag = newFlag,
                 currentFlagStrings = newFlagStrings,
             )
@@ -288,7 +307,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
 
     private fun isSkipMax(): Boolean {
-        return skippedFlags.size + guessedFlags.size == uiState.value.currentFlags.size
+        return shownFlags.size + skippedFlags.size + guessedFlags.size ==
+                uiState.value.currentFlags.size
     }
 
 

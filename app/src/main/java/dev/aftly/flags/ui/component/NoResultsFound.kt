@@ -31,11 +31,11 @@ fun NoResultsFound(
     )
 
     @StringRes val description1 = when (isSearch) {
-        true -> R.string.flag_search_no_results_description
-        false -> R.string.list_flags_no_results_description
+        true -> R.string.search_no_results_description
+        false -> R.string.multi_select_no_results_description
     }
     @StringRes val description2 = when (isSearch) {
-        true -> R.string.flag_search_no_results_description_2
+        true -> R.string.search_no_results_description_2
         false -> null
     }
 
@@ -45,7 +45,7 @@ fun NoResultsFound(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = stringResource(R.string.flag_search_no_results_title),
+            text = stringResource(R.string.search_no_results_title),
             fontWeight = FontWeight.Bold,
             style = MaterialTheme.typography.headlineSmall,
         )
