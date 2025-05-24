@@ -2,7 +2,6 @@ package dev.aftly.flags.ui.screen.fullscreen
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
@@ -83,7 +82,7 @@ fun FullScreen(
     viewModel: FullscreenViewModel = viewModel(),
     currentScreen: Screen,
     canNavigateBack: Boolean,
-    isGame: Boolean,
+    hideTitle: Boolean,
     isFlagWide: Boolean,
     onExitFullScreen: (Int) -> Unit,
 ) {
@@ -120,7 +119,7 @@ fun FullScreen(
             currentTitle = uiState.currentFlagTitle,
             canNavigateBack = canNavigateBack,
             systemUiController = systemUiController,
-            isGame = isGame,
+            isGame = hideTitle,
             isFlagWide = isFlagWide,
             isLandscape = isLandscape,
             onLandscapeChange = { isLandscape = !isLandscape },

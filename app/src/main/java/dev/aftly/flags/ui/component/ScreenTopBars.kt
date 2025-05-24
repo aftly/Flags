@@ -253,7 +253,7 @@ fun ListScreenTopBar(
                             .focusRequester(focusRequester),
                         singleLine = true,
                         placeholder = {
-                            Text(text = stringResource(R.string.flag_search_bar_placeholder))
+                            Text(text = stringResource(R.string.search_bar_placeholder))
                         },
                         trailingIcon = {
                             Box(
@@ -279,7 +279,7 @@ fun ListScreenTopBar(
                                             Icon(
                                                 imageVector = Icons.Default.Clear,
                                                 contentDescription =
-                                                    stringResource(R.string.flag_search_clear),
+                                                    stringResource(R.string.search_clear),
                                                 tint = MaterialTheme.colorScheme.onSurface,
                                             )
                                         }

@@ -3,8 +3,6 @@ package dev.aftly.flags.navigation
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
@@ -128,7 +126,7 @@ fun AppNavHost(
                     val flagsAsString = flagsArg.joinToString(separator = ",")
 
                     navController.navigate(
-                        route = "${Screen.Fullscreen.route}/$flagArg/$flagsAsString/$isLandscape"
+                        route = "${Screen.Fullscreen.route}/$flagArg/$flagsAsString/$isLandscape?hideTitle=false"
                     ) { launchSingleTop = true }
                 },
                 onNavigateError = onNullError,
@@ -152,11 +150,11 @@ fun AppNavHost(
                 currentScreen = Screen.Game,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 onNavigateUp = { navController.navigateUp() },
-                onFullscreen = { flagArg, isLandscape ->
+                onFullscreen = { flagArg, isLandscape, hideTitle ->
                     val flagsArg = "$flagArg"
 
                     navController.navigate(
-                        route = "${Screen.Fullscreen.route}/$flagArg/$flagsArg/$isLandscape"
+                        route = "${Screen.Fullscreen.route}/$flagArg/$flagsArg/$isLandscape?hideTitle=$hideTitle"
                     ) { launchSingleTop = true }
                 }
             )
@@ -164,25 +162,24 @@ fun AppNavHost(
 
         /* FullScreen NavGraph */
         composable(
-            route = "${Screen.Fullscreen.route}/{flag}/{flags}/{landscape}",
+            route = "${Screen.Fullscreen.route}/{flag}/{flags}/{landscape}?hideTitle={hideTitle}",
             arguments = listOf(
                 navArgument(name = "flag") { type = NavType.IntType },
                 /* Although String type, is functionally List<Int> with immediate CSV conversions */
                 navArgument(name = "flags") { type = NavType.StringType },
-                navArgument(name = "landscape") { type = NavType.BoolType }
+                navArgument(name = "landscape") { type = NavType.BoolType },
+                navArgument(name = "hideTitle") { type = NavType.BoolType },
             ),
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None },
         ) { backStackEntry ->
-            val isLandscape = backStackEntry.arguments?.getBoolean("landscape") ?: false
-            val isGame =
-                navController.previousBackStackEntry?.destination?.route == Screen.Game.route
-
+            val isLandscape = backStackEntry.arguments?.getBoolean("landscape") ?: true
+            val hideTitle = backStackEntry.arguments?.getBoolean("hideTitle") ?: false
 
             FullScreen(
                 currentScreen = Screen.Fullscreen,
                 canNavigateBack = navController.previousBackStackEntry != null,
-                isGame = isGame,
+                hideTitle = hideTitle,
                 isFlagWide = isLandscape,
                 onExitFullScreen = { flagId ->
                     navController.previousBackStackEntry?.savedStateHandle?.set("flag", flagId)

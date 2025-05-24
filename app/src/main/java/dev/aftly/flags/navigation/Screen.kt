@@ -16,8 +16,8 @@ sealed class Screen(
 
     data object List : Screen(
         route = "list_screen",
-        title = R.string.flag_list_title,
-        description = R.string.flag_list_description,
+        title = R.string.list_title,
+        description = R.string.list_description,
     )
 
     data object Flag : Screen(
@@ -26,8 +26,8 @@ sealed class Screen(
 
     data object Game : Screen(
         route = "game_screen",
-        title = R.string.flag_game_title,
-        description = R.string.flag_game_description,
+        title = R.string.game_title,
+        description = R.string.game_description,
     )
 
     data object Fullscreen : Screen(
