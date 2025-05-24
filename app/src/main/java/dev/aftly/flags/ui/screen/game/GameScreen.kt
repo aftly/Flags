@@ -732,6 +732,7 @@ private fun GameCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = Dimens.small10),
+                enabled = !isShowAnswer,
                 label = {
                     Text(text = labelState)
                 },
