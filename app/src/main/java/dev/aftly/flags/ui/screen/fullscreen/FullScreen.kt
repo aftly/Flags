@@ -19,8 +19,15 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowLeft
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowRight
@@ -32,6 +39,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.carousel.CarouselDefaults
 import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
@@ -47,6 +55,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
@@ -290,6 +302,7 @@ private fun FullscreenScaffold(
                 exitButtonAnimationTiming = exitButtonAnimationTiming,
                 flag = flag,
                 flags = flags,
+                isScreenPortrait = isScreenPortrait,
                 isLandscape = isLandscape,
                 onLandscapeChange = onLandscapeChange,
                 onExitFullScreen = onExitFullscreen,
@@ -305,6 +318,7 @@ private fun FullscreenScaffold(
 private fun FullscreenContent(
     modifier: Modifier = Modifier,
     isGame: Boolean,
+    isScreenPortrait: Boolean,
     isAspectRatioWide: Boolean,
     isFlagWide: Boolean,
     isButtons: Boolean,
@@ -325,7 +339,7 @@ private fun FullscreenContent(
 
     val carouselState = rememberCarouselState(
         initialItem = flags.indexOf(flag),
-        itemCount = { flags.count() },
+        itemCount = { flags.size },
     )
 
     /* For controlling scroll to end/beginning when at first or last item in carousel */
@@ -333,6 +347,7 @@ private fun FullscreenContent(
     var isLastItem by remember { mutableStateOf(value = false) }
     var scrollToEnd: Boolean? by remember { mutableStateOf(value = null) }
     var scrollToBeginning: Boolean? by remember { mutableStateOf(value = null) }
+
     LaunchedEffect(scrollToEnd) {
         scrollToEnd?.let {
             carouselState.animateScrollBy(
@@ -433,74 +448,36 @@ private fun FullscreenContent(
                 )
             }
 
-            /* Scroll to beginning of list button */
-            if (isFirstItem) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.CenterStart,
-                ) {
-                    AnimatedVisibility(
-                        visible = isButtons,
-                        enter = fadeIn(
-                            animationSpec = tween(durationMillis = exitButtonAnimationTiming)
-                        ),
-                        exit = fadeOut(
-                            animationSpec = tween(durationMillis = exitButtonAnimationTiming)
-                        ),
-                    ) {
-                        IconButton(
-                            onClick = {
-                                if (scrollToEnd == null) scrollToEnd = true
-                                else if (scrollToEnd == true) scrollToEnd = false
-                                else if (scrollToEnd == false) scrollToEnd = true
-                            },
-                            colors = IconButtonDefaults.iconButtonColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                contentColor = surfaceLight,
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.KeyboardDoubleArrowRight,
-                                contentDescription = null,
-                            )
+            /* Scroll end of list button */
+            if (isFirstItem && flags.size > 2) {
+                ScrollToOppositeEndButton(
+                    visible = isButtons,
+                    animationTiming = exitButtonAnimationTiming,
+                    isScreenPortrait = isScreenPortrait,
+                    isEnd = false,
+                    onClick = {
+                        scrollToEnd = when (val scrollToCopy = scrollToEnd) {
+                            null -> true
+                            else -> !scrollToCopy
                         }
                     }
-                }
+                )
             }
 
             /* Scroll to beginning of list button */
-            if (isLastItem) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.CenterEnd,
-                ) {
-                    AnimatedVisibility(
-                        visible = isButtons,
-                        enter = fadeIn(
-                            animationSpec = tween(durationMillis = exitButtonAnimationTiming)
-                        ),
-                        exit = fadeOut(
-                            animationSpec = tween(durationMillis = exitButtonAnimationTiming)
-                        ),
-                    ) {
-                        IconButton(
-                            onClick = {
-                                if (scrollToBeginning == null) scrollToBeginning = true
-                                else if (scrollToBeginning == true) scrollToBeginning = false
-                                else if (scrollToBeginning == false) scrollToBeginning = true
-                            },
-                            colors = IconButtonDefaults.iconButtonColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                contentColor = surfaceLight,
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.KeyboardDoubleArrowLeft,
-                                contentDescription = null,
-                            )
+            if (isLastItem && flags.size > 2) {
+                ScrollToOppositeEndButton(
+                    visible = isButtons,
+                    animationTiming = exitButtonAnimationTiming,
+                    isScreenPortrait = isScreenPortrait,
+                    isEnd = true,
+                    onClick = {
+                        scrollToBeginning = when (val scrollToCopy = scrollToBeginning) {
+                            null -> true
+                            else -> !scrollToCopy
                         }
                     }
-                }
+                )
             }
 
             /* Status bar scrim */
@@ -509,6 +486,70 @@ private fun FullscreenContent(
                     .fillMaxWidth()
                     .height(with(density) { statusBarHeight.toDp() })
                     .background(color = surfaceDark.copy(alpha = 0.5f))
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun ScrollToOppositeEndButton(
+    visible: Boolean,
+    animationTiming: Int,
+    isScreenPortrait: Boolean,
+    isEnd: Boolean,
+    onClick: () -> Unit,
+) {
+    val buttonAlignment = when (isEnd) {
+        true -> Alignment.CenterEnd
+        false -> Alignment.CenterStart
+    }
+    val icon = when (isEnd) {
+        true -> Icons.Default.KeyboardDoubleArrowLeft
+        false -> Icons.Default.KeyboardDoubleArrowRight
+    }
+
+    val iconButtonSize = Dimens.standardIconSize24 * 2
+
+    val iconButtonModifier = when (isScreenPortrait to isEnd) {
+        false to true ->
+            Modifier.padding(end = iconButtonSize).size(iconButtonSize)
+        false to false ->
+            Modifier.padding(start = iconButtonSize).size(iconButtonSize)
+        true to true ->
+            Modifier.padding(end = Dimens.small8).size(iconButtonSize)
+        true to false ->
+            Modifier.padding(start = Dimens.small8).size(iconButtonSize)
+        else -> Modifier
+    }
+
+
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = buttonAlignment,
+    ) {
+        AnimatedVisibility(
+            visible = visible,
+            enter = fadeIn(
+                animationSpec = tween(durationMillis = animationTiming)
+            ),
+            exit = fadeOut(
+                animationSpec = tween(durationMillis = animationTiming)
+            ),
+        ) {
+            IconButton(
+                onClick = onClick,
+                modifier = iconButtonModifier,
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = surfaceLight,
+                )
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(Dimens.standardIconSize24 * 1.25f),
                 )
             }
         }
