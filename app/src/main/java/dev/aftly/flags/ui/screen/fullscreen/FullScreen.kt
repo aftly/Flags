@@ -13,7 +13,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -509,19 +513,33 @@ private fun ScrollToOppositeEndButton(
         true -> Icons.Default.KeyboardDoubleArrowLeft
         false -> Icons.Default.KeyboardDoubleArrowRight
     }
-
     val iconButtonSize = Dimens.standardIconSize24 * 2
+    val iconButtonPadding = when (isEnd) {
+        true -> PaddingValues(start = Dimens.small8)
+        false -> PaddingValues(end = Dimens.small8)
+    }
 
-    val iconButtonModifier = when (isScreenPortrait to isEnd) {
-        false to true ->
-            Modifier.padding(end = iconButtonSize).size(iconButtonSize)
-        false to false ->
-            Modifier.padding(start = iconButtonSize).size(iconButtonSize)
-        true to true ->
-            Modifier.padding(end = Dimens.small8).size(iconButtonSize)
-        true to false ->
-            Modifier.padding(start = Dimens.small8).size(iconButtonSize)
-        else -> Modifier
+    val surfaceHeight = iconButtonSize + Dimens.small8 * 2
+    val surfaceWidth = when (isScreenPortrait) {
+        true -> surfaceHeight
+        false -> iconButtonSize * 2 + Dimens.small8
+    }
+    val surfaceShape = when (isEnd) {
+        true ->
+            RoundedCornerShape(
+                topStart = surfaceHeight / 2,
+                bottomStart = surfaceHeight / 2,
+            )
+        false ->
+            RoundedCornerShape(
+                topEnd = surfaceHeight / 2,
+                bottomEnd = surfaceHeight / 2,
+            )
+    }
+
+    val rowArrangement = when (isEnd) {
+        true -> Arrangement.Start
+        false -> Arrangement.End
     }
 
 
@@ -538,19 +556,32 @@ private fun ScrollToOppositeEndButton(
                 animationSpec = tween(durationMillis = animationTiming)
             ),
         ) {
-            IconButton(
-                onClick = onClick,
-                modifier = iconButtonModifier,
-                colors = IconButtonDefaults.iconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = surfaceLight,
-                )
+            Surface(
+                modifier = Modifier.height(surfaceHeight)
+                    .width(surfaceWidth),
+                color = Color.Black,
+                shape = surfaceShape,
             ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(Dimens.standardIconSize24 * 1.25f),
-                )
+                Row(
+                    horizontalArrangement = rowArrangement,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        onClick = onClick,
+                        modifier = Modifier.padding(paddingValues = iconButtonPadding)
+                            .size(iconButtonSize),
+                        colors = IconButtonDefaults.iconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = surfaceLight,
+                        )
+                    ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(Dimens.standardIconSize24 * 1.25f),
+                        )
+                    }
+                }
             }
         }
     }
