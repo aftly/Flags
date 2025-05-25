@@ -17,21 +17,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowLeft
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowRight
@@ -59,10 +54,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
@@ -505,10 +496,13 @@ private fun ScrollToOppositeEndButton(
     isEnd: Boolean,
     onClick: () -> Unit,
 ) {
-    val buttonAlignment = when (isEnd) {
+    /* Composable fullscreen alignment */
+    val contentAlignment = when (isEnd) {
         true -> Alignment.CenterEnd
         false -> Alignment.CenterStart
     }
+
+    /* Icon & IconButton properties */
     val icon = when (isEnd) {
         true -> Icons.Default.KeyboardDoubleArrowLeft
         false -> Icons.Default.KeyboardDoubleArrowRight
@@ -519,6 +513,7 @@ private fun ScrollToOppositeEndButton(
         false -> PaddingValues(end = Dimens.small8)
     }
 
+    /* Pill island properties */
     val surfaceHeight = iconButtonSize + Dimens.small8 * 2
     val surfaceWidth = when (isScreenPortrait) {
         true -> surfaceHeight
@@ -537,6 +532,7 @@ private fun ScrollToOppositeEndButton(
             )
     }
 
+    /* Arrangement of IconButton inside of island */
     val rowArrangement = when (isEnd) {
         true -> Arrangement.Start
         false -> Arrangement.End
@@ -545,7 +541,7 @@ private fun ScrollToOppositeEndButton(
 
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = buttonAlignment,
+        contentAlignment = contentAlignment,
     ) {
         AnimatedVisibility(
             visible = visible,
