@@ -130,9 +130,9 @@ fun GameScreen(
             maxScore = uiState.totalFlagCount,
             gameMode = stringResource(uiState.currentSuperCategory.title),
             onExit = {
-                onFullscreen(1, false, false)
-                //viewModel.endGame(isGameOver = false)
-                //onNavigateUp()
+                //onFullscreen(1, false, false)
+                viewModel.endGame(isGameOver = false)
+                onNavigateUp()
             },
             onShare = { text ->
                 shareText(
