@@ -12,4 +12,5 @@ object Timing {
     const val SYSTEM_BARS_HANG: Int = 600
     const val FULLSCREEN_BUTTON: Int = 800
     const val TEXTFIELD_ACTION: Int = 200
+    const val SHOW_ANSWER: Int = 1000
 }

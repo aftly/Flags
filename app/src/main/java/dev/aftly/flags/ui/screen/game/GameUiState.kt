@@ -26,6 +26,11 @@ data class GameUiState(
     val isGuessedFlagWrong: Boolean = false,
     val isGuessedFlagWrongEvent: Boolean = false,
     val nextFlagInSkipped: FlagResources? = null,
-    val isGameOver: Boolean = false,
     val isShowAnswer: Boolean = false,
+
+    val isGameOver: Boolean = false,
+    val endGameGuessedFlags: List<FlagResources> = emptyList(),
+    val endGameSkippedFlags: List<FlagResources> = emptyList(),
+    val endGameShownFlags: List<FlagResources> = emptyList(),
+    val isScoreDetails: Boolean = false,
 )

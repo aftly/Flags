@@ -32,7 +32,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
-    private var guessedFlags = mutableSetOf<FlagResources>()
+    private var guessedFlags = mutableListOf<FlagResources>()
     private var skippedFlags = mutableListOf<FlagResources>()
     private var shownFlags = mutableListOf<FlagResources>()
 
@@ -51,7 +51,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     /* Reset game state with a new flag and necessary starting values */
     fun resetGame() {
-        guessedFlags = mutableSetOf()
+        guessedFlags = mutableListOf()
         skippedFlags = mutableListOf()
         shownFlags = mutableListOf()
         userGuess = ""
@@ -251,9 +251,21 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     fun endGame(isGameOver: Boolean = true) {
         when (isGameOver) {
-            true -> _uiState.update { it.copy(isGameOver = true) }
+            true -> _uiState.update {
+                it.copy(
+                    isGameOver = true,
+                    endGameGuessedFlags = guessedFlags.toList(),
+                    endGameSkippedFlags = skippedFlags.toList(),
+                    endGameShownFlags = shownFlags.toList(),
+                )
+            }
             false -> _uiState.update { it.copy(isGameOver = false) }
         }
+    }
+
+
+    fun scoreDetails(newState: Boolean) {
+        _uiState.update { it.copy(isScoreDetails = newState) }
     }
 
 

@@ -18,11 +18,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -79,6 +82,7 @@ import dev.aftly.flags.ui.component.FullscreenButton
 import dev.aftly.flags.ui.component.NoResultsFound
 import dev.aftly.flags.ui.component.Scrim
 import dev.aftly.flags.ui.component.GeneralTopBar
+import dev.aftly.flags.ui.component.ScoreDetails
 import dev.aftly.flags.ui.component.shareText
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
@@ -129,10 +133,9 @@ fun GameScreen(
             finalScore = uiState.correctGuessCount,
             maxScore = uiState.totalFlagCount,
             gameMode = stringResource(uiState.currentSuperCategory.title),
-            onExit = {
-                //onFullscreen(1, false, false)
+            onDetails = {
                 viewModel.endGame(isGameOver = false)
-                onNavigateUp()
+                viewModel.scoreDetails(newState = true)
             },
             onShare = { text ->
                 shareText(
@@ -144,6 +147,7 @@ fun GameScreen(
             onPlayAgain = { viewModel.resetGame() },
         )
     }
+
 
     GameScaffold(
         currentScreen = currentScreen,
@@ -164,10 +168,15 @@ fun GameScreen(
         isGuessWrong = uiState.isGuessedFlagWrong,
         isGuessWrongEvent = uiState.isGuessedFlagWrongEvent,
         isShowAnswer = uiState.isShowAnswer,
+        isScoreDetails = uiState.isScoreDetails,
+        endGameGuessedFlags = uiState.endGameGuessedFlags,
+        endGameSkippedFlags = uiState.endGameSkippedFlags,
+        endGameShownFlags = uiState.endGameShownFlags,
         onKeyboardDoneAction = { viewModel.checkUserGuess() },
         onSubmit = { viewModel.checkUserGuess() },
         onSkip = { viewModel.skipFlag(isAnswerShown = uiState.isShowAnswer) },
         onShowAnswer = { viewModel.showAnswer() },
+        onCloseScoreDetails = { viewModel.scoreDetails(newState = false) },
         onEndGame = { viewModel.endGame() },
         onNavigateUp = onNavigateUp,
         onFullscreen = { isLandscape ->
@@ -204,10 +213,15 @@ private fun GameScaffold(
     isGuessWrong: Boolean,
     isGuessWrongEvent: Boolean,
     isShowAnswer: Boolean,
+    isScoreDetails: Boolean,
+    endGameGuessedFlags: List<FlagResources>,
+    endGameSkippedFlags: List<FlagResources>,
+    endGameShownFlags: List<FlagResources>,
     onKeyboardDoneAction: () -> Unit,
     onSubmit: () -> Unit,
     onSkip: () -> Unit,
     onShowAnswer: () -> Unit,
+    onCloseScoreDetails: () -> Unit,
     onEndGame: () -> Unit,
     onNavigateUp: () -> Unit,
     onFullscreen: (Boolean) -> Unit,
@@ -312,7 +326,18 @@ private fun GameScaffold(
             onCategoryMultiSelect = onCategoryMultiSelect,
         )
 
-
+        /* For displaying verbose score details */
+        ScoreDetails(
+            visible = isScoreDetails,
+            insetsPadding = WindowInsets.systemBars.asPaddingValues(),
+            guessedFlags = endGameGuessedFlags,
+            skippedFlags = endGameSkippedFlags,
+            shownFlags = endGameShownFlags,
+            onClose = {
+                onCloseScoreDetails()
+                onEndGame()
+            }
+        )
     }
 }
 
@@ -692,7 +717,7 @@ private fun GameCard(
                         visible = isShowAnswer,
                         modifier = Modifier.matchParentSize(),
                         enter = fadeIn(
-                            animationSpec = tween(durationMillis = Timing.SCREEN_NAV * 2)
+                            animationSpec = tween(durationMillis = Timing.SHOW_ANSWER)
                         ),
                         exit = ExitTransition.None,
                     ) {
@@ -772,7 +797,7 @@ private fun GameOverDialog(
     finalScore: Int,
     maxScore: Int,
     gameMode: String,
-    onExit: () -> Unit,
+    onDetails: () -> Unit,
     onShare: (String) -> Unit,
     onPlayAgain: () -> Unit,
 ) {
@@ -793,9 +818,9 @@ private fun GameOverDialog(
         modifier = modifier,
         dismissButton = {
             TextButton(
-                onClick = onExit,
+                onClick = onDetails,
             ) {
-                Text(text = stringResource(R.string.game_over_exit_button))
+                Text(text = stringResource(R.string.game_over_details_button))
             }
         },
         confirmButton = {
