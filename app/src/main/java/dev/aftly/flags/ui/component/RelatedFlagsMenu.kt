@@ -35,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -98,7 +97,7 @@ fun RelatedFlagsMenu(
                     count = relatedFlags.size,
                     key = { index -> relatedFlags[index].id }
                 ) { index ->
-                    ListItem(
+                    RelatedItem(
                         modifier = Modifier.fillMaxWidth(),
                         flag = relatedFlags[index],
                         currentFlag = currentFlag,
@@ -114,7 +113,7 @@ fun RelatedFlagsMenu(
 
 
 @Composable
-private fun ListItem(
+private fun RelatedItem(
     modifier: Modifier = Modifier,
     flag: FlagResources,
     currentFlag: FlagResources,

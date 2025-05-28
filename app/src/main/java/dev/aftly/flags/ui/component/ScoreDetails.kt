@@ -19,11 +19,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -46,9 +46,9 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import dev.aftly.flags.R
 import dev.aftly.flags.model.FlagResources
+import dev.aftly.flags.model.ScoreData
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.util.SystemUiController
-import kotlin.math.exp
 
 @Composable
 fun ScoreDetails(
@@ -67,6 +67,13 @@ fun ScoreDetails(
     LaunchedEffect(visible) {
         if (visible) systemUiController.setLightStatusBar(light = false)
     }
+
+    val scores = ScoreData(
+        guessedFlags = guessedFlags,
+        skippedFlags = skippedFlags,
+        shownFlags = shownFlags,
+    )
+
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -105,6 +112,7 @@ fun ScoreDetails(
                 Column(
                     modifier = Modifier.padding(Dimens.medium16)
                         .fillMaxWidth()
+                        .verticalScroll(state = rememberScrollState())
                 ) {
                     /* Title row of details card */
                     Row(
@@ -129,6 +137,26 @@ fun ScoreDetails(
                             )
                         }
                     }
+
+                    DetailsExpand(
+                        title = R.string.game_score_details_guessed,
+                        list = guessedFlags,
+                    )
+
+                    DetailsExpand(
+                        title = R.string.game_score_details_skipped,
+                        list = skippedFlags,
+                    )
+
+                    DetailsExpand(
+                        title = R.string.game_score_details_shown,
+                        list = shownFlags,
+                    )
+
+                    DetailsExpand(
+                        title = R.string.game_score_details_remainder,
+                        list = emptyList(), // TODO
+                    )
                 }
             }
         }
@@ -142,6 +170,10 @@ private fun DetailsExpand(
     list: List<FlagResources>,
 ) {
     var expanded by rememberSaveable { mutableStateOf(value = false) }
+    var dropDownIcon = when (expanded) {
+        true -> Icons.Default.ArrowDropUp
+        false -> Icons.Default.ArrowDropDown
+    }
 
     Column {
         Row(
@@ -154,29 +186,40 @@ private fun DetailsExpand(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             TextButton(onClick = { expanded = !expanded }) {
-                Text(
-                    text = stringResource(title, list.size)
-                )
-            }
-            IconButton(onClick = { expanded = !expanded }) {
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = null,
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(title, list.size)
+                    )
+                    IconButton(onClick = { expanded = !expanded }) {
+                        Icon(
+                            imageVector = dropDownIcon,
+                            contentDescription = null,
+                        )
+                    }
+                }
             }
         }
 
         AnimatedVisibility(
             visible = expanded,
         ) {
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                items(
-                    count = list.size,
-                    key = { index -> list[index].id }
-                ) { index ->
-
+            Column {
+                list.forEach { flag ->
+                    ScoreItem(flag = flag)
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ScoreItem(
+    modifier: Modifier = Modifier,
+    flag: FlagResources,
+) {
+    Row(modifier = modifier) {
+        Text(text = stringResource(flag.flagOf))
     }
 }
