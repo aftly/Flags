@@ -59,8 +59,8 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [x] ~~UI Counter to show number of flags in current list on View/List screen~~
 - [x] ~~Move search function into list flags screen~~
 - [x] ~~Add open in Wikipedia button to Flag screen~~
+- [x] ~~**Game**: Button to show correct answer & list in game over details~~ - **(Not yet in Releases)**
 - [x] Optimize app for different system Font sizes - **(Partially Complete)**
-- [x] ~~**Game**: Button to show correct answer~~ & list in game over details - **(Partially Complete and not in Releases)**
 - [ ] **Game**: Timer feature/mode
 - [ ] **Persistent Game features**: Score history & exporting scores *(for sharing)*
 - [ ] **Persistent Settings features**: Themes, strictness of user guesses for game, disable animations for older devices
