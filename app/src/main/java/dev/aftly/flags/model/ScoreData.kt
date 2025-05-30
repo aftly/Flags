@@ -28,17 +28,21 @@ abstract class TitledList(val list: List<FlagResources>) {
 /* Class for each score type, overriding TitledList with individual @StringResIds */
 class GuessedFlags(list: List<FlagResources>) : TitledList(list = list) {
     override val titleResId = R.string.game_score_details_guessed
+    val isExpanded: Boolean = false // TODO: check if useful
 }
 
 class SkippedFlags(list: List<FlagResources>) : TitledList(list = list) {
     override val titleResId = R.string.game_score_details_skipped
+    val isExpanded: Boolean = false // TODO: check if useful
 }
 
 class ShownFlags(list: List<FlagResources>) : TitledList(list = list) {
     override val titleResId = R.string.game_score_details_shown
+    val isExpanded: Boolean = false // TODO: check if useful
 }
 
 class RemainderFlags(list: List<FlagResources>) : TitledList(list = list) {
     override val titleResId = R.string.game_score_details_remainder
+    val isExpanded: Boolean = false // TODO: check if useful
 }
 

@@ -1,12 +1,13 @@
 package dev.aftly.flags.ui.component
 
 import android.app.Activity
-import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
@@ -18,14 +19,17 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,16 +38,18 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
 import dev.aftly.flags.R
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.ScoreData
@@ -67,12 +73,6 @@ fun ScoreDetails(
     LaunchedEffect(visible) {
         if (visible) systemUiController.setLightStatusBar(light = false)
     }
-
-    val scores = ScoreData(
-        guessedFlags = guessedFlags,
-        skippedFlags = skippedFlags,
-        shownFlags = shownFlags,
-    )
 
 
     Box(
@@ -108,15 +108,16 @@ fun ScoreDetails(
                     .fillMaxWidth(),
                 shape = MaterialTheme.shapes.extraLarge
             ) {
-                /* 8.dp short of full padding due to title row IconButton padding */
-                Column(
-                    modifier = Modifier.padding(Dimens.medium16)
-                        .fillMaxWidth()
-                        .verticalScroll(state = rememberScrollState())
-                ) {
+                Column {
                     /* Title row of details card */
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(
+                                top = Dimens.medium16,
+                                start = Dimens.medium16,
+                                end = Dimens.medium16,
+                                bottom = Dimens.small8,
+                            ),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
@@ -137,27 +138,15 @@ fun ScoreDetails(
                             )
                         }
                     }
-
-                    DetailsExpand(
-                        title = R.string.game_score_details_guessed,
-                        list = guessedFlags,
-                    )
-
-                    DetailsExpand(
-                        title = R.string.game_score_details_skipped,
-                        list = skippedFlags,
-                    )
-
-                    DetailsExpand(
-                        title = R.string.game_score_details_shown,
-                        list = shownFlags,
-                    )
-
-                    DetailsExpand(
-                        title = R.string.game_score_details_remainder,
-                        list = emptyList(), // TODO
-                    )
                 }
+
+                /* Expandable/collapsable score details with nested LazyColumns */
+                ScoreDetailsItems(
+                    isDarkTheme = isDarkTheme,
+                    guessedFlags = guessedFlags,
+                    skippedFlags = skippedFlags,
+                    shownFlags = shownFlags,
+                )
             }
         }
     }
@@ -165,61 +154,139 @@ fun ScoreDetails(
 
 
 @Composable
-private fun DetailsExpand(
-    @StringRes title: Int,
-    list: List<FlagResources>,
+private fun ScoreDetailsItems(
+    isDarkTheme: Boolean,
+    guessedFlags: List<FlagResources>,
+    skippedFlags: List<FlagResources>,
+    shownFlags: List<FlagResources>,
 ) {
-    var expanded by rememberSaveable { mutableStateOf(value = false) }
-    var dropDownIcon = when (expanded) {
-        true -> Icons.Default.ArrowDropUp
-        false -> Icons.Default.ArrowDropDown
-    }
+    val scoreDetails = ScoreData(
+        guessedFlags = guessedFlags,
+        skippedFlags = skippedFlags,
+        shownFlags = shownFlags,
+    )
+    val expansionMap = remember { mutableStateMapOf<Int, Boolean>() }
+    val scrollState = rememberLazyListState()
 
-    Column {
-        Row(
-            modifier = Modifier
-                .padding(
-                    horizontal = Dimens.small8,
-                    vertical = Dimens.medium16,
-                )
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            TextButton(onClick = { expanded = !expanded }) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(title, list.size)
+    val lerpSurface = when (isDarkTheme) {
+        true -> Color.White
+        false -> Color.Black
+    }
+    val itemFontSize = 14.sp
+    val itemLineHeight = 18.sp
+
+
+    /* Nested LazyColumns for score details contents */
+    LazyColumn(state = scrollState) {
+        items(scoreDetails.allScores) { scores ->
+            val isExpanded = expansionMap[scores.titleResId] ?: false
+
+            val textButtonIsEnabled = when (scores.list.size) {
+                0 -> false
+                else -> true
+            }
+
+            val scoreTitleColor = when (scores.list.size) {
+                0 -> MaterialTheme.colorScheme.error
+                else -> MaterialTheme.colorScheme.primary
+            }
+
+            val dropDownIcon = when (isExpanded) {
+                true -> Icons.Default.ArrowDropUp
+                false -> Icons.Default.ArrowDropDown
+            }
+
+
+            /* Card for encapsulating each score details group */
+            Card(
+                modifier = Modifier
+                    .padding(
+                        start = Dimens.small8,
+                        end = Dimens.small8,
+                        bottom = Dimens.small8,
                     )
-                    IconButton(onClick = { expanded = !expanded }) {
-                        Icon(
-                            imageVector = dropDownIcon,
-                            contentDescription = null,
+                    .fillMaxWidth(),
+                shape = MaterialTheme.shapes.large,
+                colors = CardDefaults.cardColors(
+                    containerColor = lerp(
+                        start = MaterialTheme.colorScheme.surface,
+                        stop = lerpSurface,
+                        fraction = 0.125f
+                    ),
+                )
+            ) {
+                /* Interactable score group title */
+                TextButton(
+                    onClick = { expansionMap[scores.titleResId] = !isExpanded },
+                    modifier = Modifier.padding(horizontal = Dimens.extraSmall4),
+                    enabled = textButtonIsEnabled,
+                    shape = MaterialTheme.shapes.large,
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = stringResource(
+                                scores.titleResId,
+                                scores.list.size
+                            ),
+                            color = scoreTitleColor,
                         )
+                        if (scores.list.isNotEmpty()) {
+                            Icon(
+                                imageVector = dropDownIcon,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    }
+                }
+
+                /* Drop-down content of score details */
+                AnimatedVisibility(
+                    visible = isExpanded,
+                    enter = expandVertically(),
+                    exit = shrinkVertically()
+                ) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth()
+                            .heightIn(
+                                max = (with(LocalDensity.current) {
+                                    itemLineHeight.toDp()
+                                } + Dimens.medium16) * (scores.list.size + 1))
+                            .padding(
+                                start = Dimens.medium16,
+                                end = Dimens.medium16,
+                                bottom = Dimens.medium16,
+                            )
+                    ) {
+                        items(scores.list) { item ->
+                            ScoreItem(
+                                flag = item,
+                                fontSize = itemFontSize,
+                                lineHeight = itemLineHeight,
+                            )
+                        }
                     }
                 }
             }
         }
-
-        AnimatedVisibility(
-            visible = expanded,
-        ) {
-            Column {
-                list.forEach { flag ->
-                    ScoreItem(flag = flag)
-                }
-            }
-        }
     }
 }
 
+
+/* Item composable for the score details lists */
 @Composable
 private fun ScoreItem(
     modifier: Modifier = Modifier,
     flag: FlagResources,
+    fontSize: TextUnit,
+    lineHeight: TextUnit,
 ) {
     Row(modifier = modifier) {
-        Text(text = stringResource(flag.flagOf))
+        Text(
+            text = stringResource(flag.flagOf),
+            color = MaterialTheme.colorScheme.onSurface,
+            fontSize = fontSize,
+            lineHeight = lineHeight,
+        )
     }
 }
