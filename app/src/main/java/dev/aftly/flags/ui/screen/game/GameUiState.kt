@@ -19,6 +19,8 @@ data class GameUiState(
     val currentFlag: FlagResources = nullFlag,
     val currentFlagStrings: List<String> = emptyList(),
 
+    val timer: Int = 0,
+
     val correctGuessCount: Int = 0,
     val shownAnswerCount: Int = 0,
     val isGuessedFlagCorrect: Boolean = false,

@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.data.DataSource.nullFlag
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
@@ -22,10 +23,12 @@ import dev.aftly.flags.ui.util.isSuperCategoryExit
 import dev.aftly.flags.ui.util.normalizeString
 import dev.aftly.flags.ui.util.updateCategoriesFromSub
 import dev.aftly.flags.ui.util.updateCategoriesFromSuper
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
@@ -75,6 +78,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 isShowAnswer = false,
             )
         }
+
+        startTimer()
     }
 
 
@@ -392,5 +397,20 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             .replace(regex = Regex(pattern = "\\bthe\\b"), replacement = "")
             /* Deletes all whitespace-like characters */
             .replace(regex = Regex(pattern = "\\s"), replacement = "")
+    }
+
+
+    /* Reset and start timer */
+    private fun startTimer() {
+        _uiState.update { it.copy(timer = 0) }
+
+        viewModelScope.launch {
+            while (!uiState.value.isGameOver) {
+                delay(timeMillis = 1000)
+                if (!uiState.value.isGameOver) {
+                    _uiState.update { it.copy(timer = it.timer.inc()) }
+                }
+            }
+        }
     }
 }

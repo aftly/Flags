@@ -22,11 +22,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -65,6 +67,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.lerp
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import dev.aftly.flags.R
 import dev.aftly.flags.navigation.Screen
@@ -330,6 +333,7 @@ fun GeneralTopBar(
     isPortraitOrientation: Boolean? = null,
     isGame: Boolean = false,
     buttonExpanded: Boolean = false,
+    timer: String = "0:00", /* For game timer */
     onButtonExpand: () -> Unit = {},
     onButtonPosition: (Offset) -> Unit = {},
     onButtonWidth: (Int) -> Unit = {},
@@ -437,6 +441,31 @@ fun GeneralTopBar(
                             contentDescription = "make favorite",
                         )
                     }
+                Screen.Game -> {
+                    Text(
+                        text = timer,
+                        modifier = Modifier.padding(end = Dimens.extraSmall4),
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(
+                            imageVector = Icons.Default.Timer,
+                            contentDescription = null,
+                        )
+                    }
+
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(
+                            imageVector = Icons.Default.History,
+                            contentDescription = null,
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(Dimens.small8))
+                }
                 Screen.Fullscreen ->
                     IconButton(
                         onClick = onAction,
@@ -465,7 +494,7 @@ fun GeneralTopBar(
         },
         colors = when (currentScreen) {
             Screen.Fullscreen ->
-                if (isGame == true) {
+                if (isGame) {
                     TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent,
                         navigationIconContentColor = surfaceLight,

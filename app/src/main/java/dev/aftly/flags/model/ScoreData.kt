@@ -1,48 +1,103 @@
 package dev.aftly.flags.model
 
-import dev.aftly.flags.R
-import dev.aftly.flags.data.DataSource.allFlagsList
+import androidx.annotation.StringRes
 
+
+/* ------------ SCORE DATA CLASS FOR UI ------------ */
 class ScoreData(
+    gameFlags: List<FlagResources>,
     guessedFlags: List<FlagResources>,
     skippedFlags: List<FlagResources>,
     shownFlags: List<FlagResources>,
+    @StringRes guessedFlagsTitle: Int,
+    @StringRes skippedFlagsTitle: Int,
+    @StringRes shownFlagsTitle: Int,
+    @StringRes remainderFlagsTitle: Int,
+    isTimeTrial: Boolean,
+    timeTrialTime: Int = 0, /* In seconds */
+    timeElapsed: Int, /* In seconds */
 ) {
-    private val remainderFlags = allFlagsList.filterNot { it in guessedFlags }
+    private val remainderFlags = gameFlags.filterNot { it in guessedFlags }
         .filterNot { it in skippedFlags }.filterNot { it in shownFlags }
 
+    private val correctAnswers = guessedFlags.count()
+    private val scorePercent = (correctAnswers.toFloat() / gameFlags.size.toFloat()) * 100f
+
+    val scoreOverview = ScoreOverview(
+        totalsOverview = TotalsOverview(
+            correctAnswers = correctAnswers,
+            outOfCount = gameFlags.size,
+            scorePercent = scorePercent,
+        ),
+        timeOverview = TimeOverview(
+            isTimeTrial = isTimeTrial,
+            timeTrialTime = timeTrialTime,
+            timeElapsed = timeElapsed,
+        )
+    )
+
     val allScores: List<TitledList> = listOf(
-        GuessedFlags(list = guessedFlags),
-        SkippedFlags(list = skippedFlags),
-        ShownFlags(list = shownFlags),
-        RemainderFlags(list = remainderFlags)
+        GuessedFlags(
+            list = guessedFlags,
+            titleResId = guessedFlagsTitle,
+        ),
+        SkippedFlags(
+            list = skippedFlags,
+            titleResId = skippedFlagsTitle,
+        ),
+        ShownFlags(
+            list = shownFlags,
+            titleResId = shownFlagsTitle,
+        ),
+        RemainderFlags(
+            list = remainderFlags,
+            titleResId = remainderFlagsTitle,
+        )
     )
 }
 
-/* Polymorphic class with overridable title for all score types */
-abstract class TitledList(val list: List<FlagResources>) {
-    abstract val titleResId: Int
-}
+
+/* ------------ SCORE OVERVIEW CLASSES ------------ */
+data class ScoreOverview(
+    val totalsOverview: TotalsOverview,
+    val timeOverview: TimeOverview,
+)
+
+data class TotalsOverview(
+    val correctAnswers: Int,
+    val outOfCount: Int,
+    val scorePercent: Float,
+)
+
+data class TimeOverview(
+    val isTimeTrial: Boolean,
+    val timeTrialTime: Int,
+    val timeElapsed: Int,
+)
 
 
-/* Class for each score type, overriding TitledList with individual @StringResIds */
-class GuessedFlags(list: List<FlagResources>) : TitledList(list = list) {
-    override val titleResId = R.string.game_score_details_guessed
-    val isExpanded: Boolean = false // TODO: check if useful
-}
+/* ------------ SCORE DETAIL CLASSES ------------ */
+abstract class TitledList(
+    val list: List<FlagResources>,
+    val titleResId: Int,
+)
 
-class SkippedFlags(list: List<FlagResources>) : TitledList(list = list) {
-    override val titleResId = R.string.game_score_details_skipped
-    val isExpanded: Boolean = false // TODO: check if useful
-}
+private class GuessedFlags(
+    list: List<FlagResources>,
+    titleResId: Int,
+) : TitledList(list, titleResId)
 
-class ShownFlags(list: List<FlagResources>) : TitledList(list = list) {
-    override val titleResId = R.string.game_score_details_shown
-    val isExpanded: Boolean = false // TODO: check if useful
-}
+private class SkippedFlags(
+    list: List<FlagResources>,
+    titleResId: Int,
+) : TitledList(list, titleResId)
 
-class RemainderFlags(list: List<FlagResources>) : TitledList(list = list) {
-    override val titleResId = R.string.game_score_details_remainder
-    val isExpanded: Boolean = false // TODO: check if useful
-}
+private class ShownFlags(
+    list: List<FlagResources>,
+    titleResId: Int
+) : TitledList(list, titleResId)
 
+private class RemainderFlags(
+    list: List<FlagResources>,
+    titleResId: Int,
+) : TitledList(list, titleResId)

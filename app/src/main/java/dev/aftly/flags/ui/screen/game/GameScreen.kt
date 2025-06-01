@@ -91,6 +91,7 @@ import dev.aftly.flags.ui.theme.successLight
 import dev.aftly.flags.ui.theme.surfaceLight
 import dev.aftly.flags.ui.util.SystemUiController
 import kotlinx.coroutines.delay
+import java.util.Locale
 
 
 @Composable
@@ -127,6 +128,13 @@ fun GameScreen(
     val locale = configuration.locales[0]
     //LaunchedEffect(locale) { viewModel.setFlagStrings() }
 
+    /* Manage timer string */
+    val formattedTimer = String.format(
+        locale = Locale.US,
+        format = "%d:%02d",
+        uiState.timer / 60, uiState.timer % 60
+    )
+
     /* Show pop-up when game over */
     if (uiState.isGameOver) {
         GameOverDialog(
@@ -153,6 +161,7 @@ fun GameScreen(
         currentScreen = currentScreen,
         canNavigateBack = canNavigateBack,
         isWideScreen = isWideScreen,
+        timer = formattedTimer,
         totalFlagCount = uiState.totalFlagCount,
         correctGuessCount = uiState.correctGuessCount,
         shownAnswerCount = uiState.shownAnswerCount,
@@ -169,9 +178,11 @@ fun GameScreen(
         isGuessWrongEvent = uiState.isGuessedFlagWrongEvent,
         isShowAnswer = uiState.isShowAnswer,
         isScoreDetails = uiState.isScoreDetails,
+        currentGameFlags = uiState.currentFlags,
         endGameGuessedFlags = uiState.endGameGuessedFlags,
         endGameSkippedFlags = uiState.endGameSkippedFlags,
         endGameShownFlags = uiState.endGameShownFlags,
+        endGameTime = uiState.timer,
         onKeyboardDoneAction = { viewModel.checkUserGuess() },
         onSubmit = { viewModel.checkUserGuess() },
         onSkip = { viewModel.skipFlag(isAnswerShown = uiState.isShowAnswer) },
@@ -198,6 +209,7 @@ private fun GameScaffold(
     currentScreen: Screen,
     canNavigateBack: Boolean,
     isWideScreen: Boolean,
+    timer: String,
     totalFlagCount: Int,
     correctGuessCount: Int,
     shownAnswerCount: Int,
@@ -214,9 +226,11 @@ private fun GameScaffold(
     isGuessWrongEvent: Boolean,
     isShowAnswer: Boolean,
     isScoreDetails: Boolean,
+    currentGameFlags: List<FlagResources>,
     endGameGuessedFlags: List<FlagResources>,
     endGameSkippedFlags: List<FlagResources>,
     endGameShownFlags: List<FlagResources>,
+    endGameTime: Int,
     onKeyboardDoneAction: () -> Unit,
     onSubmit: () -> Unit,
     onSkip: () -> Unit,
@@ -254,6 +268,7 @@ private fun GameScaffold(
                 GeneralTopBar(
                     currentScreen = currentScreen,
                     canNavigateBack = canNavigateBack,
+                    timer = timer,
                     onNavigateUp = onNavigateUp,
                     onNavigateDetails = {},
                     onAction = {},
@@ -330,9 +345,11 @@ private fun GameScaffold(
         ScoreDetails(
             visible = isScoreDetails,
             insetsPadding = WindowInsets.systemBars.asPaddingValues(),
+            gameFlags = currentGameFlags,
             guessedFlags = endGameGuessedFlags,
             skippedFlags = endGameSkippedFlags,
             shownFlags = endGameShownFlags,
+            timeElapsed = endGameTime,
             onClose = {
                 onCloseScoreDetails()
                 onEndGame()
@@ -432,6 +449,7 @@ private fun GameContent(
         )
 
         GameCard(
+            isDarkTheme = isDarkTheme,
             contentColumnHeight = columnHeight,
             cardImageWidth = imageWidth,
             onCardImageWidthChange = { imageWidth = it },
@@ -499,6 +517,7 @@ private fun GameContent(
 @Composable
 private fun GameCard(
     modifier: Modifier = Modifier,
+    isDarkTheme: Boolean,
     contentColumnHeight: Dp,
     cardImageWidth: Dp,
     onCardImageWidthChange: (Dp) -> Unit,
@@ -537,8 +556,10 @@ private fun GameCard(
     var isErrorColor by remember { mutableStateOf(value = false) }
 
     val animatedSuccessColor by animateColorAsState(
-        targetValue = if (isSuccessColor) successLight
-        else focusedColorDefault,
+        targetValue = when (isSuccessColor) {
+            true -> if (isDarkTheme) successDark else successLight
+            else -> focusedColorDefault
+        },
         animationSpec = animationSpecSuccess
     )
     val animatedErrorColor by animateColorAsState(

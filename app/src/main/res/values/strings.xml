@@ -177,6 +177,16 @@
     <string name="game_over_share_subject">Flag game score</string>
     <string name="game_over_share_text">I just guessed %d/%d flags in the \"Flags\" app game on the \"%s\" game mode.\n\nDownload the app from https://github.com/aftly/Flags and see if you can beat me…</string>
     <string name="game_score_details_title">Score details</string>
+    <string name="game_score_details_overview">Overview</string>
+    <string name="game_score_details_correct_title">Correct answers:</string>
+    <string name="game_score_details_correct_absolute">%d/%d</string>
+    <string name="game_score_details_correct_relative">%.2f</string>
+    <string name="game_score_details_time_mode_title">Time mode:</string>
+    <string name="game_score_details_time_mode_1">Standard</string>
+    <string name="game_score_details_time_mode_1_details">%dm, %02ds</string>
+    <string name="game_score_details_time_mode_2">Time trial</string>
+    <string name="game_score_details_time_mode_2_details_1">%dm, %02ds</string>
+    <string name="game_score_details_time_mode_2_details_2">%dm, %02ds</string>
     <string name="game_score_details_guessed">Flags guessed (%d)</string>
     <string name="game_score_details_skipped">Flags skipped (%d)</string>
     <string name="game_score_details_shown">Flags shown (%d)</string>
@@ -203,6 +213,7 @@
     <string name="string_comma">,</string>
     <string name="string_is_a">is a</string>
     <string name="string_new_paragraph">\n\n</string>
+    <string name="string_percent">%</string>
     <string name="string_period">.</string>
     <string name="string_that_is">that is</string>
     <string name="string_the">the</string>

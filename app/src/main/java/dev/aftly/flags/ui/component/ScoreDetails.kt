@@ -17,8 +17,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -39,30 +41,42 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.aftly.flags.R
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.ScoreData
+//import dev.aftly.flags.model.ScoreOverviewItem
+import dev.aftly.flags.model.TimeOverview
+import dev.aftly.flags.model.TotalsOverview
 import dev.aftly.flags.ui.theme.Dimens
+import dev.aftly.flags.ui.theme.successDark
+import dev.aftly.flags.ui.theme.successLight
 import dev.aftly.flags.ui.util.SystemUiController
 
 @Composable
 fun ScoreDetails(
     visible: Boolean,
     insetsPadding: PaddingValues,
+    gameFlags: List<FlagResources>,
     guessedFlags: List<FlagResources>,
     skippedFlags: List<FlagResources>,
     shownFlags: List<FlagResources>,
+    timeElapsed: Int,
     onClose: () -> Unit,
 ) {
     /* Properties for controlling system bars */
@@ -73,6 +87,20 @@ fun ScoreDetails(
     LaunchedEffect(visible) {
         if (visible) systemUiController.setLightStatusBar(light = false)
     }
+
+    /* Class for processing score details */
+    val scoreDetails = ScoreData(
+        gameFlags = gameFlags,
+        guessedFlags = guessedFlags,
+        skippedFlags = skippedFlags,
+        shownFlags = shownFlags,
+        guessedFlagsTitle = R.string.game_score_details_guessed,
+        skippedFlagsTitle = R.string.game_score_details_skipped,
+        shownFlagsTitle = R.string.game_score_details_shown,
+        remainderFlagsTitle = R.string.game_score_details_remainder,
+        isTimeTrial = false,
+        timeElapsed = timeElapsed,
+    )
 
 
     Box(
@@ -108,44 +136,41 @@ fun ScoreDetails(
                     .fillMaxWidth(),
                 shape = MaterialTheme.shapes.extraLarge
             ) {
-                Column {
-                    /* Title row of details card */
-                    Row(
-                        modifier = Modifier.fillMaxWidth()
-                            .padding(
-                                top = Dimens.medium16,
-                                start = Dimens.medium16,
-                                end = Dimens.medium16,
-                                bottom = Dimens.small8,
-                            ),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = stringResource(R.string.game_score_details_title),
-                            modifier = Modifier.padding(start = Dimens.small8),
-                            style = MaterialTheme.typography.headlineSmall,
-                        )
-                        IconButton(
-                            onClick = {
-                                if (!isDarkTheme) systemUiController.setLightStatusBar(light = true)
-                                onClose()
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Clear,
-                                contentDescription = null,
-                            )
+                /* Title row of details card */
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(
+                            top = Dimens.medium16,
+                            start = Dimens.medium16,
+                            end = Dimens.medium16,
+                            bottom = Dimens.small8,
+                        ),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = stringResource(R.string.game_score_details_title),
+                        modifier = Modifier.padding(start = Dimens.small8),
+                        style = MaterialTheme.typography.headlineSmall,
+                    )
+
+                    IconButton(
+                        onClick = {
+                            if (!isDarkTheme) systemUiController.setLightStatusBar(light = true)
+                            onClose()
                         }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = null,
+                        )
                     }
                 }
 
                 /* Expandable/collapsable score details with nested LazyColumns */
                 ScoreDetailsItems(
                     isDarkTheme = isDarkTheme,
-                    guessedFlags = guessedFlags,
-                    skippedFlags = skippedFlags,
-                    shownFlags = shownFlags,
+                    scoreDetails = scoreDetails,
                 )
             }
         }
@@ -156,28 +181,100 @@ fun ScoreDetails(
 @Composable
 private fun ScoreDetailsItems(
     isDarkTheme: Boolean,
-    guessedFlags: List<FlagResources>,
-    skippedFlags: List<FlagResources>,
-    shownFlags: List<FlagResources>,
+    scoreDetails: ScoreData,
 ) {
-    val scoreDetails = ScoreData(
-        guessedFlags = guessedFlags,
-        skippedFlags = skippedFlags,
-        shownFlags = shownFlags,
-    )
-    val expansionMap = remember { mutableStateMapOf<Int, Boolean>() }
     val scrollState = rememberLazyListState()
+    var overviewExpanded by remember { mutableStateOf(value = false) }
+    val expansionMap = remember { mutableStateMapOf<Int, Boolean>() }
+
+    val overviewDropDownIcon = when (overviewExpanded) {
+        true -> Icons.Default.ArrowDropUp
+        false -> Icons.Default.ArrowDropDown
+    }
 
     val lerpSurface = when (isDarkTheme) {
         true -> Color.White
         false -> Color.Black
     }
+
     val itemFontSize = 14.sp
     val itemLineHeight = 18.sp
 
 
     /* Nested LazyColumns for score details contents */
     LazyColumn(state = scrollState) {
+        /* Overview item containing overview items */
+        item {
+            Card(
+                modifier = Modifier
+                    .padding(
+                        start = Dimens.small8,
+                        end = Dimens.small8,
+                        bottom = Dimens.small8,
+                    )
+                    .fillMaxWidth(),
+                shape = MaterialTheme.shapes.large,
+                colors = CardDefaults.cardColors(
+                    containerColor = lerp(
+                        start = MaterialTheme.colorScheme.surface,
+                        stop = lerpSurface,
+                        fraction = 0.125f
+                    ),
+                )
+            ) {
+                /* Interactable overview title */
+                TextButton(
+                    onClick = { overviewExpanded = !overviewExpanded },
+                    modifier = Modifier.padding(horizontal = Dimens.extraSmall4),
+                    shape = MaterialTheme.shapes.large,
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = stringResource(R.string.game_score_details_overview),
+                        )
+                        Icon(
+                            imageVector = overviewDropDownIcon,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                }
+
+                /* Drop-down content of score overview items */
+                AnimatedVisibility(
+                    visible = overviewExpanded,
+                    enter = expandVertically(),
+                    exit = shrinkVertically()
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(
+                                start = Dimens.medium16,
+                                end = Dimens.medium16,
+                                bottom = Dimens.medium16,
+                            )
+                    ) {
+                        TotalsOverviewItem(
+                            totalsOverview = scoreDetails.scoreOverview.totalsOverview,
+                            isDarkTheme = isDarkTheme,
+                            fontSize = itemFontSize,
+                            lineHeight = itemLineHeight,
+                        )
+
+                        Spacer(modifier = Modifier.height(Dimens.extraSmall4))
+
+                        TimeOverviewItem(
+                            timeOverview = scoreDetails.scoreOverview.timeOverview,
+                            isDarkTheme = isDarkTheme,
+                            fontSize = itemFontSize,
+                            lineHeight = itemLineHeight,
+                        )
+                    }
+                }
+            }
+        }
+
+        /* Score details items */
         items(scoreDetails.allScores) { scores ->
             val isExpanded = expansionMap[scores.titleResId] ?: false
 
@@ -258,9 +355,12 @@ private fun ScoreDetailsItems(
                                 bottom = Dimens.medium16,
                             )
                     ) {
-                        items(scores.list) { item ->
+                        items(
+                            count = scores.list.size,
+                            key = { index -> scores.list[index].id }
+                        ) { index ->
                             ScoreItem(
-                                flag = item,
+                                flag = scores.list[index],
                                 fontSize = itemFontSize,
                                 lineHeight = itemLineHeight,
                             )
@@ -269,6 +369,130 @@ private fun ScoreDetailsItems(
                 }
             }
         }
+    }
+}
+
+
+/* Totals overview row strings */
+@Composable
+private fun TotalsOverviewItem(
+    modifier: Modifier = Modifier,
+    totalsOverview: TotalsOverview,
+    isDarkTheme: Boolean,
+    fontSize: TextUnit,
+    lineHeight: TextUnit,
+) {
+    val configuration = LocalConfiguration.current
+    val fontScale = configuration.fontScale
+    val spacePadding = Dimens.extraSmall4 * fontScale
+
+    val successColor = when (isDarkTheme) {
+        true -> successDark
+        false -> successLight
+    }
+
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        /* Title */
+        Text(
+            text = stringResource(R.string.game_score_details_correct_title),
+            color = MaterialTheme.colorScheme.onSurface,
+            lineHeight = lineHeight,
+            style = MaterialTheme.typography.titleSmall,
+        )
+
+        /* Absolute score */
+        Text(
+            text = stringResource(
+                R.string.game_score_details_correct_absolute,
+                totalsOverview.correctAnswers,
+                totalsOverview.outOfCount
+            ),
+            modifier = Modifier.padding(horizontal = spacePadding)
+                .clip(MaterialTheme.shapes.medium)
+                .background(MaterialTheme.colorScheme.primary)
+                .padding(vertical = 2.dp, horizontal = Dimens.small8),
+            color = MaterialTheme.colorScheme.onPrimary,
+            fontSize = fontSize,
+            lineHeight = lineHeight,
+        )
+
+        /* Relative score */
+        Text(
+            text = stringResource(
+                R.string.game_score_details_correct_relative,
+                totalsOverview.scorePercent
+            ) + stringResource(R.string.string_percent),
+            modifier = Modifier.clip(MaterialTheme.shapes.medium)
+                .background(successColor)
+                .padding(vertical = 2.dp, horizontal = Dimens.small8),
+            color = MaterialTheme.colorScheme.surface,
+            fontSize = fontSize,
+            lineHeight = lineHeight,
+        )
+    }
+}
+
+
+/* Time overview row strings */
+@Composable
+private fun TimeOverviewItem(
+    modifier: Modifier = Modifier,
+    timeOverview: TimeOverview,
+    isDarkTheme: Boolean,
+    fontSize: TextUnit,
+    lineHeight: TextUnit,
+) {
+    val configuration = LocalConfiguration.current
+    val fontScale = configuration.fontScale
+    val spacePadding = Dimens.extraSmall4 * fontScale
+
+    val timeModeResId = when (timeOverview.isTimeTrial) {
+        false -> R.string.game_score_details_time_mode_1
+        true -> R.string.game_score_details_time_mode_2
+    }
+
+    val successColor = when (isDarkTheme) {
+        true -> successDark
+        false -> successLight
+    }
+
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        /* Title */
+        Text(
+            text = stringResource(R.string.game_score_details_time_mode_title),
+            color = MaterialTheme.colorScheme.onSurface,
+            lineHeight = lineHeight,
+            style = MaterialTheme.typography.titleSmall,
+        )
+
+        /* Time mode type */
+        Text(
+            text = stringResource(timeModeResId),
+            modifier = Modifier.padding(horizontal = spacePadding),
+            fontSize = fontSize,
+            lineHeight = lineHeight,
+        )
+
+        /* Time elapsed */
+        Text(
+            text = stringResource(
+                R.string.game_score_details_time_mode_1_details,
+                timeOverview.timeElapsed / 60,
+                timeOverview.timeElapsed % 60
+            ),
+            modifier = Modifier.clip(MaterialTheme.shapes.medium)
+                .background(MaterialTheme.colorScheme.primary)
+                .padding(vertical = 2.dp, horizontal = Dimens.small8),
+            color = MaterialTheme.colorScheme.onPrimary,
+            fontSize = fontSize,
+            lineHeight = lineHeight,
+        )
     }
 }
 
