@@ -27,15 +27,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -66,6 +69,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -79,10 +83,10 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.FilterFlagsButton
 import dev.aftly.flags.ui.component.FullscreenButton
-import dev.aftly.flags.ui.component.NoResultsFound
-import dev.aftly.flags.ui.component.Scrim
 import dev.aftly.flags.ui.component.GeneralTopBar
+import dev.aftly.flags.ui.component.NoResultsFound
 import dev.aftly.flags.ui.component.ScoreDetails
+import dev.aftly.flags.ui.component.Scrim
 import dev.aftly.flags.ui.component.shareText
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
@@ -129,11 +133,34 @@ fun GameScreen(
     //LaunchedEffect(locale) { viewModel.setFlagStrings() }
 
     /* Manage timer string */
-    val formattedTimer = String.format(
-        locale = Locale.US,
-        format = "%d:%02d",
-        uiState.timer / 60, uiState.timer % 60
-    )
+    val formattedTimer = when (uiState.isTimeTrial) {
+        false ->
+            String.format(
+                locale = Locale.US,
+                format = "%d:%02d",
+                uiState.standardTimer / 60, uiState.standardTimer % 60
+            )
+        true ->
+            String.format(
+                locale = Locale.US,
+                format = "%d:%02d",
+                uiState.timeTrialTimer / 60, uiState.timeTrialTimer % 60
+            )
+    }
+
+
+    /* Show time trial dialog when timer action button pressed */
+    if (uiState.isTimeTrialDialog) {
+        TimeTrialDialog(
+            userMinutesInput = viewModel.userTimerInputMinutes,
+            userSecondsInput = viewModel.userTimerInputSeconds,
+            onUserMinutesInputChange = { viewModel.updateUserMinutesInput(it) },
+            onUserSecondsInputChange = { viewModel.updateUserSecondsInput(it) },
+            onTimeTrial = { viewModel.startTimeTrial(it) },
+            onDismiss = { viewModel.toggleTimeTrial() },
+        )
+    }
+
 
     /* Show pop-up when game over */
     if (uiState.isGameOver) {
@@ -143,7 +170,7 @@ fun GameScreen(
             gameMode = stringResource(uiState.currentSuperCategory.title),
             onDetails = {
                 viewModel.endGame(isGameOver = false)
-                viewModel.scoreDetails(newState = true)
+                viewModel.toggleScoreDetails()
             },
             onShare = { text ->
                 shareText(
@@ -182,12 +209,13 @@ fun GameScreen(
         endGameGuessedFlags = uiState.endGameGuessedFlags,
         endGameSkippedFlags = uiState.endGameSkippedFlags,
         endGameShownFlags = uiState.endGameShownFlags,
-        endGameTime = uiState.timer,
+        endGameTime = uiState.standardTimer,
         onKeyboardDoneAction = { viewModel.checkUserGuess() },
         onSubmit = { viewModel.checkUserGuess() },
         onSkip = { viewModel.skipFlag(isAnswerShown = uiState.isShowAnswer) },
         onShowAnswer = { viewModel.showAnswer() },
-        onCloseScoreDetails = { viewModel.scoreDetails(newState = false) },
+        onToggleTimeTrial = { viewModel.toggleTimeTrial() },
+        onToggleScoreDetails = { viewModel.toggleScoreDetails() },
         onEndGame = { viewModel.endGame() },
         onNavigateUp = onNavigateUp,
         onFullscreen = { isLandscape ->
@@ -235,7 +263,8 @@ private fun GameScaffold(
     onSubmit: () -> Unit,
     onSkip: () -> Unit,
     onShowAnswer: () -> Unit,
-    onCloseScoreDetails: () -> Unit,
+    onToggleTimeTrial: () -> Unit,
+    onToggleScoreDetails: () -> Unit,
     onEndGame: () -> Unit,
     onNavigateUp: () -> Unit,
     onFullscreen: (Boolean) -> Unit,
@@ -271,7 +300,7 @@ private fun GameScaffold(
                     timer = timer,
                     onNavigateUp = onNavigateUp,
                     onNavigateDetails = {},
-                    onAction = {},
+                    onAction = onToggleTimeTrial,
                 )
             }
         ) { scaffoldPadding ->
@@ -351,7 +380,7 @@ private fun GameScaffold(
             shownFlags = endGameShownFlags,
             timeElapsed = endGameTime,
             onClose = {
-                onCloseScoreDetails()
+                onToggleScoreDetails()
                 onEndGame()
             }
         )
@@ -811,6 +840,137 @@ private fun GameCard(
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TimeTrialDialog(
+    modifier: Modifier = Modifier,
+    userMinutesInput: String,
+    userSecondsInput: String,
+    onUserMinutesInputChange: (String) -> Unit,
+    onUserSecondsInputChange: (String) -> Unit,
+    onTimeTrial: (Int) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val inputStyle = MaterialTheme.typography.headlineLarge
+    val inputWidth = 68.dp
+    val inputKeyboardOptions = KeyboardOptions.Default.copy(
+        keyboardType = KeyboardType.Number
+    )
+    val inputShape = MaterialTheme.shapes.large
+    val inputAnnotationStyle = MaterialTheme.typography.titleLarge
+
+
+    BasicAlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = modifier,
+    ) {
+        Card(
+            modifier = Modifier.wrapContentWidth(),
+            shape = MaterialTheme.shapes.extraLarge
+        ) {
+            Column(
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                /* Title */
+                Row(
+                    modifier = Modifier.padding(Dimens.large24),
+                ) {
+                    Text(
+                        text = stringResource(R.string.game_time_trial_title),
+                        style = MaterialTheme.typography.headlineSmall,
+                    )
+                }
+
+
+                /* Time trial inputs */
+                Row(
+                    modifier = Modifier.padding(start = Dimens.large24),
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    OutlinedTextField(
+                        value = userMinutesInput,
+                        onValueChange = {
+                            if ((it.toIntOrNull() != null || it == "") && it.length <= 2) {
+                                onUserMinutesInputChange(it)
+                            }
+                        },
+                        modifier = Modifier.width(inputWidth),
+                        textStyle = inputStyle,
+                        placeholder = {
+                            Text(
+                                text = stringResource(R.string.game_time_trial_input_placeholder),
+                                style = inputStyle,
+                            )
+                        },
+                        keyboardOptions = inputKeyboardOptions,
+                        singleLine = true,
+                        shape = inputShape
+                    )
+                    Text(
+                        text = stringResource(R.string.game_time_trial_minute),
+                        modifier = Modifier.padding(horizontal = Dimens.small8),
+                        style = inputAnnotationStyle,
+                    )
+
+                    OutlinedTextField(
+                        value = userSecondsInput,
+                        onValueChange = {
+                            if ((it.toIntOrNull() != null || it == "") && it.length <= 2) {
+                                onUserSecondsInputChange(it)
+                            }
+                        },
+                        modifier = Modifier.width(inputWidth),
+                        textStyle = inputStyle,
+                        placeholder = {
+                            Text(
+                                text = stringResource(R.string.game_time_trial_input_placeholder),
+                                style = inputStyle,
+                            )
+                        },
+                        keyboardOptions = inputKeyboardOptions,
+                        singleLine = true,
+                        shape = inputShape
+                    )
+                    Text(
+                        text = stringResource(R.string.game_time_trial_second),
+                        modifier = Modifier.padding(start = Dimens.small8, end = Dimens.large24),
+                        style = inputAnnotationStyle,
+                    )
+                }
+
+
+                /* Action buttons */
+                Row(
+                    modifier = Modifier.padding(Dimens.small8)
+                        .align(Alignment.End),
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text(text = "Cancel")
+                    }
+                    TextButton(
+                        onClick = {
+                            val timeMinute = when (userMinutesInput) {
+                                "" -> 0
+                                else -> userMinutesInput.toInt() * 60
+                            }
+                            val timeSecond = when (userSecondsInput) {
+                                "" -> 0
+                                else -> userSecondsInput.toInt()
+                            }
+
+                            onTimeTrial(timeMinute + timeSecond)
+                            onDismiss()
+                        }
+                    ) {
+                        Text(text = "Okay")
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 /* End game popup dialog showing final score. With buttons: Leave game, Share score, Play again */
 @Composable
 private fun GameOverDialog(
@@ -833,7 +993,7 @@ private fun GameOverDialog(
     )
 
     AlertDialog(
-        onDismissRequest = { },
+        onDismissRequest = {},
         title = { Text(text = stringResource(R.string.game_over_title)) },
         text = { Text(text = scoreMessage) },
         modifier = modifier,

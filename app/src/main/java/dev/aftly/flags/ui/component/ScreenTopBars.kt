@@ -450,7 +450,7 @@ fun GeneralTopBar(
                         fontWeight = FontWeight.Bold,
                     )
 
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = onAction) {
                         Icon(
                             imageVector = Icons.Default.Timer,
                             contentDescription = null,

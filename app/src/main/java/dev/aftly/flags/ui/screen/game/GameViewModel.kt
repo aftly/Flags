@@ -23,6 +23,7 @@ import dev.aftly.flags.ui.util.isSuperCategoryExit
 import dev.aftly.flags.ui.util.normalizeString
 import dev.aftly.flags.ui.util.updateCategoriesFromSub
 import dev.aftly.flags.ui.util.updateCategoriesFromSuper
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -38,8 +39,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private var guessedFlags = mutableListOf<FlagResources>()
     private var skippedFlags = mutableListOf<FlagResources>()
     private var shownFlags = mutableListOf<FlagResources>()
+    private var timeTrialJob: Job? = null
 
     var userGuess by mutableStateOf(value = "")
+        private set
+
+    var userTimerInputMinutes by mutableStateOf(value = "")
+        private set
+    var userTimerInputSeconds by mutableStateOf(value = "")
         private set
 
     /* Initialise ViewModel & State with category and other game related info */
@@ -53,7 +60,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
 
     /* Reset game state with a new flag and necessary starting values */
-    fun resetGame() {
+    fun resetGame(timeTrial: Boolean = false) {
         guessedFlags = mutableListOf()
         skippedFlags = mutableListOf()
         shownFlags = mutableListOf()
@@ -74,6 +81,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 shownAnswerCount = 0,
                 isGuessedFlagWrong = false,
                 nextFlagInSkipped = null,
+                isTimeTrial = timeTrial,
                 isGameOver = false,
                 isShowAnswer = false,
             )
@@ -206,6 +214,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         userGuess = newString
     }
 
+    fun updateUserMinutesInput(newString: String) {
+        userTimerInputMinutes = newString
+    }
+    fun updateUserSecondsInput(newString: String) {
+        userTimerInputSeconds = newString
+    }
+
 
     fun checkUserGuess() {
         val normalizedUserGuess = getNormalizedString(string = userGuess)
@@ -254,6 +269,30 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
+    fun toggleTimeTrial() {
+        _uiState.update { it.copy(isTimeTrialDialog = !it.isTimeTrialDialog) }
+    }
+
+    fun startTimeTrial(startTime: Int) {
+        resetGame(timeTrial = true)
+        _uiState.update { it.copy(timeTrialTimer = startTime) }
+
+        timeTrialJob?.cancel() /* Cancel previous timeTrialJob */
+
+        timeTrialJob = viewModelScope.launch {
+            while (uiState.value.timeTrialTimer > 0 && !uiState.value.isGameOver) {
+                delay(timeMillis = 1000)
+
+                if (!uiState.value.isGameOver) {
+                    _uiState.update { it.copy(timeTrialTimer = it.timeTrialTimer.dec()) }
+                }
+
+                if (uiState.value.timeTrialTimer == 0) endGame()
+            }
+        }
+    }
+
+
     fun endGame(isGameOver: Boolean = true) {
         when (isGameOver) {
             true -> _uiState.update {
@@ -269,8 +308,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    fun scoreDetails(newState: Boolean) {
-        _uiState.update { it.copy(isScoreDetails = newState) }
+    fun toggleScoreDetails() {
+        _uiState.update { it.copy(isScoreDetails = !it.isScoreDetails) }
     }
 
 
@@ -402,13 +441,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     /* Reset and start timer */
     private fun startTimer() {
-        _uiState.update { it.copy(timer = 0) }
+        _uiState.update { it.copy(standardTimer = 0) }
 
         viewModelScope.launch {
             while (!uiState.value.isGameOver) {
                 delay(timeMillis = 1000)
                 if (!uiState.value.isGameOver) {
-                    _uiState.update { it.copy(timer = it.timer.inc()) }
+                    _uiState.update { it.copy(standardTimer = it.standardTimer.inc()) }
                 }
             }
         }

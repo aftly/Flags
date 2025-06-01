@@ -19,7 +19,8 @@ data class GameUiState(
     val currentFlag: FlagResources = nullFlag,
     val currentFlagStrings: List<String> = emptyList(),
 
-    val timer: Int = 0,
+    val standardTimer: Int = 0,
+    val timeTrialTimer: Int = 0,
 
     val correctGuessCount: Int = 0,
     val shownAnswerCount: Int = 0,
@@ -30,6 +31,8 @@ data class GameUiState(
     val nextFlagInSkipped: FlagResources? = null,
     val isShowAnswer: Boolean = false,
 
+    val isTimeTrialDialog: Boolean = false,
+    val isTimeTrial: Boolean = false,
     val isGameOver: Boolean = false,
     val endGameGuessedFlags: List<FlagResources> = emptyList(),
     val endGameSkippedFlags: List<FlagResources> = emptyList(),
