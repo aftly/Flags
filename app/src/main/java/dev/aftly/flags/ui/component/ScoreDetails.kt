@@ -60,7 +60,6 @@ import androidx.compose.ui.unit.sp
 import dev.aftly.flags.R
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.ScoreData
-//import dev.aftly.flags.model.ScoreOverviewItem
 import dev.aftly.flags.model.TimeOverview
 import dev.aftly.flags.model.TotalsOverview
 import dev.aftly.flags.ui.theme.Dimens

@@ -64,8 +64,6 @@ fun RelatedFlagsMenu(
             listState.scrollToItem(index = relatedFlags.indexOf(currentFlag))
         }
     }
-    val configuration = LocalConfiguration.current
-    val fontScale = configuration.fontScale
 
 
     /* Menu content */
