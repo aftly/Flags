@@ -273,7 +273,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
 
     fun showAnswer() {
-        _uiState.update { it.copy(isShowAnswer = true) }
+        _uiState.update {
+            it.copy(
+                isShowAnswer = true,
+                shownAnswerCount = it.shownAnswerCount.inc(),
+            )
+        }
+        shownFlags.add(uiState.value.currentFlag)
     }
 
 
@@ -339,13 +345,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
         /* Manage shown, skipped and guessed flags lists depending on args & game conditions */
         if (isAnswerShown) {
-            shownFlags.add(currentFlag)
-            _uiState.update {
-                it.copy(
-                    shownAnswerCount = it.shownAnswerCount.inc(),
-                    isShowAnswer = false,
-                )
-            }
+            _uiState.update { it.copy(isShowAnswer = false) }
+
         } else if (isSkip) { /* If user skip & un-skipped flags remain, add flag to skip list */
             if (!isSkipMax()) skippedFlags.add(currentFlag)
 
@@ -385,8 +386,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             val newFlag = currentFlags.random()
 
             /* Recurs until (random) newFlag not currentFlag or in guessedFlags or in skippedFlags */
-            return if (newFlag == uiState.value.currentFlag ||
-                newFlag in guessedFlags || newFlag in skippedFlags) getRandomFlag() else newFlag
+            return if (newFlag == uiState.value.currentFlag || newFlag in guessedFlags ||
+                newFlag in skippedFlags || newFlag in shownFlags) getRandomFlag() else newFlag
         } else {
             return nullFlag
         }

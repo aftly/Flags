@@ -345,7 +345,7 @@ private fun ScoreDetailsItems(
                             .heightIn(
                                 max = (with(LocalDensity.current) {
                                     itemLineHeight.toDp()
-                                } + Dimens.medium16) * (scores.list.size + 1))
+                                } + Dimens.medium16) * (scoresList.size + 1))
                             .padding(
                                 start = Dimens.medium16,
                                 end = Dimens.medium16,
