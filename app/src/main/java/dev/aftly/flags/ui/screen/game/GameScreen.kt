@@ -772,7 +772,10 @@ private fun GameCard(
                         ),
                         exit = ExitTransition.None,
                     ) {
-                        Box(contentAlignment = Alignment.Center) {
+                        Box(
+                            modifier = Modifier.padding(Dimens.medium16),
+                            contentAlignment = Alignment.Center,
+                        ) {
                             Text(
                                 text = stringResource(correctAnswer),
                                 modifier = Modifier
