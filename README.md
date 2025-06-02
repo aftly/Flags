@@ -38,11 +38,12 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 <br>
 
 ## ⭐ Features
-- List flags
-- View flag and description of it's entity from it's categories
-- Search screen
+- List flags by categories
+- View flags and description of it's entity from it's categories
+- Search for flags
+- View & Search supports (politically) related flags
 - Flag game
-- Button/menu for filtering flags by category(s)
+- Menu for selecting single or multiple categories
 <br>
 
  **📌 TODO:**
@@ -59,10 +60,10 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [x] ~~UI Counter to show number of flags in current list on View/List screen~~
 - [x] ~~Move search function into list flags screen~~
 - [x] ~~Add open in Wikipedia button to Flag screen~~
-- [x] ~~**Game**: Button to show correct answer~~ - **(Not yet in Releases)**
-- [x] ~~**Game**: Details card in Game Over dialog showing lists of guessed, skipped, shown and remainder flags~~ - **(Not yet in Releases)**
+- [x] ~~**Game**: Button to show correct answer~~
+- [x] ~~**Game**: Open card from Game Over dialog to show score overview & lists of guessed, skipped, shown and remainder flags~~
+- [x] **Game**: Timer modes: Standard and Time Trial
 - [x] Optimize app for different system Font sizes - **(Partially Complete)**
-- [ ] **Game**: Timer feature/mode
 - [ ] **Persistent Game features**: Score history & exporting scores *(for sharing)*
 - [ ] **Persistent Settings features**: Themes, strictness of user guesses for game, disable animations for older devices
 - [ ] Save flags to custom list
