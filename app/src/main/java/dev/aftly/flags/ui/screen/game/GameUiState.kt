@@ -21,6 +21,7 @@ data class GameUiState(
 
     val standardTimer: Int = 0,
     val timeTrialTimer: Int = 0,
+    val timeTrialStart: Int = 0, /* To track the initial start time */
 
     val correctGuessCount: Int = 0,
     val shownAnswerCount: Int = 0,
@@ -35,7 +36,10 @@ data class GameUiState(
     val isTimeTrial: Boolean = false,
     val isGameOver: Boolean = false,
     val endGameGuessedFlags: List<FlagResources> = emptyList(),
+    val endGameGuessedFlagsSorted: List<FlagResources> = emptyList(),
     val endGameSkippedFlags: List<FlagResources> = emptyList(),
+    val endGameSkippedFlagsSorted: List<FlagResources> = emptyList(),
     val endGameShownFlags: List<FlagResources> = emptyList(),
+    val endGameShownFlagsSorted: List<FlagResources> = emptyList(),
     val isScoreDetails: Boolean = false,
 )

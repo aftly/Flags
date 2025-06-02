@@ -156,7 +156,10 @@ fun GameScreen(
             userSecondsInput = viewModel.userTimerInputSeconds,
             onUserMinutesInputChange = { viewModel.updateUserMinutesInput(it) },
             onUserSecondsInputChange = { viewModel.updateUserSecondsInput(it) },
-            onTimeTrial = { viewModel.startTimeTrial(it) },
+            onTimeTrial = {
+                viewModel.resetGame(timeTrial = true)
+                viewModel.startTimeTrial(it)
+            },
             onDismiss = { viewModel.toggleTimeTrial() },
         )
     }
@@ -207,9 +210,20 @@ fun GameScreen(
         isScoreDetails = uiState.isScoreDetails,
         currentGameFlags = uiState.currentFlags,
         endGameGuessedFlags = uiState.endGameGuessedFlags,
+        endGameGuessedFlagsSorted = uiState.endGameGuessedFlagsSorted,
         endGameSkippedFlags = uiState.endGameSkippedFlags,
+        endGameSkippedFlagsSorted = uiState.endGameSkippedFlagsSorted,
         endGameShownFlags = uiState.endGameShownFlags,
-        endGameTime = uiState.standardTimer,
+        endGameShownFlagsSorted = uiState.endGameShownFlagsSorted,
+        isTimeTrial = uiState.isTimeTrial,
+        timeTrialStart = when (uiState.isTimeTrial) {
+            true -> uiState.timeTrialStart
+            else -> null
+        },
+        endGameTime = when (uiState.isTimeTrial) {
+            true -> uiState.timeTrialTimer
+            false -> uiState.standardTimer
+        },
         onKeyboardDoneAction = { viewModel.checkUserGuess() },
         onSubmit = { viewModel.checkUserGuess() },
         onSkip = { viewModel.skipFlag(isAnswerShown = uiState.isShowAnswer) },
@@ -256,8 +270,13 @@ private fun GameScaffold(
     isScoreDetails: Boolean,
     currentGameFlags: List<FlagResources>,
     endGameGuessedFlags: List<FlagResources>,
+    endGameGuessedFlagsSorted: List<FlagResources>,
     endGameSkippedFlags: List<FlagResources>,
+    endGameSkippedFlagsSorted: List<FlagResources>,
     endGameShownFlags: List<FlagResources>,
+    endGameShownFlagsSorted: List<FlagResources>,
+    isTimeTrial: Boolean,
+    timeTrialStart: Int?,
     endGameTime: Int,
     onKeyboardDoneAction: () -> Unit,
     onSubmit: () -> Unit,
@@ -376,9 +395,14 @@ private fun GameScaffold(
             insetsPadding = WindowInsets.systemBars.asPaddingValues(),
             gameFlags = currentGameFlags,
             guessedFlags = endGameGuessedFlags,
+            guessedFlagsSorted = endGameGuessedFlagsSorted,
             skippedFlags = endGameSkippedFlags,
+            skippedFlagsSorted = endGameSkippedFlagsSorted,
             shownFlags = endGameShownFlags,
-            timeElapsed = endGameTime,
+            shownFlagsSorted = endGameShownFlagsSorted,
+            isTimeTrial = isTimeTrial,
+            timeTrialStart = timeTrialStart,
+            time = endGameTime,
             onClose = {
                 onToggleScoreDetails()
                 onEndGame()

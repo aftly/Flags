@@ -27,9 +27,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -44,6 +46,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,9 +76,14 @@ fun ScoreDetails(
     insetsPadding: PaddingValues,
     gameFlags: List<FlagResources>,
     guessedFlags: List<FlagResources>,
+    guessedFlagsSorted: List<FlagResources>,
     skippedFlags: List<FlagResources>,
+    skippedFlagsSorted: List<FlagResources>,
     shownFlags: List<FlagResources>,
-    timeElapsed: Int,
+    shownFlagsSorted: List<FlagResources>,
+    isTimeTrial: Boolean,
+    timeTrialStart: Int?,
+    time: Int,
     onClose: () -> Unit,
 ) {
     /* Properties for controlling system bars */
@@ -83,22 +91,30 @@ fun ScoreDetails(
     val window = (view.context as Activity).window
     val systemUiController = remember { SystemUiController(window, view) }
     val isDarkTheme by rememberUpdatedState(newValue = isSystemInDarkTheme())
+    var isDetailsSorted by rememberSaveable { mutableStateOf(value = false) }
     LaunchedEffect(visible) {
-        if (visible) systemUiController.setLightStatusBar(light = false)
+        if (visible) {
+            isDetailsSorted = false
+            systemUiController.setLightStatusBar(light = false)
+        }
     }
 
     /* Class for processing score details */
     val scoreDetails = ScoreData(
         gameFlags = gameFlags,
         guessedFlags = guessedFlags,
+        guessedFlagsSorted = guessedFlagsSorted,
         skippedFlags = skippedFlags,
+        skippedFlagsSorted = skippedFlagsSorted,
         shownFlags = shownFlags,
+        shownFlagsSorted = shownFlagsSorted,
         guessedFlagsTitle = R.string.game_score_details_guessed,
         skippedFlagsTitle = R.string.game_score_details_skipped,
         shownFlagsTitle = R.string.game_score_details_shown,
         remainderFlagsTitle = R.string.game_score_details_remainder,
-        isTimeTrial = false,
-        timeElapsed = timeElapsed,
+        isTimeTrial = isTimeTrial,
+        timeTrialStart = timeTrialStart,
+        time = time,
     )
 
 
@@ -153,22 +169,37 @@ fun ScoreDetails(
                         style = MaterialTheme.typography.headlineSmall,
                     )
 
-                    IconButton(
-                        onClick = {
-                            if (!isDarkTheme) systemUiController.setLightStatusBar(light = true)
-                            onClose()
+                    Row {
+                        IconButton(
+                            onClick = { isDetailsSorted = !isDetailsSorted }
+                        ) {
+                            Icon(
+                                imageVector = when (isDetailsSorted) {
+                                    false -> Icons.Default.SortByAlpha
+                                    true -> Icons.Default.AccessTime
+                                },
+                                contentDescription = null,
+                            )
                         }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Clear,
-                            contentDescription = null,
-                        )
+
+                        IconButton(
+                            onClick = {
+                                if (!isDarkTheme) systemUiController.setLightStatusBar(light = true)
+                                onClose()
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Clear,
+                                contentDescription = null,
+                            )
+                        }
                     }
                 }
 
                 /* Expandable/collapsable score details with nested LazyColumns */
                 ScoreDetailsItems(
                     isDarkTheme = isDarkTheme,
+                    isDetailsSorted = isDetailsSorted,
                     scoreDetails = scoreDetails,
                 )
             }
@@ -180,10 +211,11 @@ fun ScoreDetails(
 @Composable
 private fun ScoreDetailsItems(
     isDarkTheme: Boolean,
+    isDetailsSorted: Boolean,
     scoreDetails: ScoreData,
 ) {
     val scrollState = rememberLazyListState()
-    var overviewExpanded by remember { mutableStateOf(value = false) }
+    var overviewExpanded by remember { mutableStateOf(value = true) }
     val expansionMap = remember { mutableStateMapOf<Int, Boolean>() }
 
     val overviewDropDownIcon = when (overviewExpanded) {
@@ -277,6 +309,11 @@ private fun ScoreDetailsItems(
         items(scoreDetails.allScores) { scores ->
             val isExpanded = expansionMap[scores.titleResId] ?: false
 
+            val scoresList = when (isDetailsSorted) {
+                false -> scores.list
+                true -> scores.sortedList
+            }
+
             val textButtonIsEnabled = when (scores.list.size) {
                 0 -> false
                 else -> true
@@ -355,11 +392,11 @@ private fun ScoreDetailsItems(
                             )
                     ) {
                         items(
-                            count = scores.list.size,
-                            key = { index -> scores.list[index].id }
+                            count = scoresList.size,
+                            key = { index -> scoresList[index].id }
                         ) { index ->
                             ScoreItem(
-                                flag = scores.list[index],
+                                flag = scoresList[index],
                                 fontSize = itemFontSize,
                                 lineHeight = itemLineHeight,
                             )
@@ -453,10 +490,16 @@ private fun TimeOverviewItem(
         true -> R.string.game_score_details_time_mode_2
     }
 
-    val successColor = when (isDarkTheme) {
-        true -> successDark
-        false -> successLight
+    val endTimeBackgroundColor = when (timeOverview.isTimeTrial) {
+        false -> MaterialTheme.colorScheme.primary
+        true -> MaterialTheme.colorScheme.error
     }
+
+    val endTimeTextColor = when (timeOverview.isTimeTrial) {
+        false -> MaterialTheme.colorScheme.onPrimary
+        true -> MaterialTheme.colorScheme.onError
+    }
+
 
     Row(
         modifier = modifier,
@@ -478,17 +521,35 @@ private fun TimeOverviewItem(
             lineHeight = lineHeight,
         )
 
+        /* Time trial start time */
+        timeOverview.timeTrialStart?.let { time ->
+            Text(
+                text = stringResource(
+                    R.string.game_score_details_time_mode_details,
+                    time / 60,
+                    time % 60
+                ),
+                modifier = Modifier.padding(end = spacePadding)
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(vertical = 2.dp, horizontal = Dimens.small8),
+                color = MaterialTheme.colorScheme.onPrimary,
+                fontSize = fontSize,
+                lineHeight = lineHeight,
+            )
+        }
+
         /* Time elapsed */
         Text(
             text = stringResource(
-                R.string.game_score_details_time_mode_1_details,
-                timeOverview.timeElapsed / 60,
-                timeOverview.timeElapsed % 60
+                R.string.game_score_details_time_mode_details,
+                timeOverview.time / 60,
+                timeOverview.time % 60
             ),
             modifier = Modifier.clip(MaterialTheme.shapes.medium)
-                .background(MaterialTheme.colorScheme.primary)
+                .background(endTimeBackgroundColor)
                 .padding(vertical = 2.dp, horizontal = Dimens.small8),
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = endTimeTextColor,
             fontSize = fontSize,
             lineHeight = lineHeight,
         )

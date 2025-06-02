@@ -183,10 +183,8 @@
     <string name="game_score_details_correct_relative">%.2f</string>
     <string name="game_score_details_time_mode_title">Time mode:</string>
     <string name="game_score_details_time_mode_1">Standard</string>
-    <string name="game_score_details_time_mode_1_details">%dm, %02ds</string>
     <string name="game_score_details_time_mode_2">Time trial</string>
-    <string name="game_score_details_time_mode_2_details_1">%dm, %02ds</string>
-    <string name="game_score_details_time_mode_2_details_2">%dm, %02ds</string>
+    <string name="game_score_details_time_mode_details">%dm, %02ds</string>
     <string name="game_score_details_guessed">Flags guessed (%d)</string>
     <string name="game_score_details_skipped">Flags skipped (%d)</string>
     <string name="game_score_details_shown">Flags shown (%d)</string>

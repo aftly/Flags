@@ -39,6 +39,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private var guessedFlags = mutableListOf<FlagResources>()
     private var skippedFlags = mutableListOf<FlagResources>()
     private var shownFlags = mutableListOf<FlagResources>()
+
+    private var standardTimerJob: Job? = null
     private var timeTrialJob: Job? = null
 
     var userGuess by mutableStateOf(value = "")
@@ -61,6 +63,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     /* Reset game state with a new flag and necessary starting values */
     fun resetGame(timeTrial: Boolean = false) {
+        if (timeTrial) {
+            standardTimerJob?.cancel()
+            timeTrialJob?.cancel()
+        }
+
         guessedFlags = mutableListOf()
         skippedFlags = mutableListOf()
         shownFlags = mutableListOf()
@@ -77,6 +84,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 totalFlagCount = it.currentFlags.size,
                 currentFlag = newFlag,
                 currentFlagStrings = newFlagStrings,
+                standardTimer = 0,
                 correctGuessCount = 0,
                 shownAnswerCount = 0,
                 isGuessedFlagWrong = false,
@@ -274,18 +282,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun startTimeTrial(startTime: Int) {
-        resetGame(timeTrial = true)
-        _uiState.update { it.copy(timeTrialTimer = startTime) }
-
-        timeTrialJob?.cancel() /* Cancel previous timeTrialJob */
+        _uiState.update { it.copy(timeTrialTimer = startTime, timeTrialStart = startTime) }
 
         timeTrialJob = viewModelScope.launch {
-            while (uiState.value.timeTrialTimer > 0 && !uiState.value.isGameOver) {
+            while (uiState.value.timeTrialTimer > 0) {
                 delay(timeMillis = 1000)
-
-                if (!uiState.value.isGameOver) {
-                    _uiState.update { it.copy(timeTrialTimer = it.timeTrialTimer.dec()) }
-                }
+                _uiState.update { it.copy(timeTrialTimer = it.timeTrialTimer.dec()) }
 
                 if (uiState.value.timeTrialTimer == 0) endGame()
             }
@@ -295,13 +297,21 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     fun endGame(isGameOver: Boolean = true) {
         when (isGameOver) {
-            true -> _uiState.update {
-                it.copy(
-                    isGameOver = true,
-                    endGameGuessedFlags = guessedFlags.toList(),
-                    endGameSkippedFlags = skippedFlags.toList(),
-                    endGameShownFlags = shownFlags.toList(),
-                )
+            true -> {
+                standardTimerJob?.cancel()
+                timeTrialJob?.cancel()
+
+                _uiState.update {
+                    it.copy(
+                        isGameOver = true,
+                        endGameGuessedFlags = guessedFlags.toList(),
+                        endGameGuessedFlagsSorted = sortFlagsAlphabetically(guessedFlags),
+                        endGameSkippedFlags = skippedFlags.toList(),
+                        endGameSkippedFlagsSorted = sortFlagsAlphabetically(skippedFlags),
+                        endGameShownFlags = shownFlags.toList(),
+                        endGameShownFlagsSorted = sortFlagsAlphabetically(shownFlags),
+                    )
+                }
             }
             false -> _uiState.update { it.copy(isGameOver = false) }
         }
@@ -439,16 +449,21 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    /* Reset and start timer */
-    private fun startTimer() {
-        _uiState.update { it.copy(standardTimer = 0) }
+    private fun sortFlagsAlphabetically(flags: MutableList<FlagResources>): List<FlagResources> {
+        val appResources = getApplication<Application>().applicationContext.resources
 
-        viewModelScope.launch {
-            while (!uiState.value.isGameOver) {
+        return flags.sortedBy { flag ->
+            normalizeString(string = appResources.getString(flag.flagOf))
+        }
+    }
+
+
+    /* Reset and start standard timer */
+    private fun startTimer() {
+        standardTimerJob = viewModelScope.launch {
+            while (true) {
                 delay(timeMillis = 1000)
-                if (!uiState.value.isGameOver) {
-                    _uiState.update { it.copy(standardTimer = it.standardTimer.inc()) }
-                }
+                _uiState.update { it.copy(standardTimer = it.standardTimer.inc()) }
             }
         }
     }
