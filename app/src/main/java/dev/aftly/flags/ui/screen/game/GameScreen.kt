@@ -68,11 +68,13 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -164,7 +166,6 @@ fun GameScreen(
         )
     }
 
-
     /* Show pop-up when game over */
     if (uiState.isGameOver) {
         GameOverDialog(
@@ -183,6 +184,32 @@ fun GameScreen(
                 )
             },
             onPlayAgain = { viewModel.resetGame() },
+        )
+    }
+
+    /* For displaying verbose score details */
+    if (uiState.isScoreDetails) {
+        ScoreDetails(
+            gameFlags = uiState.currentFlags,
+            guessedFlags = uiState.endGameGuessedFlags,
+            guessedFlagsSorted = uiState.endGameGuessedFlagsSorted,
+            skippedFlags = uiState.endGameSkippedFlags,
+            skippedFlagsSorted = uiState.endGameSkippedFlagsSorted,
+            shownFlags = uiState.endGameShownFlags,
+            shownFlagsSorted = uiState.endGameShownFlagsSorted,
+            isTimeTrial = uiState.isTimeTrial,
+            timeTrialStart = when (uiState.isTimeTrial) {
+                true -> uiState.timeTrialStart
+                else -> null
+            },
+            time = when (uiState.isTimeTrial) {
+                true -> uiState.timeTrialTimer
+                false -> uiState.standardTimer
+            },
+            onClose = {
+                viewModel.toggleScoreDetails()
+                viewModel.endGame()
+            }
         )
     }
 
@@ -207,29 +234,11 @@ fun GameScreen(
         isGuessWrong = uiState.isGuessedFlagWrong,
         isGuessWrongEvent = uiState.isGuessedFlagWrongEvent,
         isShowAnswer = uiState.isShowAnswer,
-        isScoreDetails = uiState.isScoreDetails,
-        currentGameFlags = uiState.currentFlags,
-        endGameGuessedFlags = uiState.endGameGuessedFlags,
-        endGameGuessedFlagsSorted = uiState.endGameGuessedFlagsSorted,
-        endGameSkippedFlags = uiState.endGameSkippedFlags,
-        endGameSkippedFlagsSorted = uiState.endGameSkippedFlagsSorted,
-        endGameShownFlags = uiState.endGameShownFlags,
-        endGameShownFlagsSorted = uiState.endGameShownFlagsSorted,
-        isTimeTrial = uiState.isTimeTrial,
-        timeTrialStart = when (uiState.isTimeTrial) {
-            true -> uiState.timeTrialStart
-            else -> null
-        },
-        endGameTime = when (uiState.isTimeTrial) {
-            true -> uiState.timeTrialTimer
-            false -> uiState.standardTimer
-        },
         onKeyboardDoneAction = { viewModel.checkUserGuess() },
         onSubmit = { viewModel.checkUserGuess() },
         onSkip = { viewModel.skipFlag(isAnswerShown = uiState.isShowAnswer) },
         onShowAnswer = { viewModel.showAnswer() },
         onToggleTimeTrial = { viewModel.toggleTimeTrial() },
-        onToggleScoreDetails = { viewModel.toggleScoreDetails() },
         onEndGame = { viewModel.endGame() },
         onNavigateUp = onNavigateUp,
         onFullscreen = { isLandscape ->
@@ -267,23 +276,11 @@ private fun GameScaffold(
     isGuessWrong: Boolean,
     isGuessWrongEvent: Boolean,
     isShowAnswer: Boolean,
-    isScoreDetails: Boolean,
-    currentGameFlags: List<FlagResources>,
-    endGameGuessedFlags: List<FlagResources>,
-    endGameGuessedFlagsSorted: List<FlagResources>,
-    endGameSkippedFlags: List<FlagResources>,
-    endGameSkippedFlagsSorted: List<FlagResources>,
-    endGameShownFlags: List<FlagResources>,
-    endGameShownFlagsSorted: List<FlagResources>,
-    isTimeTrial: Boolean,
-    timeTrialStart: Int?,
-    endGameTime: Int,
     onKeyboardDoneAction: () -> Unit,
     onSubmit: () -> Unit,
     onSkip: () -> Unit,
     onShowAnswer: () -> Unit,
     onToggleTimeTrial: () -> Unit,
-    onToggleScoreDetails: () -> Unit,
     onEndGame: () -> Unit,
     onNavigateUp: () -> Unit,
     onFullscreen: (Boolean) -> Unit,
@@ -387,26 +384,6 @@ private fun GameScaffold(
             currentSubCategories = currentSubCategories,
             onCategorySelect = onCategorySelect,
             onCategoryMultiSelect = onCategoryMultiSelect,
-        )
-
-        /* For displaying verbose score details */
-        ScoreDetails(
-            visible = isScoreDetails,
-            insetsPadding = WindowInsets.systemBars.asPaddingValues(),
-            gameFlags = currentGameFlags,
-            guessedFlags = endGameGuessedFlags,
-            guessedFlagsSorted = endGameGuessedFlagsSorted,
-            skippedFlags = endGameSkippedFlags,
-            skippedFlagsSorted = endGameSkippedFlagsSorted,
-            shownFlags = endGameShownFlags,
-            shownFlagsSorted = endGameShownFlagsSorted,
-            isTimeTrial = isTimeTrial,
-            timeTrialStart = timeTrialStart,
-            time = endGameTime,
-            onClose = {
-                onToggleScoreDetails()
-                onEndGame()
-            }
         )
     }
 }
@@ -864,10 +841,8 @@ private fun GameCard(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TimeTrialDialog(
-    modifier: Modifier = Modifier,
     userMinutesInput: String,
     userSecondsInput: String,
     onUserMinutesInputChange: (String) -> Unit,
@@ -884,20 +859,23 @@ private fun TimeTrialDialog(
     val inputAnnotationStyle = MaterialTheme.typography.titleLarge
 
 
-    BasicAlertDialog(
+    Dialog(
         onDismissRequest = onDismiss,
-        modifier = modifier,
     ) {
         Card(
             modifier = Modifier.wrapContentWidth(),
             shape = MaterialTheme.shapes.extraLarge
         ) {
             Column(
+                modifier = Modifier.padding(
+                    top = Dimens.large24,
+                    start = Dimens.large24,
+                ),
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 /* Title */
                 Row(
-                    modifier = Modifier.padding(Dimens.large24),
+                    //modifier = Modifier.padding(Dimens.large24),
                 ) {
                     Text(
                         text = stringResource(R.string.game_time_trial_title),
@@ -908,7 +886,10 @@ private fun TimeTrialDialog(
 
                 /* Time trial inputs */
                 Row(
-                    modifier = Modifier.padding(start = Dimens.large24),
+                    modifier = Modifier.padding(
+                        top = Dimens.large24,
+                        end = Dimens.large24,
+                    ),
                     verticalAlignment = Alignment.Bottom
                 ) {
                     OutlinedTextField(
@@ -957,7 +938,9 @@ private fun TimeTrialDialog(
                     )
                     Text(
                         text = stringResource(R.string.game_time_trial_second),
-                        modifier = Modifier.padding(start = Dimens.small8, end = Dimens.large24),
+                        modifier = Modifier.padding(
+                            start = Dimens.small8,
+                        ),
                         style = inputAnnotationStyle,
                     )
                 }
@@ -965,7 +948,11 @@ private fun TimeTrialDialog(
 
                 /* Action buttons */
                 Row(
-                    modifier = Modifier.padding(Dimens.small8)
+                    modifier = Modifier
+                        .padding(
+                            vertical = Dimens.small8,
+                            horizontal = Dimens.small10,
+                        )
                         .align(Alignment.End),
                 ) {
                     TextButton(onClick = onDismiss) {
@@ -996,6 +983,7 @@ private fun TimeTrialDialog(
 
 
 /* End game popup dialog showing final score. With buttons: Leave game, Share score, Play again */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun GameOverDialog(
     modifier: Modifier = Modifier,
@@ -1016,29 +1004,65 @@ private fun GameOverDialog(
         R.string.game_over_share_text, finalScore, maxScore, gameMode
     )
 
-    AlertDialog(
+
+    BasicAlertDialog(
         onDismissRequest = {},
-        title = { Text(text = stringResource(R.string.game_over_title)) },
-        text = { Text(text = scoreMessage) },
         modifier = modifier,
-        dismissButton = {
-            TextButton(
-                onClick = onDetails,
+    ) {
+        Card(
+            modifier = Modifier.wrapContentWidth(),
+            shape = MaterialTheme.shapes.extraLarge
+        ) {
+            Column(
+                modifier = Modifier.padding(
+                    top = Dimens.large24,
+                    start = Dimens.large24,
+                    end = Dimens.large24,
+                ),
+                verticalArrangement = Arrangement.SpaceBetween,
             ) {
-                Text(text = stringResource(R.string.game_over_details_button))
-            }
-        },
-        confirmButton = {
-            Row {
-                TextButton(onClick = { onShare(shareScoreMessage) }) {
-                    Text(text = stringResource(R.string.game_over_share_button))
+                /* Title */
+                Row {
+                    Text(
+                        text = stringResource(R.string.game_over_title),
+                        style = MaterialTheme.typography.headlineSmall,
+                    )
                 }
-                TextButton(onClick = onPlayAgain) {
-                    Text(text = stringResource(R.string.game_over_play_again_button))
+
+                /* Description */
+                Row(
+                    modifier = Modifier.padding(
+                        top = Dimens.medium16,
+                        bottom = Dimens.small8,
+                    ),
+                ) {
+                    Text(
+                        text = scoreMessage,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+
+                /* Action buttons */
+                Row(
+                    modifier = Modifier.padding(vertical = Dimens.small8)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    TextButton(onClick = onDetails) {
+                        Text(text = stringResource(R.string.game_over_details_button))
+                    }
+
+                    TextButton(onClick = { onShare(shareScoreMessage) }) {
+                        Text(text = stringResource(R.string.game_over_share_button))
+                    }
+
+                    TextButton(onClick = onPlayAgain) {
+                        Text(text = stringResource(R.string.game_over_play_again_button))
+                    }
                 }
             }
-        },
-    )
+        }
+    }
 }
 
 
