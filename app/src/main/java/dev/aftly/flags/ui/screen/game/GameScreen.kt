@@ -49,6 +49,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -91,7 +92,10 @@ import dev.aftly.flags.ui.theme.successDark
 import dev.aftly.flags.ui.theme.successLight
 import dev.aftly.flags.ui.theme.surfaceLight
 import dev.aftly.flags.ui.util.SystemUiController
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 
@@ -453,6 +457,7 @@ private fun GameContent(
 
     /* Manage show answer button */
     var showAnswerButtonState by rememberSaveable { mutableIntStateOf(value = 0) }
+    var confirmationTimer by rememberSaveable { mutableIntStateOf(value = 5) }
     val isDarkTheme by rememberUpdatedState(newValue = isSystemInDarkTheme())
     val showAnswerColor = when (showAnswerButtonState) {
         1 -> MaterialTheme.colorScheme.error
@@ -460,12 +465,23 @@ private fun GameContent(
     }
     val showAnswerText = when (showAnswerButtonState) {
         0 -> stringResource(R.string.game_button_show)
-        1 -> stringResource(R.string.game_button_show_confirm)
+        1 -> stringResource(R.string.game_button_show_confirm, confirmationTimer)
         else -> stringResource(R.string.game_button_shown)
     }
-    /* Reset showAnswerButtonState when isShowAnswer is reset */
-    LaunchedEffect(isShowAnswer) {
-        if (!isShowAnswer) showAnswerButtonState = 0
+    var resetButtonJob by rememberSaveable { mutableStateOf<Job?>(value = null) }
+    val coroutineScope = rememberCoroutineScope()
+    /* Reset showAnswerButtonState if no user interaction after "Are you sure?" */
+    LaunchedEffect(showAnswerButtonState) {
+        if (showAnswerButtonState == 1) {
+            resetButtonJob = coroutineScope.launch {
+                confirmationTimer = 5
+                while (confirmationTimer > 0) {
+                    delay(timeMillis = 1000)
+                    confirmationTimer--
+                }
+                showAnswerButtonState = 0
+            }
+        }
     }
 
 
@@ -522,7 +538,11 @@ private fun GameContent(
             isGuessWrong = isGuessWrong,
             isGuessWrongEvent = isGuessWrongEvent,
             isShowAnswer = isShowAnswer,
-            onKeyboardDoneAction = onKeyboardDoneAction,
+            onKeyboardDoneAction = {
+                resetButtonJob?.cancel()
+                showAnswerButtonState = 0
+                onKeyboardDoneAction()
+            },
             onEndGame = onEndGame,
             onImageWide = onImageWide,
             onFullscreen = onFullscreen,
@@ -530,8 +550,13 @@ private fun GameContent(
         /* Something makes Submit button's top padding less than Skip button's  */
         Spacer(modifier = Modifier.height(2.dp))
 
+        /* Submit button */
         Button(
-            onClick = onSubmit,
+            onClick = {
+                resetButtonJob?.cancel()
+                showAnswerButtonState = 0
+                onSubmit()
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = Dimens.medium16),
@@ -540,8 +565,13 @@ private fun GameContent(
             Text(text = stringResource(R.string.game_button_submit))
         }
 
+        /* Skip button */
         OutlinedButton(
-            onClick = onSkip,
+            onClick = {
+                resetButtonJob?.cancel()
+                showAnswerButtonState = 0
+                onSkip()
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = Dimens.medium16),
@@ -549,10 +579,14 @@ private fun GameContent(
             Text(text = stringResource(R.string.game_button_skip))
         }
 
+        /* Show answer button */
         OutlinedButton(
             onClick = {
                 showAnswerButtonState++
-                if (showAnswerButtonState > 1) onShowAnswer()
+                if (showAnswerButtonState > 1) {
+                    resetButtonJob?.cancel()
+                    onShowAnswer()
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -1069,7 +1103,8 @@ private fun GameOverDialog(
 
                 /* Action buttons */
                 Row(
-                    modifier = Modifier.padding(vertical = Dimens.small8)
+                    modifier = Modifier
+                        .padding(vertical = Dimens.small8)
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {

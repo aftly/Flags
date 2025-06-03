@@ -162,7 +162,7 @@
     <string name="game_button_submit">Submit</string>
     <string name="game_button_skip">Skip</string>
     <string name="game_button_show">Show answer</string>
-    <string name="game_button_show_confirm">Are you sure?</string>
+    <string name="game_button_show_confirm">Are you sure? (%d)</string>
     <string name="game_button_shown">Answer shown</string>
     <string name="game_guess_field_label">Your guess</string>
     <string name="game_guess_field_label_error">Incorrect</string>
