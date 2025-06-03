@@ -135,7 +135,8 @@ fun RelatedFlagsMenu(
             Card(
                 modifier = Modifier.fillMaxWidth()
                     .padding(
-                        top = (scaffoldPadding.calculateTopPadding() - Dimens.small10).coerceAtLeast(0.dp),
+                        top = (scaffoldPadding.calculateTopPadding() - Dimens.small10)
+                            .coerceAtLeast(0.dp),
                         bottom = scaffoldPadding.calculateBottomPadding(),
                         start = Dimens.marginHorizontal16,
                         end = Dimens.marginHorizontal16,

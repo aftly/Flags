@@ -236,7 +236,8 @@ fun FilterFlagsButton(
                             ) {
                                 Text(
                                     text = "$flagCount",
-                                    modifier = Modifier.requiredWidthIn(min = Dimens.standardIconSize24)
+                                    modifier = Modifier
+                                        .requiredWidthIn(min = Dimens.standardIconSize24)
                                         .clip(flagCountShape)
                                         .background(buttonColors2.contentColor)
                                         .padding(
@@ -278,8 +279,8 @@ fun FilterFlagsButton(
                             style = MaterialTheme.typography.titleMedium,
                         )
 
-                        /* Drop down icon, minimum size of standard icon size * font scale, otherwise
-                         * width of flag counter, for button title centering */
+                        /* Drop down icon, minimum size of standard icon size * font scale,
+                         * otherwise width of flag counter, for button title centering */
                         Box(
                             modifier = Modifier.width(flagCountWidth),
                             contentAlignment = Alignment.CenterEnd,
@@ -328,11 +329,13 @@ fun FilterFlagsButton(
                     ) {
                         items(items = menuSuperCategoryList) { superCategory ->
                             val buttonColors =
-                                if (currentSuperCategories == null && currentSubCategories == null &&
+                                if (currentSuperCategories == null &&
+                                    currentSubCategories == null &&
                                     superCategory == currentSuperCategory) {
                                     buttonColors2
                                 } else if (
-                                    currentSuperCategories != null && currentSubCategories != null &&
+                                    currentSuperCategories != null &&
+                                    currentSubCategories != null &&
                                     (superCategory in currentSuperCategories || (superCategory
                                         .subCategories.size == 1 && superCategory
                                         .subCategories.first() in currentSubCategories))) {
@@ -347,7 +350,7 @@ fun FilterFlagsButton(
 
                             if (superCategory.subCategories.size == 1 || superCategory == All) {
                                 /* If superCategory has 1 sub category use 1 tier (static) menu item
-                                 * (where the superCategory is meant to represent a sub/FlagCategory) */
+                                 * (where superCategory is meant to represent a sub/FlagCategory) */
                                 MenuItemStatic(
                                     haptics = haptics,
                                     textButtonStyle = textButtonStyle,
@@ -364,7 +367,7 @@ fun FilterFlagsButton(
                                 )
                             } else if (superCategory.subCategories
                                     .filterIsInstance<FlagCategory>().isNotEmpty()) {
-                                /* If superCategory has any FlagCategories (ie. actual sub-categories)
+                                /* If superCategory has any FlagCategories (ie. sub-categories)
                                  * use 2 tier expandable menu */
                                 MenuItemExpandable(
                                     haptics = haptics,
@@ -543,15 +546,21 @@ private fun MenuItemExpandable(
                 .combinedClickable(
                     onClick = {
                         if (isSuperCategorySelectable) {
-                            /* If super is selectable make expandMenu null and select super as category */
+                            /* If super is selectable make expandMenu null and select super
+                             * as category */
                             onMenuSelect(null)
                             onCategorySelect(superCategory, null)
                         } else if (!menuExpanded) {
-                            /* If current menu is not expanded, update expandMenu state with item's cat */
+                            /* If current menu is not expanded, update expandMenu state with
+                             * item's cat */
                             onMenuSelect(superCategory)
-                        } else if (menuSuperCategoryList.any { superCategory in it.subCategories }) {
-                            /* If item's cat is in a superCategory, update expandMenu state with the super */
-                            onMenuSelect(menuSuperCategoryList.find { superCategory in it.subCategories })
+                        } else if (menuSuperCategoryList.any {
+                            superCategory in it.subCategories }) {
+                            /* If item's cat is in a superCategory, update expandMenu state with
+                             * the super */
+                            onMenuSelect(menuSuperCategoryList.find {
+                                superCategory in it.subCategories
+                            })
                         } else {
                             /* Else, make expandMenu state null */
                             onMenuSelect(null)
