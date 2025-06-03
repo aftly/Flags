@@ -37,8 +37,8 @@ import dev.aftly.flags.ui.theme.Dimens
 @Composable
 fun RelatedFlagsButton(
     modifier: Modifier = Modifier,
-    buttonExpanded: Boolean,
-    onButtonExpand: () -> Unit,
+    menuExpanded: Boolean,
+    onMenuExpand: () -> Unit,
     containerColor: Color = MaterialTheme.colorScheme.secondary,
     buttonColors: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor),
     onButtonPosition: (Offset) -> Unit,
@@ -58,7 +58,7 @@ fun RelatedFlagsButton(
             }
     ) {
         Button(
-            onClick = onButtonExpand,
+            onClick = onMenuExpand,
             modifier = Modifier.height(Dimens.defaultFilterButtonHeight30 * fontScale),
             shape = MaterialTheme.shapes.large,
             colors = buttonColors,
@@ -80,7 +80,7 @@ fun RelatedFlagsButton(
                     style = MaterialTheme.typography.titleMedium,
                 )
 
-                if (!buttonExpanded) {
+                if (!menuExpanded) {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowDown,
                         contentDescription = stringResource(R.string.menu_icon_expand),

@@ -13,6 +13,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -146,11 +147,11 @@ private fun FlagScaffold(
     /* Controls FilterFlagsButton menu expansion amd tracks current button height
      * Also for FilterFlagsButton to access Scaffold() padding */
     var buttonExpanded by rememberSaveable { mutableStateOf(value = false) }
+    var scaffoldPaddingValues by remember { mutableStateOf(value = PaddingValues()) }
     var scaffoldTopPadding by remember { mutableStateOf(value = 0.dp) }
     var scaffoldBottomPadding by remember { mutableStateOf(value = 0.dp) }
     var buttonOffset by remember { mutableStateOf(value = Offset(x = 0f, y = 0f)) }
     var buttonWidth by remember { mutableIntStateOf(value = 0) }
-    val density = LocalDensity.current
 
     var isFlagWide by rememberSaveable { mutableStateOf(value = true) }
 
@@ -174,6 +175,7 @@ private fun FlagScaffold(
                 )
             }
         ) { scaffoldPadding ->
+            scaffoldPaddingValues = scaffoldPadding
             scaffoldTopPadding = scaffoldPadding.calculateTopPadding()
             scaffoldBottomPadding = scaffoldPadding.calculateBottomPadding()
 
@@ -190,51 +192,13 @@ private fun FlagScaffold(
 
 
         if (isRelatedFlagsButton) {
-            /* Scrim to receive taps when RelatedFlagsMenu is expanded, to collapse it */
-            AnimatedVisibility(
-                visible = buttonExpanded,
-                enter = fadeIn(animationSpec = tween(durationMillis = Timing.MENU_EXPAND)),
-                exit = fadeOut(animationSpec = tween(durationMillis = Timing.MENU_COLLAPSE)),
-            ) {
-                Scrim(
-                    modifier = Modifier.fillMaxSize()
-                        .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
-                    onAction = { buttonExpanded = !buttonExpanded }
-                )
-            }
-
-            /* Duplicate related flags button to cover scrim */
-            AnimatedVisibility(
-                visible = buttonExpanded,
-                enter = EnterTransition.None,
-                exit = fadeOut(animationSpec = tween(durationMillis = Timing.MENU_COLLAPSE)),
-            ) {
-                Box(modifier = Modifier.fillMaxHeight()
-                    .padding(
-                        top = with(density) { buttonOffset.y.toDp() },
-                        start = with(density) { buttonOffset.x.toDp() }
-                    )
-                    .width(width = with(density) { buttonWidth.toDp() })
-                ) {
-                    RelatedFlagsButton(
-                        buttonExpanded = buttonExpanded,
-                        onButtonExpand = { buttonExpanded = !buttonExpanded },
-                        onButtonPosition = {},
-                        onButtonWidth = {},
-                    )
-                }
-            }
-
-            /* Related flags content */
             RelatedFlagsMenu(
-                modifier = Modifier.fillMaxWidth()
-                    .padding(
-                        top = (scaffoldTopPadding - Dimens.small10).coerceAtLeast(0.dp),
-                        bottom = scaffoldBottomPadding,
-                        start = Dimens.marginHorizontal16,
-                        end = Dimens.marginHorizontal16,
-                    ),
-                buttonExpanded = buttonExpanded,
+                modifier = Modifier.fillMaxSize(),
+                scaffoldPadding = scaffoldPaddingValues,
+                menuButtonOffset = buttonOffset,
+                menuButtonWidth = buttonWidth,
+                isExpanded = buttonExpanded,
+                onExpand = { buttonExpanded = !buttonExpanded },
                 currentFlag = currentFlag,
                 relatedFlags = relatedFlags,
                 onFlagSelect = { newFlag ->

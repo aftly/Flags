@@ -1,8 +1,11 @@
 package dev.aftly.flags.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -10,10 +13,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,11 +38,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.ui.theme.Dimens
@@ -48,7 +57,11 @@ import dev.aftly.flags.ui.theme.surfaceLight
 @Composable
 fun RelatedFlagsMenu(
     modifier: Modifier = Modifier,
-    buttonExpanded: Boolean,
+    scaffoldPadding: PaddingValues,
+    menuButtonOffset: Offset,
+    menuButtonWidth: Int,
+    isExpanded: Boolean,
+    onExpand: () -> Unit,
     containerColor1: Color = MaterialTheme.colorScheme.secondary,
     containerColor2: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     cardColors: CardColors = CardDefaults.cardColors(containerColor = containerColor1),
@@ -59,50 +72,98 @@ fun RelatedFlagsMenu(
     onFlagSelect: (FlagResources) -> Unit,
 ) {
     val listState = rememberLazyListState()
-    LaunchedEffect(buttonExpanded) {
-        if (buttonExpanded) {
+    val density = LocalDensity.current
+    LaunchedEffect(isExpanded) {
+        if (isExpanded) {
             listState.scrollToItem(index = relatedFlags.indexOf(currentFlag))
         }
     }
 
 
-    /* Menu content */
-    AnimatedVisibility(
-        visible = buttonExpanded,
-        modifier = modifier,
-        enter = expandVertically(
-            animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
-            expandFrom = Alignment.Top,
-        ),
-        exit = shrinkVertically(
-            animationSpec = tween(durationMillis = Timing.MENU_COLLAPSE),
-            shrinkTowards = Alignment.Top,
-        ),
-    ) {
-        Card(
-            shape = Shapes.large,
-            colors = cardColors,
+    /* Box for containing menu, background scrim, and button replicant (to overlay the scrim) */
+    Box(modifier = modifier) {
+        /* Scrim to receive taps when RelatedFlagsMenu is expanded, to collapse it */
+        AnimatedVisibility(
+            visible = isExpanded,
+            enter = fadeIn(animationSpec = tween(durationMillis = Timing.MENU_EXPAND)),
+            exit = fadeOut(animationSpec = tween(durationMillis = Timing.MENU_COLLAPSE)),
         ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                state = listState,
-                contentPadding = PaddingValues(
-                    top = Dimens.small8,
-                    bottom = Dimens.small10,
-                ),
+            Scrim(
+                modifier = Modifier.fillMaxSize()
+                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
+                onAction = onExpand,
+            )
+        }
+
+
+        /* Duplicate related flags button to cover scrim */
+        AnimatedVisibility(
+            visible = isExpanded,
+            enter = EnterTransition.None,
+            exit = fadeOut(animationSpec = tween(durationMillis = Timing.MENU_COLLAPSE)),
+        ) {
+            Box(modifier = Modifier.fillMaxHeight()
+                .padding(
+                    top = with(density) { menuButtonOffset.y.toDp() },
+                    start = with(density) { menuButtonOffset.x.toDp() }
+                )
+                .width(width = with(density) { menuButtonWidth.toDp() })
             ) {
-                items(
-                    count = relatedFlags.size,
-                    key = { index -> relatedFlags[index].id }
-                ) { index ->
-                    RelatedItem(
-                        modifier = Modifier.fillMaxWidth(),
-                        flag = relatedFlags[index],
-                        currentFlag = currentFlag,
-                        buttonColors1 = buttonColors1,
-                        buttonColor2 = buttonColors2,
-                        onFlagSelect = onFlagSelect,
-                    )
+                RelatedFlagsButton(
+                    menuExpanded = isExpanded,
+                    onMenuExpand = onExpand,
+                    onButtonPosition = {},
+                    onButtonWidth = {},
+                )
+            }
+        }
+
+
+        /* Menu content */
+        AnimatedVisibility(
+            visible = isExpanded,
+            modifier = Modifier,
+            enter = expandVertically(
+                animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
+                expandFrom = Alignment.Top,
+            ),
+            exit = shrinkVertically(
+                animationSpec = tween(durationMillis = Timing.MENU_COLLAPSE),
+                shrinkTowards = Alignment.Top,
+            ),
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(
+                        top = (scaffoldPadding.calculateTopPadding() - Dimens.small10).coerceAtLeast(0.dp),
+                        bottom = scaffoldPadding.calculateBottomPadding(),
+                        start = Dimens.marginHorizontal16,
+                        end = Dimens.marginHorizontal16,
+                    ),
+                shape = Shapes.large,
+                colors = cardColors,
+            ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    state = listState,
+                    contentPadding = PaddingValues(
+                        top = Dimens.small8,
+                        bottom = Dimens.small10,
+                    ),
+                ) {
+                    items(
+                        count = relatedFlags.size,
+                        key = { index -> relatedFlags[index].id }
+                    ) { index ->
+                        RelatedItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            flag = relatedFlags[index],
+                            currentFlag = currentFlag,
+                            buttonColors1 = buttonColors1,
+                            buttonColor2 = buttonColors2,
+                            onFlagSelect = onFlagSelect,
+                        )
+                    }
                 }
             }
         }

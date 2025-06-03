@@ -2,12 +2,10 @@ package dev.aftly.flags.ui.screen.game
 
 import android.app.Activity
 import androidx.annotation.StringRes
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -84,7 +82,6 @@ import dev.aftly.flags.ui.component.FullscreenButton
 import dev.aftly.flags.ui.component.GeneralTopBar
 import dev.aftly.flags.ui.component.NoResultsFound
 import dev.aftly.flags.ui.component.ScoreDetails
-import dev.aftly.flags.ui.component.Scrim
 import dev.aftly.flags.ui.component.shareText
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
@@ -93,7 +90,6 @@ import dev.aftly.flags.ui.theme.successLight
 import dev.aftly.flags.ui.theme.surfaceLight
 import dev.aftly.flags.ui.util.SystemUiController
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -298,8 +294,7 @@ private fun GameScaffold(
     var buttonHeight by remember { mutableStateOf(value = 0.dp) }
 
     /* So that FilterFlagsButton can access Scaffold() padding */
-    var scaffoldTopPadding by remember { mutableStateOf(value = 0.dp) }
-    var scaffoldBottomPadding by remember { mutableStateOf(value = 0.dp) }
+    var scaffoldPaddingValues by remember { mutableStateOf(value = PaddingValues()) }
 
     var isFlagWide by rememberSaveable { mutableStateOf(value = true) }
 
@@ -327,8 +322,7 @@ private fun GameScaffold(
                 )
             }
         ) { scaffoldPadding ->
-            scaffoldTopPadding = scaffoldPadding.calculateTopPadding()
-            scaffoldBottomPadding = scaffoldPadding.calculateBottomPadding()
+            scaffoldPaddingValues = scaffoldPadding
 
             GameContent(
                 modifier = Modifier.padding(scaffoldPadding),
@@ -357,32 +351,12 @@ private fun GameScaffold(
         /* ------------------- END OF SCAFFOLD ------------------- */
 
 
-        /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */
-        AnimatedVisibility(
-            visible = buttonExpanded,
-            enter = fadeIn(animationSpec = tween(durationMillis = Timing.MENU_EXPAND)),
-            exit = fadeOut(animationSpec = tween(durationMillis = Timing.MENU_EXPAND)),
-        ) {
-            Scrim(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
-                onAction = { buttonExpanded = !buttonExpanded }
-            )
-        }
-
-
         /* Custom quasi-DropdownMenu elevated above screen content with animated nested menus for
          * selecting super or sub category to filter flags by */
         FilterFlagsButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    top = scaffoldTopPadding,
-                    bottom = scaffoldBottomPadding,
-                    start = Dimens.marginHorizontal16,
-                    end = Dimens.marginHorizontal16,
-                ),
+            modifier = Modifier.fillMaxSize(),
+            scaffoldPadding = scaffoldPaddingValues,
+            buttonHorizontalPadding = Dimens.marginHorizontal16,
             screen = currentScreen,
             onButtonHeightChange = { buttonHeight = it },
             buttonExpanded = buttonExpanded,

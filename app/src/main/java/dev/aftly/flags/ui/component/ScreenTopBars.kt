@@ -376,8 +376,8 @@ fun GeneralTopBar(
                             horizontalArrangement = Arrangement.Center,
                         ) {
                             RelatedFlagsButton(
-                                buttonExpanded = buttonExpanded,
-                                onButtonExpand = onButtonExpand,
+                                menuExpanded = buttonExpanded,
+                                onMenuExpand = onButtonExpand,
                                 onButtonPosition = onButtonPosition,
                                 onButtonWidth = onButtonWidth,
                             )

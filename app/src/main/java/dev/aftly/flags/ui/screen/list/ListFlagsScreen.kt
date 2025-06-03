@@ -1,12 +1,7 @@
 package dev.aftly.flags.ui.screen.list
 
 import androidx.annotation.StringRes
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -59,7 +54,6 @@ import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.ListScreenTopBar
 import dev.aftly.flags.ui.component.FilterFlagsButton
 import dev.aftly.flags.ui.component.NoResultsFound
-import dev.aftly.flags.ui.component.Scrim
 import dev.aftly.flags.ui.component.ScrollToTopButton
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
@@ -150,8 +144,7 @@ private fun ListFlagsScaffold(
      * Also for FilterFlagsButton to access Scaffold() padding */
     var buttonExpanded by rememberSaveable { mutableStateOf(value = false) }
     var buttonHeight by remember { mutableStateOf(0.dp) }
-    var scaffoldTopPadding by remember { mutableStateOf(value = 0.dp) }
-    var scaffoldBottomPadding by remember { mutableStateOf(value = 0.dp) }
+    var scaffoldPaddingValues by remember { mutableStateOf(value = PaddingValues()) }
 
     /* Properties for ScrollToTopButton & reset scroll position when category changed in menu */
     val listState = rememberLazyListState()
@@ -233,19 +226,18 @@ private fun ListFlagsScaffold(
                 )
             }
         ) { scaffoldPadding ->
-            scaffoldTopPadding = scaffoldPadding.calculateTopPadding()
-            scaffoldBottomPadding = scaffoldPadding.calculateBottomPadding()
+            scaffoldPaddingValues = scaffoldPadding
 
             ListFlagsContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(
-                        top = scaffoldTopPadding,
+                        top = scaffoldPadding.calculateTopPadding(),
                         start = Dimens.marginHorizontal16,
                         end = Dimens.marginHorizontal16,
                     ),
                 filterButtonHeight = buttonHeight,
-                scaffoldBottomPadding = scaffoldBottomPadding,
+                scaffoldBottomPadding = scaffoldPadding.calculateBottomPadding(),
                 scrollBehaviour = scrollBehaviour,
                 listState = listState,
                 isUserSearch = isUserSearch,
@@ -257,32 +249,12 @@ private fun ListFlagsScaffold(
         /* ------------------- END OF SCAFFOLD ------------------- */
 
 
-        /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */
-        AnimatedVisibility(
-            visible = buttonExpanded,
-            enter = fadeIn(animationSpec = tween(durationMillis = Timing.MENU_EXPAND)),
-            exit = fadeOut(animationSpec = tween(durationMillis = Timing.MENU_EXPAND)),
-        ) {
-            Scrim(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
-                onAction = { buttonExpanded = !buttonExpanded }
-            )
-        }
-
-
         /* Custom quasi-DropdownMenu elevated above screen content with animated nested menus for
          * selecting super or sub category to filter flags by */
         FilterFlagsButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    top = scaffoldTopPadding,
-                    bottom = scaffoldBottomPadding,
-                    start = Dimens.marginHorizontal16,
-                    end = Dimens.marginHorizontal16,
-                ),
+            modifier = Modifier.fillMaxSize(),
+            scaffoldPadding = scaffoldPaddingValues,
+            buttonHorizontalPadding = Dimens.marginHorizontal16,
             screen = currentScreen,
             flagCount = when (isUserSearch) {
                 false -> currentFlagsList.size

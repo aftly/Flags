@@ -4,6 +4,8 @@ import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -81,6 +83,8 @@ import dev.aftly.flags.ui.theme.Timing
 @Composable
 fun FilterFlagsButton(
     modifier: Modifier = Modifier,
+    scaffoldPadding: PaddingValues,
+    buttonHorizontalPadding: Dp,
     screen: Screen,
     flagCount: Int = 0,
     onButtonHeightChange: (Dp) -> Unit,
@@ -172,211 +176,236 @@ fun FilterFlagsButton(
     val haptics = LocalHapticFeedback.current
 
 
-    /* Filter button content */
-    Column(modifier = modifier) {
-        Button(
-            onClick = { onButtonExpand() },
-            modifier = Modifier.padding(bottom = Dimens.small8) /* Separate Button from Menu */
-                .height(buttonHeight),
-            shape = MaterialTheme.shapes.large,
-            colors = buttonColors2,
-            contentPadding = PaddingValues(horizontal = Dimens.medium16),
+    Box(modifier = modifier) {
+        /* Scrim behind expanded menu, tap gestures close menu */
+        AnimatedVisibility(
+            visible = buttonExpanded,
+            enter = fadeIn(animationSpec = tween(durationMillis = Timing.MENU_EXPAND)),
+            exit = fadeOut(animationSpec = tween(durationMillis = Timing.MENU_EXPAND)),
         ) {
-            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-                /* Manage dynamic spacer size for button title center alignment */
-                val buttonWidth = maxWidth
-                var textWidth by remember { mutableStateOf(value = 0.dp) }
-
-                val iconSize = Dimens.standardIconSize24 * fontScale
-                val iconPadding = 2.dp * fontScale
-                val iconSizePadding = iconSize + iconPadding
-                val iconsTotalSize = (iconSize + iconPadding + 1.dp) * 2
+            Scrim(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
+                onAction = onButtonExpand,
+            )
+        }
 
 
-                Row(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    /* If not game screen show flag count indicator,
-                     * else spacer (for text centering) */
-                    if (screen != Screen.Game) {
-                        Box(
-                            modifier = Modifier.onSizeChanged { size ->
-                                flagCountWidth = with(density) { size.width.toDp() }
-                            },
-                        ) {
-                            Text(
-                                text = "$flagCount",
-                                modifier = Modifier.requiredWidthIn(min = Dimens.standardIconSize24)
-                                    .clip(flagCountShape)
-                                    .background(buttonColors2.contentColor)
-                                    .padding(
-                                        vertical = 2.dp * fontScale,
-                                        horizontal = 6.dp * fontScale
-                                    ),
-                                textAlign = TextAlign.Center,
-                                color = buttonColors2.containerColor,
-                                style = MaterialTheme.typography.titleSmall,
+        /* Filter button content */
+        Column(
+            modifier = Modifier.fillMaxWidth()
+                .padding(
+                    top = scaffoldPadding.calculateTopPadding(),
+                    bottom = scaffoldPadding.calculateBottomPadding(),
+                    start = buttonHorizontalPadding,
+                    end = buttonHorizontalPadding,
+                ),
+        ) {
+            Button(
+                onClick = onButtonExpand,
+                modifier = Modifier.padding(bottom = Dimens.small8) /* Separate Button from Menu */
+                    .height(buttonHeight),
+                shape = MaterialTheme.shapes.large,
+                colors = buttonColors2,
+                contentPadding = PaddingValues(horizontal = Dimens.medium16),
+            ) {
+                BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+                    /* Manage dynamic spacer size for button title center alignment */
+                    val buttonWidth = maxWidth
+                    var textWidth by remember { mutableStateOf(value = 0.dp) }
+
+                    val iconSize = Dimens.standardIconSize24 * fontScale
+                    val iconPadding = 2.dp * fontScale
+                    val iconSizePadding = iconSize + iconPadding
+                    val iconsTotalSize = (iconSize + iconPadding + 1.dp) * 2
+
+
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        /* If not game screen show flag count indicator,
+                         * else spacer (for text centering) */
+                        if (screen != Screen.Game) {
+                            Box(
+                                modifier = Modifier.onSizeChanged { size ->
+                                    flagCountWidth = with(density) { size.width.toDp() }
+                                },
+                            ) {
+                                Text(
+                                    text = "$flagCount",
+                                    modifier = Modifier.requiredWidthIn(min = Dimens.standardIconSize24)
+                                        .clip(flagCountShape)
+                                        .background(buttonColors2.contentColor)
+                                        .padding(
+                                            vertical = 2.dp * fontScale,
+                                            horizontal = 6.dp * fontScale
+                                        ),
+                                    textAlign = TextAlign.Center,
+                                    color = buttonColors2.containerColor,
+                                    style = MaterialTheme.typography.titleSmall,
+                                )
+                            }
+                        } else {
+                            Spacer(
+                                modifier = Modifier.width(width =
+                                    if (textWidth + iconsTotalSize < buttonWidth) {
+                                        iconSizePadding
+                                    } else 0.dp
+                                )
                             )
                         }
-                    } else {
-                        Spacer(
-                            modifier = Modifier.width(width =
-                                if (textWidth + iconsTotalSize < buttonWidth) {
-                                    iconSizePadding
-                                } else 0.dp
-                            )
+
+                        /* Button title */
+                        Text(
+                            text = buttonTitle,
+                            modifier = Modifier.weight(weight = 1f, fill = false)
+                                .padding(horizontal = iconPadding),
+                            textAlign = TextAlign.Center,
+                            onTextLayout = { textLayoutResult ->
+                                with(density) { textWidth = textLayoutResult.size.width.toDp() }
+
+                                if (textLayoutResult.lineCount > 1) {
+                                    buttonHeight = twoLineButtonHeight
+                                    isOneLine = false
+                                } else {
+                                    buttonHeight = oneLineButtonHeight
+                                    isOneLine = true
+                                }
+                            },
+                            style = MaterialTheme.typography.titleMedium,
                         )
-                    }
 
-                    /* Button title */
-                    Text(
-                        text = buttonTitle,
-                        modifier = Modifier.weight(weight = 1f, fill = false)
-                            .padding(horizontal = iconPadding),
-                        textAlign = TextAlign.Center,
-                        onTextLayout = { textLayoutResult ->
-                            with(density) { textWidth = textLayoutResult.size.width.toDp() }
-
-                            if (textLayoutResult.lineCount > 1) {
-                                buttonHeight = twoLineButtonHeight
-                                isOneLine = false
+                        /* Drop down icon, minimum size of standard icon size * font scale, otherwise
+                         * width of flag counter, for button title centering */
+                        Box(
+                            modifier = Modifier.width(flagCountWidth),
+                            contentAlignment = Alignment.CenterEnd,
+                        ) {
+                            if (!buttonExpanded) {
+                                Icon(
+                                    imageVector = Icons.Default.KeyboardArrowDown,
+                                    contentDescription = stringResource(R.string.menu_icon_expand),
+                                    modifier = Modifier.size(iconSize),
+                                    tint = buttonColors1.contentColor,
+                                )
                             } else {
-                                buttonHeight = oneLineButtonHeight
-                                isOneLine = true
+                                Icon(
+                                    imageVector = Icons.Default.KeyboardArrowUp,
+                                    contentDescription = stringResource(R.string.menu_icon_collapse),
+                                    modifier = Modifier.size(iconSize),
+                                    tint = buttonColors1.contentColor,
+                                )
                             }
-                        },
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-
-                    /* Drop down icon, minimum size of standard icon size * font scale, otherwise
-                     * width of flag counter, for button title centering */
-                    Box(
-                        modifier = Modifier.width(flagCountWidth),
-                        contentAlignment = Alignment.CenterEnd,
-                    ) {
-                        if (!buttonExpanded) {
-                            Icon(
-                                imageVector = Icons.Default.KeyboardArrowDown,
-                                contentDescription = stringResource(R.string.menu_icon_expand),
-                                modifier = Modifier.size(iconSize),
-                                tint = buttonColors1.contentColor,
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.KeyboardArrowUp,
-                                contentDescription = stringResource(R.string.menu_icon_collapse),
-                                modifier = Modifier.size(iconSize),
-                                tint = buttonColors1.contentColor,
-                            )
                         }
                     }
                 }
             }
-        }
 
-        AnimatedVisibility(
-            visible = buttonExpanded,
-            enter = expandVertically(
-                animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
-                expandFrom = Alignment.Top,
-            ),
-            exit = shrinkVertically(
-                animationSpec = tween(durationMillis = Timing.MENU_COLLAPSE),
-                shrinkTowards = Alignment.Top,
-            ),
-        ) {
-            Card(
-                shape = Shapes.large,
-                colors = cardColors1,
+            AnimatedVisibility(
+                visible = buttonExpanded,
+                enter = expandVertically(
+                    animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
+                    expandFrom = Alignment.Top,
+                ),
+                exit = shrinkVertically(
+                    animationSpec = tween(durationMillis = Timing.MENU_COLLAPSE),
+                    shrinkTowards = Alignment.Top,
+                ),
             ) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(
-                        top = Dimens.small8,
-                        bottom = Dimens.small10,
-                    ),
+                Card(
+                    shape = Shapes.large,
+                    colors = cardColors1,
                 ) {
-                    items(items = menuSuperCategoryList) { superCategory ->
-                        val buttonColors =
-                            if (currentSuperCategories == null && currentSubCategories == null &&
-                                superCategory == currentSuperCategory) {
-                                buttonColors2
-                            } else if (
-                                currentSuperCategories != null && currentSubCategories != null &&
-                                (superCategory in currentSuperCategories || (superCategory
-                                    .subCategories.size == 1 && superCategory
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(
+                            top = Dimens.small8,
+                            bottom = Dimens.small10,
+                        ),
+                    ) {
+                        items(items = menuSuperCategoryList) { superCategory ->
+                            val buttonColors =
+                                if (currentSuperCategories == null && currentSubCategories == null &&
+                                    superCategory == currentSuperCategory) {
+                                    buttonColors2
+                                } else if (
+                                    currentSuperCategories != null && currentSubCategories != null &&
+                                    (superCategory in currentSuperCategories || (superCategory
+                                        .subCategories.size == 1 && superCategory
                                         .subCategories.first() in currentSubCategories))) {
-                                buttonColors2
-                            } else if (currentSuperCategories != null &&
-                                currentSuperCategories.isEmpty() && superCategory == All) {
-                                buttonColors2
+                                    buttonColors2
+                                } else if (currentSuperCategories != null &&
+                                    currentSuperCategories.isEmpty() && superCategory == All) {
+                                    buttonColors2
+                                } else {
+                                    buttonColors1
+                                }
+
+
+                            if (superCategory.subCategories.size == 1 || superCategory == All) {
+                                /* If superCategory has 1 sub category use 1 tier (static) menu item
+                                 * (where the superCategory is meant to represent a sub/FlagCategory) */
+                                MenuItemStatic(
+                                    haptics = haptics,
+                                    textButtonStyle = textButtonStyle,
+                                    buttonColors = buttonColors,
+                                    superCategory = superCategory,
+                                    onCategorySelect = { newSuperCategory ->
+                                        expandMenu = null
+                                        onCategorySelect(newSuperCategory, null)
+                                        onButtonExpand()
+                                    },
+                                    onCategoryMultiSelect = { selectSuperCategory ->
+                                        onCategoryMultiSelect(selectSuperCategory, null)
+                                    },
+                                )
+                            } else if (superCategory.subCategories
+                                    .filterIsInstance<FlagCategory>().isNotEmpty()) {
+                                /* If superCategory has any FlagCategories (ie. actual sub-categories)
+                                 * use 2 tier expandable menu */
+                                MenuItemExpandable(
+                                    haptics = haptics,
+                                    textButtonStyle = textButtonStyle,
+                                    buttonColors1 = buttonColors,
+                                    buttonColors2 = buttonColors2,
+                                    cardColors2 = cardColors2,
+                                    isSuperCategorySelectable = true,
+                                    currentCategoryTitle = currentCategoryTitle,
+                                    superCategory = superCategory,
+                                    subCategories = currentSubCategories,
+                                    menuExpanded = superCategory == expandMenu,
+                                    onMenuSelect = { expandMenu = it },
+                                    onCategorySelect = { newSuperCategory, newSubCategory ->
+                                        onCategorySelect(newSuperCategory,newSubCategory)
+                                        onButtonExpand()
+                                    },
+                                    onCategoryMultiSelect = onCategoryMultiSelect,
+                                )
                             } else {
-                                buttonColors1
+                                /* If superCategory only contains superCategories use 3 tier menu */
+                                MenuSuperItem(
+                                    haptics = haptics,
+                                    textButtonStyle = textButtonStyle,
+                                    buttonColors1 = buttonColors1,
+                                    buttonColors2 = buttonColors2,
+                                    cardColors1 = cardColors1,
+                                    cardColors2 = cardColors2,
+                                    isChildSelectable = false,
+                                    currentCategoryTitle = currentCategoryTitle,
+                                    parentSuperCategory = superCategory,
+                                    subCategories = currentSubCategories,
+                                    expandMenu = expandMenu,
+                                    onMenuSelect = { expandMenu = it },
+                                    onCategorySelect = { newSuperCategory, newSubCategory ->
+                                        onCategorySelect(newSuperCategory,newSubCategory)
+                                        onButtonExpand()
+                                    },
+                                    onCategoryMultiSelect = onCategoryMultiSelect,
+                                )
                             }
-
-
-                        if (superCategory.subCategories.size == 1 || superCategory == All) {
-                            /* If superCategory has 1 sub category use 1 tier (static) menu item
-                             * (where the superCategory is meant to represent a sub/FlagCategory) */
-                            MenuItemStatic(
-                                haptics = haptics,
-                                textButtonStyle = textButtonStyle,
-                                buttonColors = buttonColors,
-                                superCategory = superCategory,
-                                onCategorySelect = { newSuperCategory ->
-                                    expandMenu = null
-                                    onCategorySelect(newSuperCategory, null)
-                                    onButtonExpand()
-                                },
-                                onCategoryMultiSelect = { selectSuperCategory ->
-                                    onCategoryMultiSelect(selectSuperCategory, null)
-                                },
-                            )
-                        } else if (superCategory.subCategories
-                            .filterIsInstance<FlagCategory>().isNotEmpty()) {
-                            /* If superCategory has any FlagCategories (ie. actual sub-categories)
-                             * use 2 tier expandable menu */
-                            MenuItemExpandable(
-                                haptics = haptics,
-                                textButtonStyle = textButtonStyle,
-                                buttonColors1 = buttonColors,
-                                buttonColors2 = buttonColors2,
-                                cardColors2 = cardColors2,
-                                isSuperCategorySelectable = true,
-                                currentCategoryTitle = currentCategoryTitle,
-                                superCategory = superCategory,
-                                subCategories = currentSubCategories,
-                                menuExpanded = superCategory == expandMenu,
-                                onMenuSelect = { expandMenu = it },
-                                onCategorySelect = { newSuperCategory, newSubCategory ->
-                                    onCategorySelect(newSuperCategory,newSubCategory)
-                                    onButtonExpand()
-                                },
-                                onCategoryMultiSelect = onCategoryMultiSelect,
-                            )
-                        } else {
-                            /* If superCategory only contains superCategories use 3 tier menu */
-                            MenuSuperItem(
-                                haptics = haptics,
-                                textButtonStyle = textButtonStyle,
-                                buttonColors1 = buttonColors1,
-                                buttonColors2 = buttonColors2,
-                                cardColors1 = cardColors1,
-                                cardColors2 = cardColors2,
-                                isChildSelectable = false,
-                                currentCategoryTitle = currentCategoryTitle,
-                                parentSuperCategory = superCategory,
-                                subCategories = currentSubCategories,
-                                expandMenu = expandMenu,
-                                onMenuSelect = { expandMenu = it },
-                                onCategorySelect = { newSuperCategory, newSubCategory ->
-                                    onCategorySelect(newSuperCategory,newSubCategory)
-                                    onButtonExpand()
-                                },
-                                onCategoryMultiSelect = onCategoryMultiSelect,
-                            )
                         }
                     }
                 }
