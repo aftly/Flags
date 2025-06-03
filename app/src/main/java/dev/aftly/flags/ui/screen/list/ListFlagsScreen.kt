@@ -254,7 +254,7 @@ private fun ListFlagsScaffold(
                 onFlagSelect = onFlagSelect,
             )
         }
-        /* ------------------- START OF SCAFFOLD ------------------- */
+        /* ------------------- END OF SCAFFOLD ------------------- */
 
 
         /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */
