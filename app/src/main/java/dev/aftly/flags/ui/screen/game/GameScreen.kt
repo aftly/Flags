@@ -18,14 +18,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
@@ -33,7 +30,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -68,7 +64,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -187,32 +182,6 @@ fun GameScreen(
         )
     }
 
-    /* For displaying verbose score details */
-    if (uiState.isScoreDetails) {
-        ScoreDetails(
-            gameFlags = uiState.currentFlags,
-            guessedFlags = uiState.endGameGuessedFlags,
-            guessedFlagsSorted = uiState.endGameGuessedFlagsSorted,
-            skippedFlags = uiState.endGameSkippedFlags,
-            skippedFlagsSorted = uiState.endGameSkippedFlagsSorted,
-            shownFlags = uiState.endGameShownFlags,
-            shownFlagsSorted = uiState.endGameShownFlagsSorted,
-            isTimeTrial = uiState.isTimeTrial,
-            timeTrialStart = when (uiState.isTimeTrial) {
-                true -> uiState.timeTrialStart
-                else -> null
-            },
-            time = when (uiState.isTimeTrial) {
-                true -> uiState.timeTrialTimer
-                false -> uiState.standardTimer
-            },
-            onClose = {
-                viewModel.toggleScoreDetails()
-                viewModel.endGame()
-            }
-        )
-    }
-
 
     GameScaffold(
         currentScreen = currentScreen,
@@ -234,6 +203,27 @@ fun GameScreen(
         isGuessWrong = uiState.isGuessedFlagWrong,
         isGuessWrongEvent = uiState.isGuessedFlagWrongEvent,
         isShowAnswer = uiState.isShowAnswer,
+        isScoreDetails = uiState.isScoreDetails,
+        gameFlags = uiState.currentFlags,
+        endGameGuessedFlags = uiState.endGameGuessedFlags,
+        endGameGuessedFlagsSorted = uiState.endGameGuessedFlagsSorted,
+        endGameSkippedFlags = uiState.endGameSkippedFlags,
+        endGameSkippedFlagsSorted = uiState.endGameSkippedFlagsSorted,
+        endGameShownFlags = uiState.endGameShownFlags,
+        endGameShownFlagsSorted = uiState.endGameShownFlagsSorted,
+        isTimeTrial = uiState.isTimeTrial,
+        timeTrialStartTime = when (uiState.isTimeTrial) {
+            true -> uiState.timeTrialStart
+            else -> null
+        },
+        currentTime = when (uiState.isTimeTrial) {
+            true -> uiState.timeTrialTimer
+            false -> uiState.standardTimer
+        },
+        onCloseScoreDetails = {
+            viewModel.toggleScoreDetails()
+            viewModel.endGame()
+        },
         onKeyboardDoneAction = { viewModel.checkUserGuess() },
         onSubmit = { viewModel.checkUserGuess() },
         onSkip = { viewModel.skipFlag(isAnswerShown = uiState.isShowAnswer) },
@@ -276,6 +266,18 @@ private fun GameScaffold(
     isGuessWrong: Boolean,
     isGuessWrongEvent: Boolean,
     isShowAnswer: Boolean,
+    isScoreDetails: Boolean,
+    gameFlags: List<FlagResources>,
+    endGameGuessedFlags: List<FlagResources>,
+    endGameGuessedFlagsSorted: List<FlagResources>,
+    endGameSkippedFlags: List<FlagResources>,
+    endGameSkippedFlagsSorted: List<FlagResources>,
+    endGameShownFlags: List<FlagResources>,
+    endGameShownFlagsSorted: List<FlagResources>,
+    isTimeTrial: Boolean,
+    timeTrialStartTime: Int?,
+    currentTime: Int,
+    onCloseScoreDetails: () -> Unit,
     onKeyboardDoneAction: () -> Unit,
     onSubmit: () -> Unit,
     onSkip: () -> Unit,
@@ -307,6 +309,7 @@ private fun GameScaffold(
 
     /* Scaffold within box so that FilterFlagsButton & it's associated surface can overlay it */
     Box(modifier = Modifier.fillMaxSize()) {
+        /* ------------------- START OF SCAFFOLD ------------------- */
         Scaffold(
             modifier = modifier.fillMaxSize(),
             topBar = {
@@ -347,6 +350,8 @@ private fun GameScaffold(
                 onFullscreen = { onFullscreen(isFlagWide) },
             )
         }
+        /* ------------------- END OF SCAFFOLD ------------------- */
+
 
         /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */
         AnimatedVisibility(
@@ -384,6 +389,23 @@ private fun GameScaffold(
             currentSubCategories = currentSubCategories,
             onCategorySelect = onCategorySelect,
             onCategoryMultiSelect = onCategoryMultiSelect,
+        )
+
+
+        /* For displaying verbose score details */
+        ScoreDetails(
+            visible = isScoreDetails,
+            gameFlags = gameFlags,
+            guessedFlags = endGameGuessedFlags,
+            guessedFlagsSorted = endGameGuessedFlagsSorted,
+            skippedFlags = endGameSkippedFlags,
+            skippedFlagsSorted = endGameSkippedFlagsSorted,
+            shownFlags = endGameShownFlags,
+            shownFlagsSorted = endGameShownFlagsSorted,
+            isTimeTrial = isTimeTrial,
+            timeTrialStart = timeTrialStartTime,
+            time = currentTime,
+            onClose = onCloseScoreDetails,
         )
     }
 }

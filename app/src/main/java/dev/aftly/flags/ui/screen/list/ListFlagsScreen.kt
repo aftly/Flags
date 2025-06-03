@@ -204,6 +204,7 @@ private fun ListFlagsScaffold(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.TopEnd,
     ) {
+        /* ------------------- START OF SCAFFOLD ------------------- */
         Scaffold(
             modifier = modifier,
             topBar = {
@@ -253,6 +254,7 @@ private fun ListFlagsScaffold(
                 onFlagSelect = onFlagSelect,
             )
         }
+        /* ------------------- START OF SCAFFOLD ------------------- */
 
 
         /* Surface to receive taps when FilterFlagsButton is expanded, to collapse it */

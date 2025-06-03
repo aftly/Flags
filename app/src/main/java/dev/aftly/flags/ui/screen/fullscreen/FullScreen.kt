@@ -241,7 +241,7 @@ private fun FullscreenScaffold(
     val isAspectRatioWide = displayMetrics.widthPixels >= displayMetrics.heightPixels
 
 
-    /* Full screen content (Box is [default value] TopStart aligned for back button & top bar) */
+    /* Parent box as surface to receive tap gestures */
     Box(
         modifier = Modifier
             .pointerInput(key1 = (Unit)) {

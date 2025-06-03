@@ -1,16 +1,25 @@
 package dev.aftly.flags.ui.component
 
+import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -18,7 +27,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -33,8 +41,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -47,12 +55,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import dev.aftly.flags.R
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.ScoreData
@@ -61,10 +68,12 @@ import dev.aftly.flags.model.TotalsOverview
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.successDark
 import dev.aftly.flags.ui.theme.successLight
+import dev.aftly.flags.ui.util.SystemUiController
 
 
 @Composable
 fun ScoreDetails(
+    visible: Boolean,
     gameFlags: List<FlagResources>,
     guessedFlags: List<FlagResources>,
     guessedFlagsSorted: List<FlagResources>,
@@ -77,9 +86,22 @@ fun ScoreDetails(
     time: Int,
     onClose: () -> Unit,
 ) {
+    /* For Ui details */
     val insetsPadding = WindowInsets.systemBars.asPaddingValues()
-    val isDarkTheme by rememberUpdatedState(newValue = isSystemInDarkTheme())
     var isDetailsSorted by rememberSaveable { mutableStateOf(value = false) }
+
+    /* For controlling system bars */
+    val view = LocalView.current
+    val window = (view.context as Activity).window
+    val systemUiController = remember { SystemUiController(window, view) }
+    val isDarkTheme by rememberUpdatedState(newValue = isSystemInDarkTheme())
+
+    LaunchedEffect(visible) {
+        if (visible) {
+            isDetailsSorted = false /* Reset to chronological order on re-open */
+            systemUiController.setLightStatusBar(light = false)
+        }
+    }
 
     /* Class for processing score details */
     val scoreDetails = ScoreData(
@@ -100,70 +122,95 @@ fun ScoreDetails(
     )
 
 
-    Dialog(
-        onDismissRequest = {},
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-            decorFitsSystemWindows = false,
-        )
+    /* ScoreDetails contents */
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
     ) {
-        Card(
-            modifier = Modifier
-                .padding(
-                    top = insetsPadding.calculateTopPadding(),
-                    bottom = insetsPadding.calculateBottomPadding(),
-                    start = Dimens.marginHorizontal16,
-                    end = Dimens.marginHorizontal16
-                )
-                .fillMaxWidth(),
-            shape = MaterialTheme.shapes.extraLarge
+        /* Scrim to mimic Compose BasicAlertDialog() */
+        AnimatedVisibility(
+            visible = visible,
+            enter = EnterTransition.None,
+            exit = ExitTransition.None,
         ) {
-            /* Title row of details card */
-            Row(
-                modifier = Modifier.fillMaxWidth()
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.575f))
+            )
+        }
+
+
+        /* Score details content */
+        AnimatedVisibility(
+            visible = visible,
+            enter = fadeIn() + slideInVertically(initialOffsetY = { it / 4 }),
+            exit = fadeOut() + slideOutVertically(targetOffsetY = { -it / 4 }),
+        ) {
+            Card(
+                modifier = Modifier
                     .padding(
-                        top = Dimens.medium16,
-                        start = Dimens.medium16,
-                        end = Dimens.medium16,
-                        bottom = Dimens.small8,
-                    ),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
+                        top = insetsPadding.calculateTopPadding(),
+                        bottom = insetsPadding.calculateBottomPadding(),
+                        start = Dimens.marginHorizontal16,
+                        end = Dimens.marginHorizontal16
+                    )
+                    .fillMaxWidth(),
+                shape = MaterialTheme.shapes.extraLarge
             ) {
-                Text(
-                    text = stringResource(R.string.game_score_details_title),
-                    modifier = Modifier.padding(start = Dimens.small8),
-                    style = MaterialTheme.typography.headlineSmall,
-                )
+                /* Title row of details card */
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            top = Dimens.medium16,
+                            start = Dimens.medium16,
+                            end = Dimens.medium16,
+                            bottom = Dimens.small8,
+                        ),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = stringResource(R.string.game_score_details_title),
+                        modifier = Modifier.padding(start = Dimens.small8),
+                        style = MaterialTheme.typography.headlineSmall,
+                    )
 
-                Row {
-                    IconButton(
-                        onClick = { isDetailsSorted = !isDetailsSorted }
-                    ) {
-                        Icon(
-                            imageVector = when (isDetailsSorted) {
-                                false -> Icons.Default.SortByAlpha
-                                true -> Icons.Default.AccessTime
-                            },
-                            contentDescription = null,
-                        )
-                    }
+                    Row {
+                        IconButton(
+                            onClick = { isDetailsSorted = !isDetailsSorted }
+                        ) {
+                            Icon(
+                                imageVector = when (isDetailsSorted) {
+                                    false -> Icons.Default.SortByAlpha
+                                    true -> Icons.Default.AccessTime
+                                },
+                                contentDescription = null,
+                            )
+                        }
 
-                    IconButton(onClick = onClose) {
-                        Icon(
-                            imageVector = Icons.Default.Clear,
-                            contentDescription = null,
-                        )
+                        IconButton(
+                            onClick = {
+                                if (!isDarkTheme) systemUiController.setLightStatusBar(light = true)
+                                onClose()
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Clear,
+                                contentDescription = null,
+                            )
+                        }
                     }
                 }
-            }
 
-            /* Expandable/collapsable score details with nested LazyColumns */
-            ScoreDetailsItems(
-                isDarkTheme = isDarkTheme,
-                isDetailsSorted = isDetailsSorted,
-                scoreDetails = scoreDetails,
-            )
+
+                /* Expandable/collapsable score details with nested LazyColumns */
+                ScoreDetailsItems(
+                    isDarkTheme = isDarkTheme,
+                    isDetailsSorted = isDetailsSorted,
+                    scoreDetails = scoreDetails,
+                )
+            }
         }
     }
 }
@@ -175,36 +222,33 @@ private fun ScoreDetailsItems(
     isDetailsSorted: Boolean,
     scoreDetails: ScoreData,
 ) {
-    val scrollState = rememberLazyListState()
-    var overviewExpanded by remember { mutableStateOf(value = true) }
-    val expansionMap = remember { mutableStateMapOf<Int, Boolean>() }
-
-    val overviewDropDownIcon = when (overviewExpanded) {
-        true -> Icons.Default.ArrowDropUp
-        false -> Icons.Default.ArrowDropDown
-    }
-
     val lerpSurface = when (isDarkTheme) {
         true -> Color.White
         false -> Color.Black
     }
-
     val itemFontSize = 14.sp
     val itemLineHeight = 18.sp
 
 
     /* Nested LazyColumns for score details contents */
-    LazyColumn(state = scrollState) {
+    LazyColumn {
         /* Overview item containing overview items */
         item {
+            var isExpanded by remember { mutableStateOf(value = true) }
+
+            val dropDownIcon = when (isExpanded) {
+                true -> Icons.Default.ArrowDropUp
+                false -> Icons.Default.ArrowDropDown
+            }
+
             Card(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(
                         start = Dimens.small8,
                         end = Dimens.small8,
                         bottom = Dimens.small8,
-                    )
-                    .fillMaxWidth(),
+                    ),
                 shape = MaterialTheme.shapes.large,
                 colors = CardDefaults.cardColors(
                     containerColor = lerp(
@@ -216,7 +260,7 @@ private fun ScoreDetailsItems(
             ) {
                 /* Interactable overview title */
                 TextButton(
-                    onClick = { overviewExpanded = !overviewExpanded },
+                    onClick = { isExpanded = !isExpanded },
                     modifier = Modifier.padding(horizontal = Dimens.extraSmall4),
                     shape = MaterialTheme.shapes.large,
                 ) {
@@ -225,7 +269,7 @@ private fun ScoreDetailsItems(
                             text = stringResource(R.string.game_score_details_overview),
                         )
                         Icon(
-                            imageVector = overviewDropDownIcon,
+                            imageVector = dropDownIcon,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                         )
@@ -234,12 +278,13 @@ private fun ScoreDetailsItems(
 
                 /* Drop-down content of score overview items */
                 AnimatedVisibility(
-                    visible = overviewExpanded,
+                    visible = isExpanded,
                     enter = expandVertically(),
-                    exit = shrinkVertically()
+                    exit = shrinkVertically(),
                 ) {
                     Column(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .padding(
                                 start = Dimens.medium16,
                                 end = Dimens.medium16,
@@ -268,12 +313,16 @@ private fun ScoreDetailsItems(
 
         /* Score details items */
         items(scoreDetails.allScores) { scores ->
-            val isExpanded = expansionMap[scores.titleResId] ?: false
+            var isExpanded by remember { mutableStateOf(value = false) }
 
             val scoresList = when (isDetailsSorted) {
                 false -> scores.list
                 true -> scores.sortedList
             }
+
+            val lazyColumnHeight = (with(LocalDensity.current) {
+                itemLineHeight.toDp()
+            } + Dimens.medium16) * (scores.list.size + 1)
 
             val textButtonIsEnabled = when (scores.list.size) {
                 0 -> false
@@ -294,12 +343,12 @@ private fun ScoreDetailsItems(
             /* Card for encapsulating each score details group */
             Card(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(
                         start = Dimens.small8,
                         end = Dimens.small8,
                         bottom = Dimens.small8,
-                    )
-                    .fillMaxWidth(),
+                    ),
                 shape = MaterialTheme.shapes.large,
                 colors = CardDefaults.cardColors(
                     containerColor = lerp(
@@ -311,7 +360,7 @@ private fun ScoreDetailsItems(
             ) {
                 /* Interactable score group title */
                 TextButton(
-                    onClick = { expansionMap[scores.titleResId] = !isExpanded },
+                    onClick = { isExpanded = !isExpanded },
                     modifier = Modifier.padding(horizontal = Dimens.extraSmall4),
                     enabled = textButtonIsEnabled,
                     shape = MaterialTheme.shapes.large,
@@ -341,19 +390,17 @@ private fun ScoreDetailsItems(
                     exit = shrinkVertically()
                 ) {
                     LazyColumn(
-                        modifier = Modifier.fillMaxWidth()
-                            .heightIn(
-                                max = (with(LocalDensity.current) {
-                                    itemLineHeight.toDp()
-                                } + Dimens.medium16) * (scoresList.size + 1))
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .padding(
                                 start = Dimens.medium16,
                                 end = Dimens.medium16,
                                 bottom = Dimens.medium16,
                             )
+                            .heightIn(max = lazyColumnHeight)
                     ) {
                         items(
-                            count = scoresList.size,
+                            count = scores.list.size,
                             key = { index -> scoresList[index].id }
                         ) { index ->
                             ScoreItem(
@@ -407,7 +454,8 @@ private fun TotalsOverviewItem(
                 totalsOverview.correctAnswers,
                 totalsOverview.outOfCount
             ),
-            modifier = Modifier.padding(horizontal = spacePadding)
+            modifier = Modifier
+                .padding(horizontal = spacePadding)
                 .clip(MaterialTheme.shapes.medium)
                 .background(MaterialTheme.colorScheme.primary)
                 .padding(vertical = 2.dp, horizontal = Dimens.small8),
@@ -422,7 +470,8 @@ private fun TotalsOverviewItem(
                 R.string.game_score_details_correct_relative,
                 totalsOverview.scorePercent
             ) + stringResource(R.string.string_percent),
-            modifier = Modifier.clip(MaterialTheme.shapes.medium)
+            modifier = Modifier
+                .clip(MaterialTheme.shapes.medium)
                 .background(successColor)
                 .padding(vertical = 2.dp, horizontal = Dimens.small8),
             color = MaterialTheme.colorScheme.surface,
@@ -490,7 +539,8 @@ private fun TimeOverviewItem(
                     time / 60,
                     time % 60
                 ),
-                modifier = Modifier.padding(end = spacePadding)
+                modifier = Modifier
+                    .padding(end = spacePadding)
                     .clip(MaterialTheme.shapes.medium)
                     .background(MaterialTheme.colorScheme.primary)
                     .padding(vertical = 2.dp, horizontal = Dimens.small8),
@@ -507,7 +557,8 @@ private fun TimeOverviewItem(
                 timeOverview.time / 60,
                 timeOverview.time % 60
             ),
-            modifier = Modifier.clip(MaterialTheme.shapes.medium)
+            modifier = Modifier
+                .clip(MaterialTheme.shapes.medium)
                 .background(endTimeBackgroundColor)
                 .padding(vertical = 2.dp, horizontal = Dimens.small8),
             color = endTimeTextColor,

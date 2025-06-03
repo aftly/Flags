@@ -156,6 +156,7 @@ private fun FlagScaffold(
 
 
     Box(modifier = Modifier.fillMaxSize()) {
+        /* ------------------- START OF SCAFFOLD ------------------- */
         Scaffold(
             modifier = modifier.fillMaxSize(),
             topBar = {
@@ -185,6 +186,7 @@ private fun FlagScaffold(
                 onFullscreen = { onFullscreen(isFlagWide) },
             )
         }
+        /* ------------------- END OF SCAFFOLD ------------------- */
 
 
         if (isRelatedFlagsButton) {
