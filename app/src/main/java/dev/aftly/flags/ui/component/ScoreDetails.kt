@@ -127,15 +127,16 @@ fun ScoreDetails(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
-        /* Scrim to mimic Compose BasicAlertDialog() */
+        /* Scrim to mimic Compose BasicAlertDialog()'s */
         AnimatedVisibility(
             visible = visible,
             enter = EnterTransition.None,
             exit = ExitTransition.None,
         ) {
-            Box(modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.575f))
+            Scrim(
+                modifier = Modifier.fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.575f)),
+                onAction = {}, /* To block interaction with background UI */
             )
         }
 
