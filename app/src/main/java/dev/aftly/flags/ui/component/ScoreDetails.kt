@@ -129,20 +129,18 @@ fun ScoreDetails(
             exit = fadeOut() + slideOutVertically(targetOffsetY = { -it / 4 }),
         ) {
             Card(
-                modifier = Modifier
+                modifier = Modifier.fillMaxWidth()
                     .padding(
                         top = insetsPadding.calculateTopPadding(),
                         bottom = insetsPadding.calculateBottomPadding(),
                         start = Dimens.marginHorizontal16,
                         end = Dimens.marginHorizontal16
-                    )
-                    .fillMaxWidth(),
+                    ),
                 shape = MaterialTheme.shapes.extraLarge
             ) {
                 /* Card title bar */
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                         .padding(
                             top = Dimens.medium16,
                             start = Dimens.medium16,
@@ -357,8 +355,7 @@ private fun TotalsOverviewItem(
                 totalsOverview.correctAnswers,
                 totalsOverview.outOfCount
             ),
-            modifier = Modifier
-                .padding(horizontal = spacePadding)
+            modifier = Modifier.padding(horizontal = spacePadding)
                 .clip(MaterialTheme.shapes.medium)
                 .background(MaterialTheme.colorScheme.primary)
                 .padding(vertical = 2.dp, horizontal = Dimens.small8),
@@ -373,8 +370,7 @@ private fun TotalsOverviewItem(
                 R.string.game_score_details_correct_relative,
                 totalsOverview.scorePercent
             ) + stringResource(R.string.string_percent),
-            modifier = Modifier
-                .clip(MaterialTheme.shapes.medium)
+            modifier = Modifier.clip(MaterialTheme.shapes.medium)
                 .background(successColor)
                 .padding(vertical = 2.dp, horizontal = Dimens.small8),
             color = MaterialTheme.colorScheme.surface,
@@ -442,8 +438,7 @@ private fun TimeOverviewItem(
                     time / 60,
                     time % 60
                 ),
-                modifier = Modifier
-                    .padding(end = spacePadding)
+                modifier = Modifier.padding(end = spacePadding)
                     .clip(MaterialTheme.shapes.medium)
                     .background(MaterialTheme.colorScheme.primary)
                     .padding(vertical = 2.dp, horizontal = Dimens.small8),
@@ -460,8 +455,7 @@ private fun TimeOverviewItem(
                 timeOverview.time / 60,
                 timeOverview.time % 60
             ),
-            modifier = Modifier
-                .clip(MaterialTheme.shapes.medium)
+            modifier = Modifier.clip(MaterialTheme.shapes.medium)
                 .background(endTimeBackgroundColor)
                 .padding(vertical = 2.dp, horizontal = Dimens.small8),
             color = endTimeTextColor,
