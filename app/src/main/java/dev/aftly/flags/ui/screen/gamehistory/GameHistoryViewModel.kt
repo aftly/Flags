@@ -14,4 +14,8 @@ class GameHistoryViewModel(application: Application) : AndroidViewModel(applicat
     fun updateScoreDetails(scoreData: ScoreData?) {
         _uiState.update { it.copy(scoreDetails = scoreData) }
     }
+
+    fun toggleScoreDetails() {
+        _uiState.update { it.copy(isScoreDetails = !it.isScoreDetails) }
+    }
 }

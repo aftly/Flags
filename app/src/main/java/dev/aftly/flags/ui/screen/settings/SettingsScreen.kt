@@ -2,13 +2,17 @@ package dev.aftly.flags.ui.screen.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -21,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.aftly.flags.R
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.theme.Dimens
 
@@ -57,7 +62,9 @@ private fun SettingsScaffold(
             )
         },
     ) { scaffoldPadding ->
-        SettingsContent(modifier = Modifier.padding(scaffoldPadding))
+        SettingsContent(
+            modifier = Modifier.padding(scaffoldPadding)
+        )
     }
 }
 
@@ -67,16 +74,32 @@ private fun SettingsContent(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
             .padding(
                 horizontal = Dimens.marginHorizontal16,
-                vertical = Dimens.small8
+                vertical = Dimens.medium16,
             ),
-        verticalArrangement = Arrangement.Center,
     ) {
-        // TODO
-        Text(text = "To be implemented...")
+        Text(
+            text = stringResource(R.string.settings_colors),
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.labelMedium,
+        )
+
+        Spacer(modifier = Modifier.height(Dimens.medium16))
+
+        Row(horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(
+                text = "Dynamic color / Material You",
+                fontWeight = FontWeight.Bold,
+            )
+            /*
+            IconToggleButton(
+                checked = false,
+                onCheckedChange = {},
+            ) { }
+             */
+        }
     }
 }
 

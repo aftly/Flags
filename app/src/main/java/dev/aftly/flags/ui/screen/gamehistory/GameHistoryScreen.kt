@@ -27,6 +27,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.model.ScoreData
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.ScoreDetails
+import dev.aftly.flags.ui.theme.Dimens
 
 @Composable
 fun GameHistoryScreen(
@@ -44,6 +45,7 @@ fun GameHistoryScreen(
     GameHistoryScreen(
         screen = screen,
         uiState = uiState,
+        onCloseScoreDetails = { viewModel.toggleScoreDetails() },
         onNavigateUp = onNavigateUp,
     )
 }
@@ -54,6 +56,7 @@ private fun GameHistoryScreen(
     modifier: Modifier = Modifier,
     uiState: GameHistoryUiState,
     screen: Screen,
+    onCloseScoreDetails: () -> Unit,
     onNavigateUp: () -> Unit,
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -76,11 +79,13 @@ private fun GameHistoryScreen(
 
         // TODO: FilterHistoryButton()
 
-        /*
-        ScoreDetails(
-            visible = uiState.scoreDetails != null,
-        ) { }
-         */
+        if (uiState.scoreDetails != null) {
+            ScoreDetails(
+                visible = uiState.isScoreDetails,
+                scoreDetails = uiState.scoreDetails,
+                onClose = onCloseScoreDetails,
+            )
+        }
     }
 }
 
@@ -90,12 +95,10 @@ private fun GameHistoryContent(
     modifier: Modifier = Modifier,
     scoreHistory: List<ScoreData>,
 ) {
-    Column(modifier = modifier.fillMaxSize()) {
-        Text(
-            text = "History",
-            style = MaterialTheme.typography.headlineMedium,
-        )
-
+    Column(
+        modifier = modifier.fillMaxSize()
+            .padding(horizontal = Dimens.marginHorizontal16)
+    ) {
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
             items(
                 count = scoreHistory.size,
