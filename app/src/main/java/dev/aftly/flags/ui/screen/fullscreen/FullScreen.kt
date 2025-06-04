@@ -3,6 +3,7 @@ package dev.aftly.flags.ui.screen.fullscreen
 import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.activity.compose.BackHandler
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -28,8 +29,11 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowLeft
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowRight
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.ScreenLockLandscape
 import androidx.compose.material.icons.filled.StayPrimaryLandscape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,6 +43,9 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.carousel.CarouselDefaults
 import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
@@ -67,16 +74,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.model.FlagResources
-import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.FullscreenButton
-import dev.aftly.flags.ui.util.LocalOrientationController
-import dev.aftly.flags.ui.component.GeneralTopBar
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.theme.surfaceDark
 import dev.aftly.flags.ui.theme.surfaceLight
+import dev.aftly.flags.ui.util.LocalOrientationController
+import dev.aftly.flags.ui.util.OrientationController
 import dev.aftly.flags.ui.util.SystemUiController
 import dev.aftly.flags.ui.util.isOrientationLandscape
 import dev.aftly.flags.ui.util.isOrientationPortrait
@@ -87,8 +95,6 @@ import kotlin.math.abs
 @Composable
 fun FullScreen(
     viewModel: FullscreenViewModel = viewModel(),
-    screen: Screen,
-    canNavigateBack: Boolean,
     hideTitle: Boolean,
     isFlagWide: Boolean,
     onExitFullScreen: (Int) -> Unit,
@@ -97,41 +103,24 @@ fun FullScreen(
     val orientationController = LocalOrientationController.current
     val configuration = LocalConfiguration.current
 
-    /* Initialise with correct orientation & ensure composition is delayed until end of coroutine */
-    val isInitScreenLandscape = isOrientationLandscape(configuration = configuration)
-    var isLandscape by rememberSaveable {
-        mutableStateOf(value = isFlagWide && !isInitScreenLandscape)
-    }
+    /* Initialise with correct orientation to ensure composition is delayed until end of process */
+    val isInitOrientationLandscape = isOrientationLandscape(configuration = configuration)
     var isInit by rememberSaveable { mutableStateOf(value = false) }
 
     LaunchedEffect(Unit) {
-        if (isFlagWide && !isInitScreenLandscape) orientationController.setLandscapeOrientation()
+        if (isFlagWide && !isInitOrientationLandscape) {
+            orientationController.setLandscapeOrientation()
+        }
         isInit = true
     }
-    LaunchedEffect(isLandscape) {
-        when (isLandscape) {
-            true -> orientationController.setLandscapeOrientation()
-            false -> orientationController.unsetLandscapeOrientation()
-        }
-    }
-
-    /* Properties for controlling system bars */
-    val view = LocalView.current
-    val window = (view.context as Activity).window
-    val systemUiController = remember { SystemUiController(window, view) }
 
     if (isInit) {
-        FullscreenScaffold(
-            screen = screen,
-            currentTitle = uiState.currentFlagTitle,
-            canNavigateBack = canNavigateBack,
-            systemUiController = systemUiController,
-            isGame = hideTitle,
+        FullScreen(
+            uiState = uiState,
+            orientationController = orientationController,
+            isInitOrientationLandscape = isInitOrientationLandscape,
             isFlagWide = isFlagWide,
-            isLandscape = isLandscape,
-            onLandscapeChange = { isLandscape = !isLandscape },
-            flag = uiState.initialFlag,
-            flags = uiState.flags,
+            isGame = hideTitle,
             onExitFullscreen = {
                 onExitFullScreen(uiState.currentFlagId)
                 orientationController.unsetLandscapeOrientation()
@@ -146,22 +135,33 @@ fun FullScreen(
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-private fun FullscreenScaffold(
+private fun FullScreen(
     modifier: Modifier = Modifier,
-    screen: Screen,
-    currentTitle: Int,
-    canNavigateBack: Boolean,
-    systemUiController: SystemUiController,
-    isGame: Boolean,
+    uiState: FullscreenUiState,
+    orientationController: OrientationController,
+    isInitOrientationLandscape: Boolean,
     isFlagWide: Boolean,
-    isLandscape: Boolean,
-    onLandscapeChange: () -> Unit,
-    flag: FlagResources,
-    flags: List<FlagResources>,
+    isGame: Boolean,
     onExitFullscreen: () -> Unit,
     onCarouselRotation: (Int, Int) -> Unit,
 ) {
     BackHandler { onExitFullscreen() }
+
+    /* State for controlling orientation */
+    var isLandscape by rememberSaveable {
+        mutableStateOf(value = isFlagWide && !isInitOrientationLandscape)
+    }
+    LaunchedEffect(isLandscape) {
+        when (isLandscape) {
+            true -> orientationController.setLandscapeOrientation()
+            false -> orientationController.unsetLandscapeOrientation()
+        }
+    }
+
+    /* Properties for controlling system bars */
+    val view = LocalView.current
+    val window = (view.context as Activity).window
+    val systemUiController = remember { SystemUiController(window, view) }
 
     val configuration = LocalConfiguration.current
     val isScreenPortrait by remember {
@@ -275,15 +275,12 @@ private fun FullscreenScaffold(
                     enter = fadeIn(animationSpec = tween(durationMillis = Timing.SYSTEM_BARS)),
                     exit = fadeOut(animationSpec = tween(durationMillis = Timing.SYSTEM_BARS)),
                 ) {
-                    GeneralTopBar(
-                        screen = screen,
-                        currentTitle = currentTitle,
-                        canNavigateBack = canNavigateBack,
+                    FullscreenTopBar(
+                        currentTitle = uiState.currentFlagTitle,
                         isActionOn = isTopBarLocked,
                         isPortraitOrientation = isScreenPortrait,
                         isGame = isGame,
                         onNavigateUp = onExitFullscreen,
-                        onNavigateDetails = {},
                         onAction = { isTopBarLocked = !isTopBarLocked },
                     )
                 }
@@ -295,11 +292,11 @@ private fun FullscreenScaffold(
                 isFlagWide = isFlagWide,
                 isButtons = isButtons,
                 exitButtonAnimationTiming = exitButtonAnimationTiming,
-                flag = flag,
-                flags = flags,
+                flag = uiState.initialFlag,
+                flags = uiState.flags,
                 isScreenPortrait = isScreenPortrait,
                 isLandscape = isLandscape,
-                onLandscapeChange = onLandscapeChange,
+                onLandscapeChange = { isLandscape = !isLandscape },
                 onExitFullScreen = onExitFullscreen,
                 onCarouselRotation = onCarouselRotation,
             )
@@ -364,7 +361,8 @@ private fun FullscreenContent(
     HorizontalUncontainedCarousel(
         state = carouselState,
         itemWidth = screenWidthDp,
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
             .background(surfaceDark),
         flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(
             state = carouselState,
@@ -477,7 +475,8 @@ private fun FullscreenContent(
 
             /* Status bar scrim */
             if (isGame) {
-                Box(modifier = Modifier.align(Alignment.TopStart)
+                Box(modifier = Modifier
+                    .align(Alignment.TopStart)
                     .fillMaxWidth()
                     .height(with(density) { statusBarHeight.toDp() })
                     .background(color = surfaceDark.copy(alpha = 0.5f))
@@ -553,7 +552,8 @@ private fun ScrollToOppositeEndButton(
             ),
         ) {
             Surface(
-                modifier = Modifier.height(surfaceHeight)
+                modifier = Modifier
+                    .height(surfaceHeight)
                     .width(surfaceWidth),
                 color = Color.Black,
                 shape = surfaceShape,
@@ -564,7 +564,8 @@ private fun ScrollToOppositeEndButton(
                 ) {
                     IconButton(
                         onClick = onClick,
-                        modifier = Modifier.padding(paddingValues = iconButtonPadding)
+                        modifier = Modifier
+                            .padding(paddingValues = iconButtonPadding)
                             .size(iconButtonSize),
                         colors = IconButtonDefaults.iconButtonColors(
                             containerColor = MaterialTheme.colorScheme.primary,
@@ -619,6 +620,100 @@ private fun OrientationLockButton(
             )
         }
     }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FullscreenTopBar(
+    modifier: Modifier = Modifier,
+    @StringRes currentTitle: Int?,
+    isActionOn: Boolean, /* When multi-icon state */
+    isPortraitOrientation: Boolean?,
+    isGame: Boolean,
+    onNavigateUp: () -> Unit,
+    onAction: () -> Unit,
+) {
+    @StringRes val title = when (isGame) {
+        true -> null
+        false -> currentTitle
+    }
+
+    TopAppBar(
+        title = {
+            title?.let {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    Text(
+                        text = stringResource(it),
+                        textAlign = TextAlign.Center,
+                        style = when (isPortraitOrientation) {
+                            true -> MaterialTheme.typography.headlineSmall
+                            else -> MaterialTheme.typography.headlineLarge
+                        },
+                    )
+                }
+            }
+        },
+        modifier = modifier,
+        navigationIcon = {
+            IconButton(
+                onClick = onNavigateUp,
+                colors = when (isGame) {
+                    true -> IconButtonDefaults.iconButtonColors(
+                        containerColor = surfaceDark.copy(alpha = 0.5f)
+                    )
+                    else -> IconButtonDefaults.iconButtonColors()
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = "back",
+                )
+            }
+        },
+        actions = {
+            IconButton(
+                onClick = onAction,
+                colors = when (isGame) {
+                    true -> IconButtonDefaults.iconButtonColors(
+                        containerColor = surfaceDark.copy(alpha = 0.5f)
+                    )
+                    false -> IconButtonDefaults.iconButtonColors()
+                },
+            ) {
+                when(isActionOn) {
+                    true ->
+                        Icon(
+                            imageVector = Icons.Default.Lock,
+                            contentDescription = null,
+                        )
+                    false ->
+                        Icon(
+                            imageVector = Icons.Default.LockOpen,
+                            contentDescription = null,
+                        )
+                }
+            }
+        },
+        colors = when (isGame) {
+            true ->
+                TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent,
+                    navigationIconContentColor = surfaceLight,
+                    actionIconContentColor = surfaceLight,
+                )
+            false ->
+                TopAppBarDefaults.topAppBarColors(
+                    containerColor = surfaceDark.copy(alpha = 0.5f),
+                    navigationIconContentColor = surfaceLight,
+                    titleContentColor = surfaceLight,
+                    actionIconContentColor = surfaceLight,
+                )
+        }
+    )
 }
 
 

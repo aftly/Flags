@@ -68,8 +68,6 @@ fun AppNavHost(
         ) {
             StartMenuScreen(
                 screen = Screen.StartMenu,
-                canNavigateBack = navController.previousBackStackEntry != null,
-                onNavigateUp = { navController.navigateUp() },
                 onNavigateDetails = { screen ->
                     navController.navigate(screen.route) { launchSingleTop = true }
                 },
@@ -82,7 +80,6 @@ fun AppNavHost(
         ) {
             ListFlagsScreen(
                 screen = Screen.List,
-                canNavigateBack = navController.previousBackStackEntry != null,
                 onNavigateUp = { navController.navigateUp() },
                 onNavigateDetails = { flagArg, flagsArg ->
                     val flagsAsString = flagsArg.joinToString(separator = ",")
@@ -121,8 +118,6 @@ fun AppNavHost(
 
             FlagScreen(
                 navController = navController,
-                screen = Screen.Flag,
-                canNavigateBack = navController.previousBackStackEntry != null,
                 onNavigateUp = { navController.navigateUp() },
                 onFullscreen = { flagArg, flagsArg, isLandscape ->
                     val flagsAsString = flagsArg.joinToString(separator = ",")
@@ -150,8 +145,10 @@ fun AppNavHost(
             GameScreen(
                 navController = navController,
                 screen = Screen.Game,
-                canNavigateBack = navController.previousBackStackEntry != null,
                 onNavigateUp = { navController.navigateUp() },
+                onNavigateDetails = { screen ->
+                    navController.navigate(route = screen.route)
+                },
                 onFullscreen = { flagArg, isLandscape, hideTitle ->
                     val flagsArg = "$flagArg"
 
@@ -168,7 +165,6 @@ fun AppNavHost(
         ) {
             GameHistoryScreen(
                 screen = Screen.GameHistory,
-                canNavigateBack = navController.previousBackStackEntry != null,
                 onNavigateUp = { navController.navigateUp() },
             )
         }
@@ -190,8 +186,6 @@ fun AppNavHost(
             val hideTitle = backStackEntry.arguments?.getBoolean("hideTitle") ?: false
 
             FullScreen(
-                screen = Screen.Fullscreen,
-                canNavigateBack = navController.previousBackStackEntry != null,
                 hideTitle = hideTitle,
                 isFlagWide = isLandscape,
                 onExitFullScreen = { flagId ->

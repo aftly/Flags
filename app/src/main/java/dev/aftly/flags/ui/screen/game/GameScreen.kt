@@ -28,11 +28,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -40,6 +46,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -63,11 +70,13 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -79,7 +88,6 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.FilterFlagsButton
 import dev.aftly.flags.ui.component.FullscreenButton
-import dev.aftly.flags.ui.component.GeneralTopBar
 import dev.aftly.flags.ui.component.NoResultsFound
 import dev.aftly.flags.ui.component.ScoreDetails
 import dev.aftly.flags.ui.component.shareText
@@ -100,8 +108,8 @@ fun GameScreen(
     viewModel: GameViewModel = viewModel(),
     navController: NavHostController,
     screen: Screen,
-    canNavigateBack: Boolean,
     onNavigateUp: () -> Unit,
+    onNavigateDetails: (Screen) -> Unit,
     onFullscreen: (Int, Boolean, Boolean) -> Unit,
 ) {
     /* Expose screen and backStack state */
@@ -119,31 +127,10 @@ fun GameScreen(
         systemUiController.setSystemBars(visible = true)
     }
 
-    val context = LocalContext.current
-    val configuration = LocalConfiguration.current
-    val isWideScreen = remember {
-        context.resources.displayMetrics.widthPixels > context.resources.displayMetrics.heightPixels
-    }
-
     /* When language configuration changes, update strings in uiState */
+    val configuration = LocalConfiguration.current
     val locale = configuration.locales[0]
     //LaunchedEffect(locale) { viewModel.setFlagStrings() }
-
-    /* Manage timer string */
-    val formattedTimer = when (uiState.isTimeTrial) {
-        false ->
-            String.format(
-                locale = Locale.US,
-                format = "%d:%02d",
-                uiState.standardTimer / 60, uiState.standardTimer % 60
-            )
-        true ->
-            String.format(
-                locale = Locale.US,
-                format = "%d:%02d",
-                uiState.timeTrialTimer / 60, uiState.timeTrialTimer % 60
-            )
-    }
 
 
     /* Show time trial dialog when timer action button pressed */
@@ -163,6 +150,7 @@ fun GameScreen(
 
     /* Show pop-up when game over */
     if (uiState.isGameOver) {
+        val context = LocalContext.current
         GameOverDialog(
             finalScore = uiState.correctGuessCount,
             maxScore = uiState.totalFlagCount,
@@ -183,43 +171,11 @@ fun GameScreen(
     }
 
 
-    GameScaffold(
+    GameScreen(
+        uiState = uiState,
         screen = screen,
-        canNavigateBack = canNavigateBack,
-        isWideScreen = isWideScreen,
-        timer = formattedTimer,
-        totalFlagCount = uiState.totalFlagCount,
-        correctGuessCount = uiState.correctGuessCount,
-        shownAnswerCount = uiState.shownAnswerCount,
-        currentCategoryTitle = uiState.currentCategoryTitle,
-        currentSuperCategory = uiState.currentSuperCategory,
-        currentSuperCategories = uiState.currentSuperCategories,
-        currentSubCategories = uiState.currentSubCategories,
-        currentFlag = uiState.currentFlag,
         userGuess = viewModel.userGuess,
         onUserGuessChange = { viewModel.updateUserGuess(it) },
-        isGuessCorrect = uiState.isGuessedFlagCorrect,
-        isGuessCorrectEvent = uiState.isGuessedFlagCorrectEvent,
-        isGuessWrong = uiState.isGuessedFlagWrong,
-        isGuessWrongEvent = uiState.isGuessedFlagWrongEvent,
-        isShowAnswer = uiState.isShowAnswer,
-        isScoreDetails = uiState.isScoreDetails,
-        gameFlags = uiState.currentFlags,
-        endGameGuessedFlags = uiState.endGameGuessedFlags,
-        endGameGuessedFlagsSorted = uiState.endGameGuessedFlagsSorted,
-        endGameSkippedFlags = uiState.endGameSkippedFlags,
-        endGameSkippedFlagsSorted = uiState.endGameSkippedFlagsSorted,
-        endGameShownFlags = uiState.endGameShownFlags,
-        endGameShownFlagsSorted = uiState.endGameShownFlagsSorted,
-        isTimeTrial = uiState.isTimeTrial,
-        timeTrialStartTime = when (uiState.isTimeTrial) {
-            true -> uiState.timeTrialStart
-            else -> null
-        },
-        currentTime = when (uiState.isTimeTrial) {
-            true -> uiState.timeTrialTimer
-            false -> uiState.standardTimer
-        },
         onCloseScoreDetails = {
             viewModel.toggleScoreDetails()
             viewModel.endGame()
@@ -231,9 +187,8 @@ fun GameScreen(
         onToggleTimeTrial = { viewModel.toggleTimeTrial() },
         onEndGame = { viewModel.endGame() },
         onNavigateUp = onNavigateUp,
-        onFullscreen = { isLandscape ->
-            onFullscreen(uiState.currentFlag.id, isLandscape, !uiState.isShowAnswer)
-        },
+        onNavigateDetails = onNavigateDetails,
+        onFullscreen = onFullscreen,
         onCategorySelect = { newSuperCategory, newSubCategory ->
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
         },
@@ -245,38 +200,12 @@ fun GameScreen(
 
 
 @Composable
-private fun GameScaffold(
+private fun GameScreen(
     modifier: Modifier = Modifier,
+    uiState: GameUiState,
     screen: Screen,
-    canNavigateBack: Boolean,
-    isWideScreen: Boolean,
-    timer: String,
-    totalFlagCount: Int,
-    correctGuessCount: Int,
-    shownAnswerCount: Int,
-    @StringRes currentCategoryTitle: Int,
-    currentSuperCategory: FlagSuperCategory,
-    currentSuperCategories: List<FlagSuperCategory>?,
-    currentSubCategories: List<FlagCategory>?,
-    currentFlag: FlagResources,
     userGuess: String,
     onUserGuessChange: (String) -> Unit,
-    isGuessCorrect: Boolean,
-    isGuessCorrectEvent: Boolean,
-    isGuessWrong: Boolean,
-    isGuessWrongEvent: Boolean,
-    isShowAnswer: Boolean,
-    isScoreDetails: Boolean,
-    gameFlags: List<FlagResources>,
-    endGameGuessedFlags: List<FlagResources>,
-    endGameGuessedFlagsSorted: List<FlagResources>,
-    endGameSkippedFlags: List<FlagResources>,
-    endGameSkippedFlagsSorted: List<FlagResources>,
-    endGameShownFlags: List<FlagResources>,
-    endGameShownFlagsSorted: List<FlagResources>,
-    isTimeTrial: Boolean,
-    timeTrialStartTime: Int?,
-    currentTime: Int,
     onCloseScoreDetails: () -> Unit,
     onKeyboardDoneAction: () -> Unit,
     onSubmit: () -> Unit,
@@ -285,7 +214,8 @@ private fun GameScaffold(
     onToggleTimeTrial: () -> Unit,
     onEndGame: () -> Unit,
     onNavigateUp: () -> Unit,
-    onFullscreen: (Boolean) -> Unit,
+    onNavigateDetails: (Screen) -> Unit,
+    onFullscreen: (Int, Boolean, Boolean) -> Unit,
     onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onCategoryMultiSelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
 ) {
@@ -296,6 +226,10 @@ private fun GameScaffold(
     /* So that FilterFlagsButton can access Scaffold() padding */
     var scaffoldPaddingValues by remember { mutableStateOf(value = PaddingValues()) }
 
+    val context = LocalContext.current
+    val isWideScreen = remember {
+        context.resources.displayMetrics.widthPixels > context.resources.displayMetrics.heightPixels
+    }
     var isFlagWide by rememberSaveable { mutableStateOf(value = true) }
 
     /* Minimize filter menu when keyboard input */
@@ -305,6 +239,22 @@ private fun GameScaffold(
         }
     }
 
+    /* Manage timer string */
+    val timerString = when (uiState.isTimeTrial) {
+        false ->
+            String.format(
+                locale = Locale.US,
+                format = "%d:%02d",
+                uiState.standardTimer / 60, uiState.standardTimer % 60
+            )
+        true ->
+            String.format(
+                locale = Locale.US,
+                format = "%d:%02d",
+                uiState.timeTrialTimer / 60, uiState.timeTrialTimer % 60
+            )
+    }
+
 
     /* Scaffold within box so that FilterFlagsButton & it's associated surface can overlay it */
     Box(modifier = modifier.fillMaxSize()) {
@@ -312,12 +262,11 @@ private fun GameScaffold(
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
-                GeneralTopBar(
+                GameTopBar(
                     screen = screen,
-                    canNavigateBack = canNavigateBack,
-                    timer = timer,
+                    timer = timerString,
                     onNavigateUp = onNavigateUp,
-                    onNavigateDetails = {},
+                    onNavigateDetails = onNavigateDetails,
                     onAction = onToggleTimeTrial,
                 )
             }
@@ -328,24 +277,26 @@ private fun GameScaffold(
                 modifier = Modifier.padding(scaffoldPadding),
                 isWideScreen = isWideScreen,
                 filterButtonHeight = buttonHeight,
-                totalFlagCount = totalFlagCount,
-                correctGuessCount = correctGuessCount,
-                shownAnswerCount = shownAnswerCount,
-                currentFlag = currentFlag,
+                totalFlagCount = uiState.totalFlagCount,
+                correctGuessCount = uiState.correctGuessCount,
+                shownAnswerCount = uiState.shownAnswerCount,
+                currentFlag = uiState.currentFlag,
                 userGuess = userGuess,
                 onUserGuessChange = onUserGuessChange,
-                isGuessCorrect = isGuessCorrect,
-                isGuessCorrectEvent = isGuessCorrectEvent,
-                isGuessWrong = isGuessWrong,
-                isGuessWrongEvent = isGuessWrongEvent,
-                isShowAnswer = isShowAnswer,
+                isGuessCorrect = uiState.isGuessCorrect,
+                isGuessCorrectEvent = uiState.isGuessCorrectEvent,
+                isGuessWrong = uiState.isGuessWrong,
+                isGuessWrongEvent = uiState.isGuessWrongEvent,
+                isShowAnswer = uiState.isShowAnswer,
                 onKeyboardDoneAction = onKeyboardDoneAction,
                 onSubmit = onSubmit,
                 onSkip = onSkip,
                 onShowAnswer = onShowAnswer,
                 onEndGame = onEndGame,
                 onImageWide = { isFlagWide = it },
-                onFullscreen = { onFullscreen(isFlagWide) },
+                onFullscreen = {
+                    onFullscreen(uiState.currentFlag.id, isFlagWide, !uiState.isShowAnswer)
+                },
             )
         }
         /* ------------------- END OF SCAFFOLD ------------------- */
@@ -361,10 +312,10 @@ private fun GameScaffold(
             onButtonHeightChange = { buttonHeight = it },
             buttonExpanded = buttonExpanded,
             onButtonExpand = { buttonExpanded = !buttonExpanded },
-            currentCategoryTitle = currentCategoryTitle,
-            currentSuperCategory = currentSuperCategory,
-            currentSuperCategories = currentSuperCategories,
-            currentSubCategories = currentSubCategories,
+            currentCategoryTitle = uiState.currentCategoryTitle,
+            currentSuperCategory = uiState.currentSuperCategory,
+            currentSuperCategories = uiState.currentSuperCategories,
+            currentSubCategories = uiState.currentSubCategories,
             onCategorySelect = onCategorySelect,
             onCategoryMultiSelect = onCategoryMultiSelect,
         )
@@ -372,17 +323,23 @@ private fun GameScaffold(
 
         /* For displaying verbose score details */
         ScoreDetails(
-            visible = isScoreDetails,
-            gameFlags = gameFlags,
-            guessedFlags = endGameGuessedFlags,
-            guessedFlagsSorted = endGameGuessedFlagsSorted,
-            skippedFlags = endGameSkippedFlags,
-            skippedFlagsSorted = endGameSkippedFlagsSorted,
-            shownFlags = endGameShownFlags,
-            shownFlagsSorted = endGameShownFlagsSorted,
-            isTimeTrial = isTimeTrial,
-            timeTrialStart = timeTrialStartTime,
-            time = currentTime,
+            visible = uiState.isScoreDetails,
+            gameFlags = uiState.currentFlags,
+            guessedFlags = uiState.endGameGuessedFlags,
+            guessedFlagsSorted = uiState.endGameGuessedFlagsSorted,
+            skippedFlags = uiState.endGameSkippedFlags,
+            skippedFlagsSorted = uiState.endGameSkippedFlagsSorted,
+            shownFlags = uiState.endGameShownFlags,
+            shownFlagsSorted = uiState.endGameShownFlagsSorted,
+            isTimeTrial = uiState.isTimeTrial,
+            timeTrialStart = when (uiState.isTimeTrial) {
+                true -> uiState.timeTrialStart
+                else -> null
+            },
+            time = when (uiState.isTimeTrial) {
+                true -> uiState.timeTrialTimer
+                false -> uiState.standardTimer
+            },
             onClose = onCloseScoreDetails,
         )
     }
@@ -1097,6 +1054,64 @@ private fun GameOverDialog(
             }
         }
     }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GameTopBar(
+    modifier: Modifier = Modifier,
+    screen: Screen,
+    timer: String = "0:00",
+    onNavigateUp: () -> Unit,
+    onNavigateDetails: (Screen) -> Unit,
+    onAction: () -> Unit,
+) {
+    TopAppBar(
+        title = {
+            screen.title?.let {
+                Text(
+                    text = stringResource(it),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+        },
+        modifier = modifier,
+        navigationIcon = {
+            IconButton(onClick = onNavigateUp) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = "back",
+                )
+            }
+        },
+        actions = {
+            Text(
+                text = timer,
+                modifier = Modifier.padding(end = Dimens.extraSmall4),
+                color = MaterialTheme.colorScheme.error,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+            )
+
+            IconButton(onClick = onAction) {
+                Icon(
+                    imageVector = Icons.Default.Timer,
+                    contentDescription = null,
+                )
+            }
+
+            IconButton(onClick = { onNavigateDetails(Screen.GameHistory) }) {
+                Icon(
+                    imageVector = Icons.Default.History,
+                    contentDescription = null,
+                )
+            }
+
+            Spacer(modifier = Modifier.width(Dimens.small8))
+        },
+    )
 }
 
 

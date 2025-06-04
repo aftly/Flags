@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,10 +17,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -56,9 +64,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.model.FlagResources
-import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.FullscreenButton
-import dev.aftly.flags.ui.component.GeneralTopBar
+import dev.aftly.flags.ui.component.RelatedFlagsButton
 import dev.aftly.flags.ui.component.RelatedFlagsMenu
 import dev.aftly.flags.ui.component.WikipediaButton
 import dev.aftly.flags.ui.theme.Dimens
@@ -69,8 +76,6 @@ import dev.aftly.flags.ui.util.SystemUiController
 fun FlagScreen(
     viewModel: FlagViewModel = viewModel(),
     navController: NavHostController,
-    screen: Screen,
-    canNavigateBack: Boolean,
     onNavigateUp: () -> Unit,
     onFullscreen: (Int, List<Int>, Boolean) -> Unit,
     onNavigateError: () -> Unit,
@@ -78,6 +83,9 @@ fun FlagScreen(
     /* Expose screen and backStack state */
     val uiState by viewModel.uiState.collectAsState()
     val backStackEntry = navController.currentBackStackEntryAsState()
+
+    /* Handle navigation null case */
+    if (uiState.currentFlag == DataSource.nullFlag) onNavigateError()
 
     /* Manage system bars and flag state after returning from FullScreen */
     val view = LocalView.current
@@ -94,23 +102,15 @@ fun FlagScreen(
         }
     }
 
-    /* Handle navigation null case */
-    if (uiState.currentFlag == DataSource.nullFlag) onNavigateError()
-
     /* Update flag description string when language configuration changes */
     val configuration = LocalConfiguration.current
     val locale = configuration.locales[0]
     //LaunchedEffect(locale) { viewModel.updateDescriptionString(flag = uiState.currentFlag) }
 
 
-    FlagScaffold(
-        screen = screen,
-        canNavigateBack = canNavigateBack,
+    FlagScreen(
+        uiState = uiState,
         navigateUp = onNavigateUp,
-        currentFlag = uiState.currentFlag,
-        relatedFlags = uiState.relatedFlags,
-        description = uiState.description,
-        boldWordPositions = uiState.descriptionBoldWordIndexes,
         onRelatedFlag = { viewModel.updateFlagRelated(flag = it) },
         onFullscreen = viewModel.callOnFullScreen(onFullscreen),
     )
@@ -118,19 +118,14 @@ fun FlagScreen(
 
 
 @Composable
-private fun FlagScaffold(
+private fun FlagScreen(
     modifier: Modifier = Modifier,
-    screen: Screen,
-    canNavigateBack: Boolean,
+    uiState: FlagUiState,
     navigateUp: () -> Unit,
-    currentFlag: FlagResources,
-    relatedFlags: List<FlagResources>,
-    description: List<String>,
-    boldWordPositions: List<Int>,
     onRelatedFlag: (FlagResources) -> Unit,
     onFullscreen: (Boolean) -> Unit,
 ) {
-    val isRelatedFlagsButton = relatedFlags.size > 1
+    val isRelatedFlagsButton = uiState.relatedFlags.size > 1
 
     /* Controls FilterFlagsButton menu expansion amd tracks current button height
      * Also for FilterFlagsButton to access Scaffold() padding */
@@ -149,17 +144,13 @@ private fun FlagScaffold(
         Scaffold(
             modifier = modifier.fillMaxSize(),
             topBar = {
-                GeneralTopBar(
-                    screen = screen,
-                    canNavigateBack = canNavigateBack,
+                FlagTopBar(
                     isRelatedFlagsButton = isRelatedFlagsButton,
                     buttonExpanded = buttonExpanded,
                     onButtonExpand = { buttonExpanded = !buttonExpanded },
                     onButtonPosition = { buttonOffset = it },
                     onButtonWidth = { buttonWidth = it },
                     onNavigateUp = navigateUp,
-                    onNavigateDetails = {},
-                    onAction = {},
                 )
             }
         ) { scaffoldPadding ->
@@ -169,9 +160,9 @@ private fun FlagScaffold(
 
             FlagContent(
                 modifier = Modifier.padding(scaffoldPadding),
-                flag = currentFlag,
-                description = description,
-                boldWordPositions = boldWordPositions,
+                flag = uiState.currentFlag,
+                description = uiState.description,
+                boldWordPositions = uiState.descriptionBoldWordIndexes,
                 onImageWide = { isFlagWide = it },
                 onFullscreen = { onFullscreen(isFlagWide) },
             )
@@ -187,10 +178,10 @@ private fun FlagScaffold(
                 menuButtonWidth = buttonWidth,
                 isExpanded = buttonExpanded,
                 onExpand = { buttonExpanded = !buttonExpanded },
-                currentFlag = currentFlag,
-                relatedFlags = relatedFlags,
+                currentFlag = uiState.currentFlag,
+                relatedFlags = uiState.relatedFlags,
                 onFlagSelect = { newFlag ->
-                    if (newFlag != currentFlag) {
+                    if (newFlag != uiState.currentFlag) {
                         buttonExpanded = false
                         onRelatedFlag(newFlag)
                     }
@@ -359,6 +350,55 @@ private fun FlagContent(
             wikiLink = wikiLink,
         )
     }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FlagTopBar(
+    modifier: Modifier = Modifier,
+    isRelatedFlagsButton: Boolean,
+    buttonExpanded: Boolean,
+    onButtonExpand: () -> Unit,
+    onButtonPosition: (Offset) -> Unit,
+    onButtonWidth: (Int) -> Unit,
+    onNavigateUp: () -> Unit,
+) {
+    TopAppBar(
+        title = {
+            if (isRelatedFlagsButton) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    RelatedFlagsButton(
+                        menuExpanded = buttonExpanded,
+                        onMenuExpand = onButtonExpand,
+                        onButtonPosition = onButtonPosition,
+                        onButtonWidth = onButtonWidth,
+                    )
+                }
+            }
+        },
+        modifier = modifier,
+        navigationIcon = {
+            IconButton(onClick = onNavigateUp) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = "back",
+                )
+            }
+        },
+        actions = {
+            // TODO: Implement (persistent) saved list
+            IconButton(onClick = { /*TODO*/ }) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "make favorite",
+                )
+            }
+        },
+    )
 }
 
 

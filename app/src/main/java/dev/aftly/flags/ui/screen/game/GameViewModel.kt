@@ -87,7 +87,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 standardTimer = 0,
                 correctGuessCount = 0,
                 shownAnswerCount = 0,
-                isGuessedFlagWrong = false,
+                isGuessWrong = false,
                 nextFlagInSkipped = null,
                 isTimeTrial = timeTrial,
                 isGameOver = false,
@@ -244,9 +244,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             _uiState.update {
                 it.copy(
                     correctGuessCount = it.correctGuessCount.inc(),
-                    isGuessedFlagCorrect = true,
-                    isGuessedFlagCorrectEvent = !it.isGuessedFlagCorrectEvent,
-                    isGuessedFlagWrong = false,
+                    isGuessCorrect = true,
+                    isGuessCorrectEvent = !it.isGuessCorrectEvent,
+                    isGuessWrong = false,
                 )
             }
             updateCurrentFlag()
@@ -255,9 +255,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             userGuess = ""
             _uiState.update {
                 it.copy(
-                    isGuessedFlagCorrect = false,
-                    isGuessedFlagWrong = true,
-                    isGuessedFlagWrongEvent = !it.isGuessedFlagWrongEvent,
+                    isGuessCorrect = false,
+                    isGuessWrong = true,
+                    isGuessWrongEvent = !it.isGuessWrongEvent,
                 )
             }
         }

@@ -25,10 +25,10 @@ data class GameUiState(
 
     val correctGuessCount: Int = 0,
     val shownAnswerCount: Int = 0,
-    val isGuessedFlagCorrect: Boolean = false,
-    val isGuessedFlagCorrectEvent: Boolean = false,
-    val isGuessedFlagWrong: Boolean = false,
-    val isGuessedFlagWrongEvent: Boolean = false,
+    val isGuessCorrect: Boolean = false,
+    val isGuessCorrectEvent: Boolean = false,
+    val isGuessWrong: Boolean = false,
+    val isGuessWrongEvent: Boolean = false,
     val nextFlagInSkipped: FlagResources? = null,
     val isShowAnswer: Boolean = false,
 
