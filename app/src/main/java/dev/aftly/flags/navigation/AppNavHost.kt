@@ -100,9 +100,9 @@ fun AppNavHost(
                 navArgument(name = "flags") { type = NavType.StringType }
             ),
             exitTransition = {
-                when (navController.currentBackStackEntry?.destination?.route) {
-                    Screen.List.route -> null
-                    else -> ExitTransition.None
+                when (targetState.destination.route) {
+                    Screen.Fullscreen.route -> ExitTransition.None
+                    else -> null
                 }
             },
             popEnterTransition = { EnterTransition.None },
@@ -134,12 +134,17 @@ fun AppNavHost(
         composable(
             route = Screen.Game.route,
             exitTransition = {
-                when (navController.currentBackStackEntry?.destination?.route) {
-                    Screen.StartMenu.route -> null
-                    else -> ExitTransition.None
+                when (targetState.destination.route) {
+                    Screen.Fullscreen.route -> ExitTransition.None
+                    else -> null
                 }
             },
-            popEnterTransition = { EnterTransition.None }
+            popEnterTransition = {
+                when (initialState.destination.route) {
+                    Screen.Fullscreen.route -> EnterTransition.None
+                    else -> null
+                }
+            }
 
         ) {
             GameScreen(
