@@ -87,7 +87,7 @@ import kotlin.math.abs
 @Composable
 fun FullScreen(
     viewModel: FullscreenViewModel = viewModel(),
-    currentScreen: Screen,
+    screen: Screen,
     canNavigateBack: Boolean,
     hideTitle: Boolean,
     isFlagWide: Boolean,
@@ -122,7 +122,7 @@ fun FullScreen(
 
     if (isInit) {
         FullscreenScaffold(
-            currentScreen = currentScreen,
+            screen = screen,
             currentTitle = uiState.currentFlagTitle,
             canNavigateBack = canNavigateBack,
             systemUiController = systemUiController,
@@ -148,7 +148,7 @@ fun FullScreen(
 @Composable
 private fun FullscreenScaffold(
     modifier: Modifier = Modifier,
-    currentScreen: Screen,
+    screen: Screen,
     currentTitle: Int,
     canNavigateBack: Boolean,
     systemUiController: SystemUiController,
@@ -243,7 +243,7 @@ private fun FullscreenScaffold(
 
     /* Parent box as surface to receive tap gestures */
     Box(
-        modifier = Modifier
+        modifier = modifier
             .pointerInput(key1 = (Unit)) {
                 detectTapGestures(
                     onTap = {
@@ -265,7 +265,7 @@ private fun FullscreenScaffold(
             },
     ) {
         Scaffold(
-            modifier = modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             topBar = {
                 AnimatedVisibility(
                     visible = when (isTopBarLocked) {
@@ -276,7 +276,7 @@ private fun FullscreenScaffold(
                     exit = fadeOut(animationSpec = tween(durationMillis = Timing.SYSTEM_BARS)),
                 ) {
                     GeneralTopBar(
-                        currentScreen = currentScreen,
+                        screen = screen,
                         currentTitle = currentTitle,
                         canNavigateBack = canNavigateBack,
                         isActionOn = isTopBarLocked,

@@ -118,7 +118,7 @@ fun ScoreDetails(
         remainderFlagsTitle = R.string.game_score_details_remainder,
         isTimeTrial = isTimeTrial,
         timeTrialStart = timeTrialStart,
-        time = time,
+        timerTime = time,
     )
 
 

@@ -325,7 +325,7 @@ fun ListScreenTopBar(
 @Composable
 fun GeneralTopBar(
     modifier: Modifier = Modifier,
-    currentScreen: Screen,
+    screen: Screen,
     @StringRes currentTitle: Int? = null,
     canNavigateBack: Boolean = false,
     isActionOn: Boolean = false, /* For buttons with 2 icon states */
@@ -344,16 +344,16 @@ fun GeneralTopBar(
     /* Ensures navigationIcon persists throughout the lifecycle */
     val canNavigateBackStatic by remember { mutableStateOf(canNavigateBack) }
 
-    @StringRes val title = when (currentScreen) {
+    @StringRes val title = when (screen) {
         Screen.StartMenu -> null
-        Screen.Fullscreen -> if (isGame == true) null else currentTitle
-        else -> currentScreen.title
+        Screen.Fullscreen -> if (isGame) null else currentTitle
+        else -> screen.title
     }
 
 
     TopAppBar(
         title = {
-            when (currentScreen) {
+            when (screen) {
                 Screen.Fullscreen -> title?.let {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -397,7 +397,7 @@ fun GeneralTopBar(
             if (canNavigateBackStatic) {
                 IconButton(
                     onClick = onNavigateUp,
-                    colors = when (isGame to currentScreen) {
+                    colors = when (isGame to screen) {
                         true to Screen.Fullscreen -> IconButtonDefaults.iconButtonColors(
                             containerColor = surfaceDark.copy(alpha = 0.5f)
                         )
@@ -412,18 +412,9 @@ fun GeneralTopBar(
             }
         },
         actions = {
-            when (currentScreen) {
+            when (screen) {
                 Screen.StartMenu -> {
-                    // TODO: Implement InfoScreen() for "about app" info
-                    IconButton(
-                        onClick = { /*TODO*/ }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Info,
-                            contentDescription = "about"
-                        )
-                    }
-                    // TODO: Implement SettingsScreen()
+                    // TODO: Implement SettingsScreen() including app about info
                     IconButton(
                         onClick = { /* onNavigateDetails(Screen.Settings) */ }
                     ) {
@@ -492,7 +483,7 @@ fun GeneralTopBar(
                 else -> {}
             }
         },
-        colors = when (currentScreen) {
+        colors = when (screen) {
             Screen.Fullscreen ->
                 if (isGame) {
                     TopAppBarDefaults.topAppBarColors(

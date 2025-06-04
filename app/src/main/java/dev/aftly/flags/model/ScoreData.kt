@@ -18,7 +18,8 @@ class ScoreData(
     @StringRes remainderFlagsTitle: Int,
     isTimeTrial: Boolean,
     timeTrialStart: Int?, /* In seconds */
-    time: Int, /* In seconds */
+    timerTime: Int, /* In seconds */
+    val timeStamp: Int = 0, // TODO
 ) {
     private val remainderFlags = gameFlags.filterNot { it in guessedFlags }
         .filterNot { it in skippedFlags }.filterNot { it in shownFlags }
@@ -35,7 +36,7 @@ class ScoreData(
         timeOverview = TimeOverview(
             isTimeTrial = isTimeTrial,
             timeTrialStart = timeTrialStart,
-            time = time,
+            time = timerTime,
         )
     )
 

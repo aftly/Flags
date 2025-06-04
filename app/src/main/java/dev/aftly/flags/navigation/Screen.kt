@@ -30,14 +30,17 @@ sealed class Screen(
         description = R.string.game_description,
     )
 
+    data object GameHistory : Screen(
+        route = "game_history_screen",
+        title = R.string.game_history_title,
+    )
+
     data object Fullscreen : Screen(
         route = "full_screen",
     )
 
-    /*
     data object Settings : Screen(
         route = "settings_screen",
         title = R.string.settings_title,
     )
-     */
 }

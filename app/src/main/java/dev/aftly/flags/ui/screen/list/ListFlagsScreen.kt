@@ -67,7 +67,7 @@ import kotlinx.coroutines.launch
 fun ListFlagsScreen(
     viewModel: ListFlagsViewModel = viewModel(),
     searchModel: SearchViewModel = viewModel(),
-    currentScreen: Screen,
+    screen: Screen,
     canNavigateBack: Boolean,
     onNavigateUp: () -> Unit,
     onNavigateDetails: (Int, List<Int>) -> Unit,
@@ -85,7 +85,7 @@ fun ListFlagsScreen(
     //LaunchedEffect(locale) { viewModel.sortFlagsAlphabetically() }
 
     ListFlagsScaffold(
-        currentScreen = currentScreen,
+        screen = screen,
         scrollBehaviour = scrollBehaviour,
         canNavigateBack = canNavigateBack,
         currentCategoryTitle = uiState.currentCategoryTitle,
@@ -121,7 +121,7 @@ fun ListFlagsScreen(
 @Composable
 private fun ListFlagsScaffold(
     modifier: Modifier = Modifier,
-    currentScreen: Screen,
+    screen: Screen,
     scrollBehaviour: TopAppBarScrollBehavior,
     canNavigateBack: Boolean,
     containerColor1: Color = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -194,15 +194,15 @@ private fun ListFlagsScaffold(
 
     /* Scaffold within box so FilterFlagsButton & it's associated surface can overlay it */
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.TopEnd,
     ) {
         /* ------------------- START OF SCAFFOLD ------------------- */
         Scaffold(
-            modifier = modifier,
+            modifier = Modifier,
             topBar = {
                 ListScreenTopBar(
-                    currentScreen = currentScreen,
+                    currentScreen = screen,
                     scrollBehaviour = scrollBehaviour,
                     canNavigateBack = canNavigateBack,
                     userSearch = userSearch,
@@ -255,7 +255,7 @@ private fun ListFlagsScaffold(
             modifier = Modifier.fillMaxSize(),
             scaffoldPadding = scaffoldPaddingValues,
             buttonHorizontalPadding = Dimens.marginHorizontal16,
-            screen = currentScreen,
+            screen = screen,
             flagCount = when (isUserSearch) {
                 false -> currentFlagsList.size
                 true -> searchResults.size

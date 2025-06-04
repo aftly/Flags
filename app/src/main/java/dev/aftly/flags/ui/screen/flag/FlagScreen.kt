@@ -1,13 +1,7 @@
 package dev.aftly.flags.ui.screen.flag
 
 import android.app.Activity
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -15,12 +9,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -56,7 +48,6 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -68,12 +59,9 @@ import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.FullscreenButton
 import dev.aftly.flags.ui.component.GeneralTopBar
-import dev.aftly.flags.ui.component.RelatedFlagsButton
 import dev.aftly.flags.ui.component.RelatedFlagsMenu
-import dev.aftly.flags.ui.component.Scrim
 import dev.aftly.flags.ui.component.WikipediaButton
 import dev.aftly.flags.ui.theme.Dimens
-import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.util.SystemUiController
 
 
@@ -81,7 +69,7 @@ import dev.aftly.flags.ui.util.SystemUiController
 fun FlagScreen(
     viewModel: FlagViewModel = viewModel(),
     navController: NavHostController,
-    currentScreen: Screen,
+    screen: Screen,
     canNavigateBack: Boolean,
     onNavigateUp: () -> Unit,
     onFullscreen: (Int, List<Int>, Boolean) -> Unit,
@@ -116,7 +104,7 @@ fun FlagScreen(
 
 
     FlagScaffold(
-        currentScreen = currentScreen,
+        screen = screen,
         canNavigateBack = canNavigateBack,
         navigateUp = onNavigateUp,
         currentFlag = uiState.currentFlag,
@@ -132,7 +120,7 @@ fun FlagScreen(
 @Composable
 private fun FlagScaffold(
     modifier: Modifier = Modifier,
-    currentScreen: Screen,
+    screen: Screen,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     currentFlag: FlagResources,
@@ -162,7 +150,7 @@ private fun FlagScaffold(
             modifier = modifier.fillMaxSize(),
             topBar = {
                 GeneralTopBar(
-                    currentScreen = currentScreen,
+                    screen = screen,
                     canNavigateBack = canNavigateBack,
                     isRelatedFlagsButton = isRelatedFlagsButton,
                     buttonExpanded = buttonExpanded,

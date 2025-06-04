@@ -17,7 +17,9 @@ import androidx.navigation.navArgument
 import dev.aftly.flags.ui.screen.flag.FlagScreen
 import dev.aftly.flags.ui.screen.fullscreen.FullScreen
 import dev.aftly.flags.ui.screen.game.GameScreen
+import dev.aftly.flags.ui.screen.gamehistory.GameHistoryScreen
 import dev.aftly.flags.ui.screen.list.ListFlagsScreen
+import dev.aftly.flags.ui.screen.settings.SettingsScreen
 import dev.aftly.flags.ui.screen.startmenu.StartMenuScreen
 import dev.aftly.flags.ui.theme.Timing
 
@@ -65,9 +67,9 @@ fun AppNavHost(
             route = Screen.StartMenu.route
         ) {
             StartMenuScreen(
-                currentScreen = Screen.StartMenu,
+                screen = Screen.StartMenu,
                 canNavigateBack = navController.previousBackStackEntry != null,
-                navigateUp = { navController.navigateUp() },
+                onNavigateUp = { navController.navigateUp() },
                 onNavigateDetails = { screen ->
                     navController.navigate(screen.route) { launchSingleTop = true }
                 },
@@ -79,7 +81,7 @@ fun AppNavHost(
             route = Screen.List.route
         ) {
             ListFlagsScreen(
-                currentScreen = Screen.List,
+                screen = Screen.List,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 onNavigateUp = { navController.navigateUp() },
                 onNavigateDetails = { flagArg, flagsArg ->
@@ -119,7 +121,7 @@ fun AppNavHost(
 
             FlagScreen(
                 navController = navController,
-                currentScreen = Screen.Flag,
+                screen = Screen.Flag,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 onNavigateUp = { navController.navigateUp() },
                 onFullscreen = { flagArg, flagsArg, isLandscape ->
@@ -147,7 +149,7 @@ fun AppNavHost(
         ) {
             GameScreen(
                 navController = navController,
-                currentScreen = Screen.Game,
+                screen = Screen.Game,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 onNavigateUp = { navController.navigateUp() },
                 onFullscreen = { flagArg, isLandscape, hideTitle ->
@@ -157,6 +159,17 @@ fun AppNavHost(
                         route = "${Screen.Fullscreen.route}/$flagArg/$flagsArg/$isLandscape?hideTitle=$hideTitle"
                     ) { launchSingleTop = true }
                 }
+            )
+        }
+
+        /* GameHistory NavGraph (for score history) */
+        composable(
+            route = Screen.GameHistory.route
+        ) {
+            GameHistoryScreen(
+                screen = Screen.GameHistory,
+                canNavigateBack = navController.previousBackStackEntry != null,
+                onNavigateUp = { navController.navigateUp() },
             )
         }
 
@@ -177,7 +190,7 @@ fun AppNavHost(
             val hideTitle = backStackEntry.arguments?.getBoolean("hideTitle") ?: false
 
             FullScreen(
-                currentScreen = Screen.Fullscreen,
+                screen = Screen.Fullscreen,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 hideTitle = hideTitle,
                 isFlagWide = isLandscape,
@@ -189,14 +202,14 @@ fun AppNavHost(
         }
 
         /* SettingsScreen NavGraph */
-        /*
-        composable(route = Screen.Settings.route) {
+        composable(
+            route = Screen.Settings.route
+        ) {
             SettingsScreen(
-                currentScreen = Screen.Settings,
+                screen = Screen.Settings,
                 canNavigateBack = navController.previousBackStackEntry != null,
-                navigateUp = { navController.navigateUp() },
+                onNavigateUp = { navController.navigateUp() },
             )
         }
-         */
     }
 }

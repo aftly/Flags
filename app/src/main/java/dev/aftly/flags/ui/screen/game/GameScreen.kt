@@ -99,7 +99,7 @@ import java.util.Locale
 fun GameScreen(
     viewModel: GameViewModel = viewModel(),
     navController: NavHostController,
-    currentScreen: Screen,
+    screen: Screen,
     canNavigateBack: Boolean,
     onNavigateUp: () -> Unit,
     onFullscreen: (Int, Boolean, Boolean) -> Unit,
@@ -184,7 +184,7 @@ fun GameScreen(
 
 
     GameScaffold(
-        currentScreen = currentScreen,
+        screen = screen,
         canNavigateBack = canNavigateBack,
         isWideScreen = isWideScreen,
         timer = formattedTimer,
@@ -247,7 +247,7 @@ fun GameScreen(
 @Composable
 private fun GameScaffold(
     modifier: Modifier = Modifier,
-    currentScreen: Screen,
+    screen: Screen,
     canNavigateBack: Boolean,
     isWideScreen: Boolean,
     timer: String,
@@ -307,13 +307,13 @@ private fun GameScaffold(
 
 
     /* Scaffold within box so that FilterFlagsButton & it's associated surface can overlay it */
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize()) {
         /* ------------------- START OF SCAFFOLD ------------------- */
         Scaffold(
-            modifier = modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             topBar = {
                 GeneralTopBar(
-                    currentScreen = currentScreen,
+                    screen = screen,
                     canNavigateBack = canNavigateBack,
                     timer = timer,
                     onNavigateUp = onNavigateUp,
@@ -357,7 +357,7 @@ private fun GameScaffold(
             modifier = Modifier.fillMaxSize(),
             scaffoldPadding = scaffoldPaddingValues,
             buttonHorizontalPadding = Dimens.marginHorizontal16,
-            screen = currentScreen,
+            screen = screen,
             onButtonHeightChange = { buttonHeight = it },
             buttonExpanded = buttonExpanded,
             onButtonExpand = { buttonExpanded = !buttonExpanded },

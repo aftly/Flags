@@ -29,15 +29,15 @@ import dev.aftly.flags.ui.theme.Dimens
 
 @Composable
 fun StartMenuScreen(
-    currentScreen: Screen,
+    screen: Screen,
     canNavigateBack: Boolean,
-    navigateUp: () -> Unit,
+    onNavigateUp: () -> Unit,
     onNavigateDetails: (Screen) -> Unit,
 ) {
     StartMenuScaffold(
-        currentScreen = currentScreen,
+        currentScreen = screen,
         canNavigateBack = canNavigateBack,
-        navigateUp = navigateUp,
+        navigateUp = onNavigateUp,
         onNavigateDetails = onNavigateDetails,
     )
 }
@@ -55,7 +55,7 @@ private fun StartMenuScaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
             GeneralTopBar(
-                currentScreen = currentScreen,
+                screen = currentScreen,
                 canNavigateBack = canNavigateBack,
                 /* Padding for when can't navigate back */
                 /*
@@ -72,7 +72,7 @@ private fun StartMenuScaffold(
     ) { scaffoldPadding ->
         StartMenuContent (
             modifier = Modifier.padding(scaffoldPadding),
-            currentScreen = currentScreen,
+            screen = currentScreen,
             onNavigateDetails = onNavigateDetails,
         )
     }
@@ -82,12 +82,12 @@ private fun StartMenuScaffold(
 @Composable
 private fun StartMenuContent(
     modifier: Modifier = Modifier,
-    currentScreen: Screen,
+    screen: Screen,
     onNavigateDetails: (Screen) -> Unit,
 ) {
-    val annotatedTitle = if (currentScreen.title != null) {
+    val annotatedTitle = if (screen.title != null) {
         buildAnnotatedString {
-            val title = stringResource(currentScreen.title)
+            val title = stringResource(screen.title)
             val flags = stringResource(R.string.flags)
             val whitespace = stringResource(R.string.string_whitespace)
             val words: List<String> = title.split(whitespace)
