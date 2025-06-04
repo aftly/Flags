@@ -1,9 +1,7 @@
 package dev.aftly.flags.model
 
-import androidx.annotation.StringRes
 
-
-/* ------------ SCORE DATA CLASS FOR UI ------------ */
+/* ------------ Game score super class ------------ */
 class ScoreData(
     gameFlags: List<FlagResources>,
     guessedFlags: List<FlagResources>,
@@ -12,14 +10,10 @@ class ScoreData(
     skippedFlagsSorted: List<FlagResources>,
     shownFlags: List<FlagResources>,
     shownFlagsSorted: List<FlagResources>,
-    @StringRes guessedFlagsTitle: Int,
-    @StringRes skippedFlagsTitle: Int,
-    @StringRes shownFlagsTitle: Int,
-    @StringRes remainderFlagsTitle: Int,
     isTimeTrial: Boolean,
     timeTrialStart: Int?, /* In seconds */
     timerTime: Int, /* In seconds */
-    val timeStamp: Int = 0, // TODO
+    val timeStamp: Int, // TODO
 ) {
     private val remainderFlags = gameFlags.filterNot { it in guessedFlags }
         .filterNot { it in skippedFlags }.filterNot { it in shownFlags }
@@ -44,28 +38,24 @@ class ScoreData(
         GuessedFlags(
             list = guessedFlags,
             sortedList = guessedFlagsSorted,
-            titleResId = guessedFlagsTitle,
         ),
         SkippedFlags(
             list = skippedFlags,
             sortedList = skippedFlagsSorted,
-            titleResId = skippedFlagsTitle,
         ),
         ShownFlags(
             list = shownFlags,
             sortedList = shownFlagsSorted,
-            titleResId = shownFlagsTitle,
         ),
         RemainderFlags(
             list = remainderFlags,
             sortedList = remainderFlags,
-            titleResId = remainderFlagsTitle,
         )
     )
 }
 
 
-/* ------------ SCORE OVERVIEW CLASSES ------------ */
+/* ------------ Score overview classes ------------ */
 data class ScoreOverview(
     val totalsOverview: TotalsOverview,
     val timeOverview: TimeOverview,
@@ -84,33 +74,28 @@ data class TimeOverview(
 )
 
 
-/* ------------ SCORE DETAIL CLASSES ------------ */
+/* ------------ Score details classes ------------ */
 abstract class TitledList(
     val list: List<FlagResources>,
     val sortedList: List<FlagResources>,
-    val titleResId: Int,
 )
 
-private class GuessedFlags(
+class GuessedFlags(
     list: List<FlagResources>,
     sortedList: List<FlagResources>,
-    titleResId: Int,
-) : TitledList(list, sortedList, titleResId)
+) : TitledList(list, sortedList)
 
-private class SkippedFlags(
+class SkippedFlags(
     list: List<FlagResources>,
     sortedList: List<FlagResources>,
-    titleResId: Int,
-) : TitledList(list, sortedList, titleResId)
+) : TitledList(list, sortedList)
 
-private class ShownFlags(
+class ShownFlags(
     list: List<FlagResources>,
     sortedList: List<FlagResources>,
-    titleResId: Int
-) : TitledList(list, sortedList, titleResId)
+) : TitledList(list, sortedList)
 
-private class RemainderFlags(
+class RemainderFlags(
     list: List<FlagResources>,
     sortedList: List<FlagResources>,
-    titleResId: Int,
-) : TitledList(list, sortedList, titleResId)
+) : TitledList(list, sortedList)

@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.model.ScoreData
 import dev.aftly.flags.navigation.Screen
+import dev.aftly.flags.ui.component.ScoreDetails
 
 @Composable
 fun GameHistoryScreen(
@@ -74,6 +75,12 @@ private fun GameHistoryScreen(
         /* ------------------- END OF SCAFFOLD ------------------- */
 
         // TODO: FilterHistoryButton()
+
+        /*
+        ScoreDetails(
+            visible = uiState.scoreDetails != null,
+        ) { }
+         */
     }
 }
 

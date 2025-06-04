@@ -62,8 +62,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.aftly.flags.R
 import dev.aftly.flags.model.FlagResources
+import dev.aftly.flags.model.GuessedFlags
+import dev.aftly.flags.model.RemainderFlags
 import dev.aftly.flags.model.ScoreData
+import dev.aftly.flags.model.ShownFlags
+import dev.aftly.flags.model.SkippedFlags
 import dev.aftly.flags.model.TimeOverview
+import dev.aftly.flags.model.TitledList
 import dev.aftly.flags.model.TotalsOverview
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.successDark
@@ -74,21 +79,16 @@ import dev.aftly.flags.ui.util.SystemUiController
 @Composable
 fun ScoreDetails(
     visible: Boolean,
-    gameFlags: List<FlagResources>,
-    guessedFlags: List<FlagResources>,
-    guessedFlagsSorted: List<FlagResources>,
-    skippedFlags: List<FlagResources>,
-    skippedFlagsSorted: List<FlagResources>,
-    shownFlags: List<FlagResources>,
-    shownFlagsSorted: List<FlagResources>,
-    isTimeTrial: Boolean,
-    timeTrialStart: Int?,
-    time: Int,
+    scoreDetails: ScoreData,
     onClose: () -> Unit,
 ) {
     /* For Ui details */
     val insetsPadding = WindowInsets.systemBars.asPaddingValues()
     var isDetailsSorted by rememberSaveable { mutableStateOf(value = false) }
+    val sortButtonIcon = when (isDetailsSorted) {
+        false -> Icons.Default.SortByAlpha
+        true -> Icons.Default.AccessTime
+    }
 
     /* For controlling system bars */
     val view = LocalView.current
@@ -103,26 +103,7 @@ fun ScoreDetails(
         }
     }
 
-    /* Class for processing score details */
-    val scoreDetails = ScoreData(
-        gameFlags = gameFlags,
-        guessedFlags = guessedFlags,
-        guessedFlagsSorted = guessedFlagsSorted,
-        skippedFlags = skippedFlags,
-        skippedFlagsSorted = skippedFlagsSorted,
-        shownFlags = shownFlags,
-        shownFlagsSorted = shownFlagsSorted,
-        guessedFlagsTitle = R.string.game_score_details_guessed,
-        skippedFlagsTitle = R.string.game_score_details_skipped,
-        shownFlagsTitle = R.string.game_score_details_shown,
-        remainderFlagsTitle = R.string.game_score_details_remainder,
-        isTimeTrial = isTimeTrial,
-        timeTrialStart = timeTrialStart,
-        timerTime = time,
-    )
 
-
-    /* ScoreDetails contents */
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
@@ -141,7 +122,7 @@ fun ScoreDetails(
         }
 
 
-        /* Score details content */
+        /* Score details card */
         AnimatedVisibility(
             visible = visible,
             enter = fadeIn() + slideInVertically(initialOffsetY = { it / 4 }),
@@ -158,7 +139,7 @@ fun ScoreDetails(
                     .fillMaxWidth(),
                 shape = MaterialTheme.shapes.extraLarge
             ) {
-                /* Title row of details card */
+                /* Card title bar */
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -182,10 +163,7 @@ fun ScoreDetails(
                             onClick = { isDetailsSorted = !isDetailsSorted }
                         ) {
                             Icon(
-                                imageVector = when (isDetailsSorted) {
-                                    false -> Icons.Default.SortByAlpha
-                                    true -> Icons.Default.AccessTime
-                                },
+                                imageVector = sortButtonIcon,
                                 contentDescription = null,
                             )
                         }
@@ -204,8 +182,7 @@ fun ScoreDetails(
                     }
                 }
 
-
-                /* Expandable/collapsable score details with nested LazyColumns */
+                /* Score details content */
                 ScoreDetailsItems(
                     isDarkTheme = isDarkTheme,
                     isDetailsSorted = isDetailsSorted,
@@ -217,6 +194,7 @@ fun ScoreDetails(
 }
 
 
+/* Score details content */
 @Composable
 private fun ScoreDetailsItems(
     isDarkTheme: Boolean,
@@ -231,187 +209,111 @@ private fun ScoreDetailsItems(
     val itemLineHeight = 18.sp
 
 
-    /* Nested LazyColumns for score details contents */
     LazyColumn {
         /* Overview item containing overview items */
         item {
-            var isExpanded by remember { mutableStateOf(value = true) }
+            ScoreOverViewItem(
+                isDarkTheme = isDarkTheme,
+                scoreDetails = scoreDetails,
+                lerpSurface = lerpSurface,
+                itemFontSize = itemFontSize,
+                itemLineHeight = itemLineHeight,
+            )
+        }
 
-            val dropDownIcon = when (isExpanded) {
-                true -> Icons.Default.ArrowDropUp
-                false -> Icons.Default.ArrowDropDown
-            }
+        items(scoreDetails.allScores) { scoreDetails ->
+            ScoresItem(
+                isDetailsSorted = isDetailsSorted,
+                scoreDetails = scoreDetails,
+                lerpSurface = lerpSurface,
+                itemFontSize = itemFontSize,
+                itemLineHeight = itemLineHeight,
+            )
+        }
+    }
+}
 
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = Dimens.small8,
-                        end = Dimens.small8,
-                        bottom = Dimens.small8,
-                    ),
-                shape = MaterialTheme.shapes.large,
-                colors = CardDefaults.cardColors(
-                    containerColor = lerp(
-                        start = MaterialTheme.colorScheme.surface,
-                        stop = lerpSurface,
-                        fraction = 0.125f
-                    ),
+
+/* Top level overview item containing Totals and Time overview items */
+@Composable
+private fun ScoreOverViewItem(
+    modifier: Modifier = Modifier,
+    isDarkTheme: Boolean,
+    scoreDetails: ScoreData,
+    lerpSurface: Color,
+    itemFontSize: TextUnit,
+    itemLineHeight: TextUnit,
+) {
+    var isExpanded by remember { mutableStateOf(value = true) }
+
+    val dropDownIcon = when (isExpanded) {
+        true -> Icons.Default.ArrowDropUp
+        false -> Icons.Default.ArrowDropDown
+    }
+
+    Card(
+        modifier = modifier.fillMaxWidth()
+            .padding(
+                start = Dimens.small8,
+                end = Dimens.small8,
+                bottom = Dimens.small8,
+            ),
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(
+            containerColor = lerp(
+                start = MaterialTheme.colorScheme.surface,
+                stop = lerpSurface,
+                fraction = 0.125f
+            ),
+        )
+    ) {
+        /* Interactable overview title */
+        TextButton(
+            onClick = { isExpanded = !isExpanded },
+            modifier = Modifier.padding(horizontal = Dimens.extraSmall4),
+            shape = MaterialTheme.shapes.large,
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = stringResource(R.string.game_score_details_overview),
                 )
-            ) {
-                /* Interactable overview title */
-                TextButton(
-                    onClick = { isExpanded = !isExpanded },
-                    modifier = Modifier.padding(horizontal = Dimens.extraSmall4),
-                    shape = MaterialTheme.shapes.large,
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = stringResource(R.string.game_score_details_overview),
-                        )
-                        Icon(
-                            imageVector = dropDownIcon,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
-                    }
-                }
-
-                /* Drop-down content of score overview items */
-                AnimatedVisibility(
-                    visible = isExpanded,
-                    enter = expandVertically(),
-                    exit = shrinkVertically(),
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                start = Dimens.medium16,
-                                end = Dimens.medium16,
-                                bottom = Dimens.medium16,
-                            )
-                    ) {
-                        TotalsOverviewItem(
-                            totalsOverview = scoreDetails.scoreOverview.totalsOverview,
-                            isDarkTheme = isDarkTheme,
-                            fontSize = itemFontSize,
-                            lineHeight = itemLineHeight,
-                        )
-
-                        Spacer(modifier = Modifier.height(Dimens.extraSmall4))
-
-                        TimeOverviewItem(
-                            timeOverview = scoreDetails.scoreOverview.timeOverview,
-                            isDarkTheme = isDarkTheme,
-                            fontSize = itemFontSize,
-                            lineHeight = itemLineHeight,
-                        )
-                    }
-                }
+                Icon(
+                    imageVector = dropDownIcon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                )
             }
         }
 
-        /* Score details items */
-        items(scoreDetails.allScores) { scores ->
-            var isExpanded by remember { mutableStateOf(value = false) }
-
-            val scoresList = when (isDetailsSorted) {
-                false -> scores.list
-                true -> scores.sortedList
-            }
-
-            val lazyColumnHeight = (with(LocalDensity.current) {
-                itemLineHeight.toDp()
-            } + Dimens.medium16) * (scores.list.size + 1)
-
-            val textButtonIsEnabled = when (scores.list.size) {
-                0 -> false
-                else -> true
-            }
-
-            val scoreTitleColor = when (scores.list.size) {
-                0 -> MaterialTheme.colorScheme.error
-                else -> MaterialTheme.colorScheme.primary
-            }
-
-            val dropDownIcon = when (isExpanded) {
-                true -> Icons.Default.ArrowDropUp
-                false -> Icons.Default.ArrowDropDown
-            }
-
-
-            /* Card for encapsulating each score details group */
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
+        /* Drop-down content of score overview items */
+        AnimatedVisibility(
+            visible = isExpanded,
+            enter = expandVertically(),
+            exit = shrinkVertically(),
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth()
                     .padding(
-                        start = Dimens.small8,
-                        end = Dimens.small8,
-                        bottom = Dimens.small8,
-                    ),
-                shape = MaterialTheme.shapes.large,
-                colors = CardDefaults.cardColors(
-                    containerColor = lerp(
-                        start = MaterialTheme.colorScheme.surface,
-                        stop = lerpSurface,
-                        fraction = 0.125f
-                    ),
-                )
+                        start = Dimens.medium16,
+                        end = Dimens.medium16,
+                        bottom = Dimens.medium16,
+                    )
             ) {
-                /* Interactable score group title */
-                TextButton(
-                    onClick = { isExpanded = !isExpanded },
-                    modifier = Modifier.padding(horizontal = Dimens.extraSmall4),
-                    enabled = textButtonIsEnabled,
-                    shape = MaterialTheme.shapes.large,
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = stringResource(
-                                scores.titleResId,
-                                scores.list.size
-                            ),
-                            color = scoreTitleColor,
-                        )
-                        if (scores.list.isNotEmpty()) {
-                            Icon(
-                                imageVector = dropDownIcon,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                            )
-                        }
-                    }
-                }
+                TotalsOverviewItem(
+                    totalsOverview = scoreDetails.scoreOverview.totalsOverview,
+                    isDarkTheme = isDarkTheme,
+                    fontSize = itemFontSize,
+                    lineHeight = itemLineHeight,
+                )
 
-                /* Drop-down content of score details */
-                AnimatedVisibility(
-                    visible = isExpanded,
-                    enter = expandVertically(),
-                    exit = shrinkVertically()
-                ) {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                start = Dimens.medium16,
-                                end = Dimens.medium16,
-                                bottom = Dimens.medium16,
-                            )
-                            .heightIn(max = lazyColumnHeight)
-                    ) {
-                        items(
-                            count = scores.list.size,
-                            key = { index -> scoresList[index].id }
-                        ) { index ->
-                            ScoreItem(
-                                flag = scoresList[index],
-                                fontSize = itemFontSize,
-                                lineHeight = itemLineHeight,
-                            )
-                        }
-                    }
-                }
+                Spacer(modifier = Modifier.height(Dimens.extraSmall4))
+
+                TimeOverviewItem(
+                    timeOverview = scoreDetails.scoreOverview.timeOverview,
+                    isDarkTheme = isDarkTheme,
+                    fontSize = itemFontSize,
+                    lineHeight = itemLineHeight,
+                )
             }
         }
     }
@@ -566,6 +468,126 @@ private fun TimeOverviewItem(
             fontSize = fontSize,
             lineHeight = lineHeight,
         )
+    }
+}
+
+
+/* Top level score details item containing lazy list of ScoreItem() */
+@Composable
+private fun ScoresItem(
+    modifier: Modifier = Modifier,
+    isDetailsSorted: Boolean,
+    scoreDetails: TitledList,
+    lerpSurface: Color,
+    itemFontSize: TextUnit,
+    itemLineHeight: TextUnit,
+) {
+    var isExpanded by remember { mutableStateOf(value = false) }
+
+    val lazyColumnHeight = (with(LocalDensity.current) {
+        itemLineHeight.toDp()
+    } + Dimens.medium16) * (scoreDetails.list.size + 1)
+
+    val scoreTitle = when (scoreDetails) {
+        is GuessedFlags ->
+            stringResource(R.string.game_score_details_guessed, scoreDetails.list.size)
+        is SkippedFlags ->
+            stringResource(R.string.game_score_details_skipped, scoreDetails.list.size)
+        is ShownFlags ->
+            stringResource(R.string.game_score_details_shown, scoreDetails.list.size)
+        is RemainderFlags ->
+            stringResource(R.string.game_score_details_remainder, scoreDetails.list.size)
+        else ->
+            ""
+    }
+
+    val scoreTitleColor = when (scoreDetails.list.size) {
+        0 -> MaterialTheme.colorScheme.error
+        else -> MaterialTheme.colorScheme.primary
+    }
+
+    val scoresList = when (isDetailsSorted) {
+        false -> scoreDetails.list
+        true -> scoreDetails.sortedList
+    }
+
+    val textButtonIsEnabled = when (scoreDetails.list.size) {
+        0 -> false
+        else -> true
+    }
+
+    val dropDownIcon = when (isExpanded) {
+        true -> Icons.Default.ArrowDropUp
+        false -> Icons.Default.ArrowDropDown
+    }
+
+
+    /* Card for encapsulating each score details group */
+    Card(
+        modifier = modifier.fillMaxWidth()
+            .padding(
+                start = Dimens.small8,
+                end = Dimens.small8,
+                bottom = Dimens.small8,
+            ),
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(
+            containerColor = lerp(
+                start = MaterialTheme.colorScheme.surface,
+                stop = lerpSurface,
+                fraction = 0.125f
+            ),
+        )
+    ) {
+        /* Interactable score group title */
+        TextButton(
+            onClick = { isExpanded = !isExpanded },
+            modifier = Modifier.padding(horizontal = Dimens.extraSmall4),
+            enabled = textButtonIsEnabled,
+            shape = MaterialTheme.shapes.large,
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = scoreTitle,
+                    color = scoreTitleColor,
+                )
+                if (scoreDetails.list.isNotEmpty()) {
+                    Icon(
+                        imageVector = dropDownIcon,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
+        }
+
+        /* Drop-down content of score details */
+        AnimatedVisibility(
+            visible = isExpanded,
+            enter = expandVertically(),
+            exit = shrinkVertically()
+        ) {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(
+                        start = Dimens.medium16,
+                        end = Dimens.medium16,
+                        bottom = Dimens.medium16,
+                    )
+                    .heightIn(max = lazyColumnHeight)
+            ) {
+                items(
+                    count = scoreDetails.list.size,
+                    key = { index -> scoresList[index].id }
+                ) { index ->
+                    ScoreItem(
+                        flag = scoresList[index],
+                        fontSize = itemFontSize,
+                        lineHeight = itemLineHeight,
+                    )
+                }
+            }
+        }
     }
 }
 

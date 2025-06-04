@@ -12,6 +12,7 @@ import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
+import dev.aftly.flags.model.ScoreData
 import dev.aftly.flags.ui.util.getCategoryTitle
 import dev.aftly.flags.ui.util.getFlagsByCategory
 import dev.aftly.flags.ui.util.getFlagsFromCategories
@@ -310,12 +311,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 _uiState.update {
                     it.copy(
                         isGameOver = true,
-                        endGameGuessedFlags = guessedFlags.toList(),
-                        endGameGuessedFlagsSorted = sortFlagsAlphabetically(guessedFlags),
-                        endGameSkippedFlags = skippedFlags.toList(),
-                        endGameSkippedFlagsSorted = sortFlagsAlphabetically(skippedFlags),
-                        endGameShownFlags = shownFlags.toList(),
-                        endGameShownFlagsSorted = sortFlagsAlphabetically(shownFlags),
+                        scoreDetails = getScoreData(),
                     )
                 }
             }
@@ -467,5 +463,29 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 _uiState.update { it.copy(standardTimer = it.standardTimer.inc()) }
             }
         }
+    }
+
+
+    /* Return ScoreData from current game state */
+    private fun getScoreData(): ScoreData {
+        return ScoreData(
+            gameFlags = uiState.value.currentFlags,
+            guessedFlags = guessedFlags.toList(),
+            guessedFlagsSorted = sortFlagsAlphabetically(guessedFlags),
+            skippedFlags = skippedFlags.toList(),
+            skippedFlagsSorted = sortFlagsAlphabetically(skippedFlags),
+            shownFlags = shownFlags.toList(),
+            shownFlagsSorted = sortFlagsAlphabetically(shownFlags),
+            isTimeTrial = uiState.value.isTimeTrial,
+            timeTrialStart = when (uiState.value.isTimeTrial) {
+                true -> uiState.value.timeTrialStart
+                else -> null
+            },
+            timerTime = when (uiState.value.isTimeTrial) {
+                true -> uiState.value.timeTrialTimer
+                false -> uiState.value.standardTimer
+            },
+            timeStamp = 0, // TODO
+        )
     }
 }

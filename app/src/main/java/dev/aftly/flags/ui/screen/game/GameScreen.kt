@@ -322,26 +322,13 @@ private fun GameScreen(
 
 
         /* For displaying verbose score details */
-        ScoreDetails(
-            visible = uiState.isScoreDetails,
-            gameFlags = uiState.currentFlags,
-            guessedFlags = uiState.endGameGuessedFlags,
-            guessedFlagsSorted = uiState.endGameGuessedFlagsSorted,
-            skippedFlags = uiState.endGameSkippedFlags,
-            skippedFlagsSorted = uiState.endGameSkippedFlagsSorted,
-            shownFlags = uiState.endGameShownFlags,
-            shownFlagsSorted = uiState.endGameShownFlagsSorted,
-            isTimeTrial = uiState.isTimeTrial,
-            timeTrialStart = when (uiState.isTimeTrial) {
-                true -> uiState.timeTrialStart
-                else -> null
-            },
-            time = when (uiState.isTimeTrial) {
-                true -> uiState.timeTrialTimer
-                false -> uiState.standardTimer
-            },
-            onClose = onCloseScoreDetails,
-        )
+        if (uiState.scoreDetails != null) {
+            ScoreDetails(
+                visible = uiState.isScoreDetails,
+                scoreDetails = uiState.scoreDetails,
+                onClose = onCloseScoreDetails,
+            )
+        }
     }
 }
 
