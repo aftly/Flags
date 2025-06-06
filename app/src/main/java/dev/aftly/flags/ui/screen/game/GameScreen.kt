@@ -266,6 +266,7 @@ private fun GameScreen(
             topBar = {
                 GameTopBar(
                     screen = screen,
+                    isTimerPaused = uiState.isTimerPaused,
                     timer = timerString,
                     onNavigateUp = onNavigateUp,
                     onNavigateDetails = onNavigateDetails,
@@ -1048,6 +1049,7 @@ private fun GameOverDialog(
 private fun GameTopBar(
     modifier: Modifier = Modifier,
     screen: Screen,
+    isTimerPaused: Boolean,
     timer: String = "0:00",
     onNavigateUp: () -> Unit,
     onNavigateDetails: (Screen) -> Unit,
@@ -1076,7 +1078,10 @@ private fun GameTopBar(
             Text(
                 text = timer,
                 modifier = Modifier.padding(end = Dimens.extraSmall4),
-                color = MaterialTheme.colorScheme.error,
+                color = when (isTimerPaused) {
+                    false -> MaterialTheme.colorScheme.error
+                    true -> MaterialTheme.colorScheme.outline
+                },
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
             )

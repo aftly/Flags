@@ -22,6 +22,7 @@ data class GameUiState(
 
     val isTimeTrialDialog: Boolean = false,
     val isTimeTrial: Boolean = false,
+    val isTimerPaused: Boolean = false,
     val standardTimer: Int = 0,
     val timeTrialTimer: Int = 0,
     val timeTrialStart: Int = 0, /* To track the initial start time */

@@ -91,6 +91,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 isGuessWrong = false,
                 nextFlagInSkipped = null,
                 isTimeTrial = timeTrial,
+                isTimerPaused = false,
                 isGameOver = false,
                 isShowAnswer = false,
             )
@@ -270,6 +271,20 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             isSkip = true,
             isAnswerShown = isAnswerShown,
         )
+
+        /* Start timer, to "unpause" it from showAnswer() timer "pause" */
+        if (isAnswerShown) {
+            _uiState.update { it.copy(isTimerPaused = false) }
+
+            when (uiState.value.isTimeTrial) {
+                true ->
+                    startTimeTrial(
+                        startTime = uiState.value.timeTrialTimer,
+                        resume = true,
+                    )
+                false -> startTimer()
+            }
+        }
     }
 
 
@@ -278,9 +293,16 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             it.copy(
                 isShowAnswer = true,
                 shownAnswerCount = it.shownAnswerCount.inc(),
+                isTimerPaused = true,
             )
         }
         shownFlags.add(uiState.value.currentFlag)
+
+        /* Cancel timer, to "pause" it until flag skipped */
+        when (uiState.value.isTimeTrial) {
+            true -> timeTrialJob?.cancel()
+            false -> standardTimerJob?.cancel()
+        }
     }
 
 
@@ -288,8 +310,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _uiState.update { it.copy(isTimeTrialDialog = !it.isTimeTrialDialog) }
     }
 
-    fun startTimeTrial(startTime: Int) {
-        _uiState.update { it.copy(timeTrialTimer = startTime, timeTrialStart = startTime) }
+    fun startTimeTrial(
+        startTime: Int,
+        resume: Boolean = false,
+    ) {
+        if (!resume) _uiState.update { it.copy(timeTrialStart = startTime) }
+        _uiState.update { it.copy(timeTrialTimer = startTime) }
 
         timeTrialJob = viewModelScope.launch {
             while (uiState.value.timeTrialTimer > 0) {
