@@ -63,6 +63,7 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [x] ~~**Game**: Button to show correct answer~~
 - [x] ~~**Game**: Open card from Game Over dialog to show score overview & lists of guessed, skipped, shown and remainder flags~~
 - [x] ~~**Game**: Timer modes: Standard and Time Trial~~
+- [x] ~~Settings screen for Theme customisation~~, other settings and about app info - **(Partially Complete)**
 - [x] Optimize app for different system Font sizes - **(Partially Complete)**
 - [ ] **Persistent Game features**: Score history & exporting scores *(for sharing)*
 - [ ] **Persistent Settings features**: Themes, strictness of user guesses for game, disable animations for older devices
@@ -73,7 +74,6 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [ ] Add screenshots of app to **README**
 - [ ] Add Python scripts to external repository
 - [ ] Add regime type categories (for political flags) from **OurWorldInData**
-- [ ] **Info screen**: For information about the app and links to app resources
 - [ ] Download flag image to local files feature
 - [ ] Pop up warning messages when invalid/not allowed user action
 - [ ] Add flag ISO codes
