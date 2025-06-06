@@ -625,7 +625,7 @@ private fun OrientationLockButton(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FullscreenTopBar(
+private fun FullscreenTopBar(
     modifier: Modifier = Modifier,
     @StringRes currentTitle: Int?,
     isActionOn: Boolean, /* When multi-icon state */

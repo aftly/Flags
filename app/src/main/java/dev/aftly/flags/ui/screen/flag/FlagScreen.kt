@@ -355,7 +355,7 @@ private fun FlagContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FlagTopBar(
+private fun FlagTopBar(
     modifier: Modifier = Modifier,
     isRelatedFlagsButton: Boolean,
     buttonExpanded: Boolean,

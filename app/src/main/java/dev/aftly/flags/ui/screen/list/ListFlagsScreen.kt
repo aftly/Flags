@@ -447,7 +447,7 @@ private fun ListItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListFlagsTopBar(
+private fun ListFlagsTopBar(
     modifier: Modifier = Modifier,
     currentScreen: Screen,
     scrollBehaviour: TopAppBarScrollBehavior,

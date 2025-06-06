@@ -44,6 +44,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -86,6 +87,7 @@ import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.navigation.Screen
+import dev.aftly.flags.ui.component.DialogActionButton
 import dev.aftly.flags.ui.component.FilterFlagsButton
 import dev.aftly.flags.ui.component.FullscreenButton
 import dev.aftly.flags.ui.component.NoResultsFound
@@ -836,13 +838,8 @@ private fun TimeTrialDialog(
     val inputAnnotationStyle = MaterialTheme.typography.titleLarge
 
 
-    Dialog(
-        onDismissRequest = onDismiss,
-    ) {
-        Card(
-            modifier = Modifier.wrapContentWidth(),
-            shape = MaterialTheme.shapes.extraLarge
-        ) {
+    Dialog(onDismissRequest = onDismiss) {
+        Card(shape = MaterialTheme.shapes.extraLarge) {
             Column(
                 modifier = Modifier.padding(
                     top = Dimens.large24,
@@ -851,9 +848,7 @@ private fun TimeTrialDialog(
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 /* Title */
-                Row(
-                    //modifier = Modifier.padding(Dimens.large24),
-                ) {
+                Row {
                     Text(
                         text = stringResource(R.string.game_time_trial_title),
                         style = MaterialTheme.typography.headlineSmall,
@@ -928,14 +923,16 @@ private fun TimeTrialDialog(
                     modifier = Modifier
                         .padding(
                             vertical = Dimens.small8,
-                            horizontal = Dimens.small10,
+                            horizontal = Dimens.extraSmall4,
                         )
                         .align(Alignment.End),
                 ) {
-                    TextButton(onClick = onDismiss) {
-                        Text(text = "Cancel")
-                    }
-                    TextButton(
+                    DialogActionButton(
+                        onClick = onDismiss,
+                        buttonStringResId = R.string.dialog_cancel,
+                    )
+
+                    DialogActionButton(
                         onClick = {
                             val timeMinute = when (userMinutesInput) {
                                 "" -> 0
@@ -948,10 +945,9 @@ private fun TimeTrialDialog(
 
                             onTimeTrial(timeMinute + timeSecond)
                             onDismiss()
-                        }
-                    ) {
-                        Text(text = "Okay")
-                    }
+                        },
+                        buttonStringResId = R.string.dialog_ok,
+                    )
                 }
             }
         }
@@ -1026,17 +1022,20 @@ private fun GameOverDialog(
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    TextButton(onClick = onDetails) {
-                        Text(text = stringResource(R.string.game_over_details_button))
-                    }
+                    DialogActionButton(
+                        onClick = onDetails,
+                        buttonStringResId = R.string.game_over_details_button,
+                    )
 
-                    TextButton(onClick = { onShare(shareScoreMessage) }) {
-                        Text(text = stringResource(R.string.game_over_share_button))
-                    }
+                    DialogActionButton(
+                        onClick = { onShare(shareScoreMessage) },
+                        buttonStringResId = R.string.game_over_share_button,
+                    )
 
-                    TextButton(onClick = onPlayAgain) {
-                        Text(text = stringResource(R.string.game_over_play_again_button))
-                    }
+                    DialogActionButton(
+                        onClick = onPlayAgain,
+                        buttonStringResId = R.string.game_over_play_again_button,
+                    )
                 }
             }
         }
@@ -1046,7 +1045,7 @@ private fun GameOverDialog(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GameTopBar(
+private fun GameTopBar(
     modifier: Modifier = Modifier,
     screen: Screen,
     timer: String = "0:00",

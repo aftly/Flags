@@ -127,7 +127,7 @@ private fun HistoryItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GameHistoryTopBar(
+private fun GameHistoryTopBar(
     modifier: Modifier = Modifier,
     screen: Screen,
     onNavigateUp: () -> Unit,
