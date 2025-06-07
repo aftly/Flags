@@ -1,6 +1,7 @@
 package dev.aftly.flags.ui.screen.settings
 
+import dev.aftly.flags.model.AppTheme
+
 data class SettingsUiState(
-    val theme: AppTheme = AppTheme.SYSTEM,
-    val materialYou: Boolean = false,
+    val foobar: Boolean,
 )

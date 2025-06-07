@@ -90,7 +90,7 @@ private val LightColorScheme = lightColorScheme(
 
 
 @Composable
-fun FlagsTheme(
+fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit

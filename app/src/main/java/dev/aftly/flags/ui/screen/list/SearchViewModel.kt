@@ -264,7 +264,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }.stateIn(
             scope = viewModelScope,
             initialValue = emptyList(),
-            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
         )
     private val _searchResults = searchResults
 
