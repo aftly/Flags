@@ -202,6 +202,7 @@ private fun ColorsSettings(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 SettingsBody(
+                    modifier = Modifier.weight(1f),
                     title = R.string.settings_dynamic_colors_title,
                     description = R.string.settings_dynamic_colors_description,
                 )
@@ -263,6 +264,7 @@ private fun AboutContent(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             SettingsBody(
+                modifier = Modifier.weight(1f),
                 title = R.string.settings_about_source_code_title,
                 description = R.string.settings_about_source_code_description,
             )

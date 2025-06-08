@@ -213,7 +213,7 @@
     <string name="settings_title">Settings</string>
     <string name="settings_colors">Colors</string>
     <string name="settings_dynamic_colors_title">Dynamic color / Material You</string>
-    <string name="settings_dynamic_colors_description">Use colors from system palette on Android 12+</string>
+    <string name="settings_dynamic_colors_description">Use colors from system palette</string>
     <string name="settings_theme">Theme</string>
     <string name="settings_theme_system">System</string>
     <string name="settings_theme_system_black">System (Black)</string>
