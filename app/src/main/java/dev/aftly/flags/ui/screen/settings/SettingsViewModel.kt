@@ -49,6 +49,7 @@ class SettingsViewModel(
             AppTheme.DARK -> false
             AppTheme.BLACK -> false
             AppTheme.SYSTEM -> !isSystemInDarkTheme
+            AppTheme.SYSTEM_BLACK -> !isSystemInDarkTheme
         }
 
 

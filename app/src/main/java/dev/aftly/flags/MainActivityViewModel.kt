@@ -39,6 +39,7 @@ class MainActivityViewModel(
 
     fun isBlackTheme() = when (uiState.value.theme) {
         AppTheme.BLACK.name -> true
+        AppTheme.SYSTEM_BLACK.name -> true
         else -> false
     }
 

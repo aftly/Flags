@@ -406,6 +406,7 @@ private fun ThemeDialog(
                                 .selectable(
                                     selected = (themeOption == theme),
                                     enabled = when (themeOption) {
+                                        AppTheme.SYSTEM_BLACK -> !isDynamicColor
                                         AppTheme.BLACK -> !isDynamicColor
                                         else -> true
                                     },
@@ -421,7 +422,7 @@ private fun ThemeDialog(
                                     .fillMaxWidth()
                                     .padding(
                                         horizontal = halfPadding,
-                                        vertical = halfPadding / 2,
+                                        vertical = halfPadding / 1.5f,
                                     ),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
@@ -429,6 +430,7 @@ private fun ThemeDialog(
                                 Text(
                                     text = stringResource(themeOption.title),
                                     color = when (isDynamicColor to themeOption) {
+                                        true to AppTheme.SYSTEM_BLACK -> disabledTextColor
                                         true to AppTheme.BLACK -> disabledTextColor
                                         else -> Color.Unspecified
                                     }
@@ -438,6 +440,7 @@ private fun ThemeDialog(
                                     selected = (themeOption == theme),
                                     onClick = null,
                                     enabled = when (themeOption) {
+                                        AppTheme.SYSTEM_BLACK -> !isDynamicColor
                                         AppTheme.BLACK -> !isDynamicColor
                                         else -> true
                                     },
