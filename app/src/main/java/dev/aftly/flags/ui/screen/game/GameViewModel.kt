@@ -43,6 +43,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private var standardTimerJob: Job? = null
     private var timeTrialJob: Job? = null
+    private var showAnswerButtonCountdownJob: Job? = null
 
     var userGuess by mutableStateOf(value = "")
         private set
@@ -233,6 +234,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
 
     fun checkUserGuess() {
+        cancelConfirmShowAnswer()
+
         val normalizedUserGuess = getNormalizedString(string = userGuess)
         val answers = uiState.value.currentFlagStrings
         val normalizedAnswers = mutableListOf<String>()
@@ -266,16 +269,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    fun skipFlag(isAnswerShown: Boolean) {
-        updateCurrentFlag(
-            isSkip = true,
-            isAnswerShown = isAnswerShown,
-        )
+    fun skipFlag() {
+        /* If from shown answer, manage related timer and button states and jobs */
+        if (uiState.value.isShowAnswer) {
+            _uiState.update {
+                it.copy(isTimerPaused = false, isShowAnswer = false)
+            }
 
-        /* Start timer, to "unpause" it from showAnswer() timer "pause" */
-        if (isAnswerShown) {
-            _uiState.update { it.copy(isTimerPaused = false) }
-
+            /* Start timer, to "unpause" it from showAnswer() timer "pause" */
             when (uiState.value.isTimeTrial) {
                 true ->
                     startTimeTrial(
@@ -284,11 +285,17 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     )
                 false -> startTimer()
             }
+        } else {
+            cancelConfirmShowAnswer()
         }
+
+        updateCurrentFlag(isSkip = true)
     }
 
 
     fun showAnswer() {
+        cancelConfirmShowAnswer()
+
         _uiState.update {
             it.copy(
                 isShowAnswer = true,
@@ -328,9 +335,26 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
+    fun confirmShowAnswer() {
+        showAnswerButtonCountdownJob = viewModelScope.launch {
+            _uiState.update {
+                it.copy(showAnswerResetTimer = 5, isConfirmShowAnswer = true)
+            }
+
+            while (uiState.value.showAnswerResetTimer > 0) {
+                delay(timeMillis = 1000)
+                _uiState.update { it.copy(showAnswerResetTimer = it.showAnswerResetTimer.dec()) }
+            }
+
+            _uiState.update { it.copy(isConfirmShowAnswer = false) }
+        }
+    }
+
+
     fun endGame(isGameOver: Boolean = true) {
         when (isGameOver) {
             true -> {
+                cancelConfirmShowAnswer()
                 standardTimerJob?.cancel()
                 timeTrialJob?.cancel()
 
@@ -361,15 +385,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun updateCurrentFlag(
         isSkip: Boolean = false,
-        isAnswerShown: Boolean = false,
     ) {
         val currentFlag: FlagResources = uiState.value.currentFlag
 
-        /* Manage shown, skipped and guessed flags lists depending on args & game conditions */
-        if (isAnswerShown) {
-            _uiState.update { it.copy(isShowAnswer = false) }
-
-        } else if (isSkip) { /* If user skip & un-skipped flags remain, add flag to skip list */
+        if (isSkip) { /* If user skip & un-skipped flags remain, add flag to skip list */
             if (!isSkipMax()) skippedFlags.add(currentFlag)
 
         } else { /* If user guess, add flag to guessed set */
@@ -489,6 +508,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 _uiState.update { it.copy(standardTimer = it.standardTimer.inc()) }
             }
         }
+    }
+
+
+    private fun cancelConfirmShowAnswer() {
+        showAnswerButtonCountdownJob?.cancel()
+        _uiState.update { it.copy(isConfirmShowAnswer = false) }
     }
 
 

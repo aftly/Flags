@@ -9,7 +9,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,7 +43,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -56,7 +54,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -185,7 +182,8 @@ fun GameScreen(
         },
         onKeyboardDoneAction = { viewModel.checkUserGuess() },
         onSubmit = { viewModel.checkUserGuess() },
-        onSkip = { viewModel.skipFlag(isAnswerShown = uiState.isShowAnswer) },
+        onSkip = { viewModel.skipFlag() },
+        onConfirmShowAnswer = { viewModel.confirmShowAnswer() },
         onShowAnswer = { viewModel.showAnswer() },
         onToggleTimeTrial = { viewModel.toggleTimeTrial() },
         onEndGame = { viewModel.endGame() },
@@ -213,6 +211,7 @@ private fun GameScreen(
     onKeyboardDoneAction: () -> Unit,
     onSubmit: () -> Unit,
     onSkip: () -> Unit,
+    onConfirmShowAnswer: () -> Unit,
     onShowAnswer: () -> Unit,
     onToggleTimeTrial: () -> Unit,
     onEndGame: () -> Unit,
@@ -291,10 +290,13 @@ private fun GameScreen(
                 isGuessCorrectEvent = uiState.isGuessCorrectEvent,
                 isGuessWrong = uiState.isGuessWrong,
                 isGuessWrongEvent = uiState.isGuessWrongEvent,
+                showAnswerResetTimer = uiState.showAnswerResetTimer,
+                isConfirmShowAnswer = uiState.isConfirmShowAnswer,
                 isShowAnswer = uiState.isShowAnswer,
                 onKeyboardDoneAction = onKeyboardDoneAction,
                 onSubmit = onSubmit,
                 onSkip = onSkip,
+                onConfirmShowAnswer = onConfirmShowAnswer,
                 onShowAnswer = onShowAnswer,
                 onEndGame = onEndGame,
                 onImageWide = { isFlagWide = it },
@@ -352,10 +354,13 @@ private fun GameContent(
     isGuessCorrectEvent: Boolean,
     isGuessWrong: Boolean,
     isGuessWrongEvent: Boolean,
+    showAnswerResetTimer: Int,
+    isConfirmShowAnswer: Boolean,
     isShowAnswer: Boolean,
     onKeyboardDoneAction: () -> Unit,
     onSubmit: () -> Unit,
     onSkip: () -> Unit,
+    onConfirmShowAnswer: () -> Unit,
     onShowAnswer: () -> Unit,
     onEndGame: () -> Unit,
     onImageWide: (Boolean) -> Unit,
@@ -377,40 +382,22 @@ private fun GameContent(
         true -> Dimens.large24 / 2
     }
 
-    /* Manage show answer button */
-    var showAnswerButtonState by rememberSaveable { mutableIntStateOf(value = 0) }
-    var confirmationTimer by rememberSaveable { mutableIntStateOf(value = 5) }
+    /* Show answer button properties */
     val isDarkTheme = LocalDarkTheme.current
-    val showAnswerColor = when (showAnswerButtonState) {
-        1 -> MaterialTheme.colorScheme.error
-        else -> if (isDarkTheme) successDark else successLight
+    val showAnswerColor = when (isConfirmShowAnswer) {
+        false -> if (isDarkTheme) successDark else successLight
+        true -> MaterialTheme.colorScheme.error
     }
-    val showAnswerText = when (showAnswerButtonState) {
-        0 -> stringResource(R.string.game_button_show)
-        1 -> stringResource(R.string.game_button_show_confirm, confirmationTimer)
+    val showAnswerText = when (isConfirmShowAnswer to isShowAnswer) {
+        false to false -> stringResource(R.string.game_button_show)
+        true to false -> stringResource(R.string.game_button_show_confirm, showAnswerResetTimer)
         else -> stringResource(R.string.game_button_shown)
-    }
-    var resetButtonJob by rememberSaveable { mutableStateOf<Job?>(value = null) }
-    val coroutineScope = rememberCoroutineScope()
-    /* Reset showAnswerButtonState if no user interaction after "Are you sure?" */
-    LaunchedEffect(showAnswerButtonState) {
-        if (showAnswerButtonState == 1) {
-            resetButtonJob = coroutineScope.launch {
-                confirmationTimer = 5
-                while (confirmationTimer > 0) {
-                    delay(timeMillis = 1000)
-                    confirmationTimer--
-                }
-                showAnswerButtonState = 0
-            }
-        }
     }
 
 
     /* Center arranged column with Game content */
     Column(
-        modifier = modifier
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
             .padding(
                 /* Top padding so that content scroll disappears into FilterFlagsButton */
                 top = filterButtonHeight / 2,
@@ -433,8 +420,7 @@ private fun GameContent(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         /* Spacer to make content start below FilterFlags button */
-        Spacer(modifier = Modifier
-            .fillMaxWidth()
+        Spacer(modifier = Modifier.fillMaxWidth()
             .height(filterButtonHeight / 2 + aspectRatioTopPadding)
         )
 
@@ -459,11 +445,7 @@ private fun GameContent(
             isGuessWrong = isGuessWrong,
             isGuessWrongEvent = isGuessWrongEvent,
             isShowAnswer = isShowAnswer,
-            onKeyboardDoneAction = {
-                resetButtonJob?.cancel()
-                showAnswerButtonState = 0
-                onKeyboardDoneAction()
-            },
+            onKeyboardDoneAction = onKeyboardDoneAction,
             onEndGame = onEndGame,
             onImageWide = onImageWide,
             onFullscreen = onFullscreen,
@@ -473,28 +455,18 @@ private fun GameContent(
 
         /* Submit button */
         Button(
-            onClick = {
-                resetButtonJob?.cancel()
-                showAnswerButtonState = 0
-                onSubmit()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
+            onClick = onSubmit,
+            modifier = Modifier.fillMaxWidth()
                 .padding(top = Dimens.medium16),
-            enabled = showAnswerButtonState < 2,
+            enabled = !isShowAnswer,
         ) {
             Text(text = stringResource(R.string.game_button_submit))
         }
 
         /* Skip button */
         OutlinedButton(
-            onClick = {
-                resetButtonJob?.cancel()
-                showAnswerButtonState = 0
-                onSkip()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
+            onClick = onSkip,
+            modifier = Modifier.fillMaxWidth()
                 .padding(top = Dimens.medium16),
         ) {
             Text(text = stringResource(R.string.game_button_skip))
@@ -503,16 +475,14 @@ private fun GameContent(
         /* Show answer button */
         OutlinedButton(
             onClick = {
-                showAnswerButtonState++
-                if (showAnswerButtonState > 1) {
-                    resetButtonJob?.cancel()
-                    onShowAnswer()
+                when (isConfirmShowAnswer) {
+                    false -> onConfirmShowAnswer()
+                    true -> onShowAnswer()
                 }
             },
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
                 .padding(top = Dimens.medium16),
-            enabled = showAnswerButtonState < 2,
+            enabled = !isShowAnswer,
             colors = ButtonDefaults.outlinedButtonColors(contentColor = showAnswerColor),
         ) {
             Text(text = showAnswerText)
@@ -638,8 +608,7 @@ private fun GameCard(
         ) {
             /* Top row in card */
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
                     .padding(bottom = Dimens.medium16),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -647,8 +616,7 @@ private fun GameCard(
                 Row {
                     Text(
                         text = "${correctGuessCount + shownAnswerCount}/$totalFlagCount",
-                        modifier = Modifier
-                            .clip(MaterialTheme.shapes.medium)
+                        modifier = Modifier.clip(MaterialTheme.shapes.medium)
                             .background(MaterialTheme.colorScheme.primary)
                             .padding(vertical = Dimens.extraSmall4, horizontal = Dimens.small10),
                         color = MaterialTheme.colorScheme.onPrimary,
@@ -660,8 +628,7 @@ private fun GameCard(
 
                         Text(
                             text = "$shownAnswerCount",
-                            modifier = Modifier
-                                .clip(MaterialTheme.shapes.medium)
+                            modifier = Modifier.clip(MaterialTheme.shapes.medium)
                                 .background(MaterialTheme.colorScheme.error)
                                 .padding(
                                     vertical = Dimens.extraSmall4,
@@ -755,8 +722,7 @@ private fun GameCard(
                         ) {
                             Text(
                                 text = stringResource(correctAnswer),
-                                modifier = Modifier
-                                    .clip(MaterialTheme.shapes.large)
+                                modifier = Modifier.clip(MaterialTheme.shapes.large)
                                     .background(color = Color.Black.copy(alpha = 0.75f))
                                     .padding(
                                         vertical = Dimens.small8,
@@ -776,8 +742,7 @@ private fun GameCard(
                     )
                 } else {
                     NoResultsFound(
-                        modifier = Modifier
-                            .aspectRatio(ratio = 2f / 1f)
+                        modifier = Modifier.aspectRatio(ratio = 2f / 1f)
                             .fillMaxSize(),
                         isGame = true,
                     )
@@ -788,8 +753,7 @@ private fun GameCard(
             OutlinedTextField(
                 value = userGuess,
                 onValueChange = onUserGuessChange,
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
                     .padding(top = Dimens.small10),
                 enabled = !isShowAnswer,
                 label = {
@@ -911,9 +875,7 @@ private fun TimeTrialDialog(
                     )
                     Text(
                         text = stringResource(R.string.game_time_trial_second),
-                        modifier = Modifier.padding(
-                            start = Dimens.small8,
-                        ),
+                        modifier = Modifier.padding(start = Dimens.small8),
                         style = inputAnnotationStyle,
                     )
                 }
@@ -1018,8 +980,7 @@ private fun GameOverDialog(
 
                 /* Action buttons */
                 Row(
-                    modifier = Modifier
-                        .padding(vertical = Dimens.small8)
+                    modifier = Modifier.padding(vertical = Dimens.small8)
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {

@@ -34,6 +34,9 @@ data class GameUiState(
     val isGuessWrong: Boolean = false,
     val isGuessWrongEvent: Boolean = false,
     val nextFlagInSkipped: FlagResources? = null,
+
+    val showAnswerResetTimer: Int = 5,
+    val isConfirmShowAnswer: Boolean = false,
     val isShowAnswer: Boolean = false,
 
     val isGameOver: Boolean = false,
