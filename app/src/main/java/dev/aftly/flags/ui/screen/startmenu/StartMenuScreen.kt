@@ -124,15 +124,9 @@ private fun ScreenCard(
     selectScreen: (Screen) -> Unit,
 ) {
     Card(
-        modifier = modifier
-            .clickable {
-                selectScreen(screen)
-            },
-        /*
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(Dimens.medium16)
-        ),
-         */
+        modifier = modifier.clickable {
+            selectScreen(screen)
+        },
     ) {
         Box {
             Column(

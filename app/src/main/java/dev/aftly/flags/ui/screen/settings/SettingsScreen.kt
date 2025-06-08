@@ -210,8 +210,8 @@ private fun ColorsSettings(
                     checked = isDynamicColor,
                     onCheckedChange = { onCheckDynamicColor(it) },
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = MaterialTheme.colorScheme.primary,
-                        checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                        checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                        checkedTrackColor = MaterialTheme.colorScheme.primary,
                     )
                 )
             }
