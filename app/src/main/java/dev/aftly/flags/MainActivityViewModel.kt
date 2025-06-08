@@ -32,14 +32,21 @@ class MainActivityViewModel(
     
     fun isDarkTheme(isSystemInDarkTheme: Boolean) = when (uiState.value.theme) {
         AppTheme.DARK.name -> true
+        AppTheme.BLACK.name -> true
         AppTheme.LIGHT.name -> false
         else -> isSystemInDarkTheme
+    }
+
+    fun isBlackTheme() = when (uiState.value.theme) {
+        AppTheme.BLACK.name -> true
+        else -> false
     }
 
     fun initSystemBarsIsLight(isSystemInDarkTheme: Boolean) =
         when (uiState.value.theme to isSystemInDarkTheme) {
             AppTheme.LIGHT.name to true -> true
             AppTheme.DARK.name to false -> false
+            AppTheme.BLACK.name to false -> false
             else -> null
         }
 

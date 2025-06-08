@@ -42,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -112,6 +113,7 @@ private fun SettingsScreen(
     if (isThemeDialog) {
         ThemeDialog(
             theme = uiState.theme,
+            isDynamicColor = uiState.isDynamicColor,
             onOptionSelected = onClickTheme,
             onDismiss = { isThemeDialog = false },
         )
@@ -362,11 +364,13 @@ private fun SettingsBody(
 @Composable
 private fun ThemeDialog(
     theme: AppTheme,
+    isDynamicColor: Boolean,
     onOptionSelected: (AppTheme) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val fullPadding = Dimens.large24
     val halfPadding = Dimens.large24 / 2
+    val disabledTextColor = MaterialTheme.colorScheme.outline
 
     BasicAlertDialog(onDismissRequest = onDismiss) {
         Card(shape = MaterialTheme.shapes.extraLarge) {
@@ -394,17 +398,17 @@ private fun ThemeDialog(
                         )
                         .selectableGroup()
                 ) {
-                    val radioOptions = listOf(
-                        AppTheme.SYSTEM,
-                        AppTheme.LIGHT,
-                        AppTheme.DARK,
-                    )
+                    val radioOptions = AppTheme.entries
 
                     radioOptions.forEach { themeOption ->
                         Box(
                             modifier = Modifier.clip(MaterialTheme.shapes.medium)
                                 .selectable(
                                     selected = (themeOption == theme),
+                                    enabled = when (themeOption) {
+                                        AppTheme.BLACK -> !isDynamicColor
+                                        else -> true
+                                    },
                                     onClick = {
                                         onOptionSelected(themeOption)
                                         onDismiss()
@@ -422,11 +426,21 @@ private fun ThemeDialog(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Text(text = stringResource(themeOption.title))
+                                Text(
+                                    text = stringResource(themeOption.title),
+                                    color = when (isDynamicColor to themeOption) {
+                                        true to AppTheme.BLACK -> disabledTextColor
+                                        else -> Color.Unspecified
+                                    }
+                                )
 
                                 RadioButton(
                                     selected = (themeOption == theme),
                                     onClick = null,
+                                    enabled = when (themeOption) {
+                                        AppTheme.BLACK -> !isDynamicColor
+                                        else -> true
+                                    },
                                 )
                             }
                         }

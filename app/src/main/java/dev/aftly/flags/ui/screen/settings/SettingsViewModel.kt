@@ -47,6 +47,7 @@ class SettingsViewModel(
         when (uiState.value.theme) {
             AppTheme.LIGHT -> true
             AppTheme.DARK -> false
+            AppTheme.BLACK -> false
             AppTheme.SYSTEM -> !isSystemInDarkTheme
         }
 
