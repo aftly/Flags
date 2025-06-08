@@ -1,6 +1,7 @@
 package dev.aftly.flags.ui.screen.settings
 
 import android.app.Activity
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -129,9 +130,10 @@ private fun SettingsContent(
     onCheckDynamicColor: (Boolean) -> Unit,
     onClickTheme: (AppTheme) -> Unit,
 ) {
-    //var dynamicChecked by remember { mutableStateOf(value = false) }
-    var themeDialog by remember { mutableStateOf(value = false) }
+    val isApi30 = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
     val halfMarginPadding = Dimens.marginHorizontal16 / 2
+    var themeDialog by remember { mutableStateOf(value = false) }
+
 
     Column(
         modifier = modifier
@@ -151,43 +153,47 @@ private fun SettingsContent(
 
         Spacer(modifier = Modifier.height(Dimens.medium16))
 
-        /* Material You colors toggle row */
-        Surface(
-            onClick = { onCheckDynamicColor(!isDynamicColor) },
-            shape = MaterialTheme.shapes.medium
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = halfMarginPadding),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
+
+        /* Material You colors toggle row (for devices using Api30+) */
+        if (isApi30) {
+            Surface(
+                onClick = { onCheckDynamicColor(!isDynamicColor) },
+                shape = MaterialTheme.shapes.medium
             ) {
-                Column {
-                    Text(
-                        text = "Dynamic color / Material You",
-                        fontWeight = FontWeight.Bold,
-                        lineHeight = 12.sp
-                    )
-                    Text(
-                        text = "Use colors from system palette on Android 12+",
-                        fontSize = 14.sp,
-                        lineHeight = 12.sp
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = halfMarginPadding),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column {
+                        Text(
+                            text = stringResource(R.string.settings_dynamic_colors_title),
+                            fontWeight = FontWeight.Bold,
+                            lineHeight = 12.sp
+                        )
+                        Text(
+                            text = stringResource(R.string.settings_dynamic_colors_description),
+                            fontSize = 14.sp,
+                            lineHeight = 12.sp
+                        )
+                    }
+
+                    Switch(
+                        checked = isDynamicColor,
+                        onCheckedChange = { onCheckDynamicColor(it) },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = MaterialTheme.colorScheme.primary,
+                            checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                        )
                     )
                 }
-
-                Switch(
-                    checked = isDynamicColor,
-                    onCheckedChange = { onCheckDynamicColor(it) },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = MaterialTheme.colorScheme.primary,
-                        checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                    )
-                )
             }
+
+            Spacer(modifier = Modifier.height(halfMarginPadding))
         }
 
-        Spacer(modifier = Modifier.height(halfMarginPadding))
 
         /* Theme selector Dialog */
         Surface(
