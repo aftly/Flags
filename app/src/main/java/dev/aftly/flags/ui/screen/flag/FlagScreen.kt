@@ -69,6 +69,7 @@ import dev.aftly.flags.ui.component.RelatedFlagsButton
 import dev.aftly.flags.ui.component.RelatedFlagsMenu
 import dev.aftly.flags.ui.component.WikipediaButton
 import dev.aftly.flags.ui.theme.Dimens
+import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.SystemUiController
 
 
@@ -91,7 +92,7 @@ fun FlagScreen(
     val view = LocalView.current
     val window = (view.context as Activity).window
     val systemUiController = remember { SystemUiController(view, window) }
-    val isDarkTheme by rememberUpdatedState(newValue = isSystemInDarkTheme())
+    val isDarkTheme = LocalDarkTheme.current
 
     LaunchedEffect(backStackEntry) {
         systemUiController.setLightStatusBar(light = !isDarkTheme)

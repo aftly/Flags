@@ -73,6 +73,7 @@ import dev.aftly.flags.model.TotalsOverview
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.successDark
 import dev.aftly.flags.ui.theme.successLight
+import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.SystemUiController
 
 
@@ -94,7 +95,7 @@ fun ScoreDetails(
     val view = LocalView.current
     val window = (view.context as Activity).window
     val systemUiController = remember { SystemUiController(view, window) }
-    val isDarkTheme by rememberUpdatedState(newValue = isSystemInDarkTheme())
+    val isDarkTheme = LocalDarkTheme.current
 
     LaunchedEffect(visible) {
         if (visible) {

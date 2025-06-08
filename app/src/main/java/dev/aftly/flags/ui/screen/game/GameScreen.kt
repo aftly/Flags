@@ -98,6 +98,7 @@ import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.theme.successDark
 import dev.aftly.flags.ui.theme.successLight
 import dev.aftly.flags.ui.theme.surfaceLight
+import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.SystemUiController
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -122,7 +123,7 @@ fun GameScreen(
     val view = LocalView.current
     val window = (view.context as Activity).window
     val systemUiController = remember { SystemUiController(view, window) }
-    val isDarkTheme by rememberUpdatedState(newValue = isSystemInDarkTheme())
+    val isDarkTheme = LocalDarkTheme.current
 
     LaunchedEffect(backStackEntry) {
         systemUiController.setLightStatusBar(light = !isDarkTheme)
@@ -379,7 +380,7 @@ private fun GameContent(
     /* Manage show answer button */
     var showAnswerButtonState by rememberSaveable { mutableIntStateOf(value = 0) }
     var confirmationTimer by rememberSaveable { mutableIntStateOf(value = 5) }
-    val isDarkTheme by rememberUpdatedState(newValue = isSystemInDarkTheme())
+    val isDarkTheme = LocalDarkTheme.current
     val showAnswerColor = when (showAnswerButtonState) {
         1 -> MaterialTheme.colorScheme.error
         else -> if (isDarkTheme) successDark else successLight
@@ -438,7 +439,6 @@ private fun GameContent(
         )
 
         GameCard(
-            isDarkTheme = isDarkTheme,
             contentColumnHeight = columnHeight,
             cardImageWidth = imageWidth,
             onCardImageWidthChange = { imageWidth = it },
@@ -524,7 +524,6 @@ private fun GameContent(
 @Composable
 private fun GameCard(
     modifier: Modifier = Modifier,
-    isDarkTheme: Boolean,
     contentColumnHeight: Dp,
     cardImageWidth: Dp,
     onCardImageWidthChange: (Dp) -> Unit,
@@ -562,6 +561,7 @@ private fun GameCard(
     var isSuccessColor by remember { mutableStateOf(value = false) }
     var isErrorColor by remember { mutableStateOf(value = false) }
 
+    val isDarkTheme = LocalDarkTheme.current
     val animatedSuccessColor by animateColorAsState(
         targetValue = when (isSuccessColor) {
             true -> if (isDarkTheme) successDark else successLight
