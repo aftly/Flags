@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 
+
 class UserPreferencesRepository(
     private val dataStore: DataStore<Preferences>
 ) {
@@ -59,6 +60,6 @@ class UserPreferencesRepository(
             }
         }
         .map { preferences ->
-            AppTheme.from(preferences[THEME]).name
+            AppTheme.get(preferences[THEME]).name
         }
 }

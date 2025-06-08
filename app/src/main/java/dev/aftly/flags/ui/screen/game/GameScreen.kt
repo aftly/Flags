@@ -121,7 +121,7 @@ fun GameScreen(
     /* Manage system bars and flag state after returning from FullScreen */
     val view = LocalView.current
     val window = (view.context as Activity).window
-    val systemUiController = remember { SystemUiController(window, view) }
+    val systemUiController = remember { SystemUiController(view, window) }
     val isDarkTheme by rememberUpdatedState(newValue = isSystemInDarkTheme())
 
     LaunchedEffect(backStackEntry) {

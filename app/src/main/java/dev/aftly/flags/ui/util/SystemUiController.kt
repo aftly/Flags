@@ -9,8 +9,8 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 
 class SystemUiController(
-    private val window: Window,
     view: View,
+    private val window: Window,
 ) {
     private val compatController = WindowCompat.getInsetsController(window, view)
     val isApi30 = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R

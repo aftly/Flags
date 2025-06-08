@@ -1,10 +1,15 @@
 package dev.aftly.flags.model
 
-enum class AppTheme {
-    SYSTEM, LIGHT, DARK;
+import androidx.annotation.StringRes
+import dev.aftly.flags.R
+
+enum class AppTheme(@StringRes val title: Int) {
+    SYSTEM (title = R.string.settings_theme_system),
+    LIGHT (title = R.string.settings_theme_light),
+    DARK (title = R.string.settings_theme_dark);
 
     companion object {
-        fun from(name: String?): AppTheme =
+        fun get(name: String?): AppTheme =
             entries.firstOrNull { it.name == name } ?: SYSTEM
     }
 }

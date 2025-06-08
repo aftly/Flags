@@ -1,5 +1,7 @@
 package dev.aftly.flags.ui.screen.settings
 
+import android.app.Activity
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,44 +29,75 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.R
+import dev.aftly.flags.model.AppTheme
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.DialogActionButton
 import dev.aftly.flags.ui.theme.Dimens
+import dev.aftly.flags.ui.util.SystemUiController
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @Composable
 fun SettingsScreen(
-    viewModel: SettingsViewModel = viewModel(),
+    viewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory),
     screen: Screen,
     canNavigateBack: Boolean,
     onNavigateUp: () -> Unit,
 ) {
-    SettingsScaffold(
+    val uiState by viewModel.uiState.collectAsState()
+    val view = LocalView.current
+    val systemUiController = remember {
+        SystemUiController(view, (view.context as Activity).window)
+    }
+    val isSystemInDarkTheme by rememberUpdatedState(newValue = isSystemInDarkTheme())
+    val coroutineScope = rememberCoroutineScope()
+
+    SettingsScreen(
+        uiState = uiState,
         screen = screen,
         canNavigateBack = canNavigateBack,
+        onCheckDynamicColor = { viewModel.saveDynamicColor(it) },
+        onClickTheme = {
+            viewModel.saveTheme(it)
+
+            coroutineScope.launch {
+                delay(timeMillis = 100)
+                systemUiController.setLightStatusBar(
+                    viewModel.systemBarsIsLight(isSystemInDarkTheme)
+                )
+            }
+        },
         onNavigateUp = onNavigateUp,
     )
 }
 
 
 @Composable
-private fun SettingsScaffold(
+private fun SettingsScreen(
     modifier: Modifier = Modifier,
+    uiState: SettingsUiState,
     screen: Screen,
     canNavigateBack: Boolean,
+    onCheckDynamicColor: (Boolean) -> Unit,
+    onClickTheme: (AppTheme) -> Unit,
     onNavigateUp: () -> Unit,
 ) {
     Scaffold(
@@ -78,7 +111,11 @@ private fun SettingsScaffold(
         },
     ) { scaffoldPadding ->
         SettingsContent(
-            modifier = Modifier.padding(scaffoldPadding)
+            modifier = Modifier.padding(scaffoldPadding),
+            isDynamicColor = uiState.isDynamicColor,
+            theme = uiState.theme,
+            onCheckDynamicColor = onCheckDynamicColor,
+            onClickTheme = onClickTheme,
         )
     }
 }
@@ -87,8 +124,12 @@ private fun SettingsScaffold(
 @Composable
 private fun SettingsContent(
     modifier: Modifier = Modifier,
+    isDynamicColor: Boolean,
+    theme: AppTheme,
+    onCheckDynamicColor: (Boolean) -> Unit,
+    onClickTheme: (AppTheme) -> Unit,
 ) {
-    var dynamicChecked by remember { mutableStateOf(value = false) }
+    //var dynamicChecked by remember { mutableStateOf(value = false) }
     var themeDialog by remember { mutableStateOf(value = false) }
     val halfMarginPadding = Dimens.marginHorizontal16 / 2
 
@@ -112,7 +153,7 @@ private fun SettingsContent(
 
         /* Material You colors toggle row */
         Surface(
-            onClick = { dynamicChecked = !dynamicChecked },
+            onClick = { onCheckDynamicColor(!isDynamicColor) },
             shape = MaterialTheme.shapes.medium
         ) {
             Row(
@@ -136,8 +177,8 @@ private fun SettingsContent(
                 }
 
                 Switch(
-                    checked = dynamicChecked,
-                    onCheckedChange = { dynamicChecked = !dynamicChecked },
+                    checked = isDynamicColor,
+                    onCheckedChange = { onCheckDynamicColor(it) },
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = MaterialTheme.colorScheme.primary,
                         checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
@@ -160,12 +201,12 @@ private fun SettingsContent(
             ) {
                 Column {
                     Text(
-                        text = "Theme",
+                        text = stringResource(R.string.settings_theme),
                         fontWeight = FontWeight.Bold,
                         lineHeight = 12.sp
                     )
                     Text(
-                        text = "System",
+                        text = stringResource(theme.title),
                         fontSize = 14.sp,
                         lineHeight = 12.sp
                     )
@@ -173,7 +214,11 @@ private fun SettingsContent(
             }
 
             if (themeDialog) {
-                ThemeDialog(onDismiss = { themeDialog = false })
+                ThemeDialog(
+                    theme = theme,
+                    onOptionSelected = onClickTheme,
+                    onDismiss = { themeDialog = false },
+                )
             }
         }
     }
@@ -183,6 +228,8 @@ private fun SettingsContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ThemeDialog(
+    theme: AppTheme,
+    onOptionSelected: (AppTheme) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val fullPadding = Dimens.large24
@@ -215,24 +262,27 @@ private fun ThemeDialog(
                         .selectableGroup()
                 ) {
                     val radioOptions = listOf(
-                        stringResource(R.string.settings_theme_system),
-                        stringResource(R.string.settings_theme_light),
-                        stringResource(R.string.settings_theme_dark)
+                        AppTheme.SYSTEM,
+                        AppTheme.LIGHT,
+                        AppTheme.DARK,
                     )
-                    val (selectedOption, onOptionSelected) =
-                        remember { mutableStateOf(radioOptions[0]) }
 
-                    radioOptions.forEach { string ->
+                    radioOptions.forEach { themeOption ->
                         Box(
-                            modifier = Modifier.clip(MaterialTheme.shapes.medium)
+                            modifier = Modifier
+                                .clip(MaterialTheme.shapes.medium)
                                 .selectable(
-                                    selected = (string == selectedOption),
-                                    onClick = { onOptionSelected(string) },
+                                    selected = (themeOption == theme),
+                                    onClick = {
+                                        onOptionSelected(themeOption)
+                                        onDismiss()
+                                    },
                                     role = Role.RadioButton,
                                 ),
                         ) {
                             Row(
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
                                     .padding(
                                         horizontal = halfPadding,
                                         vertical = halfPadding / 2,
@@ -240,10 +290,10 @@ private fun ThemeDialog(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Text(text = string)
+                                Text(text = stringResource(themeOption.title))
 
                                 RadioButton(
-                                    selected = (string == selectedOption),
+                                    selected = (themeOption == theme),
                                     onClick = null,
                                 )
                             }
@@ -254,7 +304,8 @@ private fun ThemeDialog(
 
                 /* Action buttons */
                 Row(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .padding(
                             end = Dimens.medium16,
                             bottom = Dimens.medium16,

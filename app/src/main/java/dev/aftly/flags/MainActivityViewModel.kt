@@ -13,8 +13,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 
+
 class MainActivityViewModel(
-    private val userPreferencesRepository: UserPreferencesRepository
+    userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
     val uiState: StateFlow<MainActivityUiState> =
         combine(
@@ -27,12 +28,21 @@ class MainActivityViewModel(
             started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
             initialValue = MainActivityUiState()
         )
+
     
     fun isDarkTheme(isSystemInDarkTheme: Boolean) = when (uiState.value.theme) {
         AppTheme.DARK.name -> true
         AppTheme.LIGHT.name -> false
         else -> isSystemInDarkTheme
     }
+
+    fun initSystemBarsIsLight(isSystemInDarkTheme: Boolean) =
+        when (uiState.value.theme to isSystemInDarkTheme) {
+            AppTheme.LIGHT.name to true -> true
+            AppTheme.DARK.name to false -> false
+            else -> null
+        }
+
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {

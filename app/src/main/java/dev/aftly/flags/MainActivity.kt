@@ -31,7 +31,8 @@ class MainActivity : ComponentActivity() {
             ) {
                 AppTheme(
                     darkTheme = viewModel.isDarkTheme(isSystemInDarkTheme()),
-                    dynamicColor = uiState.isDynamicColor
+                    dynamicColor = uiState.isDynamicColor,
+                    initSystemBarsIsLight = viewModel.initSystemBarsIsLight(isSystemInDarkTheme()),
                 ) {
                     AppNavHost()
                 }
