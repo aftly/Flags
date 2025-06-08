@@ -3,7 +3,6 @@ package dev.aftly.flags.ui.screen.flag
 import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +18,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,7 +36,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -45,6 +45,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
@@ -67,7 +68,7 @@ import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.ui.component.FullscreenButton
 import dev.aftly.flags.ui.component.RelatedFlagsButton
 import dev.aftly.flags.ui.component.RelatedFlagsMenu
-import dev.aftly.flags.ui.component.WikipediaButton
+import dev.aftly.flags.ui.component.openWebLink
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.SystemUiController
@@ -350,6 +351,35 @@ private fun FlagContent(
             modifier = Modifier.fillMaxWidth(),
             wikiLink = wikiLink,
         )
+    }
+}
+
+
+@Composable
+fun WikipediaButton(
+    modifier: Modifier = Modifier,
+    wikiLink: String,
+) {
+    val context = LocalContext.current
+
+    Button(
+        onClick = { openWebLink(context, wikiLink) },
+        modifier = modifier,
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = stringResource(R.string.wikipedia_button),
+            )
+            Icon(
+                imageVector = Icons.AutoMirrored.Default.OpenInNew,
+                contentDescription = null,
+                modifier = Modifier.padding(start = Dimens.small8)
+            )
+        }
     }
 }
 

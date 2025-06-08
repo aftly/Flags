@@ -219,6 +219,12 @@
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_about">About</string>
+    <string name="settings_about_source_code_title">Source code</string>
+    <string name="settings_about_source_code_description">View the app\'s source code on GitHub</string>
+    <string name="settings_about_privacy_policy_title">Privacy policy</string>
+    <string name="settings_about_privacy_policy_description">This app doesn\'t collect or store any personal info</string>
+    <string name="settings_about_app_version_title">App version</string>
+    <string name="settings_about_app_version_description">%s</string>
     <string name="start_menu_title">"Flags of the World"</string>
     <string name="string_a">a</string>
     <string name="string_and">and</string>

@@ -7,6 +7,8 @@ import dev.aftly.flags.model.FlagSuperCategory
 
 
 data object DataSource {
+    val sourceCodeUrl = "https://github.com/aftly/Flags"
+
     /* For use in Filter Menu */
     val menuSuperCategoryList = listOf(
         FlagSuperCategory.All,
