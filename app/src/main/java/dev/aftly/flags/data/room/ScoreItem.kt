@@ -14,8 +14,9 @@ data class ScoreItem(
     val timerStart: Int?,
     val timerEnd: Int,
 
-    /* JSON string representing List<FlagCategory> */
-    val flagCategoriesJson: String,
+    /* JSON strings representing List<FlagSuperCategory> and List<FlagCategory> */
+    val flagSuperCategoriesJson: String,
+    val flagSubCategoriesJson: String,
 
     /* JSON strings representing List<FlagResources> */
     val flagsGuessedJson: String,
