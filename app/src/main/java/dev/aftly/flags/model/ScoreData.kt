@@ -82,6 +82,11 @@ class ScoreData(
         flagsSkipped = flagsSkipped,
         flagsShown = flagsShown,
     )
+
+    fun isScoresEmpty(): Boolean {
+        return if (flagsGuessed.isEmpty() && flagsSkipped.isEmpty() && flagsShown.isEmpty()) true
+        else false
+    }
 }
 
 

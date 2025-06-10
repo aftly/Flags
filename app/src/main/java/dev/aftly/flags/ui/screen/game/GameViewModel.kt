@@ -550,7 +550,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     /* Save a ScoreItem to scoreItemsRepository from ScoreData instance */
     private suspend fun saveScoreItem() {
         uiState.value.scoreDetails?.let { scoreData ->
-            scoreItemsRepository.insertItem(scoreData.toScoreItem())
+            if (!scoreData.isScoresEmpty()) {
+                scoreItemsRepository.insertItem(scoreData.toScoreItem())
+            }
         }
     }
 }
