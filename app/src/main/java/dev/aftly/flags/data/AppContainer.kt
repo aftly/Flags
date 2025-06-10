@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.dataStoreFile
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
+import dev.aftly.flags.data.datastore.UserPreferencesRepository
 import dev.aftly.flags.data.room.OfflineScoreItemsRepository
 import dev.aftly.flags.data.room.ScoreHistoryDatabase
 import dev.aftly.flags.data.room.ScoreItemsRepository

@@ -2,7 +2,7 @@ package dev.aftly.flags.ui.screen.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.aftly.flags.data.UserPreferencesRepository
+import dev.aftly.flags.data.datastore.UserPreferencesRepository
 import dev.aftly.flags.model.AppTheme
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

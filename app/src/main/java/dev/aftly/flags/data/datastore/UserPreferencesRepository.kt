@@ -1,4 +1,4 @@
-package dev.aftly.flags.data
+package dev.aftly.flags.data.datastore
 
 import android.util.Log
 import androidx.datastore.core.DataStore
