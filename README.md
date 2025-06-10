@@ -66,8 +66,8 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [x] ~~**Settings screen** for Theme customisation and about info~~
 - [x] ~~Settings persistence (stored in app data)~~
 - [x] Optimize app for different system Font sizes - **(Partially Complete)**
-- [ ] **Persistent Game features**: Score history & exporting scores *(for sharing)*
-- [ ] **Settings features**: *Eg.* Strictness of user guesses for game, disable animations for older devices
+- [x] ~~**Persistent Game features**: Score history~~ & exporting scores *(for sharing)* **(Partially complete)**
+- [ ] **More settings features**: *Eg.* Strictness of user guesses for game, disable animations for older devices
 - [ ] Save flags to custom list
 - [ ] Deselect keyboard and text fields when tap off
 - [ ] Add more flags *(to less populated categories and more popular related flags)*
