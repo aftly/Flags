@@ -53,7 +53,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -97,9 +96,7 @@ import dev.aftly.flags.ui.theme.successLight
 import dev.aftly.flags.ui.theme.surfaceLight
 import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.SystemUiController
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.Locale
 
 
@@ -186,7 +183,10 @@ fun GameScreen(
         onConfirmShowAnswer = { viewModel.confirmShowAnswer() },
         onShowAnswer = { viewModel.showAnswer() },
         onToggleTimeTrial = { viewModel.toggleTimeTrial() },
-        onEndGame = { viewModel.endGame() },
+        onEndGame = {
+            viewModel.saveScore()
+            viewModel.endGame()
+        },
         onNavigateUp = onNavigateUp,
         onNavigateDetails = onNavigateDetails,
         onFullscreen = onFullscreen,

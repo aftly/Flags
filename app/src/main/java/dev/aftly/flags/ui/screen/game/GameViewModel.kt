@@ -9,7 +9,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.data.DataSource.nullFlag
-import dev.aftly.flags.data.room.ScoreItemsRepository
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
@@ -355,6 +354,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
+    /* Called separately from, with initial call to end game to help ensure saved to db only once */
+    fun saveScore() {
+        _uiState.update { it.copy(scoreDetails = getScoreData()) }
+        viewModelScope.launch { saveScoreItem() }
+    }
+
     fun endGame(isGameOver: Boolean = true) {
         when (isGameOver) {
             true -> {
@@ -362,12 +367,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 standardTimerJob?.cancel()
                 timeTrialJob?.cancel()
 
-                _uiState.update {
-                    it.copy(
-                        isGameOver = true,
-                        scoreDetails = getScoreData(),
-                    )
-                }
+                _uiState.update { it.copy(isGameOver = true) }
             }
             false -> _uiState.update { it.copy(isGameOver = false) }
         }
@@ -544,5 +544,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             gameSubCategories = uiState.value.currentSubCategories ?: emptyList(),
             timeStamp = System.currentTimeMillis(),
         )
+    }
+
+
+    /* Save a ScoreItem to scoreItemsRepository from ScoreData instance */
+    private suspend fun saveScoreItem() {
+        uiState.value.scoreDetails?.let { scoreData ->
+            scoreItemsRepository.insertItem(scoreData.toScoreItem())
+        }
     }
 }
