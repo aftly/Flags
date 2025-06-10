@@ -2,12 +2,14 @@ package dev.aftly.flags.model
 
 import androidx.annotation.StringRes
 import dev.aftly.flags.R
+import kotlinx.serialization.Serializable
 
 
+@Serializable
 sealed class FlagSuperCategory(
     @StringRes val title: Int,
-    val subCategories: List<Any>,
-) {
+    val subCategories: List<FlagCategoryType>,
+) : FlagCategoryType {
     data object All : FlagSuperCategory(
         title = R.string.category_super_all,
         subCategories = FlagCategory.entries.toList(),

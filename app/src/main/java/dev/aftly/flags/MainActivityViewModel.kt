@@ -1,11 +1,7 @@
 package dev.aftly.flags
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import dev.aftly.flags.data.UserPreferencesRepository
 import dev.aftly.flags.model.AppTheme
 import kotlinx.coroutines.flow.SharingStarted
@@ -50,14 +46,4 @@ class MainActivityViewModel(
             AppTheme.BLACK.name to false -> false
             else -> null
         }
-
-
-    companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application = (this[APPLICATION_KEY] as FlagsApplication)
-                MainActivityViewModel(application.userPreferencesRepository)
-            }
-        }
-    }
 }

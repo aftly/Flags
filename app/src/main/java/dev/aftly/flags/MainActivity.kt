@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.navigation.AppNavHost
+import dev.aftly.flags.ui.AppViewModelProvider
 import dev.aftly.flags.ui.theme.AppTheme
 import dev.aftly.flags.ui.util.LocalOrientationController
 import dev.aftly.flags.ui.util.OrientationController
@@ -20,9 +21,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val viewModel: MainActivityViewModel = viewModel(
-                factory = MainActivityViewModel.Factory
-            )
+            val viewModel: MainActivityViewModel = viewModel(factory = AppViewModelProvider.Factory)
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             val orientationController = OrientationController(activity = this)
 

@@ -7,7 +7,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.data.DataSource.nullFlag
+import dev.aftly.flags.data.room.ScoreItemsRepository
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
@@ -34,6 +36,8 @@ import kotlinx.coroutines.launch
 
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
+    private val scoreItemsRepository =
+        (application as FlagsApplication).container.scoreItemsRepository
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
@@ -520,23 +524,25 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     /* Return ScoreData from current game state */
     private fun getScoreData(): ScoreData {
         return ScoreData(
-            gameFlags = uiState.value.currentFlags,
-            guessedFlags = guessedFlags.toList(),
-            guessedFlagsSorted = sortFlagsAlphabetically(guessedFlags),
-            skippedFlags = skippedFlags.toList(),
-            skippedFlagsSorted = sortFlagsAlphabetically(skippedFlags),
-            shownFlags = shownFlags.toList(),
-            shownFlagsSorted = sortFlagsAlphabetically(shownFlags),
+            flagsAll = uiState.value.currentFlags,
+            flagsGuessed = guessedFlags.toList(),
+            flagsGuessedSorted = sortFlagsAlphabetically(guessedFlags),
+            flagsSkipped = skippedFlags.toList(),
+            flagsSkippedSorted = sortFlagsAlphabetically(skippedFlags),
+            flagsShown = shownFlags.toList(),
+            flagsShownSorted = sortFlagsAlphabetically(shownFlags),
             isTimeTrial = uiState.value.isTimeTrial,
-            timeTrialStart = when (uiState.value.isTimeTrial) {
+            timerStart = when (uiState.value.isTimeTrial) {
                 true -> uiState.value.timeTrialStart
                 else -> null
             },
-            timerTime = when (uiState.value.isTimeTrial) {
+            timerEnd = when (uiState.value.isTimeTrial) {
                 true -> uiState.value.timeTrialTimer
                 false -> uiState.value.standardTimer
             },
-            timeStamp = 0, // TODO
+            gameSuperCategories = uiState.value.currentSuperCategories ?: emptyList(),
+            gameSubCategories = uiState.value.currentSubCategories ?: emptyList(),
+            timeStamp = System.currentTimeMillis(),
         )
     }
 }

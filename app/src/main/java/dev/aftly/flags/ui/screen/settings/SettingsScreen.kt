@@ -50,12 +50,12 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.pm.PackageInfoCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.sourceCodeUrl
 import dev.aftly.flags.model.AppTheme
 import dev.aftly.flags.navigation.Screen
+import dev.aftly.flags.ui.AppViewModelProvider
 import dev.aftly.flags.ui.component.DialogActionButton
 import dev.aftly.flags.ui.component.openWebLink
 import dev.aftly.flags.ui.theme.Dimens
@@ -66,7 +66,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(
-    viewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory),
+    viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory),
     screen: Screen,
     canNavigateBack: Boolean,
     onNavigateUp: () -> Unit,

@@ -2,7 +2,13 @@ package dev.aftly.flags.data.room
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import dev.aftly.flags.model.FlagCategory
+import dev.aftly.flags.model.FlagResources
+import dev.aftly.flags.model.FlagSuperCategory
+import dev.aftly.flags.model.TimeMode
+import kotlinx.serialization.Serializable
 
+@Serializable
 @Entity(tableName = "score_items")
 data class ScoreItem(
     @PrimaryKey(autoGenerate = true)
@@ -10,17 +16,15 @@ data class ScoreItem(
     val timestamp: Long,
     val score: Int,
     val outOf: Int,
-    val timeMode: String,
+    val timeMode: TimeMode,
     val timerStart: Int?,
     val timerEnd: Int,
 
-    /* JSON strings representing List<FlagSuperCategory> and List<FlagCategory> */
-    val flagSuperCategoriesJson: String,
-    val flagSubCategoriesJson: String,
-
-    /* JSON strings representing List<FlagResources> */
-    val flagsGuessedJson: String,
-    val flagsSkippedJson: String,
-    val flagsShownJson: String,
-    val flagsRemainderJson: String,
+    /* Handled by Room @TypeConverters */
+    val gameSuperCategories: List<FlagSuperCategory>,
+    val gameSubCategories: List<FlagCategory>,
+    val flagsAll: List<FlagResources>,
+    val flagsGuessed: List<FlagResources>,
+    val flagsSkipped: List<FlagResources>,
+    val flagsShown: List<FlagResources>,
 )

@@ -1,58 +1,115 @@
 package dev.aftly.flags.model
 
+import dev.aftly.flags.data.room.ScoreItem
+import kotlinx.serialization.Serializable
 
-/* ------------ Game score super class ------------ */
+
+@Serializable
+enum class TimeMode { STANDARD, TIME_TRIAL }
+
+
+/* ------------ Game score top level class ------------ */
 class ScoreData(
-    gameFlags: List<FlagResources>,
-    guessedFlags: List<FlagResources>,
-    guessedFlagsSorted: List<FlagResources>,
-    skippedFlags: List<FlagResources>,
-    skippedFlagsSorted: List<FlagResources>,
-    shownFlags: List<FlagResources>,
-    shownFlagsSorted: List<FlagResources>,
-    isTimeTrial: Boolean,
-    timeTrialStart: Int?, /* In seconds */
-    timerTime: Int, /* In seconds */
-    val timeStamp: Int, // TODO
+    val id: Int = 0,
+    val timeStamp: Long,
+    val isTimeTrial: Boolean,
+    val timerStart: Int?, /* In seconds */
+    val timerEnd: Int, /* In seconds */
+    val gameSuperCategories: List<FlagSuperCategory>,
+    val gameSubCategories: List<FlagCategory>,
+    val flagsAll: List<FlagResources>,
+    val flagsGuessed: List<FlagResources>,
+    flagsGuessedSorted: List<FlagResources>,
+    val flagsSkipped: List<FlagResources>,
+    flagsSkippedSorted: List<FlagResources>,
+    val flagsShown: List<FlagResources>,
+    flagsShownSorted: List<FlagResources>,
 ) {
-    private val remainderFlags = gameFlags.filterNot { it in guessedFlags }
-        .filterNot { it in skippedFlags }.filterNot { it in shownFlags }
+    private val remainderFlags = flagsAll.filterNot { it in flagsGuessed }
+        .filterNot { it in flagsSkipped }.filterNot { it in flagsShown }
 
-    private val correctAnswers = guessedFlags.count()
-    private val scorePercent = (correctAnswers.toFloat() / gameFlags.size.toFloat()) * 100f
+    private val correctAnswers = flagsGuessed.count()
+    private val scorePercent = (correctAnswers.toFloat() / flagsAll.size.toFloat()) * 100f
 
     val scoreOverview = ScoreOverview(
         totalsOverview = TotalsOverview(
             correctAnswers = correctAnswers,
-            outOfCount = gameFlags.size,
+            outOfCount = flagsAll.size,
             scorePercent = scorePercent,
         ),
         timeOverview = TimeOverview(
             isTimeTrial = isTimeTrial,
-            timeTrialStart = timeTrialStart,
-            time = timerTime,
+            timeTrialStart = timerStart,
+            time = timerEnd,
         )
     )
 
     val allScores: List<TitledList> = listOf(
         GuessedFlags(
-            list = guessedFlags,
-            sortedList = guessedFlagsSorted,
+            list = flagsGuessed,
+            sortedList = flagsGuessedSorted,
         ),
         SkippedFlags(
-            list = skippedFlags,
-            sortedList = skippedFlagsSorted,
+            list = flagsSkipped,
+            sortedList = flagsSkippedSorted,
         ),
         ShownFlags(
-            list = shownFlags,
-            sortedList = shownFlagsSorted,
+            list = flagsShown,
+            sortedList = flagsShownSorted,
         ),
         RemainderFlags(
             list = remainderFlags,
             sortedList = remainderFlags,
         )
     )
+
+    /* Return ScoreItem from ScoreData instance for Room Dao class */
+    fun toScoreItem(): ScoreItem = ScoreItem(
+        id = id,
+        timestamp = timeStamp,
+        score = correctAnswers,
+        outOf = flagsAll.count(),
+        timeMode = when (isTimeTrial) {
+            true -> TimeMode.TIME_TRIAL
+            false -> TimeMode.STANDARD
+        },
+        timerStart = timerStart,
+        timerEnd = timerEnd,
+        gameSuperCategories = gameSuperCategories,
+        gameSubCategories = gameSubCategories,
+        flagsAll = flagsAll,
+        flagsGuessed = flagsGuessed,
+        flagsSkipped = flagsSkipped,
+        flagsShown = flagsShown,
+    )
 }
+
+
+/* Extension function to return ScoreData from ScoreItem instance (Room Dao class)
+ * (needs string sorting, so eg. call from ViewModel) */
+fun ScoreItem.toScoreData(
+    flagsGuessedSorted: List<FlagResources>,
+    flagsSkippedSorted: List<FlagResources>,
+    flagsShownSorted: List<FlagResources>,
+): ScoreData = ScoreData(
+    id = id,
+    timeStamp = timestamp,
+    isTimeTrial = when (timeMode) {
+        TimeMode.TIME_TRIAL -> true
+        else -> false
+    },
+    timerStart = timerStart,
+    timerEnd = timerEnd,
+    gameSuperCategories = gameSuperCategories,
+    gameSubCategories = gameSubCategories,
+    flagsAll = flagsAll,
+    flagsGuessed = flagsGuessed,
+    flagsGuessedSorted = flagsGuessedSorted,
+    flagsSkipped = flagsSkipped,
+    flagsSkippedSorted = flagsSkippedSorted,
+    flagsShown = flagsShown,
+    flagsShownSorted = flagsShownSorted,
+)
 
 
 /* ------------ Score overview classes ------------ */

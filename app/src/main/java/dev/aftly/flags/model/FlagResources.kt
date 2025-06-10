@@ -2,7 +2,9 @@ package dev.aftly.flags.model
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class FlagResources(
     val id: Int, // For LazyColumn's items() key param
     @StringRes val wikipediaUrlPath: Int, // So that other locales can use a different wikipedia
