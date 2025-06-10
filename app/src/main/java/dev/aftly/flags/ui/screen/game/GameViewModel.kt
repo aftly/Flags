@@ -288,11 +288,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     )
                 false -> startTimer()
             }
+
+            updateCurrentFlag(isShowAnswer = true)
+
         } else {
             cancelConfirmShowAnswer()
+            updateCurrentFlag(isSkip = true)
         }
-
-        updateCurrentFlag(isSkip = true)
     }
 
 
@@ -389,6 +391,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun updateCurrentFlag(
         isSkip: Boolean = false,
+        isShowAnswer: Boolean = false,
     ) {
         val currentFlag: FlagResources = uiState.value.currentFlag
 
@@ -396,7 +399,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             if (!isSkipMax()) skippedFlags.add(currentFlag)
 
         } else { /* If user guess, add flag to guessed set */
-            guessedFlags.add(currentFlag)
+            if (!isShowAnswer) guessedFlags.add(currentFlag)
 
             /* If flag in skippedList, remove it */
             if (currentFlag in skippedFlags) skippedFlags.remove(currentFlag)
