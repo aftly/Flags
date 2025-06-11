@@ -823,11 +823,7 @@ private fun TimeTrialDialog(
                 ) {
                     OutlinedTextField(
                         value = userMinutesInput,
-                        onValueChange = {
-                            if ((it.toIntOrNull() != null || it == "") && it.length <= 2) {
-                                onUserMinutesInputChange(it)
-                            }
-                        },
+                        onValueChange = onUserMinutesInputChange,
                         modifier = Modifier.width(inputWidth),
                         textStyle = inputStyle,
                         placeholder = {
@@ -848,11 +844,7 @@ private fun TimeTrialDialog(
 
                     OutlinedTextField(
                         value = userSecondsInput,
-                        onValueChange = {
-                            if ((it.toIntOrNull() != null || it == "") && it.length <= 2) {
-                                onUserSecondsInputChange(it)
-                            }
-                        },
+                        onValueChange = onUserSecondsInputChange,
                         modifier = Modifier.width(inputWidth),
                         textStyle = inputStyle,
                         placeholder = {

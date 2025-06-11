@@ -235,10 +235,17 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         userGuess = newString
     }
     fun updateUserMinutesInput(newString: String) {
-        userTimerInputMinutes = newString
+        /* Only update if 2 characters or less AND a number OR empty */
+        if ((newString.toIntOrNull() != null || newString == "") && newString.length <= 2) {
+            userTimerInputMinutes = newString
+        }
     }
     fun updateUserSecondsInput(newString: String) {
-        userTimerInputSeconds = newString
+        /* Only update if 2 characters or less AND empty OR a number of 60 or less */
+        if ((newString.toIntOrNull()?.let { return@let it <= 60 } == true || newString == "") &&
+            newString.length <= 2) {
+            userTimerInputSeconds = newString
+        }
     }
 
 
