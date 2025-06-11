@@ -13,4 +13,5 @@ object Timing {
     const val FULLSCREEN_BUTTON: Int = 800
     const val TEXTFIELD_ACTION: Int = 200
     const val SHOW_ANSWER: Int = 1000
+    const val COMPOSE_DEFAULT: Int = 300
 }

@@ -98,6 +98,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 isTimerPaused = false,
                 isGameOver = false,
                 isShowAnswer = false,
+                scoreDetails = null,
             )
         }
 
@@ -358,8 +359,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     /* Called separately from, with initial call to end game to help ensure saved to db only once */
     fun saveScore() {
-        _uiState.update { it.copy(scoreDetails = getScoreData()) }
-        viewModelScope.launch { saveScoreItem() }
+        viewModelScope.launch {
+            _uiState.update { it.copy(scoreDetails = getScoreData()) }
+            saveScoreItem()
+        }
     }
 
     fun endGame(isGameOver: Boolean = true) {
