@@ -118,7 +118,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     ) {
         /* If the new category is the All super category set state with default values (which
          * includes allFlagsList), else dynamically generate flags list from category info */
-        if (newSuperCategory == FlagSuperCategory.All) {
+        if (newSuperCategory == All) {
             _uiState.value = GameUiState()
             resetGame()
 
