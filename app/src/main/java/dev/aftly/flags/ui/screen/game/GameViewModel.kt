@@ -46,7 +46,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private var timerStandardJob: Job? = null
     private var timerTimeTrialJob: Job? = null
-    private var showAnswerCountdownJob: Job? = null
+    private var timerShowAnswerJob: Job? = null
 
     var userGuess by mutableStateOf(value = "")
         private set
@@ -208,7 +208,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
-
         /* Get new flags list from categories list and currentFlags or allFlags (depending on
          * processing needs) */
         val newFlags = getFlagsFromCategories(
@@ -220,13 +219,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             subCategories = subCategories,
         )
 
-
         /* Update state with new categories lists and currentFlags list */
         _uiState.value = GameUiState(
             currentFlags = newFlags,
             currentSuperCategories = superCategories,
             currentSubCategories = subCategories,
         )
+
         resetGame()
     }
 
@@ -354,14 +353,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
 
     fun confirmShowAnswer() {
-        showAnswerCountdownJob = viewModelScope.launch {
+        timerShowAnswerJob = viewModelScope.launch {
             _uiState.update {
-                it.copy(showAnswerResetTimer = 5, isConfirmShowAnswer = true)
+                it.copy(timerShowAnswerReset = 5, isConfirmShowAnswer = true)
             }
 
-            while (uiState.value.showAnswerResetTimer > 0) {
+            while (uiState.value.timerShowAnswerReset > 0) {
                 delay(timeMillis = 1000)
-                _uiState.update { it.copy(showAnswerResetTimer = it.showAnswerResetTimer.dec()) }
+                _uiState.update { it.copy(timerShowAnswerReset = it.timerShowAnswerReset.dec()) }
             }
 
             _uiState.update { it.copy(isConfirmShowAnswer = false) }
@@ -522,7 +521,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
 
     private fun cancelConfirmShowAnswer() {
-        showAnswerCountdownJob?.cancel()
+        timerShowAnswerJob?.cancel()
         _uiState.update { it.copy(isConfirmShowAnswer = false) }
     }
 

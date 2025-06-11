@@ -282,7 +282,7 @@ private fun GameScreen(
                 isGuessCorrectEvent = uiState.isGuessCorrectEvent,
                 isGuessWrong = uiState.isGuessWrong,
                 isGuessWrongEvent = uiState.isGuessWrongEvent,
-                showAnswerResetTimer = uiState.showAnswerResetTimer,
+                showAnswerResetTimer = uiState.timerShowAnswerReset,
                 isConfirmShowAnswer = uiState.isConfirmShowAnswer,
                 isShowAnswer = uiState.isShowAnswer,
                 onKeyboardDoneAction = onKeyboardDoneAction,
