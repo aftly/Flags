@@ -291,14 +291,17 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 it.copy(isTimerPaused = false, isShowAnswer = false)
             }
 
-            /* Start relevant timer, to "unpause" it from showAnswer() timer "pause" */
-            if (uiState.value.isTimeTrial && timerTimeTrialJob?.isActive == false) {
-                timerTimeTrialJob = viewModelScope.launch {
-                    startTimerTimeTrial()
+            /* Start relevant timer, to unpause it from showAnswer()'s pause */
+            when (uiState.value.isTimeTrial) {
+                true -> if (isJobInactive(timerTimeTrialJob)) {
+                    timerTimeTrialJob = viewModelScope.launch {
+                        startTimerTimeTrial()
+                    }
                 }
-            } else if (!uiState.value.isTimeTrial && timerStandardJob?.isActive == false) {
-                timerStandardJob = viewModelScope.launch {
-                    startTimerStandard()
+                false -> if (isJobInactive(timerStandardJob)) {
+                    timerStandardJob = viewModelScope.launch {
+                        startTimerStandard()
+                    }
                 }
             }
 
@@ -333,6 +336,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun initTimeTrial(startTime: Int) {
+        /* Cancel timers and reset game */
         cancelConfirmShowAnswer()
         timerTimeTrialJob?.cancel()
         timerStandardJob?.cancel()
@@ -550,6 +554,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             timeStamp = System.currentTimeMillis(),
         )
     }
+
+
+    /* Get if job is not active or is null */
+    private fun isJobInactive(job: Job?): Boolean = job == null || !job.isActive
 
 
     /* Save a ScoreItem to scoreItemsRepository from ScoreData instance */
