@@ -137,11 +137,8 @@ fun GameScreen(
             userSecondsInput = viewModel.userTimerInputSeconds,
             onUserMinutesInputChange = { viewModel.updateUserMinutesInput(it) },
             onUserSecondsInputChange = { viewModel.updateUserSecondsInput(it) },
-            onTimeTrial = {
-                viewModel.resetGame(timeTrial = true)
-                viewModel.startTimeTrial(it)
-            },
-            onDismiss = { viewModel.toggleTimeTrial() },
+            onTimeTrial = { viewModel.initTimeTrial(it) },
+            onDismiss = { viewModel.toggleTimeTrialDialog() },
         )
     }
 
@@ -182,7 +179,7 @@ fun GameScreen(
         onSkip = { viewModel.skipFlag() },
         onConfirmShowAnswer = { viewModel.confirmShowAnswer() },
         onShowAnswer = { viewModel.showAnswer() },
-        onToggleTimeTrial = { viewModel.toggleTimeTrial() },
+        onToggleTimeTrial = { viewModel.toggleTimeTrialDialog() },
         onEndGame = {
             viewModel.saveScore()
             viewModel.endGame()
@@ -242,20 +239,15 @@ private fun GameScreen(
     }
 
     /* Manage timer string */
-    val timerString = when (uiState.isTimeTrial) {
-        false ->
-            String.format(
-                locale = Locale.US,
-                format = "%d:%02d",
-                uiState.standardTimer / 60, uiState.standardTimer % 60
-            )
-        true ->
-            String.format(
-                locale = Locale.US,
-                format = "%d:%02d",
-                uiState.timeTrialTimer / 60, uiState.timeTrialTimer % 60
-            )
+    val timer = when (uiState.isTimeTrial) {
+        true -> uiState.timerTimeTrial
+        false -> uiState.timerStandard
     }
+    val timerString = String.format(
+        locale = Locale.US,
+        format = "%d:%02d",
+        timer / 60, timer % 60
+    )
 
 
     /* Scaffold within box so that FilterFlagsButton & it's associated surface can overlay it */

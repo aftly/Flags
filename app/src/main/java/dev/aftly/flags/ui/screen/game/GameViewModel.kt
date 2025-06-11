@@ -44,9 +44,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private var skippedFlags = mutableListOf<FlagResources>()
     private var shownFlags = mutableListOf<FlagResources>()
 
-    private var standardTimerJob: Job? = null
-    private var timeTrialJob: Job? = null
-    private var showAnswerButtonCountdownJob: Job? = null
+    private var timerStandardJob: Job? = null
+    private var timerTimeTrialJob: Job? = null
+    private var showAnswerCountdownJob: Job? = null
 
     var userGuess by mutableStateOf(value = "")
         private set
@@ -67,12 +67,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
 
     /* Reset game state with a new flag and necessary starting values */
-    fun resetGame(timeTrial: Boolean = false) {
-        if (timeTrial) {
-            standardTimerJob?.cancel()
-            timeTrialJob?.cancel()
-        }
-
+    fun resetGame(initTimeTrial: Boolean = false) {
         guessedFlags = mutableListOf()
         skippedFlags = mutableListOf()
         shownFlags = mutableListOf()
@@ -89,20 +84,31 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 totalFlagCount = it.currentFlags.size,
                 currentFlag = newFlag,
                 currentFlagStrings = newFlagStrings,
-                standardTimer = 0,
                 correctGuessCount = 0,
                 shownAnswerCount = 0,
                 isGuessWrong = false,
                 nextFlagInSkipped = null,
-                isTimeTrial = timeTrial,
                 isTimerPaused = false,
+                timerStandard = 0,
                 isGameOver = false,
                 isShowAnswer = false,
                 scoreDetails = null,
             )
         }
 
-        startTimer()
+        if (!initTimeTrial) {
+            _uiState.update {
+                it.copy(
+                    isTimeTrial = false,
+                    timerTimeTrial = 0,
+                    timeTrialStartTime = 0
+                )
+            }
+
+            timerStandardJob = viewModelScope.launch {
+                startTimerStandard()
+            }
+        }
     }
 
 
@@ -228,7 +234,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun updateUserGuess(newString: String) {
         userGuess = newString
     }
-
     fun updateUserMinutesInput(newString: String) {
         userTimerInputMinutes = newString
     }
@@ -280,14 +285,15 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 it.copy(isTimerPaused = false, isShowAnswer = false)
             }
 
-            /* Start timer, to "unpause" it from showAnswer() timer "pause" */
-            when (uiState.value.isTimeTrial) {
-                true ->
-                    startTimeTrial(
-                        startTime = uiState.value.timeTrialTimer,
-                        resume = true,
-                    )
-                false -> startTimer()
+            /* Start relevant timer, to "unpause" it from showAnswer() timer "pause" */
+            if (uiState.value.isTimeTrial && timerTimeTrialJob?.isActive == false) {
+                timerTimeTrialJob = viewModelScope.launch {
+                    startTimerTimeTrial()
+                }
+            } else if (!uiState.value.isTimeTrial && timerStandardJob?.isActive == false) {
+                timerStandardJob = viewModelScope.launch {
+                    startTimerStandard()
+                }
             }
 
             updateCurrentFlag(isShowAnswer = true)
@@ -300,7 +306,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
 
     fun showAnswer() {
+        /* Cancel any/all timers */
         cancelConfirmShowAnswer()
+        timerStandardJob?.cancel()
+        timerTimeTrialJob?.cancel()
 
         _uiState.update {
             it.copy(
@@ -310,39 +319,35 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             )
         }
         shownFlags.add(uiState.value.currentFlag)
-
-        /* Cancel timer, to "pause" it until flag skipped */
-        when (uiState.value.isTimeTrial) {
-            true -> timeTrialJob?.cancel()
-            false -> standardTimerJob?.cancel()
-        }
     }
 
 
-    fun toggleTimeTrial() {
+    fun toggleTimeTrialDialog() {
         _uiState.update { it.copy(isTimeTrialDialog = !it.isTimeTrialDialog) }
     }
 
-    fun startTimeTrial(
-        startTime: Int,
-        resume: Boolean = false,
-    ) {
-        if (!resume) _uiState.update { it.copy(timeTrialStart = startTime) }
-        _uiState.update { it.copy(timeTrialTimer = startTime) }
+    fun initTimeTrial(startTime: Int) {
+        cancelConfirmShowAnswer()
+        timerTimeTrialJob?.cancel()
+        timerStandardJob?.cancel()
+        resetGame(initTimeTrial = true)
 
-        timeTrialJob = viewModelScope.launch {
-            while (uiState.value.timeTrialTimer > 0) {
-                delay(timeMillis = 1000)
-                _uiState.update { it.copy(timeTrialTimer = it.timeTrialTimer.dec()) }
+        _uiState.update {
+            it.copy(
+                isTimeTrial = true,
+                timerTimeTrial = startTime,
+                timeTrialStartTime = startTime,
+            )
+        }
 
-                if (uiState.value.timeTrialTimer == 0) endGame()
-            }
+        timerTimeTrialJob = viewModelScope.launch {
+            startTimerTimeTrial()
         }
     }
 
 
     fun confirmShowAnswer() {
-        showAnswerButtonCountdownJob = viewModelScope.launch {
+        showAnswerCountdownJob = viewModelScope.launch {
             _uiState.update {
                 it.copy(showAnswerResetTimer = 5, isConfirmShowAnswer = true)
             }
@@ -366,16 +371,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun endGame(isGameOver: Boolean = true) {
-        when (isGameOver) {
-            true -> {
-                cancelConfirmShowAnswer()
-                standardTimerJob?.cancel()
-                timeTrialJob?.cancel()
-
-                _uiState.update { it.copy(isGameOver = true) }
-            }
-            false -> _uiState.update { it.copy(isGameOver = false) }
+        if (isGameOver) {
+            cancelConfirmShowAnswer()
+            timerStandardJob?.cancel()
+            timerTimeTrialJob?.cancel()
         }
+
+        _uiState.update { it.copy(isGameOver = isGameOver) }
     }
 
 
@@ -472,6 +474,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+
     private fun getStringsList(flag: FlagResources): List<String> {
         val appResources = getApplication<Application>().applicationContext.resources
         val mutableList: MutableList<String> = mutableListOf()
@@ -486,6 +489,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
         return mutableList.toList()
     }
+
 
     /* For use in normalizing both userGuess and flag names for comparisons in checkUserGuess()
      * Deletes all usages of "the" and non-(standard-)alphabetic characters */
@@ -510,19 +514,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    /* Reset and start standard timer */
-    private fun startTimer() {
-        standardTimerJob = viewModelScope.launch {
-            while (true) {
-                delay(timeMillis = 1000)
-                _uiState.update { it.copy(standardTimer = it.standardTimer.inc()) }
-            }
-        }
-    }
-
-
     private fun cancelConfirmShowAnswer() {
-        showAnswerButtonCountdownJob?.cancel()
+        showAnswerCountdownJob?.cancel()
         _uiState.update { it.copy(isConfirmShowAnswer = false) }
     }
 
@@ -539,12 +532,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             flagsShownSorted = sortFlagsAlphabetically(shownFlags),
             isTimeTrial = uiState.value.isTimeTrial,
             timerStart = when (uiState.value.isTimeTrial) {
-                true -> uiState.value.timeTrialStart
+                true -> uiState.value.timeTrialStartTime
                 else -> null
             },
             timerEnd = when (uiState.value.isTimeTrial) {
-                true -> uiState.value.timeTrialTimer
-                false -> uiState.value.standardTimer
+                true -> uiState.value.timerTimeTrial
+                false -> uiState.value.timerStandard
             },
             gameSuperCategories = uiState.value.currentSuperCategories ?: emptyList(),
             gameSubCategories = uiState.value.currentSubCategories ?: emptyList(),
@@ -560,5 +553,22 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 scoreItemsRepository.insertItem(scoreData.toScoreItem())
             }
         }
+    }
+
+    /* Start/resume Standard timer */
+    private suspend fun startTimerStandard() {
+        while (true) {
+            delay(timeMillis = 1000)
+            _uiState.update { it.copy(timerStandard = it.timerStandard.inc()) }
+        }
+    }
+
+    /* Start/resume Time Trial timer */
+    private suspend fun startTimerTimeTrial() {
+        while (uiState.value.timerTimeTrial > 0) {
+            delay(timeMillis = 1000)
+            _uiState.update { it.copy(timerTimeTrial = it.timerTimeTrial.dec()) }
+        }
+        endGame()
     }
 }
