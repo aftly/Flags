@@ -49,20 +49,6 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 currentFlags = sortFlagsAlphabetically(application, it.currentFlags),
             )
         }
-        /*
-        val appResources = getApplication<Application>().applicationContext.resources
-
-        _uiState.update { currentState ->
-            currentState.copy(
-                allFlags = currentState.allFlags.sortedBy { flag ->
-                    normalizeString(string = appResources.getString(flag.flagOf))
-                },
-                currentFlags = currentState.currentFlags.sortedBy { flag ->
-                    normalizeString(string = appResources.getString(flag.flagOf))
-                },
-            )
-        }
-         */
     }
 
     /* Updates state with new currentFlags list derived from new super- or sub- category

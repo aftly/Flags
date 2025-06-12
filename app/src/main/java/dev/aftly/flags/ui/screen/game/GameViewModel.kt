@@ -516,22 +516,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    /*
-    private fun sortFlagsAlphabetically(flags: MutableList<FlagResources>): List<FlagResources> {
-        return sortFlagsByAlpha(application = getApplication(), flags = flags)
-        /*
-        val appResources = getApplication<Application>().applicationContext.resources
-
-        return flags.sortedBy { flag ->
-            normalizeString(string = appResources.getString(flag.flagOf))
-        }
-         */
-    }
-     */
     private fun sortFlags(flags: MutableList<FlagResources>): List<FlagResources> {
         val application = getApplication<Application>()
         return sortFlagsAlphabetically(application, flags)
     }
+
 
     private fun cancelConfirmShowAnswer() {
         timerShowAnswerJob?.cancel()

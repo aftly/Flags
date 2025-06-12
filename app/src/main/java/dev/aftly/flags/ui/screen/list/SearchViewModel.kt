@@ -286,18 +286,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 currentFlags = sortFlagsAlphabetically(application, it.currentFlags),
             )
         }
-        /*
-        _uiState.update { currentState ->
-            currentState.copy(
-                allFlags = currentState.allFlags.sortedBy { flag ->
-                    normalizeString(string = appResources.value.getString(flag.flagOf))
-                },
-                currentFlags = currentState.currentFlags.sortedBy { flag ->
-                    normalizeString(string = appResources.value.getString(flag.flagOf))
-                }
-            )
-        }
-         */
     }
 
 
