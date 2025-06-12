@@ -23,6 +23,7 @@ import dev.aftly.flags.ui.util.getSuperCategories
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
 import dev.aftly.flags.ui.util.normalizeString
+import dev.aftly.flags.ui.util.sortFlagsAlphabetically
 import dev.aftly.flags.ui.util.updateCategoriesFromSub
 import dev.aftly.flags.ui.util.updateCategoriesFromSuper
 import kotlinx.coroutines.Job
@@ -515,14 +516,22 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
+    /*
     private fun sortFlagsAlphabetically(flags: MutableList<FlagResources>): List<FlagResources> {
+        return sortFlagsByAlpha(application = getApplication(), flags = flags)
+        /*
         val appResources = getApplication<Application>().applicationContext.resources
 
         return flags.sortedBy { flag ->
             normalizeString(string = appResources.getString(flag.flagOf))
         }
+         */
     }
-
+     */
+    private fun sortFlags(flags: MutableList<FlagResources>): List<FlagResources> {
+        val application = getApplication<Application>()
+        return sortFlagsAlphabetically(application, flags)
+    }
 
     private fun cancelConfirmShowAnswer() {
         timerShowAnswerJob?.cancel()
@@ -535,11 +544,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         return ScoreData(
             flagsAll = uiState.value.currentFlags,
             flagsGuessed = guessedFlags.toList(),
-            flagsGuessedSorted = sortFlagsAlphabetically(guessedFlags),
+            flagsGuessedSorted = sortFlags(guessedFlags),
             flagsSkipped = skippedFlags.toList(),
-            flagsSkippedSorted = sortFlagsAlphabetically(skippedFlags),
+            flagsSkippedSorted = sortFlags(skippedFlags),
             flagsShown = shownFlags.toList(),
-            flagsShownSorted = sortFlagsAlphabetically(shownFlags),
+            flagsShownSorted = sortFlags(shownFlags),
             isTimeTrial = uiState.value.isTimeTrial,
             timerStart = when (uiState.value.isTimeTrial) {
                 true -> uiState.value.timeTrialStartTime

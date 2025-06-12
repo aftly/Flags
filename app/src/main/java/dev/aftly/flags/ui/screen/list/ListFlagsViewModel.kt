@@ -15,6 +15,7 @@ import dev.aftly.flags.ui.util.getSuperCategories
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
 import dev.aftly.flags.ui.util.normalizeString
+import dev.aftly.flags.ui.util.sortFlagsAlphabetically
 import dev.aftly.flags.ui.util.updateCategoriesFromSub
 import dev.aftly.flags.ui.util.updateCategoriesFromSuper
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +31,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
     /* Initialise ListFlagsScreen() with a category not FlagSuperCategory.All
      * Also sort lists by readable name (alphabetically) */
     init {
-        sortFlagsAlphabetically()
+        sortFlagsAndUpdate()
         updateCurrentCategory(
             newSuperCategory = FlagSuperCategory.SovereignCountry,
             newSubCategory = null,
@@ -39,7 +40,16 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
 
     /* Default allFlagsList derives from flagsMap key order, not readable name order
      * This function updates state by readable order (of common name) from associated strings */
-    fun sortFlagsAlphabetically() {
+    fun sortFlagsAndUpdate() {
+        val application = getApplication<Application>()
+
+        _uiState.update {
+            it.copy(
+                allFlags = sortFlagsAlphabetically(application, it.allFlags),
+                currentFlags = sortFlagsAlphabetically(application, it.currentFlags),
+            )
+        }
+        /*
         val appResources = getApplication<Application>().applicationContext.resources
 
         _uiState.update { currentState ->
@@ -52,6 +62,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 },
             )
         }
+         */
     }
 
     /* Updates state with new currentFlags list derived from new super- or sub- category

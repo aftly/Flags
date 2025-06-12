@@ -107,7 +107,12 @@ fun ListFlagsScreen(
     /* Update (alphabetical) order of flag lists when language changes */
     val configuration = LocalConfiguration.current
     val locale = configuration.locales[0]
-    //LaunchedEffect(locale) { viewModel.sortFlagsAlphabetically() }
+    /*
+    LaunchedEffect(locale) {
+        viewModel.sortFlagsAlphabetically()
+        searchModel.sortFlagsAlphabetically()
+    }
+     */
 
     ListFlagsScreen(
         uiState = uiState,

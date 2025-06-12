@@ -25,6 +25,7 @@ import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
 import dev.aftly.flags.ui.util.normalizeLower
 import dev.aftly.flags.ui.util.normalizeString
+import dev.aftly.flags.ui.util.sortFlagsAlphabetically
 import dev.aftly.flags.ui.util.updateCategoriesFromSub
 import dev.aftly.flags.ui.util.updateCategoriesFromSuper
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -268,7 +269,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         )
     private val _searchResults = searchResults
 
-    init { sortFlagsAlphabetically() }
+    init { sortFlagsAndUpdate() }
 
 
     fun updateResources() {
@@ -276,7 +277,16 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         the.value = appResources.value.getString(R.string.string_the)
     }
 
-    fun sortFlagsAlphabetically() {
+    fun sortFlagsAndUpdate() {
+        val application = getApplication<Application>()
+
+        _uiState.update {
+            it.copy(
+                allFlags = sortFlagsAlphabetically(application, it.allFlags),
+                currentFlags = sortFlagsAlphabetically(application, it.currentFlags),
+            )
+        }
+        /*
         _uiState.update { currentState ->
             currentState.copy(
                 allFlags = currentState.allFlags.sortedBy { flag ->
@@ -287,6 +297,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 }
             )
         }
+         */
     }
 
 

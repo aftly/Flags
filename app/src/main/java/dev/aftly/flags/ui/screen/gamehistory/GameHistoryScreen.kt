@@ -70,10 +70,12 @@ private fun GameHistoryScreen(
                 )
             },
         ) { scaffoldPadding ->
+            /*
             GameHistoryContent(
                 modifier = Modifier.padding(scaffoldPadding),
                 scoreHistory = uiState.scores
             )
+             */
         }
         /* ------------------- END OF SCAFFOLD ------------------- */
 
