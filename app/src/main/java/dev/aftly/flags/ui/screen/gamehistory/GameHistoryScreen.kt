@@ -1,5 +1,7 @@
 package dev.aftly.flags.ui.screen.gamehistory
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,10 +26,12 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
-import dev.aftly.flags.model.ScoreData
+import dev.aftly.flags.data.room.ScoreItem
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.ScoreDetails
 import dev.aftly.flags.ui.theme.Dimens
+import dev.aftly.flags.ui.util.formatTimestamp
+import dev.aftly.flags.ui.util.formatTimestampLegacy
 
 @Composable
 fun GameHistoryScreen(
@@ -46,6 +50,10 @@ fun GameHistoryScreen(
         screen = screen,
         uiState = uiState,
         onCloseScoreDetails = { viewModel.toggleScoreDetails() },
+        onScoreDetails = {
+            viewModel.updateScoreDetails(it)
+            viewModel.toggleScoreDetails()
+        },
         onNavigateUp = onNavigateUp,
     )
 }
@@ -57,6 +65,7 @@ private fun GameHistoryScreen(
     uiState: GameHistoryUiState,
     screen: Screen,
     onCloseScoreDetails: () -> Unit,
+    onScoreDetails: (ScoreItem) -> Unit,
     onNavigateUp: () -> Unit,
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -70,12 +79,11 @@ private fun GameHistoryScreen(
                 )
             },
         ) { scaffoldPadding ->
-            /*
             GameHistoryContent(
                 modifier = Modifier.padding(scaffoldPadding),
-                scoreHistory = uiState.scores
+                scoreHistory = uiState.scores,
+                onScoreDetails = onScoreDetails,
             )
-             */
         }
         /* ------------------- END OF SCAFFOLD ------------------- */
 
@@ -95,7 +103,8 @@ private fun GameHistoryScreen(
 @Composable
 private fun GameHistoryContent(
     modifier: Modifier = Modifier,
-    scoreHistory: List<ScoreData>,
+    scoreHistory: List<ScoreItem>,
+    onScoreDetails: (ScoreItem) -> Unit,
 ) {
     Column(
         modifier = modifier.fillMaxSize()
@@ -104,11 +113,12 @@ private fun GameHistoryContent(
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
             items(
                 count = scoreHistory.size,
-                key = { index -> scoreHistory[index].timeStamp }
+                key = { index -> scoreHistory[index].timestamp }
             ) { index ->
                 HistoryItem(
                     modifier = Modifier.fillMaxWidth(),
                     item = scoreHistory[index],
+                    onScoreDetails = onScoreDetails,
                 )
             }
         }
@@ -119,10 +129,11 @@ private fun GameHistoryContent(
 @Composable
 private fun HistoryItem(
     modifier: Modifier = Modifier,
-    item: ScoreData,
+    item: ScoreItem,
+    onScoreDetails: (ScoreItem) -> Unit,
 ) {
     Row(modifier = modifier) {
-        Text(text = "hello")
+        Text(text = formatTimestamp(item.timestamp))
     }
 }
 

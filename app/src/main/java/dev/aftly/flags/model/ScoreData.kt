@@ -11,7 +11,7 @@ enum class TimeMode { STANDARD, TIME_TRIAL }
 /* ------------ Game score top level class ------------ */
 class ScoreData(
     val id: Int = 0,
-    val timeStamp: Long,
+    val timestamp: Long,
     val isTimeTrial: Boolean,
     val timerStart: Int?, /* In seconds */
     val timerEnd: Int, /* In seconds */
@@ -66,7 +66,7 @@ class ScoreData(
     /* Return ScoreItem from ScoreData instance for Room Dao class */
     fun toScoreItem(): ScoreItem = ScoreItem(
         id = id,
-        timestamp = timeStamp,
+        timestamp = timestamp,
         score = correctAnswers,
         outOf = flagsAll.count(),
         timeMode = when (isTimeTrial) {
@@ -95,7 +95,7 @@ fun ScoreItem.toScoreData(
     flagsShownSorted: List<FlagResources>,
 ): ScoreData = ScoreData(
     id = id,
-    timeStamp = timestamp,
+    timestamp = timestamp,
     isTimeTrial = when (timeMode) {
         TimeMode.TIME_TRIAL -> true
         else -> false

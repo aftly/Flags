@@ -549,7 +549,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             },
             gameSuperCategories = uiState.value.currentSuperCategories ?: emptyList(),
             gameSubCategories = uiState.value.currentSubCategories ?: emptyList(),
-            timeStamp = System.currentTimeMillis(),
+            timestamp = System.currentTimeMillis(),
         )
     }
 
