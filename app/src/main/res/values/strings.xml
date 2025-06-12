@@ -196,6 +196,7 @@
     <string name="game_time_trial_minute">m</string>
     <string name="game_time_trial_second">s</string>
     <string name="game_history_title">Score History</string>
+    <string name="game_history_score">%d/%d</string>
     <string name="list_title">View</string>
     <string name="list_description">Display lists of flags by category,\nor it\'s names (eg. \"United Kingdom\" or \"Britain\")</string>
     <string name="menu_related_flags">Related Flags</string>
