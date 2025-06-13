@@ -11,7 +11,6 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,7 +44,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -67,6 +65,7 @@ import dev.aftly.flags.model.RemainderFlags
 import dev.aftly.flags.model.ScoreData
 import dev.aftly.flags.model.ShownFlags
 import dev.aftly.flags.model.SkippedFlags
+import dev.aftly.flags.model.TimeMode
 import dev.aftly.flags.model.TimeOverview
 import dev.aftly.flags.model.TitledList
 import dev.aftly.flags.model.TotalsOverview
@@ -395,19 +394,14 @@ private fun TimeOverviewItem(
     val fontScale = configuration.fontScale
     val spacePadding = Dimens.extraSmall4 * fontScale
 
-    val timeModeResId = when (timeOverview.isTimeTrial) {
-        false -> R.string.game_score_details_time_mode_1
-        true -> R.string.game_score_details_time_mode_2
+    val endTimeBackgroundColor = when (timeOverview.timeMode) {
+        TimeMode.STANDARD -> MaterialTheme.colorScheme.primary
+        TimeMode.TIME_TRIAL -> MaterialTheme.colorScheme.error
     }
 
-    val endTimeBackgroundColor = when (timeOverview.isTimeTrial) {
-        false -> MaterialTheme.colorScheme.primary
-        true -> MaterialTheme.colorScheme.error
-    }
-
-    val endTimeTextColor = when (timeOverview.isTimeTrial) {
-        false -> MaterialTheme.colorScheme.onPrimary
-        true -> MaterialTheme.colorScheme.onError
+    val endTimeTextColor = when (timeOverview.timeMode) {
+        TimeMode.STANDARD -> MaterialTheme.colorScheme.onPrimary
+        TimeMode.TIME_TRIAL -> MaterialTheme.colorScheme.onError
     }
 
 
@@ -417,7 +411,7 @@ private fun TimeOverviewItem(
     ) {
         /* Title */
         Text(
-            text = stringResource(R.string.game_score_details_time_mode_title),
+            text = stringResource(R.string.game_score_details_time_mode),
             color = MaterialTheme.colorScheme.onSurface,
             lineHeight = lineHeight,
             style = MaterialTheme.typography.titleSmall,
@@ -425,7 +419,7 @@ private fun TimeOverviewItem(
 
         /* Time mode type */
         Text(
-            text = stringResource(timeModeResId),
+            text = stringResource(timeOverview.timeMode.title),
             modifier = Modifier.padding(horizontal = spacePadding),
             fontSize = fontSize,
             lineHeight = lineHeight,
@@ -435,9 +429,8 @@ private fun TimeOverviewItem(
         timeOverview.timeTrialStart?.let { time ->
             Text(
                 text = stringResource(
-                    R.string.game_score_details_time_mode_details,
-                    time / 60,
-                    time % 60
+                    R.string.game_score_details_time,
+                    time / 60, time % 60
                 ),
                 modifier = Modifier.padding(end = spacePadding)
                     .clip(MaterialTheme.shapes.medium)
@@ -452,9 +445,8 @@ private fun TimeOverviewItem(
         /* Time elapsed */
         Text(
             text = stringResource(
-                R.string.game_score_details_time_mode_details,
-                timeOverview.time / 60,
-                timeOverview.time % 60
+                R.string.game_score_details_time,
+                timeOverview.time / 60, timeOverview.time % 60
             ),
             modifier = Modifier.clip(MaterialTheme.shapes.medium)
                 .background(endTimeBackgroundColor)

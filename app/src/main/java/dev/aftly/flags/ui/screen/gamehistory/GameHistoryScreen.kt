@@ -1,19 +1,24 @@
 package dev.aftly.flags.ui.screen.gamehistory
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.SportsScore
@@ -30,20 +35,28 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.aftly.flags.R
 import dev.aftly.flags.data.room.ScoreItem
+import dev.aftly.flags.model.TimeMode
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.ScoreDetails
 import dev.aftly.flags.ui.theme.Dimens
+import dev.aftly.flags.ui.theme.Timing
+import dev.aftly.flags.ui.theme.successDark
+import dev.aftly.flags.ui.theme.successLight
+import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.formatTimestamp
+import dev.aftly.flags.ui.util.getCategoryTitleSingle
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun GameHistoryScreen(
@@ -52,6 +65,7 @@ fun GameHistoryScreen(
     onNavigateUp: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val scope = rememberCoroutineScope()
 
     /* When language configuration changes, update strings in uiState */
     val configuration = LocalConfiguration.current
@@ -61,10 +75,19 @@ fun GameHistoryScreen(
     GameHistoryScreen(
         screen = screen,
         uiState = uiState,
-        onCloseScoreDetails = { viewModel.toggleScoreDetails() },
+        onCloseScoreDetails = {
+            scope.launch {
+                viewModel.toggleScoreDetails()
+                delay(timeMillis = Timing.COMPOSE_DEFAULT.toLong())
+                viewModel.updateScoreDetails(null)
+            }
+        },
         onScoreDetails = {
-            viewModel.updateScoreDetails(it)
-            viewModel.toggleScoreDetails()
+            scope.launch {
+                viewModel.updateScoreDetails(it)
+                delay(timeMillis = 50)
+                viewModel.toggleScoreDetails()
+            }
         },
         onNavigateUp = onNavigateUp,
     )
@@ -144,44 +167,209 @@ private fun HistoryItem(
     item: ScoreItem,
     onScoreDetails: (ScoreItem) -> Unit,
 ) {
+    /* General pro */
+    val isDarkTheme = LocalDarkTheme.current
+    val isTimeTrial = item.timeMode == TimeMode.TIME_TRIAL
     val padding = Dimens.extraSmall4
-    val dateTime = formatTimestamp(item.timestamp).replace(oldValue = " ", newValue = "\n")
+    val detailsRowModifier = Modifier.padding(vertical = padding)
+        .background(
+            color = MaterialTheme.colorScheme.surface,
+            shape = MaterialTheme.shapes.medium
+        )
+    val timerRowModifier = Modifier.background(
+        color = MaterialTheme.colorScheme.surface,
+        shape = MaterialTheme.shapes.large
+    )
+    @StringRes val categoryTitle = getCategoryTitleSingle(
+        superCategories = item.gameSuperCategories,
+        subCategories = item.gameSubCategories,
+    ) ?: R.string.game_history_category_multiple
+
+
+    /* Icon properties */
+    val iconSize = Dimens.standardIconSize24 * 0.85f
     val categoryIcon = Icons.Default.Category
     val scoreIcon = Icons.Default.SportsScore
     val timeModeIcon = Icons.Default.Timer
+    val timeModeTypeIcon = when (isTimeTrial) {
+        true -> Icons.Default.ArrowDownward
+        false -> Icons.Default.ArrowUpward
+    }
     val dateTimeIcon = Icons.Default.DateRange
-    val container = MaterialTheme.colorScheme.primary
-    val content = MaterialTheme.colorScheme.onPrimary
 
-    Card(onClick = { onScoreDetails(item) }) {
+
+    /* Card properties */
+    val scoreCardColors = CardDefaults.cardColors(
+        containerColor = when (isDarkTheme) {
+            true -> successDark
+            false -> successLight
+        },
+        contentColor = MaterialTheme.colorScheme.surface
+    )
+    val timerCardColors = CardDefaults.cardColors(
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+    )
+    val timerRemainingCardColors = CardDefaults.cardColors(
+        containerColor = MaterialTheme.colorScheme.error,
+        contentColor = MaterialTheme.colorScheme.onError,
+    )
+    val dateTimeCardColors = CardDefaults.cardColors(
+        containerColor = MaterialTheme.colorScheme.secondary,
+        contentColor = MaterialTheme.colorScheme.onSecondary
+    )
+
+
+    Card(modifier = modifier.clickable { onScoreDetails(item) }) {
         Row(
-            modifier = modifier.padding(all = padding / 2),
+            modifier = Modifier.padding(horizontal = padding)
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // TODO figure padding
-            /* Card {  } */
+            /* Score */
             Row(
-                modifier = Modifier
-                    .padding(horizontal = padding, vertical = padding / 2)
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(container)
+                modifier = detailsRowModifier,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = scoreIcon,
+                    contentDescription = null,
+                    modifier = Modifier.padding(start = padding / 2)
+                        .size(iconSize),
+                )
+
+                Card(colors = scoreCardColors) {
+                    Text(
+                        text = stringResource(R.string.game_history_score, item.score, item.outOf),
+                        modifier = Modifier.padding(horizontal = padding, vertical = padding / 2),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(Dimens.small8))
+
+
+            /* Category */
+            Row(
+                modifier = detailsRowModifier,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = categoryIcon,
+                    contentDescription = null,
+                    modifier = Modifier.padding(start = padding / 2)
+                        .size(iconSize),
+                )
+
+                Card(colors = scoreCardColors) {
+                    Text(
+                        text = stringResource(categoryTitle),
+                        modifier = Modifier.padding(horizontal = padding, vertical = padding / 2),
+                        textAlign = TextAlign.Center,
+                        lineHeight = MaterialTheme.typography.labelLarge.lineHeight * 0.75f,
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(Dimens.small8))
+
+
+            /* Time details */
+            Row(
+                modifier = timerRowModifier,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = timeModeIcon,
+                    contentDescription = null,
+                    modifier = Modifier.size(iconSize),
+                )
+                Icon(
+                    imageVector = timeModeTypeIcon,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = padding / 2)
+                        .size(iconSize),
+                )
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    item.timerStart?.let { startTime ->
+                        if (isTimeTrial) {
+                            Card(colors = timerCardColors) {
+                                Text(
+                                    text = stringResource(
+                                        R.string.game_score_details_time,
+                                        startTime / 60, startTime % 60
+                                    ),
+                                    modifier = Modifier
+                                        .padding(
+                                            horizontal = padding,
+                                            vertical = padding / 4,
+                                        ),
+                                    textAlign = TextAlign.Center,
+                                    lineHeight = MaterialTheme.typography.labelLarge.lineHeight * 0.75f,
+                                    style = MaterialTheme.typography.labelLarge,
+                                )
+                            }
+                        }
+                    }
+                    Card(
+                        colors = if (isTimeTrial) timerRemainingCardColors else timerCardColors
+                    ) {
+                        val verticalPadding = if (isTimeTrial) padding / 4 else padding / 1.5f
+
+                        Text(
+                            text = stringResource(
+                                R.string.game_score_details_time,
+                                item.timerEnd / 60, item.timerEnd % 60
+                            ),
+                            modifier = Modifier
+                                .padding(
+                                    horizontal = padding,
+                                    vertical = verticalPadding,
+                                ),
+                            textAlign = TextAlign.Center,
+                            lineHeight = MaterialTheme.typography.labelLarge.lineHeight * 0.75f,
+                            style = MaterialTheme.typography.labelLarge,
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.width(Dimens.small8))
+
+
+            /* Date & Time of game end */
+            Row(
+                modifier = detailsRowModifier,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
                     imageVector = dateTimeIcon,
                     contentDescription = null,
-                    tint = content,
+                    modifier = Modifier.padding(horizontal = padding / 2)
+                        .size(iconSize),
                 )
-                Text(
-                    text = dateTime,
-                    color = content,
-                    style = MaterialTheme.typography.labelMedium,
-                    lineHeight = MaterialTheme.typography.labelMedium.lineHeight * 0.75f
-                )
+
+                Card(colors = dateTimeCardColors) {
+                    Text(
+                        text = formatTimestamp(item.timestamp).replace(
+                            oldValue = stringResource(R.string.string_whitespace),
+                            newValue = "\n",
+                        ),
+                        modifier = Modifier.padding(horizontal = padding, vertical = padding / 2),
+                        textAlign = TextAlign.Center,
+                        lineHeight = MaterialTheme.typography.labelMedium.lineHeight * 0.75f,
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+                }
             }
         }
     }
-    //Spacer(modifier = Modifier.height(padding))
+    Spacer(modifier = Modifier.height(padding))
 }
 
 

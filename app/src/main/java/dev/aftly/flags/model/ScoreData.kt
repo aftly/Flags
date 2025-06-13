@@ -1,18 +1,23 @@
 package dev.aftly.flags.model
 
+import androidx.annotation.StringRes
+import dev.aftly.flags.R
 import dev.aftly.flags.data.room.ScoreItem
 import kotlinx.serialization.Serializable
 
 
 @Serializable
-enum class TimeMode { STANDARD, TIME_TRIAL }
+enum class TimeMode(@StringRes val title: Int) {
+    STANDARD (title = R.string.time_mode_standard),
+    TIME_TRIAL (title = R.string.time_mode_time_trial)
+}
 
 
 /* ------------ Game score top level class ------------ */
 class ScoreData(
     val id: Int = 0,
     val timestamp: Long,
-    val isTimeTrial: Boolean,
+    val timeMode: TimeMode,
     val timerStart: Int?, /* In seconds */
     val timerEnd: Int, /* In seconds */
     val gameSuperCategories: List<FlagSuperCategory>,
@@ -28,7 +33,7 @@ class ScoreData(
     private val remainderFlags = flagsAll.filterNot { it in flagsGuessed }
         .filterNot { it in flagsSkipped }.filterNot { it in flagsShown }
 
-    private val correctAnswers = flagsGuessed.count()
+    private val correctAnswers = flagsGuessed.size
     private val scorePercent = (correctAnswers.toFloat() / flagsAll.size.toFloat()) * 100f
 
     val scoreOverview = ScoreOverview(
@@ -38,7 +43,7 @@ class ScoreData(
             scorePercent = scorePercent,
         ),
         timeOverview = TimeOverview(
-            isTimeTrial = isTimeTrial,
+            timeMode = timeMode,
             timeTrialStart = timerStart,
             time = timerEnd,
         )
@@ -68,11 +73,8 @@ class ScoreData(
         id = id,
         timestamp = timestamp,
         score = correctAnswers,
-        outOf = flagsAll.count(),
-        timeMode = when (isTimeTrial) {
-            true -> TimeMode.TIME_TRIAL
-            false -> TimeMode.STANDARD
-        },
+        outOf = flagsAll.size,
+        timeMode = timeMode,
         timerStart = timerStart,
         timerEnd = timerEnd,
         gameSuperCategories = gameSuperCategories,
@@ -96,10 +98,7 @@ fun ScoreItem.toScoreData(
 ): ScoreData = ScoreData(
     id = id,
     timestamp = timestamp,
-    isTimeTrial = when (timeMode) {
-        TimeMode.TIME_TRIAL -> true
-        else -> false
-    },
+    timeMode = timeMode,
     timerStart = timerStart,
     timerEnd = timerEnd,
     gameSuperCategories = gameSuperCategories,
@@ -127,7 +126,7 @@ data class TotalsOverview(
 )
 
 data class TimeOverview(
-    val isTimeTrial: Boolean,
+    val timeMode: TimeMode,
     val timeTrialStart: Int?,
     val time: Int,
 )

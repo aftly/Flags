@@ -14,6 +14,7 @@ import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.ScoreData
+import dev.aftly.flags.model.TimeMode
 import dev.aftly.flags.ui.util.getCategoryTitle
 import dev.aftly.flags.ui.util.getFlagsByCategory
 import dev.aftly.flags.ui.util.getFlagsFromCategories
@@ -538,7 +539,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             flagsSkippedSorted = sortFlags(skippedFlags),
             flagsShown = shownFlags.toList(),
             flagsShownSorted = sortFlags(shownFlags),
-            isTimeTrial = uiState.value.isTimeTrial,
+            timeMode = when (uiState.value.isTimeTrial) {
+                true -> TimeMode.TIME_TRIAL
+                false -> TimeMode.STANDARD
+            },
             timerStart = when (uiState.value.isTimeTrial) {
                 true -> uiState.value.timeTrialStartTime
                 else -> null
@@ -547,7 +551,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 true -> uiState.value.timerTimeTrial
                 false -> uiState.value.timerStandard
             },
-            gameSuperCategories = uiState.value.currentSuperCategories ?: emptyList(),
+            gameSuperCategories =
+                uiState.value.currentSuperCategories ?: listOf(uiState.value.currentSuperCategory),
             gameSubCategories = uiState.value.currentSubCategories ?: emptyList(),
             timestamp = System.currentTimeMillis(),
         )
