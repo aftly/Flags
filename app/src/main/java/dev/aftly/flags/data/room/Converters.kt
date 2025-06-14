@@ -1,10 +1,13 @@
 package dev.aftly.flags.data.room
 
 import androidx.room.TypeConverter
+import dev.aftly.flags.data.serialization.AppSerialization
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.TimeMode
+import kotlinx.serialization.PolymorphicSerializer
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -12,11 +15,17 @@ class Converters {
     /* For List<FlagSuperCategory> */
     @TypeConverter
     fun fromFlagSuperCategoryList(value: List<FlagSuperCategory>): String =
-        Json.encodeToString(value)
+        AppSerialization.json.encodeToString(
+            serializer = ListSerializer(PolymorphicSerializer(FlagSuperCategory::class)),
+            value = value,
+        )
 
     @TypeConverter
     fun toFlagSuperCategoryList(value: String): List<FlagSuperCategory> =
-        Json.decodeFromString(value)
+        AppSerialization.json.decodeFromString(
+            deserializer = ListSerializer(PolymorphicSerializer(FlagSuperCategory::class)),
+            string = value,
+        )
 
 
     /* For List<FlagCategory> */

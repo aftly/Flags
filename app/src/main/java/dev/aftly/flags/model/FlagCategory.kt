@@ -2,11 +2,13 @@ package dev.aftly.flags.model
 
 import androidx.annotation.StringRes
 import dev.aftly.flags.R
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 
 /* List of categories for use in flag list filtering and flag page descriptions */
 @Serializable
+@SerialName("flag_sub_category")
 enum class FlagCategory(
     @StringRes val title: Int,
     @StringRes val string: Int,
