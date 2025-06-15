@@ -203,7 +203,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 }
             } else if (subCategories.size == 1 && superCategories.size == 1 &&
                 superCategories.first().subCategories.size == 1 &&
-                subCategories.first() == superCategories.first().subCategories.first()) {
+                subCategories.first() == superCategories.first().firstCategoryEnumOrNull()) {
                 return updateCurrentCategory(
                     newSuperCategory = superCategories.first(), newSubCategory = null
                 )

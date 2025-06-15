@@ -1,7 +1,7 @@
 package dev.aftly.flags.data.serialization
 
-import dev.aftly.flags.model.FlagCategory
-import dev.aftly.flags.model.FlagCategoryType
+import dev.aftly.flags.model.FlagCategoryBase
+import dev.aftly.flags.model.FlagCategoryWrapper
 import dev.aftly.flags.model.FlagSuperCategory
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
@@ -10,7 +10,8 @@ import kotlinx.serialization.modules.subclass
 
 object AppSerialization {
     private val flagSerializersModule = SerializersModule {
-        polymorphic(FlagSuperCategory::class) {
+        polymorphic(FlagCategoryBase::class) {
+            subclass(FlagCategoryWrapper::class)
             subclass(FlagSuperCategory.All::class)
             subclass(FlagSuperCategory.SovereignCountry::class)
             subclass(FlagSuperCategory.AutonomousRegion::class)
@@ -26,11 +27,6 @@ object AppSerialization {
             subclass(FlagSuperCategory.RegimeType::class)
             subclass(FlagSuperCategory.IdeologicalOrientation::class)
             subclass(FlagSuperCategory.NonAdministrative::class)
-        }
-
-        polymorphic(FlagCategoryType::class) {
-            subclass(FlagSuperCategory::class)
-            subclass(FlagCategory::class)
         }
     }
 

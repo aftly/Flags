@@ -67,6 +67,7 @@ import androidx.compose.ui.unit.sp
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.menuSuperCategoryList
 import dev.aftly.flags.model.FlagCategory
+import dev.aftly.flags.model.FlagCategoryWrapper
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagSuperCategory.Historical
@@ -123,8 +124,7 @@ fun FilterFlagsButton(
              * set expandMenu state to the sub-super */
             for (superCategory in currentSuperCategory.subCategories) {
                 superCategory as FlagSuperCategory
-                if (superCategory.subCategories.any { it as FlagCategory
-                        it.title == currentCategoryTitle }) {
+                if (superCategory.enums().any { it.title == currentCategoryTitle }) {
                     expandMenu = superCategory
                 }
             }
@@ -338,7 +338,7 @@ fun FilterFlagsButton(
                                     currentSubCategories != null &&
                                     (superCategory in currentSuperCategories || (superCategory
                                         .subCategories.size == 1 && superCategory
-                                        .subCategories.first() in currentSubCategories))) {
+                                            .firstCategoryEnumOrNull() in currentSubCategories))) {
                                     buttonColors2
                                 } else if (currentSuperCategories != null &&
                                     currentSuperCategories.isEmpty() && superCategory == All) {
@@ -366,7 +366,7 @@ fun FilterFlagsButton(
                                     },
                                 )
                             } else if (superCategory.subCategories
-                                    .filterIsInstance<FlagCategory>().isNotEmpty()) {
+                                .filterIsInstance<FlagCategoryWrapper>().isNotEmpty()) {
                                 /* If superCategory has any FlagCategories (ie. sub-categories)
                                  * use 2 tier expandable menu */
                                 MenuItemExpandable(
@@ -497,8 +497,9 @@ private fun MenuItemExpandable(
     /* on subCategories change, if any subcategories in the menus super, expand the menu, else
      * null so that regular menu expansion property (menuExpanded) applies */
     LaunchedEffect(subCategories) {
-        isMultiSelected = if (subCategories != null &&
-            subCategories.any { it in superCategory.subCategories }) {
+        isMultiSelected = if (subCategories != null && subCategories.any {
+            it in superCategory.enums()
+        }) {
             true
         } else {
             null
@@ -657,8 +658,8 @@ private fun MenuItemExpandable(
                     modifier = Modifier.fillMaxWidth()
                         .padding(vertical = Dimens.extraSmall4),
                 ) {
-                    superCategory.subCategories.forEach { subCategory ->
-                        subCategory as FlagCategory
+                    superCategory.subCategories.filterIsInstance<FlagCategoryWrapper>()
+                        .forEach { subWrapper ->
 
                         Box(
                             modifier = Modifier
@@ -667,10 +668,10 @@ private fun MenuItemExpandable(
                                     bottom = Dimens.textButtonVertPad,
                                 )
                                 .combinedClickable(
-                                    onClick = { onCategorySelect(null, subCategory) },
+                                    onClick = { onCategorySelect(null, subWrapper.enum) },
                                     onLongClick = {
                                         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                                        onCategoryMultiSelect(null, subCategory)
+                                        onCategoryMultiSelect(null, subWrapper.enum)
                                     }
                                 )
                         ) {
@@ -682,7 +683,7 @@ private fun MenuItemExpandable(
                             ) {
                                 Box(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = stringResource(subCategory.title),
+                                        text = stringResource(subWrapper.enum.title),
                                         modifier = Modifier
                                             .padding(ButtonDefaults.TextButtonContentPadding),
                                         color = buttonColors2.contentColor,
@@ -691,8 +692,8 @@ private fun MenuItemExpandable(
                                     )
                                 }
 
-                                if (subCategories != null && subCategory in subCategories ||
-                                    currentCategoryTitle == subCategory.title) {
+                                if (subCategories != null && subWrapper.enum in subCategories ||
+                                    currentCategoryTitle == subWrapper.enum.title) {
                                     Icon(
                                         imageVector = Icons.Default.Check,
                                         contentDescription = "selected",
@@ -743,7 +744,9 @@ private fun MenuSuperItem(
             subCategories.any { subCategory ->
                 parentSuperCategory.subCategories.filterIsInstance<FlagSuperCategory>().any {
                     superCategory ->
-                    subCategory in superCategory.subCategories } }) {
+                    subCategory in superCategory.enums()
+                }
+            }) {
             true
         } else {
             null

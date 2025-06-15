@@ -3,8 +3,8 @@ package dev.aftly.flags.data.room
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import dev.aftly.flags.model.FlagCategory
+import dev.aftly.flags.model.FlagCategoryBase
 import dev.aftly.flags.model.FlagResources
-import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.TimeMode
 import kotlinx.serialization.Serializable
 
@@ -21,7 +21,7 @@ data class ScoreItem(
     val timerEnd: Int,
 
     /* Handled by Room @TypeConverters */
-    val gameSuperCategories: List<FlagSuperCategory>,
+    val gameSuperCategories: List<FlagCategoryBase>,
     val gameSubCategories: List<FlagCategory>,
     val flagsAll: List<FlagResources>,
     val flagsGuessed: List<FlagResources>,

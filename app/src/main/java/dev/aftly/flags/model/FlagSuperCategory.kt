@@ -8,18 +8,28 @@ import kotlinx.serialization.Serializable
 
 
 @Serializable
-@SerialName("flag_super_category")
 sealed class FlagSuperCategory(
     @StringRes val title: Int,
     @StringRes val gameCategory: Int?,
-    val subCategories: @Polymorphic List<FlagCategoryType>,
-) : FlagCategoryType {
+    @Polymorphic val subCategories: List<FlagCategoryBase>,
+) : FlagCategoryBase() {
+    fun enums(): List<FlagCategory> {
+        return subCategories.filterIsInstance<FlagCategoryWrapper>().map { it.enum }
+    }
+
+    fun firstCategoryEnumOrNull(): FlagCategory? {
+        return when (val firstCategory = subCategories.first()) {
+            is FlagCategoryWrapper -> firstCategory.enum
+            else -> null
+        }
+    }
+
     @Serializable
     @SerialName("all")
     data object All : FlagSuperCategory(
         title = R.string.category_super_all,
         gameCategory = R.string.category_super_all,
-        subCategories = FlagCategory.entries.toList(),
+        subCategories = FlagCategory.entries.map(::FlagCategoryWrapper),
     )
 
     @Serializable
@@ -27,7 +37,9 @@ sealed class FlagSuperCategory(
     data object SovereignCountry : FlagSuperCategory(
         title = R.string.category_super_sovereign_country,
         gameCategory = R.string.category_super_sovereign_country_game_category,
-        subCategories = listOf(FlagCategory.SOVEREIGN_STATE),
+        subCategories = listOf(
+            FlagCategoryWrapper(enum = FlagCategory.SOVEREIGN_STATE)
+        ),
     )
 
     @Serializable
@@ -36,10 +48,10 @@ sealed class FlagSuperCategory(
         title = R.string.category_super_autonomous_region,
         gameCategory = R.string.category_super_autonomous_region_game_category,
         subCategories = listOf(
-            FlagCategory.FREE_ASSOCIATION,
-            FlagCategory.AUTONOMOUS_REGION,
-            FlagCategory.DEVOLVED_GOVERNMENT
-            //FlagCategory.INDIGENOUS_TERRITORY
+            FlagCategoryWrapper(enum = FlagCategory.FREE_ASSOCIATION),
+            FlagCategoryWrapper(enum = FlagCategory.AUTONOMOUS_REGION),
+            FlagCategoryWrapper(enum = FlagCategory.DEVOLVED_GOVERNMENT)
+            //FlagCategoryWrapper(enum = FlagCategory.INDIGENOUS_TERRITORY)
         ),
     )
 
@@ -49,28 +61,28 @@ sealed class FlagSuperCategory(
         title = R.string.category_super_regional,
         gameCategory = R.string.category_super_regional,
         subCategories = listOf(
-            //FlagCategory.CANTON,
-            FlagCategory.COLLECTIVITY,
-            FlagCategory.COMMUNITY,
-            FlagCategory.COUNTRY,
-            FlagCategory.COUNTY,
-            FlagCategory.CITY,
-            FlagCategory.DISTRICT,
-            //FlagCategory.EMIRATE,
-            //FlagCategory.ENTITY,
-            //FlagCategory.GOVERNORATE,
-            //FlagCategory.ISLAND,
-            //FlagCategory.KRAI,
-            //FlagCategory.MEMBER_STATE,
-            FlagCategory.MUNICIPALITY,
-            FlagCategory.OBLAST,
-            //FlagCategory.OKRUG,
-            FlagCategory.PROVINCE,
-            FlagCategory.REGION,
-            FlagCategory.REGIONAL,
-            FlagCategory.REPUBLIC_UNIT,
-            FlagCategory.STATE,
-            FlagCategory.TERRITORY
+            //FlagCategoryWrapper(enum = FlagCategory.CANTON),
+            FlagCategoryWrapper(enum = FlagCategory.COLLECTIVITY),
+            FlagCategoryWrapper(enum = FlagCategory.COMMUNITY),
+            FlagCategoryWrapper(enum = FlagCategory.COUNTRY),
+            FlagCategoryWrapper(enum = FlagCategory.COUNTY),
+            FlagCategoryWrapper(enum = FlagCategory.CITY),
+            FlagCategoryWrapper(enum = FlagCategory.DISTRICT),
+            //FlagCategoryWrapper(enum = FlagCategory.EMIRATE),
+            //FlagCategoryWrapper(enum = FlagCategory.ENTITY),
+            //FlagCategoryWrapper(enum = FlagCategory.GOVERNORATE),
+            //FlagCategoryWrapper(enum = FlagCategory.ISLAND),
+            //FlagCategoryWrapper(enum = FlagCategory.KRAI),
+            //FlagCategoryWrapper(enum = FlagCategory.MEMBER_STATE),
+            FlagCategoryWrapper(enum = FlagCategory.MUNICIPALITY),
+            FlagCategoryWrapper(enum = FlagCategory.OBLAST),
+            //FlagCategoryWrapper(enum = FlagCategory.OKRUG),
+            FlagCategoryWrapper(enum = FlagCategory.PROVINCE),
+            FlagCategoryWrapper(enum = FlagCategory.REGION),
+            FlagCategoryWrapper(enum = FlagCategory.REGIONAL),
+            FlagCategoryWrapper(enum = FlagCategory.REPUBLIC_UNIT),
+            FlagCategoryWrapper(enum = FlagCategory.STATE),
+            FlagCategoryWrapper(enum = FlagCategory.TERRITORY)
         ),
     )
 
@@ -80,8 +92,8 @@ sealed class FlagSuperCategory(
         title = R.string.category_super_international,
         gameCategory = R.string.category_super_international,
         subCategories = listOf(
-            //FlagCategory.SUPRANATIONAL_UNION,
-            FlagCategory.INTERNATIONAL_ORGANIZATION
+            //FlagCategoryWrapper(enum = FlagCategory.SUPRANATIONAL_UNION),
+            FlagCategoryWrapper(enum = FlagCategory.INTERNATIONAL_ORGANIZATION)
         ),
     )
 
@@ -90,7 +102,9 @@ sealed class FlagSuperCategory(
     data object Historical : FlagSuperCategory(
         title = R.string.category_super_historical,
         gameCategory = R.string.category_super_historical,
-        subCategories = listOf(FlagCategory.HISTORICAL),
+        subCategories = listOf(
+            FlagCategoryWrapper(enum = FlagCategory.HISTORICAL)
+        ),
     )
 
     @Serializable
@@ -115,11 +129,11 @@ sealed class FlagSuperCategory(
         title = R.string.category_super_cultural,
         gameCategory = R.string.category_super_cultural,
         subCategories = listOf(
-            FlagCategory.ETHNIC,
-            FlagCategory.SOCIAL,
-            FlagCategory.POLITICAL,
-            FlagCategory.RELIGIOUS,
-            FlagCategory.REGIONAL
+            FlagCategoryWrapper(enum = FlagCategory.ETHNIC),
+            FlagCategoryWrapper(enum = FlagCategory.SOCIAL),
+            FlagCategoryWrapper(enum = FlagCategory.POLITICAL),
+            FlagCategoryWrapper(enum = FlagCategory.RELIGIOUS),
+            FlagCategoryWrapper(enum = FlagCategory.REGIONAL)
         ),
     )
 
@@ -131,9 +145,9 @@ sealed class FlagSuperCategory(
         title = R.string.category_sub_territorial_power_distribution,
         gameCategory = null,
         subCategories = listOf(
-            FlagCategory.FEDERAL,
-            FlagCategory.UNITARY,
-            FlagCategory.CONFEDERATION
+            FlagCategoryWrapper(enum = FlagCategory.FEDERAL),
+            FlagCategoryWrapper(enum = FlagCategory.UNITARY),
+            FlagCategoryWrapper(enum = FlagCategory.CONFEDERATION)
         ),
     )
 
@@ -143,11 +157,11 @@ sealed class FlagSuperCategory(
         title = R.string.category_sub_executive_structure,
         gameCategory = null,
         subCategories = listOf(
-            FlagCategory.DIRECTORIAL,
-            FlagCategory.PARLIAMENTARY,
-            FlagCategory.SEMI_PRESIDENTIAL,
-            FlagCategory.DUAL_EXECUTIVE,
-            FlagCategory.PRESIDENTIAL
+            FlagCategoryWrapper(enum = FlagCategory.DIRECTORIAL),
+            FlagCategoryWrapper(enum = FlagCategory.PARLIAMENTARY),
+            FlagCategoryWrapper(enum = FlagCategory.SEMI_PRESIDENTIAL),
+            FlagCategoryWrapper(enum = FlagCategory.DUAL_EXECUTIVE),
+            FlagCategoryWrapper(enum = FlagCategory.PRESIDENTIAL)
         ),
     )
 
@@ -157,8 +171,8 @@ sealed class FlagSuperCategory(
         title = R.string.category_sub_legal_constraint,
         gameCategory = null,
         subCategories = listOf(
-            FlagCategory.CONSTITUTIONAL,
-            FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL
+            FlagCategoryWrapper(enum = FlagCategory.CONSTITUTIONAL),
+            FlagCategoryWrapper(enum = FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL)
         ),
     )
 
@@ -168,12 +182,12 @@ sealed class FlagSuperCategory(
         title = R.string.category_sub_power_derivation,
         gameCategory = null,
         subCategories = listOf(
-            FlagCategory.REPUBLIC,
-            FlagCategory.MONARCHY,
-            FlagCategory.ONE_PARTY,
-            FlagCategory.THEOCRACY,
-            FlagCategory.MILITARY_JUNTA,
-            FlagCategory.PROVISIONAL_GOVERNMENT
+            FlagCategoryWrapper(enum = FlagCategory.REPUBLIC),
+            FlagCategoryWrapper(enum = FlagCategory.MONARCHY),
+            FlagCategoryWrapper(enum = FlagCategory.ONE_PARTY),
+            FlagCategoryWrapper(enum = FlagCategory.THEOCRACY),
+            FlagCategoryWrapper(enum = FlagCategory.MILITARY_JUNTA),
+            FlagCategoryWrapper(enum = FlagCategory.PROVISIONAL_GOVERNMENT)
         ),
     )
 
@@ -183,10 +197,10 @@ sealed class FlagSuperCategory(
         title = R.string.category_sub_regime_type,
         gameCategory = null,
         subCategories = listOf(
-            FlagCategory.DEMOCRACY,
-            FlagCategory.AUTHORITARIAN,
-            FlagCategory.TOTALITARIAN,
-            FlagCategory.DICTATORSHIP
+            FlagCategoryWrapper(enum = FlagCategory.DEMOCRACY),
+            FlagCategoryWrapper(enum = FlagCategory.AUTHORITARIAN),
+            FlagCategoryWrapper(enum = FlagCategory.TOTALITARIAN),
+            FlagCategoryWrapper(enum = FlagCategory.DICTATORSHIP)
         ),
     )
 
@@ -196,11 +210,11 @@ sealed class FlagSuperCategory(
         title = R.string.category_sub_ideological_orientation,
         gameCategory = null,
         subCategories = listOf(
-            //FlagCategory.LIBERAL,
-            //FlagCategory.ILLIBERAL,
-            FlagCategory.THEOCRATIC,
-            FlagCategory.SOCIALIST,
-            FlagCategory.FASCIST
+            //FlagCategoryWrapper(enum = FlagCategory.LIBERAL),
+            //FlagCategoryWrapper(enum = FlagCategory.ILLIBERAL),
+            FlagCategoryWrapper(enum = FlagCategory.THEOCRATIC),
+            FlagCategoryWrapper(enum = FlagCategory.SOCIALIST),
+            FlagCategoryWrapper(enum = FlagCategory.FASCIST)
         ),
     )
 
@@ -209,6 +223,8 @@ sealed class FlagSuperCategory(
     data object NonAdministrative : FlagSuperCategory(
         title = R.string.category_non_administrative_political,
         gameCategory = null,
-        subCategories = listOf(FlagCategory.POLITICAL),
+        subCategories = listOf(
+            FlagCategoryWrapper(enum = FlagCategory.POLITICAL)
+        ),
     )
 }

@@ -155,8 +155,8 @@ class FlagViewModel(
         val stringIds = mutableListOf<Int>()
         val whitespaceExceptionIndexes = mutableListOf(0)
 
-        val allCulturalCategories = FlagSuperCategory.Cultural.subCategories
-        val allNonCulturalCategories = FlagSuperCategory.All.subCategories.filterNot {
+        val allCulturalCategories = FlagSuperCategory.Cultural.enums()
+        val allNonCulturalCategories = FlagSuperCategory.All.enums().filterNot {
             it in allCulturalCategories
         }
 
@@ -307,9 +307,9 @@ class FlagViewModel(
                 stringIds.add(element = R.string.category_devolved_government_in_description)
 
             } else if (category == INTERNATIONAL_ORGANIZATION) {
-                if (categories.any { it in FlagSuperCategory.ExecutiveStructure.subCategories } &&
+                if (categories.any { it in FlagSuperCategory.ExecutiveStructure.enums() } &&
                     !categories.any {
-                        it in FlagSuperCategory.TerritorialDistributionOfAuthority.subCategories
+                        it in FlagSuperCategory.TerritorialDistributionOfAuthority.enums()
                     }) {
                     if (SUPRANATIONAL_UNION in categories) {
                         stringIds.add(element = R.string.string_and)
@@ -322,7 +322,7 @@ class FlagViewModel(
                     stringIds.add(element = R.string.string_and)
 
                 } else if (categories.any {
-                    it in FlagSuperCategory.TerritorialDistributionOfAuthority.subCategories }) {
+                    it in FlagSuperCategory.TerritorialDistributionOfAuthority.enums() }) {
                     stringIds.add(element = R.string.string_comma)
                     whitespaceExceptions.add(element = stringIds.lastIndex)
                     stringIds.add(element = category.string)
@@ -333,7 +333,7 @@ class FlagViewModel(
                     stringIds.add(element = category.string)
                 }
 
-            } else if (category in FlagSuperCategory.IdeologicalOrientation.subCategories &&
+            } else if (category in FlagSuperCategory.IdeologicalOrientation.enums() &&
                 AUTONOMOUS_REGION in categories) {
                 if (DEVOLVED_GOVERNMENT in categories) {
                     stringIds.add(element = R.string.string_that_is)
@@ -344,8 +344,8 @@ class FlagViewModel(
                 }
                 stringIds.add(element = category.string)
 
-            } else if (category in FlagSuperCategory.ExecutiveStructure.subCategories &&
-                !categories.any { it in FlagSuperCategory.International.subCategories } &&
+            } else if (category in FlagSuperCategory.ExecutiveStructure.enums() &&
+                !categories.any { it in FlagSuperCategory.International.enums() } &&
                 !isConstitutional) {
                 stringIds.add(element = R.string.category_nominal_extra_constitutional_in_description)
                 stringIds.add(element = category.string)

@@ -14,7 +14,6 @@ import dev.aftly.flags.ui.util.getSubCategories
 import dev.aftly.flags.ui.util.getSuperCategories
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
-import dev.aftly.flags.ui.util.normalizeString
 import dev.aftly.flags.ui.util.sortFlagsAlphabetically
 import dev.aftly.flags.ui.util.updateCategoriesFromSub
 import dev.aftly.flags.ui.util.updateCategoriesFromSuper
@@ -153,7 +152,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 }
             } else if (subCategories.size == 1 && superCategories.size == 1 &&
                 superCategories.first().subCategories.size == 1 &&
-                subCategories.first() == superCategories.first().subCategories.first()) {
+                subCategories.first() == superCategories.first().firstCategoryEnumOrNull()) {
                 return updateCurrentCategory(
                     newSuperCategory = superCategories.first(), newSubCategory = null
                 )

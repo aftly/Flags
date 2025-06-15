@@ -13,12 +13,15 @@ import dev.aftly.flags.model.FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
 import dev.aftly.flags.model.FlagCategory.THEOCRATIC
+import dev.aftly.flags.model.FlagCategoryWrapper
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
+import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagSuperCategory.AutonomousRegion
 import dev.aftly.flags.model.FlagSuperCategory.Cultural
 import dev.aftly.flags.model.FlagSuperCategory.Historical
 import dev.aftly.flags.model.FlagSuperCategory.International
+import dev.aftly.flags.model.FlagSuperCategory.Political
 import dev.aftly.flags.model.FlagSuperCategory.Regional
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 
@@ -33,8 +36,7 @@ fun getFlagsByCategory(
         superCategory = superCategory,
         subCategory = subCategory,
     ),
-    exceptionCategories: List<FlagCategory> = FlagSuperCategory.SovereignCountry.subCategories
-        .filterIsInstance<FlagCategory>(),
+    exceptionCategories: List<FlagCategory> = SovereignCountry.enums(),
 ): List<FlagResources> {
     /* Mutable list for adding flags to */
     val flags = mutableListOf<FlagResources>()
@@ -52,7 +54,7 @@ fun getFlagsByCategory(
             THEOCRATIC -> listOf(subCategory, THEOCRACY)
             else -> listOf(subCategory)
         }
-    } else superCategory?.subCategories ?: exceptionCategories
+    } else superCategory?.enums() ?: exceptionCategories
 
 
     /* Search for flags that contain any category(s) from categories and add to list,
@@ -85,16 +87,14 @@ fun getFlagsByCategory(
 fun getParentSuperCategory(
     superCategory: FlagSuperCategory?,
     subCategory: FlagCategory?,
-    exceptionCategory: FlagSuperCategory = FlagSuperCategory.SovereignCountry,
+    exceptionCategory: FlagSuperCategory = SovereignCountry,
 ): FlagSuperCategory {
     /* If subCategory not null get it's superCategory, else if superCategory not null return it,
     * else return exception superCategory  */
     return if (subCategory != null) {
-        menuSuperCategoryList.filterNot {
-            it in listOf(FlagSuperCategory.All, FlagSuperCategory.Political)
-        }.find { item ->
-            subCategory in item.subCategories
-        } ?: FlagSuperCategory.Political
+        menuSuperCategoryList.filterNot { it in listOf(All, Political) }.find { superCat ->
+            subCategory in superCat.enums()
+        } ?: Political
     } else {
         superCategory ?: exceptionCategory
     }
@@ -104,7 +104,7 @@ fun getParentSuperCategory(
 fun getCategoryTitle(
     superCategory: FlagSuperCategory?,
     subCategory: FlagCategory?,
-    @StringRes titleException: Int = FlagSuperCategory.SovereignCountry.title,
+    @StringRes titleException: Int = SovereignCountry.title,
 ): Int {
     return subCategory?.title ?: superCategory?.title ?: titleException
 }
@@ -132,7 +132,8 @@ fun getSubCategories(
         null ->
             when (currentSuperCategory.subCategories.size) {
                 1 -> mutableListOf(
-                    currentSuperCategory.subCategories.filterIsInstance<FlagCategory>().first()
+                    currentSuperCategory.subCategories.filterIsInstance<FlagCategoryWrapper>()
+                        .first().enum
                 )
                 else -> mutableListOf()
             }
@@ -155,16 +156,16 @@ fun isSuperCategoryExit(
         exclusive1.contains(superCategory) && exclusive1.any { it in superCategories }) {
         true
 
-    } else if (subCategories.any {
-            it in AutonomousRegion.subCategories || it in Regional.subCategories
-        } && (superCategory == SovereignCountry || superCategory == International)) {
+    } else if (subCategories.any { subCategory ->
+        subCategory in AutonomousRegion.enums() || subCategory in Regional.enums() } &&
+        (superCategory == SovereignCountry || superCategory == International)) {
         true
 
     } else if (superCategory !in superCategories &&
         exclusive2.contains(superCategory) && exclusive2.any { it in superCategories }) {
         true
 
-    } else if (subCategories.any { it in Cultural.subCategories } &&
+    } else if (subCategories.any { it in Cultural.enums() } &&
         (superCategory == SovereignCountry || superCategory == International)) {
         true
 
@@ -181,14 +182,13 @@ fun isSubCategoryExit(
 ): Boolean {
     mutuallyExclusiveSubCategories.forEach { superCategory ->
         if (subCategory !in subCategories &&
-            superCategory.subCategories.any { it in subCategories } &&
-            subCategory in superCategory.subCategories.filterIsInstance<FlagCategory>()) {
+            superCategory.enums().any { it in subCategories } &&
+            subCategory in superCategory.enums()) {
             return true
         }
     }
     mutuallyExclusiveSuperCategories1.let { exclusive1 ->
-        val subCategorySuper =
-            exclusive1.find { subCategory in it.subCategories.filterIsInstance<FlagCategory>() }
+        val subCategorySuper = exclusive1.find { subCategory in it.enums() }
 
         if (subCategorySuper != null) {
             /* If Sovereign or International selected reject selection of subcategories
@@ -206,8 +206,7 @@ fun isSubCategoryExit(
         }
     }
     mutuallyExclusiveSuperCategories2.let { exclusive2 ->
-        val subCategorySuper =
-            exclusive2.find { subCategory in it.subCategories.filterIsInstance<FlagCategory>() }
+        val subCategorySuper = exclusive2.find { subCategory in it.enums() }
 
         if (subCategorySuper != null) {
             val selectedExclusiveSupers = exclusive2.filter { it in superCategories }
@@ -237,8 +236,8 @@ fun updateCategoriesFromSuper(
     }
     /* Handle removal from subCategories (not mutually exclusive from above) */
     if (subCategories.isNotEmpty() && superCategory.subCategories.size == 1 &&
-        superCategory.subCategories.first() in subCategories) {
-        subCategories.remove(superCategory.subCategories.first())
+        superCategory.firstCategoryEnumOrNull() in subCategories) {
+        subCategories.remove(superCategory.firstCategoryEnumOrNull())
         isRemove = true
     }
     /* If either of previous are true return true */
@@ -248,8 +247,9 @@ fun updateCategoriesFromSuper(
     when (superCategory.subCategories.size) {
         1 -> {
             superCategories.add(superCategory)
-            subCategories.add(superCategory.subCategories
-                .filterIsInstance<FlagCategory>().first())
+            subCategories.add(
+                superCategory.subCategories.filterIsInstance<FlagCategoryWrapper>().first().enum
+            )
         }
         else -> superCategories.add(superCategory)
     }
@@ -294,7 +294,7 @@ fun getFlagsFromCategories(
             true ->
                 flags.filter { flag ->
                     superCategories.all { superCategory ->
-                        flag.categories.any { it in superCategory.subCategories }
+                        flag.categories.any { it in superCategory.enums() }
                     }
                 }
             false -> flags
