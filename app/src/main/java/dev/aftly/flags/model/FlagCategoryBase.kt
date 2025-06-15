@@ -1,8 +1,8 @@
 package dev.aftly.flags.model
 
-import kotlinx.serialization.SerialName
+import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.Serializable
 
 @Serializable
-@SerialName("flag_category_interface")
+@Polymorphic
 sealed interface FlagCategoryType

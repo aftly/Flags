@@ -45,6 +45,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.R
 import dev.aftly.flags.data.room.ScoreItem
+import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.TimeMode
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.ScoreDetails
@@ -181,7 +182,7 @@ private fun HistoryItem(
         shape = MaterialTheme.shapes.large
     )
     @StringRes val categoryTitle = getCategoryTitleSingle(
-        superCategories = item.gameSuperCategories,
+        superCategories = item.gameSuperCategories.filterIsInstance<FlagSuperCategory>(),
         subCategories = item.gameSubCategories,
     ) ?: R.string.game_history_category_multiple
 
@@ -254,7 +255,7 @@ private fun HistoryItem(
 
             /* Category */
             Row(
-                modifier = detailsRowModifier,
+                modifier = detailsRowModifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
@@ -265,13 +266,19 @@ private fun HistoryItem(
                 )
 
                 Card(colors = scoreCardColors) {
-                    Text(
-                        text = stringResource(categoryTitle),
-                        modifier = Modifier.padding(horizontal = padding, vertical = padding / 2),
-                        textAlign = TextAlign.Center,
-                        lineHeight = MaterialTheme.typography.labelLarge.lineHeight * 0.75f,
-                        style = MaterialTheme.typography.labelLarge,
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = stringResource(categoryTitle),
+                            modifier = Modifier.padding(horizontal = padding, vertical = padding / 2),
+                            textAlign = TextAlign.Center,
+                            lineHeight = MaterialTheme.typography.labelLarge.lineHeight * 0.75f,
+                            style = MaterialTheme.typography.labelLarge,
+                        )
+                    }
                 }
             }
 
