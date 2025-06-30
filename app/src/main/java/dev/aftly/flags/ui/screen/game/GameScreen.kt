@@ -153,6 +153,7 @@ fun GameScreen(
                 viewModel.endGame(isGameOver = false)
                 viewModel.toggleScoreDetails()
             },
+            onScoreHistory = { onNavigateDetails(Screen.GameHistory) },
             onShare = { text ->
                 shareText(
                     context = context,
@@ -160,7 +161,8 @@ fun GameScreen(
                     textToShare = text,
                 )
             },
-            onPlayAgain = { viewModel.resetGame() },
+            onExit = onNavigateUp,
+            onReplay = { viewModel.resetGame() },
         )
     }
 
@@ -908,8 +910,10 @@ private fun GameOverDialog(
     maxScore: Int,
     gameMode: String,
     onDetails: () -> Unit,
+    onScoreHistory: () -> Unit,
     onShare: (String) -> Unit,
-    onPlayAgain: () -> Unit,
+    onExit: () -> Unit,
+    onReplay: () -> Unit,
 ) {
     val scoreMessage = when (finalScore) {
         maxScore -> stringResource(R.string.game_over_text_max_score)
@@ -959,7 +963,7 @@ private fun GameOverDialog(
                     )
                 }
 
-                /* Action buttons */
+                /* Action buttons 1 */
                 Row(
                     modifier = Modifier.padding(vertical = Dimens.small8)
                         .fillMaxWidth(),
@@ -971,13 +975,30 @@ private fun GameOverDialog(
                     )
 
                     DialogActionButton(
-                        onClick = { onShare(shareScoreMessage) },
-                        buttonStringResId = R.string.game_over_share_button,
+                        onClick = onScoreHistory,
+                        buttonStringResId = R.string.game_over_score_history_button,
                     )
 
                     DialogActionButton(
-                        onClick = onPlayAgain,
-                        buttonStringResId = R.string.game_over_play_again_button,
+                        onClick = { onShare(shareScoreMessage) },
+                        buttonStringResId = R.string.game_over_share_button,
+                    )
+                }
+
+                /* Action buttons 2 */
+                Row(
+                    modifier = Modifier.padding(bottom = Dimens.small10)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                ) {
+                    DialogActionButton(
+                        onClick = onExit,
+                        buttonStringResId = R.string.game_over_exit_button,
+                    )
+
+                    DialogActionButton(
+                        onClick = onReplay,
+                        buttonStringResId = R.string.game_over_replay_button,
                     )
                 }
             }

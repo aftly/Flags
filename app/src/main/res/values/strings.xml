@@ -176,8 +176,10 @@
     <string name="game_over_text_max_score">You guessed every flag…\nNerd!</string>
     <string name="game_over_text_min_score">A dunce cap is coming your way</string>
     <string name="game_over_details_button">Details</string>
-    <string name="game_over_share_button">Share score</string>
-    <string name="game_over_play_again_button">Replay</string>
+    <string name="game_over_score_history_button">History</string>
+    <string name="game_over_share_button">Share</string>
+    <string name="game_over_exit_button">Exit</string>
+    <string name="game_over_replay_button">Replay</string>
     <string name="game_over_share_subject">Flag game score</string>
     <string name="game_over_share_text">I just guessed %d/%d flags in the \"Flags\" app game on the \"%s\" game mode.\n\nDownload the app from https://github.com/aftly/Flags and see if you can beat me…</string>
     <string name="game_score_details_title">Score details</string>
