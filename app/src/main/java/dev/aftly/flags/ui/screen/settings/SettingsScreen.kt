@@ -52,7 +52,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.R
-import dev.aftly.flags.data.DataSource.sourceCodeUrl
+import dev.aftly.flags.data.DataSource.SOURCE_URL
 import dev.aftly.flags.model.AppTheme
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.AppViewModelProvider
@@ -254,7 +254,7 @@ private fun AboutContent(
 
     /* Source code button */
     Surface(
-        onClick = { openWebLink(context, sourceCodeUrl) },
+        onClick = { openWebLink(context, SOURCE_URL) },
         shape = MaterialTheme.shapes.medium,
     ) {
         Row(
