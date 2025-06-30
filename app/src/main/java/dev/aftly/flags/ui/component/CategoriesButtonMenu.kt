@@ -82,7 +82,7 @@ import dev.aftly.flags.ui.theme.Timing
 
 
 @Composable
-fun FilterFlagsButton(
+fun CategoriesButtonMenu(
     modifier: Modifier = Modifier,
     scaffoldPadding: PaddingValues,
     buttonHorizontalPadding: Dp,
