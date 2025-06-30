@@ -74,6 +74,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         skippedFlags = mutableListOf()
         shownFlags = mutableListOf()
         userGuess = ""
+        timerStandardJob?.cancel()
+        timerTimeTrialJob?.cancel()
+        timerShowAnswerJob?.cancel()
+
 
         val newFlag = getRandomFlag()
         val newFlagStrings = when (newFlag) {
