@@ -555,11 +555,43 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 true -> uiState.value.timerTimeTrial
                 false -> uiState.value.timerStandard
             },
-            gameSuperCategories =
-                uiState.value.currentSuperCategories ?: listOf(uiState.value.currentSuperCategory),
-            gameSubCategories = uiState.value.currentSubCategories ?: emptyList(),
+            gameSuperCategories = getScoreDataSupers(),
+            gameSubCategories = getScoreDataSubs(),
             timestamp = System.currentTimeMillis(),
         )
+    }
+
+
+    /* Remove redundant super categories for ScoreData */
+    private fun getScoreDataSupers(): List<FlagSuperCategory> {
+        val subCategories = uiState.value.currentSubCategories ?: emptyList()
+
+        return uiState.value.currentSuperCategories?.filterNot { superCategory ->
+            superCategory.enums().any { it in subCategories }
+
+        }?.let { superCategories ->
+            when (superCategories.size to subCategories.isEmpty()) {
+                0 to true -> superCategories
+                else -> superCategories.filterNot { it == All }
+            }
+
+        } ?: listOf(uiState.value.currentSuperCategory)
+    }
+
+    /* Remove redundant sub categories for ScoreData */
+    private fun getScoreDataSubs(): List<FlagCategory> {
+        return uiState.value.currentSubCategories?.let { currentSubCategories ->
+            val subCategories = currentSubCategories.toMutableList()
+
+            uiState.value.currentSuperCategories
+                ?.map { it.enums() }
+                ?.filterNot { it.size > 1 }
+                ?.map { it.first() }
+                ?.forEach { subCategories.remove(it) }
+
+            return@let subCategories
+
+        } ?: emptyList()
     }
 
 

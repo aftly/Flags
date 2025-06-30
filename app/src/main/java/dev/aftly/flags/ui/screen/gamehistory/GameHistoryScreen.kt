@@ -167,18 +167,20 @@ private fun HistoryItem(
     modifier: Modifier = Modifier,
     item: ScoreItem,
     onScoreDetails: (ScoreItem) -> Unit,
+
 ) {
-    /* General pro */
+    /* General properties */
     val isDarkTheme = LocalDarkTheme.current
     val isTimeTrial = item.timeMode == TimeMode.TIME_TRIAL
     val padding = Dimens.extraSmall4
+    val iconBackgroundColor = MaterialTheme.colorScheme.surface
     val detailsRowModifier = Modifier.padding(vertical = padding)
         .background(
-            color = MaterialTheme.colorScheme.surface,
+            color = iconBackgroundColor,
             shape = MaterialTheme.shapes.medium
         )
     val timerRowModifier = Modifier.background(
-        color = MaterialTheme.colorScheme.surface,
+        color = iconBackgroundColor,
         shape = MaterialTheme.shapes.large
     )
     @StringRes val categoryTitle = getCategoryTitleSingle(
