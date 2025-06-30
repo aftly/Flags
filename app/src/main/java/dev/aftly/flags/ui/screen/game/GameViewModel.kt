@@ -98,6 +98,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 timerStandard = 0,
                 isGameOver = false,
                 isShowAnswer = false,
+                isSaveScoreInit = false,
                 scoreDetails = null,
             )
         }
@@ -378,14 +379,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    /* Called separately from, with initial call to end game to help ensure saved to db only once */
-    fun saveScore() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(scoreDetails = getScoreData()) }
-            saveScoreItem()
-        }
-    }
-
     fun endGame(isGameOver: Boolean = true) {
         if (isGameOver) {
             cancelConfirmShowAnswer()
@@ -393,6 +386,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             timerTimeTrialJob?.cancel()
         }
 
+        saveScoreInit()
         _uiState.update { it.copy(isGameOver = isGameOver) }
     }
 
@@ -599,14 +593,26 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private fun isJobInactive(job: Job?): Boolean = job == null || !job.isActive
 
 
+    /* Called only with initial call to end game to ensure saved to db only once */
+    private fun saveScoreInit() {
+        if (!uiState.value.isSaveScoreInit) {
+            viewModelScope.launch {
+                _uiState.update { it.copy(scoreDetails = getScoreData(), isSaveScoreInit = true) }
+                saveScoreToDb()
+            }
+        }
+    }
+
+
     /* Save a ScoreItem to scoreItemsRepository from ScoreData instance */
-    private suspend fun saveScoreItem() {
+    private suspend fun saveScoreToDb() {
         uiState.value.scoreDetails?.let { scoreData ->
             if (!scoreData.isScoresEmpty()) {
                 scoreItemsRepository.insertItem(scoreData.toScoreItem())
             }
         }
     }
+
 
     /* Start/resume Standard timer */
     private suspend fun startTimerStandard() {

@@ -180,10 +180,7 @@ fun GameScreen(
         onConfirmShowAnswer = { viewModel.confirmShowAnswer() },
         onShowAnswer = { viewModel.showAnswer() },
         onToggleTimeTrial = { viewModel.toggleTimeTrialDialog() },
-        onEndGame = {
-            viewModel.saveScore()
-            viewModel.endGame()
-        },
+        onEndGame = { viewModel.endGame() },
         onNavigateUp = onNavigateUp,
         onNavigateDetails = onNavigateDetails,
         onFullscreen = onFullscreen,
