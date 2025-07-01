@@ -1034,26 +1034,6 @@ private fun GameOverDialog(
                         buttonStringResId = R.string.game_over_share_button,
                     )
                 }
-
-                /* Action buttons 2 */
-                /*
-                Row(
-                    modifier = Modifier
-                        .padding(bottom = Dimens.small10)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                ) {
-                    DialogActionButton(
-                        onClick = onExit,
-                        buttonStringResId = R.string.game_over_exit_button,
-                    )
-
-                    DialogActionButton(
-                        onClick = onReplay,
-                        buttonStringResId = R.string.game_over_replay_button,
-                    )
-                }
-                 */
             }
         }
     }
