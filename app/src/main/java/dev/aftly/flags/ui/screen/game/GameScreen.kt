@@ -60,6 +60,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -397,7 +399,8 @@ private fun GameContent(
 
     /* Center arranged column with Game content */
     Column(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
             .padding(
                 /* Top padding so that content scroll disappears into FilterFlagsButton */
                 top = filterButtonHeight / 2,
@@ -421,7 +424,8 @@ private fun GameContent(
     ) {
         /* Spacer to make content start below FilterFlags button */
         Spacer(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .height(filterButtonHeight / 2 + aspectRatioTopPadding)
         )
 
@@ -457,7 +461,8 @@ private fun GameContent(
         /* Submit button */
         Button(
             onClick = onSubmit,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(top = Dimens.medium16),
             enabled = !isShowAnswer,
         ) {
@@ -467,7 +472,8 @@ private fun GameContent(
         /* Skip button */
         OutlinedButton(
             onClick = onSkip,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(top = Dimens.medium16),
         ) {
             Text(text = stringResource(R.string.game_button_skip))
@@ -481,7 +487,8 @@ private fun GameContent(
                     true -> onShowAnswer()
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(top = Dimens.medium16),
             enabled = !isShowAnswer,
             colors = ButtonDefaults.outlinedButtonColors(contentColor = showAnswerColor),
@@ -609,7 +616,8 @@ private fun GameCard(
         ) {
             /* Top row in card */
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(bottom = Dimens.medium16),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -617,7 +625,8 @@ private fun GameCard(
                 Row {
                     Text(
                         text = "${correctGuessCount + shownAnswerCount}/$totalFlagCount",
-                        modifier = Modifier.clip(MaterialTheme.shapes.medium)
+                        modifier = Modifier
+                            .clip(MaterialTheme.shapes.medium)
                             .background(MaterialTheme.colorScheme.primary)
                             .padding(vertical = Dimens.extraSmall4, horizontal = Dimens.small10),
                         color = MaterialTheme.colorScheme.onPrimary,
@@ -629,7 +638,8 @@ private fun GameCard(
 
                         Text(
                             text = "$shownAnswerCount",
-                            modifier = Modifier.clip(MaterialTheme.shapes.medium)
+                            modifier = Modifier
+                                .clip(MaterialTheme.shapes.medium)
                                 .background(MaterialTheme.colorScheme.error)
                                 .padding(
                                     vertical = Dimens.extraSmall4,
@@ -744,7 +754,8 @@ private fun GameCard(
                     )
                 } else {
                     NoResultsFound(
-                        modifier = Modifier.aspectRatio(ratio = 2f / 1f)
+                        modifier = Modifier
+                            .aspectRatio(ratio = 2f / 1f)
                             .fillMaxSize(),
                         isGame = true,
                     )
@@ -755,7 +766,8 @@ private fun GameCard(
             OutlinedTextField(
                 value = userGuess,
                 onValueChange = onUserGuessChange,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(top = Dimens.small10),
                 enabled = !isShowAnswer,
                 label = {
@@ -798,12 +810,26 @@ private fun TimeTrialDialog(
 ) {
     val inputStyle = MaterialTheme.typography.headlineLarge
     val inputWidth = 68.dp
-    val inputKeyboardOptions = KeyboardOptions.Default.copy(
-        keyboardType = KeyboardType.Number,
-        imeAction = ImeAction.Done,
-    )
     val inputShape = MaterialTheme.shapes.large
     val inputAnnotationStyle = MaterialTheme.typography.titleLarge
+    val focusRequesterMinutes = remember { FocusRequester() }
+    val focusRequesterSeconds = remember { FocusRequester() }
+
+    fun onTimeTrialAction() {
+        val timeMinute = when (userMinutesInput) {
+            "" -> 0
+            else -> userMinutesInput.toInt() * 60
+        }
+        val timeSecond = when (userSecondsInput) {
+            "" -> 0
+            else -> userSecondsInput.toInt()
+        }
+
+        onTimeTrial(timeMinute + timeSecond)
+        onDismiss()
+    }
+
+    LaunchedEffect(Unit) { focusRequesterMinutes.requestFocus() }
 
 
     Dialog(onDismissRequest = onDismiss) {
@@ -832,10 +858,12 @@ private fun TimeTrialDialog(
                     ),
                     verticalAlignment = Alignment.Bottom
                 ) {
+                    /* Minutes */
                     OutlinedTextField(
                         value = userMinutesInput,
                         onValueChange = onUserMinutesInputChange,
-                        modifier = Modifier.width(inputWidth),
+                        modifier = Modifier.width(inputWidth)
+                            .focusRequester(focusRequesterMinutes),
                         textStyle = inputStyle,
                         placeholder = {
                             Text(
@@ -843,7 +871,13 @@ private fun TimeTrialDialog(
                                 style = inputStyle,
                             )
                         },
-                        keyboardOptions = inputKeyboardOptions,
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Next,
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onNext = { focusRequesterSeconds.requestFocus() }
+                        ),
                         singleLine = true,
                         shape = inputShape
                     )
@@ -853,10 +887,12 @@ private fun TimeTrialDialog(
                         style = inputAnnotationStyle,
                     )
 
+                    /* Seconds */
                     OutlinedTextField(
                         value = userSecondsInput,
                         onValueChange = onUserSecondsInputChange,
-                        modifier = Modifier.width(inputWidth),
+                        modifier = Modifier.width(inputWidth)
+                            .focusRequester(focusRequesterSeconds),
                         textStyle = inputStyle,
                         placeholder = {
                             Text(
@@ -864,7 +900,13 @@ private fun TimeTrialDialog(
                                 style = inputStyle,
                             )
                         },
-                        keyboardOptions = inputKeyboardOptions,
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done,
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = { onTimeTrialAction() }
+                        ),
                         singleLine = true,
                         shape = inputShape
                     )
@@ -891,19 +933,7 @@ private fun TimeTrialDialog(
                     )
 
                     DialogActionButton(
-                        onClick = {
-                            val timeMinute = when (userMinutesInput) {
-                                "" -> 0
-                                else -> userMinutesInput.toInt() * 60
-                            }
-                            val timeSecond = when (userSecondsInput) {
-                                "" -> 0
-                                else -> userSecondsInput.toInt()
-                            }
-
-                            onTimeTrial(timeMinute + timeSecond)
-                            onDismiss()
-                        },
+                        onClick = { onTimeTrialAction() },
                         buttonStringResId = R.string.dialog_ok,
                     )
                 }
@@ -996,7 +1026,8 @@ private fun GameOverDialog(
 
                 /* Action buttons 1 */
                 Row(
-                    modifier = Modifier.padding(top = Dimens.small8, bottom = Dimens.medium16)
+                    modifier = Modifier
+                        .padding(top = Dimens.small8, bottom = Dimens.medium16)
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
