@@ -30,10 +30,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.DoorBack
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.FirstPage
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.LastPage
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.outlined.DoorBack
+import androidx.compose.material.icons.outlined.Logout
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -62,6 +68,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
@@ -974,8 +981,9 @@ private fun GameOverDialog(
                 ) {
                     IconButton(onClick = onExit) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                            imageVector = Icons.AutoMirrored.Default.Logout,
                             contentDescription = null,
+                            modifier = Modifier.graphicsLayer(scaleX = -1f)
                         )
                     }
 
