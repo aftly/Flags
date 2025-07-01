@@ -233,6 +233,7 @@ private fun ListFlagsScreen(
 
     /* Scaffold within box so FilterFlagsButton & it's associated surface can overlay it */
     Box(
+        modifier = modifier,
         contentAlignment = Alignment.TopEnd,
     ) {
         /* ------------------- START OF SCAFFOLD ------------------- */
