@@ -29,7 +29,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
@@ -122,6 +125,10 @@ fun GameScreen(
     LaunchedEffect(backStackEntry) {
         systemUiController.setLightStatusBar(light = !isDarkTheme)
         systemUiController.setSystemBars(visible = true)
+
+        backStackEntry.value?.savedStateHandle?.get<Boolean>("gameOver").let { isGameOver ->
+            if (isGameOver == true) viewModel.endGame()
+        }
     }
 
     /* When language configuration changes, update strings in uiState */
@@ -153,7 +160,10 @@ fun GameScreen(
                 viewModel.endGame(isGameOver = false)
                 viewModel.toggleScoreDetails()
             },
-            onScoreHistory = { onNavigateDetails(Screen.GameHistory) },
+            onScoreHistory = {
+                viewModel.endGame(isGameOver = false)
+                onNavigateDetails(Screen.GameHistory)
+            },
             onShare = { text ->
                 shareText(
                     context = context,
@@ -161,7 +171,10 @@ fun GameScreen(
                     textToShare = text,
                 )
             },
-            onExit = onNavigateUp,
+            onExit = {
+                viewModel.endGame(isGameOver = false)
+                onNavigateUp()
+            },
             onReplay = { viewModel.resetGame() },
         )
     }
@@ -388,7 +401,8 @@ private fun GameContent(
 
     /* Center arranged column with Game content */
     Column(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
             .padding(
                 /* Top padding so that content scroll disappears into FilterFlagsButton */
                 top = filterButtonHeight / 2,
@@ -411,7 +425,8 @@ private fun GameContent(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         /* Spacer to make content start below FilterFlags button */
-        Spacer(modifier = Modifier.fillMaxWidth()
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
             .height(filterButtonHeight / 2 + aspectRatioTopPadding)
         )
 
@@ -447,7 +462,8 @@ private fun GameContent(
         /* Submit button */
         Button(
             onClick = onSubmit,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(top = Dimens.medium16),
             enabled = !isShowAnswer,
         ) {
@@ -457,7 +473,8 @@ private fun GameContent(
         /* Skip button */
         OutlinedButton(
             onClick = onSkip,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(top = Dimens.medium16),
         ) {
             Text(text = stringResource(R.string.game_button_skip))
@@ -471,7 +488,8 @@ private fun GameContent(
                     true -> onShowAnswer()
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(top = Dimens.medium16),
             enabled = !isShowAnswer,
             colors = ButtonDefaults.outlinedButtonColors(contentColor = showAnswerColor),
@@ -599,7 +617,8 @@ private fun GameCard(
         ) {
             /* Top row in card */
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(bottom = Dimens.medium16),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -607,7 +626,8 @@ private fun GameCard(
                 Row {
                     Text(
                         text = "${correctGuessCount + shownAnswerCount}/$totalFlagCount",
-                        modifier = Modifier.clip(MaterialTheme.shapes.medium)
+                        modifier = Modifier
+                            .clip(MaterialTheme.shapes.medium)
                             .background(MaterialTheme.colorScheme.primary)
                             .padding(vertical = Dimens.extraSmall4, horizontal = Dimens.small10),
                         color = MaterialTheme.colorScheme.onPrimary,
@@ -619,7 +639,8 @@ private fun GameCard(
 
                         Text(
                             text = "$shownAnswerCount",
-                            modifier = Modifier.clip(MaterialTheme.shapes.medium)
+                            modifier = Modifier
+                                .clip(MaterialTheme.shapes.medium)
                                 .background(MaterialTheme.colorScheme.error)
                                 .padding(
                                     vertical = Dimens.extraSmall4,
@@ -713,7 +734,8 @@ private fun GameCard(
                         ) {
                             Text(
                                 text = stringResource(correctAnswer),
-                                modifier = Modifier.clip(MaterialTheme.shapes.large)
+                                modifier = Modifier
+                                    .clip(MaterialTheme.shapes.large)
                                     .background(color = Color.Black.copy(alpha = 0.75f))
                                     .padding(
                                         vertical = Dimens.small8,
@@ -733,7 +755,8 @@ private fun GameCard(
                     )
                 } else {
                     NoResultsFound(
-                        modifier = Modifier.aspectRatio(ratio = 2f / 1f)
+                        modifier = Modifier
+                            .aspectRatio(ratio = 2f / 1f)
                             .fillMaxSize(),
                         isGame = true,
                     )
@@ -744,7 +767,8 @@ private fun GameCard(
             OutlinedTextField(
                 value = userGuess,
                 onValueChange = onUserGuessChange,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(top = Dimens.small10),
                 enabled = !isShowAnswer,
                 label = {
@@ -942,12 +966,30 @@ private fun GameOverDialog(
                 ),
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
-                /* Title */
-                Row {
+                /* Title and exit & replay action buttons */
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    IconButton(onClick = onExit) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                            contentDescription = null,
+                        )
+                    }
+
                     Text(
                         text = stringResource(R.string.game_over_title),
                         style = MaterialTheme.typography.headlineSmall,
                     )
+
+                    IconButton(onClick = onReplay) {
+                        Icon(
+                            imageVector = Icons.Default.Replay,
+                            contentDescription = null,
+                        )
+                    }
                 }
 
                 /* Description */
@@ -965,7 +1007,7 @@ private fun GameOverDialog(
 
                 /* Action buttons 1 */
                 Row(
-                    modifier = Modifier.padding(vertical = Dimens.small8)
+                    modifier = Modifier.padding(top = Dimens.small8, bottom = Dimens.medium16)
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
@@ -986,8 +1028,10 @@ private fun GameOverDialog(
                 }
 
                 /* Action buttons 2 */
+                /*
                 Row(
-                    modifier = Modifier.padding(bottom = Dimens.small10)
+                    modifier = Modifier
+                        .padding(bottom = Dimens.small10)
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
@@ -1001,6 +1045,7 @@ private fun GameOverDialog(
                         buttonStringResId = R.string.game_over_replay_button,
                     )
                 }
+                 */
             }
         }
     }

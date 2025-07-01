@@ -171,7 +171,7 @@
     <string name="game_guess_field_label">Your guess</string>
     <string name="game_guess_field_label_error">Incorrect</string>
     <string name="game_guess_field_label_success">Correct!</string>
-    <string name="game_over_title">Game finished</string>
+    <string name="game_over_title">Game over</string>
     <string name="game_over_text">Flags guessed: %d/%d</string>
     <string name="game_over_text_max_score">You guessed every flag…\nNerd!</string>
     <string name="game_over_text_min_score">A dunce cap is coming your way</string>

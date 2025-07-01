@@ -132,7 +132,13 @@ fun AppNavHost(
 
         /* GameScreen NavGraph */
         composable(
-            route = Screen.Game.route,
+            route = "${Screen.Game.route}?gameOver={gameOver}",
+            arguments = listOf(
+                navArgument(name = "gameOver") {
+                    type = NavType.BoolType
+                    defaultValue = false
+                }
+            ),
             exitTransition = {
                 when (targetState.destination.route) {
                     Screen.Fullscreen.route -> ExitTransition.None
@@ -170,7 +176,10 @@ fun AppNavHost(
         ) {
             GameHistoryScreen(
                 screen = Screen.GameHistory,
-                onNavigateUp = { navController.navigateUp() },
+                onNavigateUp = {
+                    navController.previousBackStackEntry?.savedStateHandle?.set("gameOver", true)
+                    navController.navigateUp()
+                },
             )
         }
 
