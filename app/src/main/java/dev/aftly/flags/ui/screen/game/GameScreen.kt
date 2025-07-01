@@ -408,8 +408,7 @@ private fun GameContent(
 
     /* Center arranged column with Game content */
     Column(
-        modifier = modifier
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
             .padding(
                 /* Top padding so that content scroll disappears into FilterFlagsButton */
                 top = filterButtonHeight / 2,
@@ -432,9 +431,9 @@ private fun GameContent(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         /* Spacer to make content start below FilterFlags button */
-        Spacer(modifier = Modifier
-            .fillMaxWidth()
-            .height(filterButtonHeight / 2 + aspectRatioTopPadding)
+        Spacer(
+            modifier = Modifier.fillMaxWidth()
+                .height(filterButtonHeight / 2 + aspectRatioTopPadding)
         )
 
         GameCard(
@@ -469,8 +468,7 @@ private fun GameContent(
         /* Submit button */
         Button(
             onClick = onSubmit,
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
                 .padding(top = Dimens.medium16),
             enabled = !isShowAnswer,
         ) {
@@ -480,8 +478,7 @@ private fun GameContent(
         /* Skip button */
         OutlinedButton(
             onClick = onSkip,
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
                 .padding(top = Dimens.medium16),
         ) {
             Text(text = stringResource(R.string.game_button_skip))
@@ -495,8 +492,7 @@ private fun GameContent(
                     true -> onShowAnswer()
                 }
             },
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
                 .padding(top = Dimens.medium16),
             enabled = !isShowAnswer,
             colors = ButtonDefaults.outlinedButtonColors(contentColor = showAnswerColor),
@@ -624,8 +620,7 @@ private fun GameCard(
         ) {
             /* Top row in card */
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
                     .padding(bottom = Dimens.medium16),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -633,8 +628,7 @@ private fun GameCard(
                 Row {
                     Text(
                         text = "${correctGuessCount + shownAnswerCount}/$totalFlagCount",
-                        modifier = Modifier
-                            .clip(MaterialTheme.shapes.medium)
+                        modifier = Modifier.clip(MaterialTheme.shapes.medium)
                             .background(MaterialTheme.colorScheme.primary)
                             .padding(vertical = Dimens.extraSmall4, horizontal = Dimens.small10),
                         color = MaterialTheme.colorScheme.onPrimary,
@@ -646,8 +640,7 @@ private fun GameCard(
 
                         Text(
                             text = "$shownAnswerCount",
-                            modifier = Modifier
-                                .clip(MaterialTheme.shapes.medium)
+                            modifier = Modifier.clip(MaterialTheme.shapes.medium)
                                 .background(MaterialTheme.colorScheme.error)
                                 .padding(
                                     vertical = Dimens.extraSmall4,
@@ -762,8 +755,7 @@ private fun GameCard(
                     )
                 } else {
                     NoResultsFound(
-                        modifier = Modifier
-                            .aspectRatio(ratio = 2f / 1f)
+                        modifier = Modifier.aspectRatio(ratio = 2f / 1f)
                             .fillMaxSize(),
                         isGame = true,
                     )
@@ -774,8 +766,7 @@ private fun GameCard(
             OutlinedTextField(
                 value = userGuess,
                 onValueChange = onUserGuessChange,
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
                     .padding(top = Dimens.small10),
                 enabled = !isShowAnswer,
                 label = {
