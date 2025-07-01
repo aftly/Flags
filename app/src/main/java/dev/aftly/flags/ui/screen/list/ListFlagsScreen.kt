@@ -9,6 +9,8 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,11 +64,13 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -164,6 +168,7 @@ private fun ListFlagsScreen(
     var buttonHeight by remember { mutableStateOf(0.dp) }
     var scaffoldPaddingValues by remember { mutableStateOf(value = PaddingValues()) }
 
+
     /* Properties for ScrollToTopButton & reset scroll position when category changed in menu */
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -174,7 +179,18 @@ private fun ListFlagsScreen(
     }
 
     /* Controls search bar and list state */
+    val focusRequesterSearch = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
     var isSearchBar by rememberSaveable { mutableStateOf(value = false) }
+
+    LaunchedEffect(buttonExpanded) {
+        if (buttonExpanded) {
+            focusManager.clearFocus()
+        } else if (isSearchBar) {
+            focusRequesterSearch.requestFocus()
+        }
+    }
+
     LaunchedEffect(isSearchBar) {
         when (isSearchBar) {
             true -> {
@@ -184,6 +200,7 @@ private fun ListFlagsScreen(
                         coroutineScope.launch { listState.animateScrollToItem(index = 0) }
                     }
                 }
+                focusRequesterSearch.requestFocus()
             }
             false -> {
                 delay(Timing.MENU_COLLAPSE.toLong())
@@ -216,12 +233,14 @@ private fun ListFlagsScreen(
 
     /* Scaffold within box so FilterFlagsButton & it's associated surface can overlay it */
     Box(
-        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.TopEnd,
     ) {
         /* ------------------- START OF SCAFFOLD ------------------- */
         Scaffold(
-            modifier = Modifier,
+            modifier = Modifier.fillMaxSize()
+                .pointerInput(Unit) {
+                    detectTapGestures { focusManager.clearFocus() }
+                },
             topBar = {
                 ListFlagsTopBar(
                     currentScreen = screen,
@@ -234,6 +253,7 @@ private fun ListFlagsScreen(
                         }
                         onUserSearchChange(it)
                     },
+                    focusRequesterSearch = focusRequesterSearch,
                     isSearchBar = isSearchBar,
                     onIsSearchBar = { isSearchBar = !isSearchBar },
                     onNavigateUp = onNavigateUp,
@@ -250,8 +270,7 @@ private fun ListFlagsScreen(
             scaffoldPaddingValues = scaffoldPadding
 
             ListFlagsContent(
-                modifier = Modifier
-                    .fillMaxSize()
+                modifier = Modifier.fillMaxSize()
                     .padding(
                         top = scaffoldPadding.calculateTopPadding(),
                         start = Dimens.marginHorizontal16,
@@ -321,8 +340,7 @@ private fun ListFlagsContent(
     Column(modifier = modifier) {
         /* To make LazyColumn scroll disappear into center of FilterFlagsButton */
         Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
                 .height(filterButtonHeight / 2)
         )
 
@@ -331,8 +349,7 @@ private fun ListFlagsContent(
                 if (currentFlagsList.isNotEmpty()) {
                     /* Flags list */
                     LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
+                        modifier = Modifier.fillMaxSize()
                             .nestedScroll(scrollBehaviour.nestedScrollConnection),
                         state = listState,
                         contentPadding = PaddingValues(
@@ -361,8 +378,7 @@ private fun ListFlagsContent(
             true -> {
                 if (searchResults.isNotEmpty()) {
                     LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
+                        modifier = Modifier.fillMaxSize()
                             .nestedScroll(scrollBehaviour.nestedScrollConnection),
                         state = listState,
                         contentPadding = PaddingValues(
@@ -428,8 +444,7 @@ private fun ListItem(
                 Box(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(flag.flagOf),
-                        modifier = Modifier
-                            .fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                             /* Separate text from image */
                             .padding(end = Dimens.small8),
                         style = MaterialTheme.typography.titleMedium,
@@ -459,6 +474,7 @@ private fun ListFlagsTopBar(
     userSearch: String,
     isUserSearch: Boolean,
     onUserSearchChange: (String) -> Unit,
+    focusRequesterSearch: FocusRequester,
     isSearchBar: Boolean,
     onIsSearchBar: () -> Unit,
     onNavigateUp: () -> Unit,
@@ -493,16 +509,12 @@ private fun ListFlagsTopBar(
     val textFieldStartPadding = with(density) {
         (navigationIconOffsetX + navigationIconWidth).toDp() + textFieldOffset
     }
-    val focusRequester = remember { FocusRequester() }
 
     /* For search action button and topBar title to respect search bar animation */
     var isSearchBarDelay by rememberSaveable { mutableStateOf(value = true) }
     LaunchedEffect(isSearchBar) {
         when (isSearchBar) {
-            true -> {
-                isSearchBarDelay = false
-                focusRequester.requestFocus()
-            }
+            true -> isSearchBarDelay = false
             false -> {
                 delay(timeMillis = Timing.MENU_COLLAPSE.toLong())
                 isSearchBarDelay = true
@@ -527,11 +539,10 @@ private fun ListFlagsTopBar(
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
+                        horizontalArrangement = Arrangement.Center,
                     ) {
                         Box(
-                            modifier = Modifier
-                                .size(0.dp)
+                            modifier = Modifier.size(0.dp)
                                 .weight(boxWeight)
                         )
 
@@ -542,8 +553,7 @@ private fun ListFlagsTopBar(
                         )
 
                         Box(
-                            modifier = Modifier
-                                .size(0.dp)
+                            modifier = Modifier.size(0.dp)
                                 .weight(1f)
                         )
                     }
@@ -612,14 +622,13 @@ private fun ListFlagsTopBar(
                     TextField(
                         value = userSearch,
                         onValueChange = onUserSearchChange,
-                        modifier = Modifier
-                            //.height(48.dp * configuration.fontScale)
+                        modifier = Modifier//.height(48.dp * configuration.fontScale)
                             .fillMaxWidth()
                             .padding(
                                 end = Dimens.marginHorizontal16 - textFieldOffset,
                                 start = textFieldStartPadding,
                             )
-                            .focusRequester(focusRequester),
+                            .focusRequester(focusRequesterSearch),
                         singleLine = true,
                         placeholder = {
                             Text(text = stringResource(R.string.search_bar_placeholder))
