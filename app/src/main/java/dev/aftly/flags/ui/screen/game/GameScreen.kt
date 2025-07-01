@@ -29,17 +29,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.DoorBack
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.FirstPage
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.LastPage
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material.icons.outlined.DoorBack
-import androidx.compose.material.icons.outlined.Logout
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -93,8 +86,8 @@ import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.navigation.Screen
-import dev.aftly.flags.ui.component.DialogActionButton
 import dev.aftly.flags.ui.component.CategoriesButtonMenu
+import dev.aftly.flags.ui.component.DialogActionButton
 import dev.aftly.flags.ui.component.FullscreenButton
 import dev.aftly.flags.ui.component.NoResultsFound
 import dev.aftly.flags.ui.component.ScoreDetails
@@ -196,7 +189,6 @@ fun GameScreen(
             viewModel.toggleScoreDetails()
             viewModel.endGame()
         },
-        onKeyboardDoneAction = { viewModel.checkUserGuess() },
         onSubmit = { viewModel.checkUserGuess() },
         onSkip = { viewModel.skipFlag() },
         onConfirmShowAnswer = { viewModel.confirmShowAnswer() },
@@ -224,7 +216,6 @@ private fun GameScreen(
     userGuess: String,
     onUserGuessChange: (String) -> Unit,
     onCloseScoreDetails: () -> Unit,
-    onKeyboardDoneAction: () -> Unit,
     onSubmit: () -> Unit,
     onSkip: () -> Unit,
     onConfirmShowAnswer: () -> Unit,
@@ -304,7 +295,6 @@ private fun GameScreen(
                 showAnswerResetTimer = uiState.timerShowAnswerReset,
                 isConfirmShowAnswer = uiState.isConfirmShowAnswer,
                 isShowAnswer = uiState.isShowAnswer,
-                onKeyboardDoneAction = onKeyboardDoneAction,
                 onSubmit = onSubmit,
                 onSkip = onSkip,
                 onConfirmShowAnswer = onConfirmShowAnswer,
@@ -368,7 +358,6 @@ private fun GameContent(
     showAnswerResetTimer: Int,
     isConfirmShowAnswer: Boolean,
     isShowAnswer: Boolean,
-    onKeyboardDoneAction: () -> Unit,
     onSubmit: () -> Unit,
     onSkip: () -> Unit,
     onConfirmShowAnswer: () -> Unit,
@@ -457,7 +446,7 @@ private fun GameContent(
             isGuessWrong = isGuessWrong,
             isGuessWrongEvent = isGuessWrongEvent,
             isShowAnswer = isShowAnswer,
-            onKeyboardDoneAction = onKeyboardDoneAction,
+            onSubmit = onSubmit,
             onEndGame = onEndGame,
             onImageWide = onImageWide,
             onFullscreen = onFullscreen,
@@ -526,7 +515,7 @@ private fun GameCard(
     isGuessWrong: Boolean,
     isGuessWrongEvent: Boolean,
     isShowAnswer: Boolean,
-    onKeyboardDoneAction: () -> Unit,
+    onSubmit: () -> Unit,
     onEndGame: () -> Unit,
     onImageWide: (Boolean) -> Unit,
     onFullscreen: () -> Unit,
@@ -777,7 +766,7 @@ private fun GameCard(
                     imeAction = ImeAction.Done,
                 ),
                 keyboardActions = KeyboardActions(
-                    onDone = { onKeyboardDoneAction() },
+                    onDone = { onSubmit() },
                 ),
                 singleLine = true,
                 shape = MaterialTheme.shapes.large,
@@ -810,7 +799,8 @@ private fun TimeTrialDialog(
     val inputStyle = MaterialTheme.typography.headlineLarge
     val inputWidth = 68.dp
     val inputKeyboardOptions = KeyboardOptions.Default.copy(
-        keyboardType = KeyboardType.Number
+        keyboardType = KeyboardType.Number,
+        imeAction = ImeAction.Done,
     )
     val inputShape = MaterialTheme.shapes.large
     val inputAnnotationStyle = MaterialTheme.typography.titleLarge
