@@ -161,10 +161,8 @@ fun AppNavHost(
                     navController.navigate(route = "${Screen.GameHistory.route}/$isGameOver")
                 },
                 onFullscreen = { flagArg, isLandscape, hideTitle ->
-                    val flagsArg = "$flagArg"
-
                     navController.navigate(
-                        route = "${Screen.Fullscreen.route}/$flagArg/$flagsArg/$isLandscape?hideTitle=$hideTitle"
+                        route = "${Screen.Fullscreen.route}/$flagArg/$flagArg/$isLandscape?hideTitle=$hideTitle"
                     ) { launchSingleTop = true }
                 }
             )
