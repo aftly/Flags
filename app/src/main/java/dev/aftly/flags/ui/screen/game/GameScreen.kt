@@ -304,6 +304,7 @@ private fun GameScreen(
             topBar = {
                 GameTopBar(
                     screen = screen,
+                    isGame = uiState.currentFlags.isNotEmpty(),
                     isTimerPaused = uiState.isTimerPaused,
                     timer = timerString,
                     onNavigateUp = {
@@ -325,6 +326,7 @@ private fun GameScreen(
 
             GameContent(
                 modifier = Modifier.padding(scaffoldPadding),
+                isGame = uiState.currentFlags.isNotEmpty(),
                 isWideScreen = isWideScreen,
                 filterButtonHeight = buttonHeight,
                 totalFlagCount = uiState.totalFlagCount,
@@ -390,6 +392,7 @@ private fun GameScreen(
 @Composable
 private fun GameContent(
     modifier: Modifier = Modifier,
+    isGame: Boolean,
     isWideScreen: Boolean,
     filterButtonHeight: Dp,
     totalFlagCount: Int,
@@ -446,8 +449,7 @@ private fun GameContent(
 
     /* Center arranged column with Game content */
     Column(
-        modifier = modifier
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
             .padding(
                 /* Top padding so that content scroll disappears into FilterFlagsButton */
                 top = filterButtonHeight / 2,
@@ -471,12 +473,12 @@ private fun GameContent(
     ) {
         /* Spacer to make content start below FilterFlags button */
         Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
                 .height(filterButtonHeight / 2 + aspectRatioTopPadding)
         )
 
         GameCard(
+            isGame = isGame,
             contentColumnHeight = columnHeight,
             cardImageWidth = imageWidth,
             onCardImageWidthChange = { imageWidth = it },
@@ -510,10 +512,9 @@ private fun GameContent(
         /* Submit button */
         Button(
             onClick = onSubmit,
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
                 .padding(top = Dimens.medium16),
-            enabled = !isShowAnswer,
+            enabled = isGame && !isShowAnswer,
         ) {
             Text(text = stringResource(R.string.game_button_submit))
         }
@@ -521,9 +522,9 @@ private fun GameContent(
         /* Skip button */
         OutlinedButton(
             onClick = onSkip,
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
                 .padding(top = Dimens.medium16),
+            enabled = isGame,
         ) {
             Text(text = stringResource(R.string.game_button_skip))
         }
@@ -536,10 +537,9 @@ private fun GameContent(
                     true -> onShowAnswer()
                 }
             },
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
                 .padding(top = Dimens.medium16),
-            enabled = !isShowAnswer,
+            enabled = isGame && !isShowAnswer,
             colors = ButtonDefaults.outlinedButtonColors(contentColor = showAnswerColor),
         ) {
             Text(text = showAnswerText)
@@ -551,6 +551,7 @@ private fun GameContent(
 @Composable
 private fun GameCard(
     modifier: Modifier = Modifier,
+    isGame: Boolean,
     contentColumnHeight: Dp,
     cardImageWidth: Dp,
     onCardImageWidthChange: (Dp) -> Unit,
@@ -668,8 +669,7 @@ private fun GameCard(
         ) {
             /* Top row in card */
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
                     .padding(bottom = Dimens.medium16),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -677,8 +677,7 @@ private fun GameCard(
                 Row {
                     Text(
                         text = "${correctGuessCount + shownAnswerCount}/$totalFlagCount",
-                        modifier = Modifier
-                            .clip(MaterialTheme.shapes.medium)
+                        modifier = Modifier.clip(MaterialTheme.shapes.medium)
                             .background(MaterialTheme.colorScheme.primary)
                             .padding(vertical = Dimens.extraSmall4, horizontal = Dimens.small10),
                         color = MaterialTheme.colorScheme.onPrimary,
@@ -690,8 +689,7 @@ private fun GameCard(
 
                         Text(
                             text = "$shownAnswerCount",
-                            modifier = Modifier
-                                .clip(MaterialTheme.shapes.medium)
+                            modifier = Modifier.clip(MaterialTheme.shapes.medium)
                                 .background(MaterialTheme.colorScheme.error)
                                 .padding(
                                     vertical = Dimens.extraSmall4,
@@ -707,15 +705,18 @@ private fun GameCard(
                 TextButton(
                     onClick = onEndGame,
                     modifier = Modifier.height(Dimens.extraLarge32),
-                    shape = RoundedCornerShape(0.dp),
+                    enabled = isGame,
+                    shape = RoundedCornerShape(Dimens.small8),
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    ),
                     contentPadding = PaddingValues(
                         start = Dimens.small10,
                         bottom = Dimens.extraSmall6,
                     ),
                 ) {
                     Text(
-                        text = stringResource(R.string.end_game),
-                        color = MaterialTheme.colorScheme.error,
+                        text = stringResource(R.string.game_end),
                         style = MaterialTheme.typography.titleMedium,
                     )
                 }
@@ -793,8 +794,7 @@ private fun GameCard(
                         ) {
                             Text(
                                 text = stringResource(correctAnswer),
-                                modifier = Modifier
-                                    .clip(MaterialTheme.shapes.large)
+                                modifier = Modifier.clip(MaterialTheme.shapes.large)
                                     .background(color = Color.Black.copy(alpha = 0.75f))
                                     .padding(
                                         vertical = Dimens.small8,
@@ -831,7 +831,7 @@ private fun GameCard(
                     .onFocusChanged {
                         if (it.isFocused) onFocusChanged(true)
                     },
-                enabled = !isShowAnswer,
+                enabled = isGame && !isShowAnswer,
                 label = {
                     Text(text = labelState)
                 },
@@ -1118,6 +1118,7 @@ private fun GameOverDialog(
 private fun GameTopBar(
     modifier: Modifier = Modifier,
     screen: Screen,
+    isGame: Boolean,
     isTimerPaused: Boolean,
     timer: String = "0:00",
     onNavigateUp: () -> Unit,
@@ -1147,15 +1148,18 @@ private fun GameTopBar(
             Text(
                 text = timer,
                 modifier = Modifier.padding(end = Dimens.extraSmall4),
-                color = when (isTimerPaused) {
-                    false -> MaterialTheme.colorScheme.error
-                    true -> MaterialTheme.colorScheme.outline
+                color = when (isGame to isTimerPaused) {
+                    true to false -> MaterialTheme.colorScheme.error
+                    else -> MaterialTheme.colorScheme.outline
                 },
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
             )
 
-            IconButton(onClick = onAction) {
+            IconButton(
+                onClick = onAction,
+                enabled = isGame,
+            ) {
                 Icon(
                     imageVector = Icons.Default.Timer,
                     contentDescription = null,
