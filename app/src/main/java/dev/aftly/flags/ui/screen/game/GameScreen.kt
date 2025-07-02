@@ -142,7 +142,7 @@ fun GameScreen(
         systemUiController.setSystemBars(visible = true)
 
         if (isGuessFieldFocused) focusRequesterGuessField.requestFocus()
-
+        
         backStackEntry.value?.savedStateHandle?.get<Boolean>("gameOver").let { isGameOver ->
             if (isGameOver == true) viewModel.endGame()
         }

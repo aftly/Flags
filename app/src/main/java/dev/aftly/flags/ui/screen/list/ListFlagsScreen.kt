@@ -62,6 +62,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
@@ -118,14 +119,29 @@ fun ListFlagsScreen(
     }
      */
 
+    /* Manage search bar focus */
+    val focusRequesterSearch = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    var isSearchBarFocused by rememberSaveable { mutableStateOf(value = false) }
+    LaunchedEffect(Unit) {
+        if (isSearchBarFocused) focusRequesterSearch.requestFocus()
+    }
+
+
     ListFlagsScreen(
         uiState = uiState,
         searchState = searchState,
         screen = screen,
+        focusRequesterSearch = focusRequesterSearch,
+        isSearchBarFocused = isSearchBarFocused,
+        onFocusChanged = { isSearchBarFocused = it },
         userSearch = searchModel.searchQuery,
         isUserSearch = searchModel.isSearchQuery,
         onUserSearchChange = { searchModel.onSearchQueryChange(it) },
-        onNavigateUp = onNavigateUp,
+        onNavigateUp = {
+            focusManager.clearFocus()
+            onNavigateUp()
+        },
         onCategorySelect = { newSuperCategory, newSubCategory ->
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
             searchModel.updateCurrentCategory(newSuperCategory, newSubCategory)
@@ -135,6 +151,7 @@ fun ListFlagsScreen(
             searchModel.updateCurrentCategories(selectSuperCategory, selectSubCategory)
         },
         onFlagSelect = { flag ->
+            focusManager.clearFocus()
             val currentList = when (searchModel.isSearchQuery) {
                 true -> searchState.map { it.id }
                 false -> uiState.currentFlags.map { it.id }
@@ -154,6 +171,9 @@ private fun ListFlagsScreen(
     screen: Screen,
     containerColor1: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     containerColor2: Color = MaterialTheme.colorScheme.secondary,
+    focusRequesterSearch: FocusRequester,
+    isSearchBarFocused: Boolean,
+    onFocusChanged: (Boolean) -> Unit,
     userSearch: String,
     isUserSearch: Boolean,
     onUserSearchChange: (String) -> Unit,
@@ -179,13 +199,12 @@ private fun ListFlagsScreen(
     }
 
     /* Controls search bar and list state */
-    val focusRequesterSearch = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     var isSearchBar by rememberSaveable { mutableStateOf(value = false) }
 
     LaunchedEffect(buttonExpanded) {
         if (buttonExpanded) focusManager.clearFocus()
-        else if (isSearchBar) focusRequesterSearch.requestFocus()
+        else if (isSearchBarFocused) focusRequesterSearch.requestFocus()
     }
 
     LaunchedEffect(isSearchBar) {
@@ -235,9 +254,13 @@ private fun ListFlagsScreen(
     ) {
         /* ------------------- START OF SCAFFOLD ------------------- */
         Scaffold(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .pointerInput(Unit) {
-                    detectTapGestures { focusManager.clearFocus() }
+                    detectTapGestures {
+                        focusManager.clearFocus()
+                        onFocusChanged(false)
+                    }
                 },
             topBar = {
                 ListFlagsTopBar(
@@ -252,6 +275,7 @@ private fun ListFlagsScreen(
                         onUserSearchChange(it)
                     },
                     focusRequesterSearch = focusRequesterSearch,
+                    onFocusChanged = onFocusChanged,
                     isSearchBar = isSearchBar,
                     onIsSearchBar = { isSearchBar = !isSearchBar },
                     onNavigateUp = onNavigateUp,
@@ -268,7 +292,8 @@ private fun ListFlagsScreen(
             scaffoldPaddingValues = scaffoldPadding
 
             ListFlagsContent(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .padding(
                         top = scaffoldPadding.calculateTopPadding(),
                         start = Dimens.marginHorizontal16,
@@ -281,7 +306,10 @@ private fun ListFlagsScreen(
                 isUserSearch = isUserSearch,
                 searchResults = searchState,
                 currentFlagsList = uiState.currentFlags,
-                onFlagSelect = onFlagSelect,
+                onFlagSelect = {
+                    focusManager.clearFocus()
+                    onFlagSelect(it)
+                },
             )
         }
         /* ------------------- END OF SCAFFOLD ------------------- */
@@ -338,7 +366,8 @@ private fun ListFlagsContent(
     Column(modifier = modifier) {
         /* To make LazyColumn scroll disappear into center of FilterFlagsButton */
         Spacer(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .height(filterButtonHeight / 2)
         )
 
@@ -347,7 +376,8 @@ private fun ListFlagsContent(
                 if (currentFlagsList.isNotEmpty()) {
                     /* Flags list */
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxSize()
                             .nestedScroll(scrollBehaviour.nestedScrollConnection),
                         state = listState,
                         contentPadding = PaddingValues(
@@ -376,7 +406,8 @@ private fun ListFlagsContent(
             true -> {
                 if (searchResults.isNotEmpty()) {
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxSize()
                             .nestedScroll(scrollBehaviour.nestedScrollConnection),
                         state = listState,
                         contentPadding = PaddingValues(
@@ -442,7 +473,8 @@ private fun ListItem(
                 Box(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(flag.flagOf),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             /* Separate text from image */
                             .padding(end = Dimens.small8),
                         style = MaterialTheme.typography.titleMedium,
@@ -473,6 +505,7 @@ private fun ListFlagsTopBar(
     isUserSearch: Boolean,
     onUserSearchChange: (String) -> Unit,
     focusRequesterSearch: FocusRequester,
+    onFocusChanged: (Boolean) -> Unit,
     isSearchBar: Boolean,
     onIsSearchBar: () -> Unit,
     onNavigateUp: () -> Unit,
@@ -626,7 +659,10 @@ private fun ListFlagsTopBar(
                                 end = Dimens.marginHorizontal16 - textFieldOffset,
                                 start = textFieldStartPadding,
                             )
-                            .focusRequester(focusRequesterSearch),
+                            .focusRequester(focusRequesterSearch)
+                            .onFocusChanged {
+                                if (it.isFocused) onFocusChanged(true)
+                            },
                         singleLine = true,
                         placeholder = {
                             Text(text = stringResource(R.string.search_bar_placeholder))
