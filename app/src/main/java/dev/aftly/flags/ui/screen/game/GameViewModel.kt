@@ -112,8 +112,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 )
             }
 
-            timerStandardJob = viewModelScope.launch {
-                startTimerStandard()
+            if (uiState.value.currentFlags.isNotEmpty()) {
+                timerStandardJob = viewModelScope.launch {
+                    startTimerStandard()
+                }
             }
         }
     }
