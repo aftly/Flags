@@ -128,9 +128,20 @@ fun GameScreen(
     val systemUiController = remember { SystemUiController(view, window) }
     val isDarkTheme = LocalDarkTheme.current
 
+    /* Manage guess field focus */
+    val focusRequesterGuessField = remember { FocusRequester() }
+    var isGuessFieldFocused by rememberSaveable { mutableStateOf(value = false) }
+    LaunchedEffect(uiState.isTimeTrialDialog) {
+        if (!uiState.isTimeTrialDialog && isGuessFieldFocused) {
+            focusRequesterGuessField.requestFocus()
+        }
+    }
+
     LaunchedEffect(backStackEntry) {
         systemUiController.setLightStatusBar(light = !isDarkTheme)
         systemUiController.setSystemBars(visible = true)
+
+        if (isGuessFieldFocused) focusRequesterGuessField.requestFocus()
 
         backStackEntry.value?.savedStateHandle?.get<Boolean>("gameOver").let { isGameOver ->
             if (isGameOver == true) viewModel.endGame()
@@ -191,6 +202,9 @@ fun GameScreen(
         screen = screen,
         userGuess = viewModel.userGuess,
         onUserGuessChange = { viewModel.updateUserGuess(it) },
+        focusRequesterGuessField = focusRequesterGuessField,
+        isGuessFieldFocused = isGuessFieldFocused,
+        onFocusChanged = { isGuessFieldFocused = it },
         onCloseScoreDetails = {
             viewModel.toggleScoreDetails()
             viewModel.endGame()
@@ -221,6 +235,9 @@ private fun GameScreen(
     screen: Screen,
     userGuess: String,
     onUserGuessChange: (String) -> Unit,
+    focusRequesterGuessField: FocusRequester,
+    isGuessFieldFocused: Boolean,
+    onFocusChanged: (Boolean) -> Unit,
     onCloseScoreDetails: () -> Unit,
     onSubmit: () -> Unit,
     onSkip: () -> Unit,
@@ -266,8 +283,6 @@ private fun GameScreen(
     )
 
     /* Manage guess field focus */
-    val focusRequesterGuessField = remember { FocusRequester() }
-    var isGuessFieldFocused by rememberSaveable { mutableStateOf(value = false) }
     val focusManager = LocalFocusManager.current
     LaunchedEffect(buttonExpanded) {
         if (buttonExpanded) focusManager.clearFocus()
@@ -279,11 +294,12 @@ private fun GameScreen(
     Box(modifier = modifier.fillMaxSize()) {
         /* ------------------- START OF SCAFFOLD ------------------- */
         Scaffold(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .pointerInput(Unit) {
                     detectTapGestures {
                         focusManager.clearFocus()
-                        isGuessFieldFocused = false
+                        onFocusChanged(false)
                     }
                 },
             topBar = {
@@ -291,9 +307,18 @@ private fun GameScreen(
                     screen = screen,
                     isTimerPaused = uiState.isTimerPaused,
                     timer = timerString,
-                    onNavigateUp = onNavigateUp,
-                    onNavigateDetails = onNavigateDetails,
-                    onAction = onToggleTimeTrial,
+                    onNavigateUp = {
+                        focusManager.clearFocus()
+                        onNavigateUp()
+                    },
+                    onNavigateDetails = {
+                        focusManager.clearFocus()
+                        onNavigateDetails(it)
+                    },
+                    onAction = {
+                        focusManager.clearFocus()
+                        onToggleTimeTrial()
+                    },
                 )
             }
         ) { scaffoldPadding ->
@@ -310,7 +335,7 @@ private fun GameScreen(
                 userGuess = userGuess,
                 onUserGuessChange = onUserGuessChange,
                 focusRequesterGuessField = focusRequesterGuessField,
-                onFocusChanged = { isGuessFieldFocused = it },
+                onFocusChanged = onFocusChanged,
                 isGuessCorrect = uiState.isGuessCorrect,
                 isGuessCorrectEvent = uiState.isGuessCorrectEvent,
                 isGuessWrong = uiState.isGuessWrong,
@@ -422,7 +447,8 @@ private fun GameContent(
 
     /* Center arranged column with Game content */
     Column(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
             .padding(
                 /* Top padding so that content scroll disappears into FilterFlagsButton */
                 top = filterButtonHeight / 2,
@@ -446,7 +472,8 @@ private fun GameContent(
     ) {
         /* Spacer to make content start below FilterFlags button */
         Spacer(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .height(filterButtonHeight / 2 + aspectRatioTopPadding)
         )
 
@@ -484,7 +511,8 @@ private fun GameContent(
         /* Submit button */
         Button(
             onClick = onSubmit,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(top = Dimens.medium16),
             enabled = !isShowAnswer,
         ) {
@@ -494,7 +522,8 @@ private fun GameContent(
         /* Skip button */
         OutlinedButton(
             onClick = onSkip,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(top = Dimens.medium16),
         ) {
             Text(text = stringResource(R.string.game_button_skip))
@@ -508,7 +537,8 @@ private fun GameContent(
                     true -> onShowAnswer()
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(top = Dimens.medium16),
             enabled = !isShowAnswer,
             colors = ButtonDefaults.outlinedButtonColors(contentColor = showAnswerColor),
@@ -639,7 +669,8 @@ private fun GameCard(
         ) {
             /* Top row in card */
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(bottom = Dimens.medium16),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -647,7 +678,8 @@ private fun GameCard(
                 Row {
                     Text(
                         text = "${correctGuessCount + shownAnswerCount}/$totalFlagCount",
-                        modifier = Modifier.clip(MaterialTheme.shapes.medium)
+                        modifier = Modifier
+                            .clip(MaterialTheme.shapes.medium)
                             .background(MaterialTheme.colorScheme.primary)
                             .padding(vertical = Dimens.extraSmall4, horizontal = Dimens.small10),
                         color = MaterialTheme.colorScheme.onPrimary,
@@ -659,7 +691,8 @@ private fun GameCard(
 
                         Text(
                             text = "$shownAnswerCount",
-                            modifier = Modifier.clip(MaterialTheme.shapes.medium)
+                            modifier = Modifier
+                                .clip(MaterialTheme.shapes.medium)
                                 .background(MaterialTheme.colorScheme.error)
                                 .padding(
                                     vertical = Dimens.extraSmall4,
@@ -761,7 +794,8 @@ private fun GameCard(
                         ) {
                             Text(
                                 text = stringResource(correctAnswer),
-                                modifier = Modifier.clip(MaterialTheme.shapes.large)
+                                modifier = Modifier
+                                    .clip(MaterialTheme.shapes.large)
                                     .background(color = Color.Black.copy(alpha = 0.75f))
                                     .padding(
                                         vertical = Dimens.small8,
@@ -781,7 +815,8 @@ private fun GameCard(
                     )
                 } else {
                     NoResultsFound(
-                        modifier = Modifier.aspectRatio(ratio = 2f / 1f)
+                        modifier = Modifier
+                            .aspectRatio(ratio = 2f / 1f)
                             .fillMaxSize(),
                         isGame = true,
                     )
@@ -792,7 +827,8 @@ private fun GameCard(
             OutlinedTextField(
                 value = userGuess,
                 onValueChange = onUserGuessChange,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(top = Dimens.small10)
                     .focusRequester(focusRequesterGuessField)
                     .onFocusChanged {
