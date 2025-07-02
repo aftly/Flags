@@ -132,9 +132,9 @@ fun AppNavHost(
 
         /* GameScreen NavGraph */
         composable(
-            route = "${Screen.Game.route}?gameOver={gameOver}",
+            route = "${Screen.Game.route}?isGameOver={isGameOver}",
             arguments = listOf(
-                navArgument(name = "gameOver") {
+                navArgument(name = "isGameOver") {
                     type = NavType.BoolType
                     defaultValue = false
                 }
@@ -157,8 +157,8 @@ fun AppNavHost(
                 navController = navController,
                 screen = Screen.Game,
                 onNavigateUp = { navController.navigateUp() },
-                onNavigateDetails = { screen ->
-                    navController.navigate(route = screen.route)
+                onNavigateDetails = { isGameOver ->
+                    navController.navigate(route = "${Screen.GameHistory.route}/$isGameOver")
                 },
                 onFullscreen = { flagArg, isLandscape, hideTitle ->
                     val flagsArg = "$flagArg"
@@ -172,12 +172,18 @@ fun AppNavHost(
 
         /* GameHistory NavGraph (for score history) */
         composable(
-            route = Screen.GameHistory.route
+            route = "${Screen.GameHistory.route}/{isGameOver}",
+            arguments = listOf(
+                navArgument(name = "isGameOver") { type = NavType.BoolType }
+            )
         ) {
             GameHistoryScreen(
                 screen = Screen.GameHistory,
-                onNavigateUp = {
-                    navController.previousBackStackEntry?.savedStateHandle?.set("gameOver", true)
+                onNavigateUp = { isGameOver ->
+                    navController.previousBackStackEntry?.savedStateHandle?.set(
+                        key = "isGameOver",
+                        value = isGameOver,
+                    )
                     navController.navigateUp()
                 },
             )

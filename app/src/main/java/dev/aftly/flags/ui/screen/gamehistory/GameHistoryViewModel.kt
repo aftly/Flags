@@ -2,6 +2,7 @@ package dev.aftly.flags.ui.screen.gamehistory
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.data.room.ScoreItem
@@ -13,13 +14,20 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class GameHistoryViewModel(application: Application) : AndroidViewModel(application) {
+class GameHistoryViewModel(
+    application: Application,
+    savedStateHandle: SavedStateHandle,
+) : AndroidViewModel(application) {
     private val scoreItemsRepository =
         (application as FlagsApplication).container.scoreItemsRepository
     private val _uiState = MutableStateFlow(GameHistoryUiState())
     val uiState = _uiState.asStateFlow()
 
     init {
+        savedStateHandle.get<Boolean>("isGameOver")?.let { isGameOver ->
+            _uiState.update { it.copy(isGameOver = isGameOver) }
+        }
+
         viewModelScope.launch {
             scoreItemsRepository.getAllItemsStream().collect { items ->
                 _uiState.update { it.copy(scores = items) }

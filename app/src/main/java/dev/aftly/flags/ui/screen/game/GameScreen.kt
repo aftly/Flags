@@ -115,7 +115,7 @@ fun GameScreen(
     navController: NavHostController,
     screen: Screen,
     onNavigateUp: () -> Unit,
-    onNavigateDetails: (Screen) -> Unit,
+    onNavigateDetails: (Boolean) -> Unit, // isGameOver Boolean
     onFullscreen: (Int, Boolean, Boolean) -> Unit,
 ) {
     /* Expose screen and backStack state */
@@ -142,8 +142,8 @@ fun GameScreen(
         systemUiController.setSystemBars(visible = true)
 
         if (isGuessFieldFocused) focusRequesterGuessField.requestFocus()
-        
-        backStackEntry.value?.savedStateHandle?.get<Boolean>("gameOver").let { isGameOver ->
+
+        backStackEntry.value?.savedStateHandle?.get<Boolean>("isGameOver").let { isGameOver ->
             if (isGameOver == true) viewModel.endGame()
         }
     }
@@ -179,7 +179,7 @@ fun GameScreen(
             },
             onScoreHistory = {
                 viewModel.endGame(isGameOver = false)
-                onNavigateDetails(Screen.GameHistory)
+                onNavigateDetails(uiState.isGameOver)
             },
             onShare = { text ->
                 shareText(
@@ -216,7 +216,7 @@ fun GameScreen(
         onToggleTimeTrial = { viewModel.toggleTimeTrialDialog() },
         onEndGame = { viewModel.endGame() },
         onNavigateUp = onNavigateUp,
-        onNavigateDetails = onNavigateDetails,
+        onScoreHistory = { onNavigateDetails(uiState.isGameOver) },
         onFullscreen = onFullscreen,
         onCategorySelect = { newSuperCategory, newSubCategory ->
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
@@ -246,7 +246,7 @@ private fun GameScreen(
     onToggleTimeTrial: () -> Unit,
     onEndGame: () -> Unit,
     onNavigateUp: () -> Unit,
-    onNavigateDetails: (Screen) -> Unit,
+    onScoreHistory: () -> Unit,
     onFullscreen: (Int, Boolean, Boolean) -> Unit,
     onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onCategoryMultiSelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
@@ -294,8 +294,7 @@ private fun GameScreen(
     Box(modifier = modifier.fillMaxSize()) {
         /* ------------------- START OF SCAFFOLD ------------------- */
         Scaffold(
-            modifier = Modifier
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize()
                 .pointerInput(Unit) {
                     detectTapGestures {
                         focusManager.clearFocus()
@@ -311,9 +310,9 @@ private fun GameScreen(
                         focusManager.clearFocus()
                         onNavigateUp()
                     },
-                    onNavigateDetails = {
+                    onScoreHistory = {
                         focusManager.clearFocus()
-                        onNavigateDetails(it)
+                        onScoreHistory()
                     },
                     onAction = {
                         focusManager.clearFocus()
@@ -815,8 +814,7 @@ private fun GameCard(
                     )
                 } else {
                     NoResultsFound(
-                        modifier = Modifier
-                            .aspectRatio(ratio = 2f / 1f)
+                        modifier = Modifier.aspectRatio(ratio = 2f / 1f)
                             .fillMaxSize(),
                         isGame = true,
                     )
@@ -827,8 +825,7 @@ private fun GameCard(
             OutlinedTextField(
                 value = userGuess,
                 onValueChange = onUserGuessChange,
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
                     .padding(top = Dimens.small10)
                     .focusRequester(focusRequesterGuessField)
                     .onFocusChanged {
@@ -927,8 +924,7 @@ private fun TimeTrialDialog(
                     OutlinedTextField(
                         value = userMinutesInput,
                         onValueChange = onUserMinutesInputChange,
-                        modifier = Modifier
-                            .width(inputWidth)
+                        modifier = Modifier.width(inputWidth)
                             .focusRequester(focusRequesterMinutes),
                         textStyle = inputStyle,
                         placeholder = {
@@ -957,8 +953,7 @@ private fun TimeTrialDialog(
                     OutlinedTextField(
                         value = userSecondsInput,
                         onValueChange = onUserSecondsInputChange,
-                        modifier = Modifier
-                            .width(inputWidth)
+                        modifier = Modifier.width(inputWidth)
                             .focusRequester(focusRequesterSeconds),
                         textStyle = inputStyle,
                         placeholder = {
@@ -1093,8 +1088,7 @@ private fun GameOverDialog(
 
                 /* Action buttons 1 */
                 Row(
-                    modifier = Modifier
-                        .padding(top = Dimens.small8, bottom = Dimens.medium16)
+                    modifier = Modifier.padding(top = Dimens.small8, bottom = Dimens.medium16)
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
@@ -1127,7 +1121,7 @@ private fun GameTopBar(
     isTimerPaused: Boolean,
     timer: String = "0:00",
     onNavigateUp: () -> Unit,
-    onNavigateDetails: (Screen) -> Unit,
+    onScoreHistory: () -> Unit,
     onAction: () -> Unit,
 ) {
     TopAppBar(
@@ -1168,7 +1162,7 @@ private fun GameTopBar(
                 )
             }
 
-            IconButton(onClick = { onNavigateDetails(Screen.GameHistory) }) {
+            IconButton(onClick = onScoreHistory) {
                 Icon(
                     imageVector = Icons.Default.History,
                     contentDescription = null,

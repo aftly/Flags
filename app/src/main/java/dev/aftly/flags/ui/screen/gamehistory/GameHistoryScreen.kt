@@ -63,7 +63,7 @@ import kotlinx.coroutines.launch
 fun GameHistoryScreen(
     viewModel: GameHistoryViewModel = viewModel(),
     screen: Screen,
-    onNavigateUp: () -> Unit,
+    onNavigateUp: (Boolean) -> Unit, // isGameOver Boolean
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
@@ -90,7 +90,7 @@ fun GameHistoryScreen(
                 viewModel.toggleScoreDetails()
             }
         },
-        onNavigateUp = onNavigateUp,
+        onNavigateUp = { onNavigateUp(uiState.isGameOver) },
     )
 }
 
@@ -143,7 +143,8 @@ private fun GameHistoryContent(
     onScoreDetails: (ScoreItem) -> Unit,
 ) {
     Column(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
             .padding(horizontal = Dimens.marginHorizontal16)
     ) {
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
@@ -174,7 +175,8 @@ private fun HistoryItem(
     val isTimeTrial = item.timeMode == TimeMode.TIME_TRIAL
     val padding = Dimens.extraSmall4
     val iconBackgroundColor = MaterialTheme.colorScheme.surface
-    val detailsRowModifier = Modifier.padding(vertical = padding)
+    val detailsRowModifier = Modifier
+        .padding(vertical = padding)
         .background(
             color = iconBackgroundColor,
             shape = MaterialTheme.shapes.medium
@@ -225,7 +227,8 @@ private fun HistoryItem(
 
     Card(modifier = modifier.clickable { onScoreDetails(item) }) {
         Row(
-            modifier = Modifier.padding(horizontal = padding)
+            modifier = Modifier
+                .padding(horizontal = padding)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
@@ -238,7 +241,8 @@ private fun HistoryItem(
                 Icon(
                     imageVector = scoreIcon,
                     contentDescription = null,
-                    modifier = Modifier.padding(start = padding / 2)
+                    modifier = Modifier
+                        .padding(start = padding / 2)
                         .size(iconSize),
                 )
 
@@ -263,7 +267,8 @@ private fun HistoryItem(
                 Icon(
                     imageVector = categoryIcon,
                     contentDescription = null,
-                    modifier = Modifier.padding(start = padding / 2)
+                    modifier = Modifier
+                        .padding(start = padding / 2)
                         .size(iconSize),
                 )
 
@@ -300,7 +305,8 @@ private fun HistoryItem(
                 Icon(
                     imageVector = timeModeTypeIcon,
                     contentDescription = null,
-                    modifier = Modifier.padding(end = padding / 2)
+                    modifier = Modifier
+                        .padding(end = padding / 2)
                         .size(iconSize),
                 )
 
@@ -359,7 +365,8 @@ private fun HistoryItem(
                 Icon(
                     imageVector = dateTimeIcon,
                     contentDescription = null,
-                    modifier = Modifier.padding(horizontal = padding / 2)
+                    modifier = Modifier
+                        .padding(horizontal = padding / 2)
                         .size(iconSize),
                 )
 
