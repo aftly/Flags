@@ -9,6 +9,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,13 +63,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -261,12 +265,27 @@ private fun GameScreen(
         timer / 60, timer % 60
     )
 
+    /* Manage guess field focus */
+    val focusRequesterGuessField = remember { FocusRequester() }
+    var isGuessFieldFocused by rememberSaveable { mutableStateOf(value = false) }
+    val focusManager = LocalFocusManager.current
+    LaunchedEffect(buttonExpanded) {
+        if (buttonExpanded) focusManager.clearFocus()
+        else if (isGuessFieldFocused) focusRequesterGuessField.requestFocus()
+    }
+
 
     /* Scaffold within box so that FilterFlagsButton & it's associated surface can overlay it */
     Box(modifier = modifier.fillMaxSize()) {
         /* ------------------- START OF SCAFFOLD ------------------- */
         Scaffold(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize()
+                .pointerInput(Unit) {
+                    detectTapGestures {
+                        focusManager.clearFocus()
+                        isGuessFieldFocused = false
+                    }
+                },
             topBar = {
                 GameTopBar(
                     screen = screen,
@@ -290,6 +309,8 @@ private fun GameScreen(
                 currentFlag = uiState.currentFlag,
                 userGuess = userGuess,
                 onUserGuessChange = onUserGuessChange,
+                focusRequesterGuessField = focusRequesterGuessField,
+                onFocusChanged = { isGuessFieldFocused = it },
                 isGuessCorrect = uiState.isGuessCorrect,
                 isGuessCorrectEvent = uiState.isGuessCorrectEvent,
                 isGuessWrong = uiState.isGuessWrong,
@@ -353,6 +374,8 @@ private fun GameContent(
     currentFlag: FlagResources,
     userGuess: String,
     onUserGuessChange: (String) -> Unit,
+    focusRequesterGuessField: FocusRequester,
+    onFocusChanged: (Boolean) -> Unit,
     isGuessCorrect: Boolean,
     isGuessCorrectEvent: Boolean,
     isGuessWrong: Boolean,
@@ -399,8 +422,7 @@ private fun GameContent(
 
     /* Center arranged column with Game content */
     Column(
-        modifier = modifier
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
             .padding(
                 /* Top padding so that content scroll disappears into FilterFlagsButton */
                 top = filterButtonHeight / 2,
@@ -424,8 +446,7 @@ private fun GameContent(
     ) {
         /* Spacer to make content start below FilterFlags button */
         Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
                 .height(filterButtonHeight / 2 + aspectRatioTopPadding)
         )
 
@@ -445,6 +466,8 @@ private fun GameContent(
             currentFlag = currentFlag,
             userGuess = userGuess,
             onUserGuessChange = onUserGuessChange,
+            focusRequesterGuessField = focusRequesterGuessField,
+            onFocusChanged = onFocusChanged,
             isGuessCorrect = isGuessCorrect,
             isGuessCorrectEvent = isGuessCorrectEvent,
             isGuessWrong = isGuessWrong,
@@ -461,8 +484,7 @@ private fun GameContent(
         /* Submit button */
         Button(
             onClick = onSubmit,
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
                 .padding(top = Dimens.medium16),
             enabled = !isShowAnswer,
         ) {
@@ -472,8 +494,7 @@ private fun GameContent(
         /* Skip button */
         OutlinedButton(
             onClick = onSkip,
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
                 .padding(top = Dimens.medium16),
         ) {
             Text(text = stringResource(R.string.game_button_skip))
@@ -487,8 +508,7 @@ private fun GameContent(
                     true -> onShowAnswer()
                 }
             },
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
                 .padding(top = Dimens.medium16),
             enabled = !isShowAnswer,
             colors = ButtonDefaults.outlinedButtonColors(contentColor = showAnswerColor),
@@ -517,6 +537,8 @@ private fun GameCard(
     currentFlag: FlagResources,
     userGuess: String,
     onUserGuessChange: (String) -> Unit,
+    focusRequesterGuessField: FocusRequester,
+    onFocusChanged: (Boolean) -> Unit,
     isGuessCorrect: Boolean,
     isGuessCorrectEvent: Boolean,
     isGuessWrong: Boolean,
@@ -594,6 +616,7 @@ private fun GameCard(
     var isFullScreenButton by rememberSaveable { mutableStateOf(value = false) }
 
     val density = LocalDensity.current
+    val focusManager = LocalFocusManager.current
 
     /* Referencing currentFlag.flagOf directly in Text() shows next flagOf for 1 frame after skip */
     @StringRes var correctAnswer by rememberSaveable {
@@ -616,8 +639,7 @@ private fun GameCard(
         ) {
             /* Top row in card */
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
                     .padding(bottom = Dimens.medium16),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -625,8 +647,7 @@ private fun GameCard(
                 Row {
                     Text(
                         text = "${correctGuessCount + shownAnswerCount}/$totalFlagCount",
-                        modifier = Modifier
-                            .clip(MaterialTheme.shapes.medium)
+                        modifier = Modifier.clip(MaterialTheme.shapes.medium)
                             .background(MaterialTheme.colorScheme.primary)
                             .padding(vertical = Dimens.extraSmall4, horizontal = Dimens.small10),
                         color = MaterialTheme.colorScheme.onPrimary,
@@ -638,8 +659,7 @@ private fun GameCard(
 
                         Text(
                             text = "$shownAnswerCount",
-                            modifier = Modifier
-                                .clip(MaterialTheme.shapes.medium)
+                            modifier = Modifier.clip(MaterialTheme.shapes.medium)
                                 .background(MaterialTheme.colorScheme.error)
                                 .padding(
                                     vertical = Dimens.extraSmall4,
@@ -673,8 +693,16 @@ private fun GameCard(
             Box(
                 modifier = Modifier
                     .combinedClickable(
-                        onClick = { isFullScreenButton = !isFullScreenButton },
-                        onDoubleClick = onFullscreen,
+                        onClick = {
+                            focusManager.clearFocus()
+                            onFocusChanged(false)
+                            isFullScreenButton = !isFullScreenButton
+                        },
+                        onDoubleClick = {
+                            focusManager.clearFocus()
+                            onFocusChanged(false)
+                            onFullscreen()
+                        },
                     ),
                 contentAlignment = Alignment.BottomEnd,
             ) {
@@ -733,8 +761,7 @@ private fun GameCard(
                         ) {
                             Text(
                                 text = stringResource(correctAnswer),
-                                modifier = Modifier
-                                    .clip(MaterialTheme.shapes.large)
+                                modifier = Modifier.clip(MaterialTheme.shapes.large)
                                     .background(color = Color.Black.copy(alpha = 0.75f))
                                     .padding(
                                         vertical = Dimens.small8,
@@ -754,8 +781,7 @@ private fun GameCard(
                     )
                 } else {
                     NoResultsFound(
-                        modifier = Modifier
-                            .aspectRatio(ratio = 2f / 1f)
+                        modifier = Modifier.aspectRatio(ratio = 2f / 1f)
                             .fillMaxSize(),
                         isGame = true,
                     )
@@ -766,9 +792,12 @@ private fun GameCard(
             OutlinedTextField(
                 value = userGuess,
                 onValueChange = onUserGuessChange,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = Dimens.small10),
+                modifier = Modifier.fillMaxWidth()
+                    .padding(top = Dimens.small10)
+                    .focusRequester(focusRequesterGuessField)
+                    .onFocusChanged {
+                        if (it.isFocused) onFocusChanged(true)
+                    },
                 enabled = !isShowAnswer,
                 label = {
                     Text(text = labelState)
@@ -862,7 +891,8 @@ private fun TimeTrialDialog(
                     OutlinedTextField(
                         value = userMinutesInput,
                         onValueChange = onUserMinutesInputChange,
-                        modifier = Modifier.width(inputWidth)
+                        modifier = Modifier
+                            .width(inputWidth)
                             .focusRequester(focusRequesterMinutes),
                         textStyle = inputStyle,
                         placeholder = {
@@ -891,7 +921,8 @@ private fun TimeTrialDialog(
                     OutlinedTextField(
                         value = userSecondsInput,
                         onValueChange = onUserSecondsInputChange,
-                        modifier = Modifier.width(inputWidth)
+                        modifier = Modifier
+                            .width(inputWidth)
                             .focusRequester(focusRequesterSeconds),
                         textStyle = inputStyle,
                         placeholder = {

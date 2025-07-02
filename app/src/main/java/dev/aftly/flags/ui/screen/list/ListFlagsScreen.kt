@@ -184,11 +184,8 @@ private fun ListFlagsScreen(
     var isSearchBar by rememberSaveable { mutableStateOf(value = false) }
 
     LaunchedEffect(buttonExpanded) {
-        if (buttonExpanded) {
-            focusManager.clearFocus()
-        } else if (isSearchBar) {
-            focusRequesterSearch.requestFocus()
-        }
+        if (buttonExpanded) focusManager.clearFocus()
+        else if (isSearchBar) focusRequesterSearch.requestFocus()
     }
 
     LaunchedEffect(isSearchBar) {
