@@ -574,9 +574,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     /* Remove redundant sub categories for ScoreData */
     private fun getScoreDataSubs(): List<FlagCategory> {
+        return uiState.value.currentSubCategories ?: emptyList()
+        /*
         return uiState.value.currentSubCategories?.let { currentSubCategories ->
             val subCategories = currentSubCategories.toMutableList()
 
+            /* Get list of subcategory lists from supercategories, filter out lists of size > 1,
+             * remove any results from game subcategories results */
             uiState.value.currentSuperCategories
                 ?.map { it.enums() }
                 ?.filterNot { it.size > 1 }
@@ -586,6 +590,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             return@let subCategories
 
         } ?: emptyList()
+         */
     }
 
 
