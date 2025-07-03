@@ -48,6 +48,8 @@ import dev.aftly.flags.data.room.ScoreItem
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.TimeMode
 import dev.aftly.flags.navigation.Screen
+import dev.aftly.flags.ui.component.NoResultsFound
+import dev.aftly.flags.ui.component.ResultsType
 import dev.aftly.flags.ui.component.ScoreDetails
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
@@ -124,6 +126,13 @@ private fun GameHistoryScreen(
         /* ------------------- END OF SCAFFOLD ------------------- */
 
         // TODO: FilterHistoryButton()
+
+        if (uiState.scores.isEmpty()) {
+            NoResultsFound(
+                modifier = Modifier.fillMaxSize(),
+                resultsType = ResultsType.GAME_HISTORY,
+            )
+        }
 
         if (uiState.scoreDetails != null) {
             ScoreDetails(

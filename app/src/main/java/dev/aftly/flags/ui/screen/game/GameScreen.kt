@@ -96,6 +96,7 @@ import dev.aftly.flags.ui.component.CategoriesButtonMenu
 import dev.aftly.flags.ui.component.DialogActionButton
 import dev.aftly.flags.ui.component.FullscreenButton
 import dev.aftly.flags.ui.component.NoResultsFound
+import dev.aftly.flags.ui.component.ResultsType
 import dev.aftly.flags.ui.component.ScoreDetails
 import dev.aftly.flags.ui.component.shareText
 import dev.aftly.flags.ui.theme.Dimens
@@ -878,7 +879,7 @@ private fun GameCard(
                     NoResultsFound(
                         modifier = Modifier.aspectRatio(ratio = 2f / 1f)
                             .fillMaxSize(),
-                        isGame = true,
+                        resultsType = ResultsType.CATEGORIES,
                     )
                 }
             }

@@ -89,6 +89,7 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.CategoriesButtonMenu
 import dev.aftly.flags.ui.component.NoResultsFound
+import dev.aftly.flags.ui.component.ResultsType
 import dev.aftly.flags.ui.component.ScrollToTopButton
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
@@ -399,7 +400,11 @@ private fun ListFlagsContent(
                         }
                     }
                 } else {
-                    NoResultsFound(modifier = Modifier.fillMaxSize())
+                    NoResultsFound(
+                        modifier = Modifier.fillMaxSize(),
+                        resultsType = ResultsType.CATEGORIES,
+                        bottomSpacer = true,
+                    )
                 }
             }
             true -> {
@@ -429,7 +434,8 @@ private fun ListFlagsContent(
                 } else {
                     NoResultsFound(
                         modifier = Modifier.fillMaxSize(),
-                        isSearch = true,
+                        resultsType = ResultsType.SEARCH,
+                        bottomSpacer = true,
                     )
                 }
             }

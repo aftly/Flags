@@ -16,27 +16,32 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import dev.aftly.flags.R
-import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.theme.Dimens
+
+
+enum class ResultsType { CATEGORIES, SEARCH, GAME_HISTORY }
 
 @Composable
 fun NoResultsFound(
     modifier: Modifier = Modifier,
-    isSearch: Boolean = false,
-    isGame: Boolean = false,
+    resultsType: ResultsType,
+    bottomSpacer: Boolean = false,
 ) {
-    val categoryScreen = listOf(
-        Screen.List,
-        Screen.Game
-    )
-
-    @StringRes val description1 = when (isSearch) {
-        true -> R.string.search_no_results_description
-        false -> R.string.multi_select_no_results_description
+    @StringRes val title = when (resultsType) {
+        ResultsType.CATEGORIES -> R.string.no_flags_found
+        ResultsType.SEARCH -> R.string.no_flags_found
+        ResultsType.GAME_HISTORY -> R.string.no_score_history
     }
-    @StringRes val description2 = when (isSearch) {
-        true -> R.string.search_no_results_description_2
-        false -> null
+
+    @StringRes val description1 = when (resultsType) {
+        ResultsType.CATEGORIES -> R.string.multi_select_no_results_description
+        ResultsType.SEARCH -> R.string.search_no_results_description_1
+        ResultsType.GAME_HISTORY -> R.string.game_history_none_description_1
+    }
+    @StringRes val description2 = when (resultsType) {
+        ResultsType.CATEGORIES -> null
+        ResultsType.SEARCH -> R.string.search_no_results_description_2
+        ResultsType.GAME_HISTORY -> R.string.game_history_none_description_2
     }
 
     Column(
@@ -45,7 +50,7 @@ fun NoResultsFound(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = stringResource(R.string.search_no_results_title),
+            text = stringResource(title),
             fontWeight = FontWeight.Bold,
             style = MaterialTheme.typography.headlineSmall,
         )
@@ -66,7 +71,7 @@ fun NoResultsFound(
             )
         }
 
-        if (!isGame) {
+        if (bottomSpacer) {
             Spacer(modifier = Modifier.height(Dimens.bottomSpacer80))
         }
     }

@@ -186,6 +186,7 @@
     <string name="game_over_share_subject">Flag game score</string>
     <string name="game_over_share_text">I just guessed %d/%d flags in the \"Flags\" app game on the \"%s\" game mode.\n\nDownload the app from https://github.com/aftly/Flags and see if you can beat me…</string>
     <string name="game_paused">Game paused</string>
+    <string name="game_unpause">Unpause game</string>
     <string name="game_score_details_title">Score details</string>
     <string name="game_score_details_overview">Overview</string>
     <string name="game_score_details_correct_title">Correct answers:</string>
@@ -205,6 +206,8 @@
     <string name="game_history_title">Score History</string>
     <string name="game_history_score">%d/%d</string>
     <string name="game_history_category_multiple">Multiple</string>
+    <string name="game_history_none_description_1">Play some games to create score history</string>
+    <string name="game_history_none_description_2">(Requires at least 1 correct, skipped or shown flag)</string>
     <string name="list_title">View</string>
     <string name="list_description">Display lists of flags by category,\nor it\'s names (eg. \"United Kingdom\" or \"Britain\")</string>
     <string name="menu_related_flags">Related Flags</string>
@@ -214,10 +217,11 @@
     <string name="menu_sub_icon_expand">expand sub-menu</string>
     <string name="menu_sub_icon_collapse">collapse sub-menu</string>
     <string name="multi_select_no_results_description">Try selecting less or different categories</string>
+    <string name="no_flags_found">No flags found</string>
+    <string name="no_score_history">No score history</string>
     <string name="search_bar_placeholder">Search flags</string>
     <string name="search_clear">Clear search</string>
-    <string name="search_no_results_title">No flags found</string>
-    <string name="search_no_results_description">Queries will match common &amp; official names</string>
+    <string name="search_no_results_description_1">Queries will match common &amp; official names</string>
     <string name="search_no_results_description_2">(Matches are special character agnostic)</string>
     <string name="settings_title">Settings</string>
     <string name="settings_colors">Colors</string>
