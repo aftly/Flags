@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.aftly.flags.R
+import dev.aftly.flags.model.CategoriesOverview
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.GuessedFlags
 import dev.aftly.flags.model.RemainderFlags
@@ -306,9 +307,16 @@ private fun ScoreOverViewItem(
 
                 Spacer(modifier = Modifier.height(Dimens.extraSmall4))
 
+                CategoriesOverviewItem(
+                    categoriesOverview = scoreDetails.scoreOverview.categoriesOverview,
+                    fontSize = itemFontSize,
+                    lineHeight = itemLineHeight,
+                )
+
+                Spacer(modifier = Modifier.height(Dimens.extraSmall4))
+
                 TimeOverviewItem(
                     timeOverview = scoreDetails.scoreOverview.timeOverview,
-                    isDarkTheme = isDarkTheme,
                     fontSize = itemFontSize,
                     lineHeight = itemLineHeight,
                 )
@@ -381,12 +389,77 @@ private fun TotalsOverviewItem(
 }
 
 
+/* Totals overview row strings */
+@Composable
+private fun CategoriesOverviewItem(
+    modifier: Modifier = Modifier,
+    categoriesOverview: CategoriesOverview,
+    fontSize: TextUnit,
+    lineHeight: TextUnit,
+) {
+    val configuration = LocalConfiguration.current
+    val fontScale = configuration.fontScale
+    val spacePadding = 2.dp * fontScale
+
+    Column(
+        modifier = modifier
+    ) {
+        /* Title */
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = stringResource(R.string.game_score_details_categories_title),
+                color = MaterialTheme.colorScheme.onSurface,
+                lineHeight = lineHeight,
+                style = MaterialTheme.typography.titleSmall,
+            )
+        }
+
+        /* Super-categories */
+        categoriesOverview.superCategories.forEach { superCategory ->
+            superCategory.gameCategoryDetailed?.let {
+                Row(
+                    modifier = Modifier.padding(top = spacePadding)
+                ) {
+                    Text(
+                        text = stringResource(it),
+                        modifier = Modifier.clip(MaterialTheme.shapes.medium)
+                            .background(MaterialTheme.colorScheme.primary)
+                            .padding(vertical = 2.dp, horizontal = Dimens.small8),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        fontSize = fontSize,
+                        lineHeight = lineHeight,
+                    )
+                }
+            }
+        }
+
+        /* Sub-categories */
+        categoriesOverview.subCategories.forEach { subCategory ->
+            Row(
+                modifier = Modifier.padding(top = spacePadding)
+            ) {
+                Text(
+                    text = stringResource(subCategory.title),
+                    modifier = Modifier.clip(MaterialTheme.shapes.medium)
+                        .background(MaterialTheme.colorScheme.secondary)
+                        .padding(vertical = 2.dp, horizontal = Dimens.small8),
+                    color = MaterialTheme.colorScheme.surface,
+                    fontSize = fontSize,
+                    lineHeight = lineHeight,
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(spacePadding))
+    }
+}
+
+
 /* Time overview row strings */
 @Composable
 private fun TimeOverviewItem(
     modifier: Modifier = Modifier,
     timeOverview: TimeOverview,
-    isDarkTheme: Boolean,
     fontSize: TextUnit,
     lineHeight: TextUnit,
 ) {

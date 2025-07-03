@@ -42,6 +42,10 @@ class ScoreData(
             outOfCount = flagsAll.size,
             scorePercent = scorePercent,
         ),
+        categoriesOverview = CategoriesOverview(
+            superCategories = gameSuperCategories,
+            subCategories = gameSubCategories,
+        ),
         timeOverview = TimeOverview(
             timeMode = timeMode,
             timeTrialStart = timerStart,
@@ -116,6 +120,7 @@ fun ScoreItem.toScoreData(
 /* ------------ Score overview classes ------------ */
 data class ScoreOverview(
     val totalsOverview: TotalsOverview,
+    val categoriesOverview: CategoriesOverview,
     val timeOverview: TimeOverview,
 )
 
@@ -123,6 +128,11 @@ data class TotalsOverview(
     val correctAnswers: Int,
     val outOfCount: Int,
     val scorePercent: Float,
+)
+
+data class CategoriesOverview(
+    val superCategories: List<FlagSuperCategory>,
+    val subCategories: List<FlagCategory>,
 )
 
 data class TimeOverview(

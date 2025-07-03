@@ -9,7 +9,7 @@ fun getCategoryTitleSingle(
     subCategories: List<FlagCategory>,
 ): Int? {
     return if (superCategories.size == 1 && subCategories.isEmpty()) {
-        superCategories.first().gameCategory
+        superCategories.first().gameCategoryPreview
 
     } else if (subCategories.size == 1 && superCategories.isEmpty()) {
         subCategories.first().title
