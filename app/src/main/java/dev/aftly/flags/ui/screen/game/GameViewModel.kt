@@ -170,7 +170,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 currentSuperCategory = parentSuperCategory,
                 currentCategoryTitle = categoryTitle,
             )
-            resetGame()
+            resetGame(startGame = false)
         }
     }
 
