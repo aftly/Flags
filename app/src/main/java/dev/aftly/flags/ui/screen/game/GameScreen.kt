@@ -144,7 +144,7 @@ fun GameScreen(
         if (isGuessFieldFocused) focusRequesterGuessField.requestFocus()
 
         backStackEntry.value?.savedStateHandle?.get<Boolean>("isGameOver").let { isGameOver ->
-            if (isGameOver == true) viewModel.endGame()
+            if (isGameOver == true) viewModel.toggleGameOverDialog(on = true)
         }
     }
 
@@ -167,18 +167,18 @@ fun GameScreen(
     }
 
     /* Show pop-up when game over */
-    if (uiState.isGameOver) {
+    if (uiState.isGameOverDialog) {
         val context = LocalContext.current
         GameOverDialog(
             finalScore = uiState.correctGuessCount,
             maxScore = uiState.totalFlagCount,
             gameMode = stringResource(uiState.currentSuperCategory.title),
             onDetails = {
-                viewModel.endGame(isGameOver = false)
-                viewModel.toggleScoreDetails()
+                viewModel.toggleGameOverDialog(on = false)
+                viewModel.toggleScoreDetails(on = true)
             },
             onScoreHistory = {
-                viewModel.endGame(isGameOver = false)
+                viewModel.toggleGameOverDialog(on = false)
                 onNavigateDetails(uiState.isGameOver)
             },
             onShare = { text ->
@@ -189,7 +189,7 @@ fun GameScreen(
                 )
             },
             onExit = {
-                viewModel.endGame(isGameOver = false)
+                viewModel.toggleGameOverDialog(on = false)
                 onNavigateUp()
             },
             onReplay = { viewModel.resetGame() },
@@ -206,7 +206,7 @@ fun GameScreen(
         isGuessFieldFocused = isGuessFieldFocused,
         onFocusChanged = { isGuessFieldFocused = it },
         onCloseScoreDetails = {
-            viewModel.toggleScoreDetails()
+            viewModel.toggleScoreDetails(on = false)
             viewModel.endGame()
         },
         onSubmit = { viewModel.checkUserGuess() },
@@ -326,7 +326,7 @@ private fun GameScreen(
 
             GameContent(
                 modifier = Modifier.padding(scaffoldPadding),
-                isGame = uiState.currentFlags.isNotEmpty(),
+                isGame = uiState.currentFlags.isNotEmpty() && !uiState.isGameOver,
                 isWideScreen = isWideScreen,
                 filterButtonHeight = buttonHeight,
                 totalFlagCount = uiState.totalFlagCount,

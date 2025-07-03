@@ -97,6 +97,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 isTimerPaused = false,
                 timerStandard = 0,
                 isGameOver = false,
+                isGameOverDialog = false,
                 isShowAnswer = false,
                 isSaveScoreInit = false,
                 scoreDetails = null,
@@ -389,12 +390,18 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         saveScoreInit()
-        _uiState.update { it.copy(isGameOver = isGameOver) }
+        _uiState.update {
+            it.copy(isGameOver = isGameOver, isGameOverDialog = isGameOver)
+        }
+    }
+
+    fun toggleGameOverDialog(on: Boolean) {
+        _uiState.update { it.copy(isGameOverDialog = on) }
     }
 
 
-    fun toggleScoreDetails() {
-        _uiState.update { it.copy(isScoreDetails = !it.isScoreDetails) }
+    fun toggleScoreDetails(on: Boolean) {
+        _uiState.update { it.copy(isScoreDetails = on) }
     }
 
 
