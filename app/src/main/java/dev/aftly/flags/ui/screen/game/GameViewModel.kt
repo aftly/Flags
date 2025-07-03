@@ -69,14 +69,16 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
 
     /* Reset game state with a new flag and necessary starting values */
-    fun resetGame(initTimeTrial: Boolean = false) {
+    fun resetGame(
+        startGame: Boolean = true,
+        initTimeTrial: Boolean = false,
+    ) {
         guessedFlags = mutableListOf()
         skippedFlags = mutableListOf()
         shownFlags = mutableListOf()
         userGuess = ""
-        timerStandardJob?.cancel()
-        timerTimeTrialJob?.cancel()
-        timerShowAnswerJob?.cancel()
+        cancelTimers()
+        cancelConfirmShowAnswer()
 
 
         val newFlag = getRandomFlag()
@@ -96,6 +98,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 nextFlagInSkipped = null,
                 isTimerPaused = false,
                 timerStandard = 0,
+                isGame = if (it.currentFlags.isNotEmpty()) startGame else false,
                 isGameOver = false,
                 isGameOverDialog = false,
                 isShowAnswer = false,
@@ -113,10 +116,20 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 )
             }
 
-            if (uiState.value.currentFlags.isNotEmpty()) {
-                timerStandardJob = viewModelScope.launch {
-                    startTimerStandard()
-                }
+            if (uiState.value.isGame) {
+                timerStandardJob = viewModelScope.launch { startTimerStandard() }
+            }
+        }
+    }
+
+
+    /* To enable buttons, show flag and start timer after resetGame() without startGame = true */
+    fun startGame() {
+        if (!uiState.value.isGame && uiState.value.currentFlags.isNotEmpty()) {
+            _uiState.update { it.copy(isGame = true) }
+
+            if (isJobInactive(timerStandardJob)) {
+                timerStandardJob = viewModelScope.launch { startTimerStandard() }
             }
         }
     }
@@ -236,7 +249,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             currentSubCategories = subCategories,
         )
 
-        resetGame()
+        resetGame(startGame = false)
     }
 
 
@@ -304,14 +317,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             /* Start relevant timer, to unpause it from showAnswer()'s pause */
             when (uiState.value.isTimeTrial) {
                 true -> if (isJobInactive(timerTimeTrialJob)) {
-                    timerTimeTrialJob = viewModelScope.launch {
-                        startTimerTimeTrial()
-                    }
+                    timerTimeTrialJob = viewModelScope.launch { startTimerTimeTrial() }
                 }
                 false -> if (isJobInactive(timerStandardJob)) {
-                    timerStandardJob = viewModelScope.launch {
-                        startTimerStandard()
-                    }
+                    timerStandardJob = viewModelScope.launch { startTimerStandard() }
                 }
             }
 
@@ -326,9 +335,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     fun showAnswer() {
         /* Cancel any/all timers */
+        cancelTimers()
         cancelConfirmShowAnswer()
-        timerStandardJob?.cancel()
-        timerTimeTrialJob?.cancel()
 
         _uiState.update {
             it.copy(
@@ -347,9 +355,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     fun initTimeTrial(startTime: Int) {
         /* Cancel timers and reset game */
+        cancelTimers()
         cancelConfirmShowAnswer()
-        timerTimeTrialJob?.cancel()
-        timerStandardJob?.cancel()
         resetGame(initTimeTrial = true)
 
         _uiState.update {
@@ -360,9 +367,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             )
         }
 
-        timerTimeTrialJob = viewModelScope.launch {
-            startTimerTimeTrial()
-        }
+        timerTimeTrialJob = viewModelScope.launch { startTimerTimeTrial() }
     }
 
 
@@ -384,9 +389,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     fun endGame(isGameOver: Boolean = true) {
         if (isGameOver) {
+            cancelTimers()
             cancelConfirmShowAnswer()
-            timerStandardJob?.cancel()
-            timerTimeTrialJob?.cancel()
         }
 
         saveScoreInit()
@@ -530,6 +534,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
+    private fun cancelTimers() {
+        timerStandardJob?.cancel()
+        timerTimeTrialJob?.cancel()
+    }
+
     private fun cancelConfirmShowAnswer() {
         timerShowAnswerJob?.cancel()
         _uiState.update { it.copy(isConfirmShowAnswer = false) }
@@ -603,10 +612,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    /* Get if job is not active or is null */
-    private fun isJobInactive(job: Job?): Boolean = job == null || !job.isActive
-
-
     /* Called only with initial call to end game to ensure saved to db only once */
     private fun saveScoreInit() {
         if (!uiState.value.isSaveScoreInit) {
@@ -627,6 +632,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+
+    /* Get if job is not active or is null */
+    private fun isJobInactive(job: Job?): Boolean = job == null || !job.isActive
 
     /* Start/resume Standard timer */
     private suspend fun startTimerStandard() {

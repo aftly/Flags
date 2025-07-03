@@ -60,6 +60,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -214,6 +215,7 @@ fun GameScreen(
         onConfirmShowAnswer = { viewModel.confirmShowAnswer() },
         onShowAnswer = { viewModel.showAnswer() },
         onToggleTimeTrial = { viewModel.toggleTimeTrialDialog() },
+        onStartGame = { viewModel.startGame() },
         onEndGame = { viewModel.endGame() },
         onNavigateUp = onNavigateUp,
         onScoreHistory = { onNavigateDetails(uiState.isGameOver) },
@@ -244,6 +246,7 @@ private fun GameScreen(
     onConfirmShowAnswer: () -> Unit,
     onShowAnswer: () -> Unit,
     onToggleTimeTrial: () -> Unit,
+    onStartGame: () -> Unit,
     onEndGame: () -> Unit,
     onNavigateUp: () -> Unit,
     onScoreHistory: () -> Unit,
@@ -285,8 +288,14 @@ private fun GameScreen(
     /* Manage guess field focus */
     val focusManager = LocalFocusManager.current
     LaunchedEffect(buttonExpanded) {
-        if (buttonExpanded) focusManager.clearFocus()
-        else if (isGuessFieldFocused) focusRequesterGuessField.requestFocus()
+        when (buttonExpanded) {
+            true ->
+                focusManager.clearFocus()
+            false -> {
+                onStartGame()
+                if (isGuessFieldFocused) focusRequesterGuessField.requestFocus()
+            }
+        }
     }
 
 
@@ -304,7 +313,8 @@ private fun GameScreen(
             topBar = {
                 GameTopBar(
                     screen = screen,
-                    isGame = uiState.currentFlags.isNotEmpty(),
+                    isGame = uiState.isGame,
+                    isFlags = uiState.currentFlags.isNotEmpty(),
                     isTimerPaused = uiState.isTimerPaused,
                     timer = timerString,
                     onNavigateUp = {
@@ -326,7 +336,8 @@ private fun GameScreen(
 
             GameContent(
                 modifier = Modifier.padding(scaffoldPadding),
-                isGame = uiState.currentFlags.isNotEmpty() && !uiState.isGameOver,
+                isGame = uiState.isGame,
+                isGameOver = uiState.isGameOver,
                 isWideScreen = isWideScreen,
                 filterButtonHeight = buttonHeight,
                 totalFlagCount = uiState.totalFlagCount,
@@ -393,6 +404,7 @@ private fun GameScreen(
 private fun GameContent(
     modifier: Modifier = Modifier,
     isGame: Boolean,
+    isGameOver: Boolean,
     isWideScreen: Boolean,
     filterButtonHeight: Dp,
     totalFlagCount: Int,
@@ -479,6 +491,7 @@ private fun GameContent(
 
         GameCard(
             isGame = isGame,
+            isGameOver = isGameOver,
             contentColumnHeight = columnHeight,
             cardImageWidth = imageWidth,
             onCardImageWidthChange = { imageWidth = it },
@@ -514,7 +527,7 @@ private fun GameContent(
             onClick = onSubmit,
             modifier = Modifier.fillMaxWidth()
                 .padding(top = Dimens.medium16),
-            enabled = isGame && !isShowAnswer,
+            enabled = isGame && !isGameOver && !isShowAnswer,
         ) {
             Text(text = stringResource(R.string.game_button_submit))
         }
@@ -524,7 +537,7 @@ private fun GameContent(
             onClick = onSkip,
             modifier = Modifier.fillMaxWidth()
                 .padding(top = Dimens.medium16),
-            enabled = isGame,
+            enabled = isGame && !isGameOver,
         ) {
             Text(text = stringResource(R.string.game_button_skip))
         }
@@ -539,7 +552,7 @@ private fun GameContent(
             },
             modifier = Modifier.fillMaxWidth()
                 .padding(top = Dimens.medium16),
-            enabled = isGame && !isShowAnswer,
+            enabled = isGame && !isGameOver && !isShowAnswer,
             colors = ButtonDefaults.outlinedButtonColors(contentColor = showAnswerColor),
         ) {
             Text(text = showAnswerText)
@@ -552,6 +565,7 @@ private fun GameContent(
 private fun GameCard(
     modifier: Modifier = Modifier,
     isGame: Boolean,
+    isGameOver: Boolean,
     contentColumnHeight: Dp,
     cardImageWidth: Dp,
     onCardImageWidthChange: (Dp) -> Unit,
@@ -705,7 +719,7 @@ private fun GameCard(
                 TextButton(
                     onClick = onEndGame,
                     modifier = Modifier.height(Dimens.extraLarge32),
-                    enabled = isGame,
+                    enabled = isGame && !isGameOver,
                     shape = RoundedCornerShape(Dimens.small8),
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.colorScheme.error
@@ -779,6 +793,22 @@ private fun GameCard(
                         contentScale = ContentScale.Fit,
                     )
 
+                    /* Conceal flag (for when game paused) */
+                    if (!isGame) {
+                        Box(
+                            modifier = Modifier.matchParentSize()
+                                .background(color = MaterialTheme.colorScheme.onSurface),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = stringResource(R.string.game_paused),
+                                color = MaterialTheme.colorScheme.surface,
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.titleLarge,
+                            )
+                        }
+                    }
+
                     /* Show answer content */
                     androidx.compose.animation.AnimatedVisibility(
                         visible = isShowAnswer,
@@ -831,7 +861,7 @@ private fun GameCard(
                     .onFocusChanged {
                         if (it.isFocused) onFocusChanged(true)
                     },
-                enabled = isGame && !isShowAnswer,
+                enabled = isGame && !isGameOver && !isShowAnswer,
                 label = {
                     Text(text = labelState)
                 },
@@ -1119,6 +1149,7 @@ private fun GameTopBar(
     modifier: Modifier = Modifier,
     screen: Screen,
     isGame: Boolean,
+    isFlags: Boolean,
     isTimerPaused: Boolean,
     timer: String = "0:00",
     onNavigateUp: () -> Unit,
@@ -1158,7 +1189,7 @@ private fun GameTopBar(
 
             IconButton(
                 onClick = onAction,
-                enabled = isGame,
+                enabled = isFlags,
             ) {
                 Icon(
                     imageVector = Icons.Default.Timer,
