@@ -274,6 +274,11 @@ private fun GameScreen(
         }
     }
 
+    /* Collapse menu when no flags */
+    LaunchedEffect(uiState.currentFlags) {
+        if (uiState.currentFlags.isEmpty()) buttonExpanded = false
+    }
+
     /* Manage timer string */
     val timer = when (uiState.isTimeTrial) {
         true -> uiState.timerTimeTrial
@@ -285,7 +290,7 @@ private fun GameScreen(
         timer / 60, timer % 60
     )
 
-    /* Manage guess field focus */
+    /* Manage guess field focus (and unpause game) */
     val focusManager = LocalFocusManager.current
     LaunchedEffect(buttonExpanded) {
         when (buttonExpanded) {
