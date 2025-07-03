@@ -65,6 +65,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             newSuperCategory = FlagSuperCategory.SovereignCountry,
             newSubCategory = null,
         )
+        startGame() // TODO: Remove when race condition vulnerability solved
     }
 
 

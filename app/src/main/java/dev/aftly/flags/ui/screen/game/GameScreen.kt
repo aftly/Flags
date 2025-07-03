@@ -60,7 +60,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -364,6 +363,7 @@ private fun GameScreen(
                 onSkip = onSkip,
                 onConfirmShowAnswer = onConfirmShowAnswer,
                 onShowAnswer = onShowAnswer,
+                onStartGame = onStartGame,
                 onEndGame = onEndGame,
                 onImageWide = { isFlagWide = it },
                 onFullscreen = {
@@ -431,6 +431,7 @@ private fun GameContent(
     onSkip: () -> Unit,
     onConfirmShowAnswer: () -> Unit,
     onShowAnswer: () -> Unit,
+    onStartGame: () -> Unit,
     onEndGame: () -> Unit,
     onImageWide: (Boolean) -> Unit,
     onFullscreen: () -> Unit,
@@ -520,6 +521,7 @@ private fun GameContent(
             isGuessWrongEvent = isGuessWrongEvent,
             isShowAnswer = isShowAnswer,
             onSubmit = onSubmit,
+            onStartGame = onStartGame,
             onEndGame = onEndGame,
             onImageWide = onImageWide,
             onFullscreen = onFullscreen,
@@ -594,6 +596,7 @@ private fun GameCard(
     isGuessWrongEvent: Boolean,
     isShowAnswer: Boolean,
     onSubmit: () -> Unit,
+    onStartGame: () -> Unit,
     onEndGame: () -> Unit,
     onImageWide: (Boolean) -> Unit,
     onFullscreen: () -> Unit,
@@ -720,24 +723,48 @@ private fun GameCard(
                     }
                 }
 
-                /* Finish game button */
-                TextButton(
-                    onClick = onEndGame,
-                    modifier = Modifier.height(Dimens.extraLarge32),
-                    enabled = isGame && !isGameOver,
-                    shape = RoundedCornerShape(Dimens.small8),
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error
-                    ),
-                    contentPadding = PaddingValues(
-                        start = Dimens.small10,
-                        bottom = Dimens.extraSmall6,
-                    ),
-                ) {
-                    Text(
-                        text = stringResource(R.string.game_end),
-                        style = MaterialTheme.typography.titleMedium,
-                    )
+                Row {
+                    /* Unpause button for when race condition vulnerability results in game paused
+                     * bug */
+                    if (!isGame && totalFlagCount > 0) {
+                        TextButton(
+                            onClick = onStartGame,
+                            modifier = Modifier.height(Dimens.extraLarge32)
+                                .padding(end = Dimens.extraSmall4),
+                            enabled = !isGameOver,
+                            shape = RoundedCornerShape(Dimens.small8),
+                            contentPadding = PaddingValues(
+                                start = Dimens.small8,
+                                end = Dimens.small8,
+                                bottom = Dimens.extraSmall6,
+                            ),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.game_unpause),
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                        }
+                    }
+
+                    /* Finish game button */
+                    TextButton(
+                        onClick = onEndGame,
+                        modifier = Modifier.height(Dimens.extraLarge32),
+                        enabled = isGame && !isGameOver,
+                        shape = RoundedCornerShape(Dimens.small8),
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error
+                        ),
+                        contentPadding = PaddingValues(
+                            start = Dimens.small10,
+                            bottom = Dimens.extraSmall6,
+                        ),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.game_end),
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                    }
                 }
             }
 
@@ -758,7 +785,7 @@ private fun GameCard(
                     ),
                 contentAlignment = Alignment.BottomEnd,
             ) {
-                if (totalFlagCount != 0) {
+                if (totalFlagCount > 0) {
                     Image(
                         modifier = Modifier
                             .onSizeChanged { size ->
