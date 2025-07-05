@@ -119,29 +119,14 @@ fun ListFlagsScreen(
     }
      */
 
-    /* Manage search bar focus */
-    val focusRequesterSearch = remember { FocusRequester() }
-    val focusManager = LocalFocusManager.current
-    var isSearchBarFocused by rememberSaveable { mutableStateOf(value = false) }
-    LaunchedEffect(Unit) {
-        if (isSearchBarFocused) focusRequesterSearch.requestFocus()
-    }
-
-
     ListFlagsScreen(
         uiState = uiState,
         searchState = searchState,
         screen = screen,
-        focusRequesterSearch = focusRequesterSearch,
-        isSearchBarFocused = isSearchBarFocused,
-        onFocusChanged = { isSearchBarFocused = it },
         userSearch = searchModel.searchQuery,
         isUserSearch = searchModel.isSearchQuery,
         onUserSearchChange = { searchModel.onSearchQueryChange(it) },
-        onNavigateUp = {
-            focusManager.clearFocus()
-            onNavigateUp()
-        },
+        onNavigateUp = onNavigateUp,
         onCategorySelect = { newSuperCategory, newSubCategory ->
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
             searchModel.updateCurrentCategory(newSuperCategory, newSubCategory)
@@ -151,7 +136,6 @@ fun ListFlagsScreen(
             searchModel.updateCurrentCategories(selectSuperCategory, selectSubCategory)
         },
         onFlagSelect = { flag ->
-            focusManager.clearFocus()
             val currentList = when (searchModel.isSearchQuery) {
                 true -> searchState.map { it.id }
                 false -> uiState.currentFlags.map { it.id }
@@ -171,9 +155,6 @@ private fun ListFlagsScreen(
     screen: Screen,
     containerColor1: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     containerColor2: Color = MaterialTheme.colorScheme.secondary,
-    focusRequesterSearch: FocusRequester,
-    isSearchBarFocused: Boolean,
-    onFocusChanged: (Boolean) -> Unit,
     userSearch: String,
     isUserSearch: Boolean,
     onUserSearchChange: (String) -> Unit,
@@ -184,7 +165,7 @@ private fun ListFlagsScreen(
 ) {
     /* Controls FilterFlagsButton menu expansion amd tracks current button height
      * Also for FilterFlagsButton to access Scaffold() padding */
-    var buttonExpanded by rememberSaveable { mutableStateOf(value = false) }
+    var isMenuExpanded by rememberSaveable { mutableStateOf(value = false) }
     var buttonHeight by remember { mutableStateOf(0.dp) }
     var scaffoldPaddingValues by remember { mutableStateOf(value = PaddingValues()) }
 
@@ -200,11 +181,11 @@ private fun ListFlagsScreen(
 
     /* Controls search bar and list state */
     val focusManager = LocalFocusManager.current
+    var isSearchBarFocused by rememberSaveable { mutableStateOf(value = false) }
     var isSearchBar by rememberSaveable { mutableStateOf(value = false) }
 
-    LaunchedEffect(buttonExpanded) {
-        if (buttonExpanded) focusManager.clearFocus()
-        else if (isSearchBarFocused) focusRequesterSearch.requestFocus()
+    LaunchedEffect(isMenuExpanded) {
+        if (isMenuExpanded) focusManager.clearFocus()
     }
 
     LaunchedEffect(isSearchBar) {
@@ -216,7 +197,6 @@ private fun ListFlagsScreen(
                         coroutineScope.launch { listState.animateScrollToItem(index = 0) }
                     }
                 }
-                focusRequesterSearch.requestFocus()
             }
             false -> {
                 delay(Timing.MENU_COLLAPSE.toLong())
@@ -237,8 +217,8 @@ private fun ListFlagsScreen(
         }
 
         /* Minimize filter menu when keyboard input */
-        if (isUserSearch && buttonExpanded) {
-            buttonExpanded = false
+        if (isUserSearch && isMenuExpanded) {
+            isMenuExpanded = false
         }
     }
 
@@ -259,7 +239,7 @@ private fun ListFlagsScreen(
                 .pointerInput(Unit) {
                     detectTapGestures {
                         focusManager.clearFocus()
-                        onFocusChanged(false)
+                        isSearchBarFocused = false
                     }
                 },
             topBar = {
@@ -274,11 +254,15 @@ private fun ListFlagsScreen(
                         }
                         onUserSearchChange(it)
                     },
-                    focusRequesterSearch = focusRequesterSearch,
-                    onFocusChanged = onFocusChanged,
+                    onFocus = { isSearchBarFocused = true },
+                    isMenuExpanded = isMenuExpanded,
+                    isSearchBarFocused = isSearchBarFocused,
                     isSearchBar = isSearchBar,
                     onIsSearchBar = { isSearchBar = !isSearchBar },
-                    onNavigateUp = onNavigateUp,
+                    onNavigateUp = {
+                        focusManager.clearFocus()
+                        onNavigateUp()
+                    },
                 )
             },
             floatingActionButton = {
@@ -327,8 +311,8 @@ private fun ListFlagsScreen(
                 true -> searchState.size
             },
             onButtonHeightChange = { buttonHeight = it },
-            buttonExpanded = buttonExpanded,
-            onButtonExpand = { buttonExpanded = !buttonExpanded },
+            buttonExpanded = isMenuExpanded,
+            onButtonExpand = { isMenuExpanded = !isMenuExpanded },
             containerColor1 = containerColor1,
             containerColor2 = containerColor2,
             currentCategoryTitle = uiState.currentCategoryTitle,
@@ -509,8 +493,9 @@ private fun ListFlagsTopBar(
     userSearch: String,
     isUserSearch: Boolean,
     onUserSearchChange: (String) -> Unit,
-    focusRequesterSearch: FocusRequester,
-    onFocusChanged: (Boolean) -> Unit,
+    onFocus: () -> Unit,
+    isMenuExpanded: Boolean,
+    isSearchBarFocused: Boolean,
     isSearchBar: Boolean,
     onIsSearchBar: () -> Unit,
     onNavigateUp: () -> Unit,
@@ -641,6 +626,27 @@ private fun ListFlagsTopBar(
                     animationSpec = tween(durationMillis = Timing.MENU_COLLAPSE),
                 ),
             ) {
+                val focusRequesterSearch = remember { FocusRequester() }
+
+                /* Focus search bar on nav back */
+                LaunchedEffect(Unit) {
+                    if (isSearchBarFocused) {
+                        focusRequesterSearch.requestFocus()
+                    }
+                }
+                /* Focus search bar on visibility */
+                LaunchedEffect(isSearchBar) {
+                    if (isSearchBar) {
+                        focusRequesterSearch.requestFocus()
+                    }
+                }
+                /* Focus search bar on menu collapse if previously focused */
+                LaunchedEffect(isMenuExpanded) {
+                    if (!isMenuExpanded && isSearchBarFocused) {
+                        focusRequesterSearch.requestFocus()
+                    }
+                }
+
                 Box {
                     /* Background for TextField as clipping issues when setting size directly */
                     Surface(
@@ -664,10 +670,10 @@ private fun ListFlagsTopBar(
                                 end = Dimens.marginHorizontal16 - textFieldOffset,
                                 start = textFieldStartPadding,
                             )
-                            .focusRequester(focusRequesterSearch)
                             .onFocusChanged {
-                                if (it.isFocused) onFocusChanged(true)
-                            },
+                                if (it.isFocused) onFocus()
+                            }
+                            .focusRequester(focusRequesterSearch),
                         singleLine = true,
                         placeholder = {
                             Text(text = stringResource(R.string.search_bar_placeholder))
