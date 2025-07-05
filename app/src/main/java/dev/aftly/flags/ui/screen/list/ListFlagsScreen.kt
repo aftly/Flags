@@ -311,8 +311,8 @@ private fun ListFlagsScreen(
                 true -> searchState.size
             },
             onButtonHeightChange = { buttonHeight = it },
-            buttonExpanded = isMenuExpanded,
-            onButtonExpand = { isMenuExpanded = !isMenuExpanded },
+            isMenuExpanded = isMenuExpanded,
+            onMenuButtonClick = { isMenuExpanded = !isMenuExpanded },
             containerColor1 = containerColor1,
             containerColor2 = containerColor2,
             currentCategoryTitle = uiState.currentCategoryTitle,

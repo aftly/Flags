@@ -89,8 +89,8 @@ fun CategoriesButtonMenu(
     screen: Screen,
     flagCount: Int = 0,
     onButtonHeightChange: (Dp) -> Unit,
-    buttonExpanded: Boolean,
-    onButtonExpand: () -> Unit,
+    isMenuExpanded: Boolean,
+    onMenuButtonClick: () -> Unit,
     containerColor1: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     containerColor2: Color = MaterialTheme.colorScheme.secondary,
     cardColors1: CardColors = CardDefaults.cardColors(containerColor = containerColor1),
@@ -108,17 +108,17 @@ fun CategoriesButtonMenu(
     var expandMenu by remember { mutableStateOf<FlagSuperCategory?>(value = null) }
 
     /* When menu collapse, return expandMenu state to current selected category (if ui differs) */
-    LaunchedEffect(buttonExpanded) {
+    LaunchedEffect(isMenuExpanded) {
         /* Collapse sub-menu if it's super is selected */
-        if (!buttonExpanded && currentCategoryTitle == currentSuperCategory.title) {
+        if (!isMenuExpanded && currentCategoryTitle == currentSuperCategory.title) {
             expandMenu = null
-        } else if (!buttonExpanded && expandMenu != currentSuperCategory &&
+        } else if (!isMenuExpanded && expandMenu != currentSuperCategory &&
             currentCategoryTitle != expandMenu?.title &&
             currentSuperCategory != Political) {
             /* Expand sub-menu of current super when differs from current expanded menu */
             expandMenu = currentSuperCategory
 
-        } else if (!buttonExpanded && currentSuperCategory == Political) {
+        } else if (!isMenuExpanded && currentSuperCategory == Political) {
             /* As Political contains supers, expandMenu cannot just be determined from
              * currentSuperCategory. Loop through each super to find the selected category and
              * set expandMenu state to the sub-super */
@@ -179,7 +179,7 @@ fun CategoriesButtonMenu(
     Box(modifier = modifier) {
         /* Scrim behind expanded menu, tap gestures close menu */
         AnimatedVisibility(
-            visible = buttonExpanded,
+            visible = isMenuExpanded,
             enter = fadeIn(animationSpec = tween(durationMillis = Timing.MENU_EXPAND)),
             exit = fadeOut(animationSpec = tween(durationMillis = Timing.MENU_EXPAND)),
         ) {
@@ -187,7 +187,7 @@ fun CategoriesButtonMenu(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
-                onAction = onButtonExpand,
+                onAction = onMenuButtonClick,
             )
         }
 
@@ -203,7 +203,7 @@ fun CategoriesButtonMenu(
                 ),
         ) {
             Button(
-                onClick = onButtonExpand,
+                onClick = onMenuButtonClick,
                 modifier = Modifier.padding(bottom = Dimens.small8) /* Separate Button from Menu */
                     .height(buttonHeight),
                 shape = MaterialTheme.shapes.large,
@@ -285,7 +285,7 @@ fun CategoriesButtonMenu(
                             modifier = Modifier.width(flagCountWidth),
                             contentAlignment = Alignment.CenterEnd,
                         ) {
-                            if (!buttonExpanded) {
+                            if (!isMenuExpanded) {
                                 Icon(
                                     imageVector = Icons.Default.KeyboardArrowDown,
                                     contentDescription = stringResource(R.string.menu_icon_expand),
@@ -306,7 +306,7 @@ fun CategoriesButtonMenu(
             }
 
             AnimatedVisibility(
-                visible = buttonExpanded,
+                visible = isMenuExpanded,
                 enter = expandVertically(
                     animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
                     expandFrom = Alignment.Top,
@@ -359,7 +359,7 @@ fun CategoriesButtonMenu(
                                     onCategorySelect = { newSuperCategory ->
                                         expandMenu = null
                                         onCategorySelect(newSuperCategory, null)
-                                        onButtonExpand()
+                                        onMenuButtonClick()
                                     },
                                     onCategoryMultiSelect = { selectSuperCategory ->
                                         onCategoryMultiSelect(selectSuperCategory, null)
@@ -383,7 +383,7 @@ fun CategoriesButtonMenu(
                                     onMenuSelect = { expandMenu = it },
                                     onCategorySelect = { newSuperCategory, newSubCategory ->
                                         onCategorySelect(newSuperCategory,newSubCategory)
-                                        onButtonExpand()
+                                        onMenuButtonClick()
                                     },
                                     onCategoryMultiSelect = onCategoryMultiSelect,
                                 )
@@ -404,7 +404,7 @@ fun CategoriesButtonMenu(
                                     onMenuSelect = { expandMenu = it },
                                     onCategorySelect = { newSuperCategory, newSubCategory ->
                                         onCategorySelect(newSuperCategory,newSubCategory)
-                                        onButtonExpand()
+                                        onMenuButtonClick()
                                     },
                                     onCategoryMultiSelect = onCategoryMultiSelect,
                                 )
