@@ -75,6 +75,8 @@ import dev.aftly.flags.model.FlagSuperCategory.International
 import dev.aftly.flags.model.FlagSuperCategory.NonAdministrative
 import dev.aftly.flags.model.FlagSuperCategory.Political
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
+import dev.aftly.flags.model.FlagSuperCategory.AutonomousRegion
+import dev.aftly.flags.model.FlagSuperCategory.Regional
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Shapes
@@ -149,7 +151,30 @@ fun CategoriesButtonMenu(
 
     /* Manage button title & exceptions */
     val buttonTitle = if (currentSuperCategories != null && currentSubCategories != null) {
+        /*
+        filterSuperCategories(
+            superCategories = currentSuperCategories,
+            subCategories = currentSubCategories,
+        ).let { superCategoriesFiltered ->
+            var title = ""
+            val commaWhitespace = stringResource(R.string.string_comma_whitespace)
+            superCategoriesFiltered.forEach { superCategory ->
+                title += stringResource(superCategory.title) +
+                        stringResource(R.string.string_comma_whitespace)
+            }
+            currentSubCategories.forEach { subCategory ->
+                title += stringResource(subCategory.title) +
+                        stringResource(R.string.string_comma_whitespace)
+            }
+
+            return@let when (title.endsWith(commaWhitespace)) {
+                true -> title.dropLast(commaWhitespace.length)
+                false -> title
+            }
+        }
+         */
         stringResource(R.string.menu_multiple_selection)
+
     } else {
         when (currentSuperCategory) {
             SovereignCountry -> stringResource(R.string.category_super_sovereign_country_title)
@@ -872,6 +897,72 @@ private fun MenuSuperItem(
                     }
                 }
             }
+        }
+    }
+}
+
+
+/* TODO: Centralize filter logic with GameViewModel's getScoreDataSupers() */
+private fun filterSuperCategories(
+    superCategories: List<FlagSuperCategory>,
+    subCategories: List<FlagCategory>,
+): List<FlagSuperCategory> {
+    return superCategories.filterNot { superCategory ->
+        superCategory.enums().any { it in subCategories }
+
+    }.let { superCategoriesNew ->
+        when (superCategoriesNew.size to subCategories.isEmpty()) {
+            0 to true -> superCategoriesNew
+            else -> superCategoriesNew.filterNot { it == All }
+        }
+    }
+}
+
+private fun getCategoriesStringResIds(
+    superCategories: List<FlagSuperCategory>,
+    subCategories: List<FlagCategory>,
+): List<Int> {
+    val superCategoriesFiltered = filterSuperCategories(
+        superCategories = superCategories,
+        subCategories = subCategories,
+    )
+
+    val politicalCategories = subCategories.filter { subCategory ->
+        Political.subCategories.filterIsInstance<FlagSuperCategory>().any {
+            subCategory in it.enums()
+        }
+    }
+    val nonPoliticalCategories = subCategories.filterNot { it in politicalCategories }
+
+    val isHistorical =
+        Historical in superCategoriesFiltered || FlagCategory.HISTORICAL in subCategories
+
+    val isAssociatedCountrySupers = superCategoriesFiltered.contains(AutonomousRegion) &&
+            (superCategoriesFiltered.contains(SovereignCountry) ||
+                    subCategories.contains(FlagCategory.SOVEREIGN_STATE))
+
+    val isAutonomousRegionalSupers = superCategoriesFiltered.containsAll(
+        elements = listOf(AutonomousRegion, Regional)
+    )
+
+    val isAutonomousRegionalSub = superCategoriesFiltered.contains(AutonomousRegion) &&
+            subCategories.any { it in Regional.enums() }
+
+    val stringResIds = mutableListOf<Int>()
+
+    if (isHistorical) {
+        stringResIds.add(Historical.title)
+        stringResIds.add(R.string.string_whitespace)
+    }
+
+    politicalCategories.forEach { politicalCategory ->
+        when (stringResIds.isEmpty()) {
+            true -> stringResIds.add(politicalCategory.title)
+            false -> stringResIds.add(politicalCategory.string)
+        }
+        when (politicalCategory == politicalCategories.last()) {
+            true -> stringResIds.add(R.string.string_whitespace)
+            false -> stringResIds.add(R.string.string_comma_whitespace)
         }
     }
 }

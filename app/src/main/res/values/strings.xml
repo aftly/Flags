@@ -245,6 +245,7 @@
     <string name="string_and">and</string>
     <string name="string_and_a">and a</string>
     <string name="string_comma">,</string>
+    <string name="string_comma_whitespace">,\ </string>
     <string name="string_is_a">is a</string>
     <string name="string_new_paragraph">\n\n</string>
     <string name="string_percent">%</string>
