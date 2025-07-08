@@ -919,12 +919,15 @@ private fun getCategoriesStringResources(
     superCategories: List<FlagSuperCategory>,
     subCategories: List<FlagCategory>,
 ): List<Int> {
+    /* Filter out supers when any of it's subs are selected and filter out All super when multiple
+     * and return mutable list for further filtering */
     val superCategoriesFiltered = filterSuperCategories(
         superCategories = superCategories,
         subCategories = subCategories,
     ).toMutableList()
 
-    val sortPoliticalCategoriesBy = listOf(
+    /* For sorting political categories by their index in this list */
+    val politicalCategoriesSortOrder = listOf(
         TerritorialDistributionOfAuthority.enums(),
         ExecutiveStructure.enums(),
         LegalConstraint.enums(),
@@ -937,19 +940,24 @@ private fun getCategoriesStringResources(
 
     val isCultural = Cultural in superCategoriesFiltered
 
+    /* For string exception when supers mean associated countries */
     val isAssociatedCountrySupers = superCategoriesFiltered.contains(AutonomousRegion) &&
             (superCategoriesFiltered.contains(SovereignCountry) ||
                     subCategories.contains(FlagCategory.SOVEREIGN_STATE))
 
+    /* For string exception when supers mean non-sovereign autonomous and associated regions */
     val isAutonomousRegionalSupers = superCategoriesFiltered.containsAll(
         elements = listOf(AutonomousRegion, Regional)
     )
 
+    /* For string exception when regions are autonomous */
     val isAutonomousRegionalSub = superCategoriesFiltered.contains(AutonomousRegion) &&
             subCategories.any { it in Regional.enums() }
 
     val culturalCategories = subCategories.filter { it in Cultural.enums() }
 
+    /* Subcategories belonging to Political SuperCategory sans NonAdministrative,
+     * sorted semantically, according to sortPoliticalCategoriesBy */
     val politicalCategories = subCategories.filter { subCategory ->
         Political.subCategories.filterIsInstance<FlagSuperCategory>().filterNot {
             it == NonAdministrative
@@ -957,9 +965,10 @@ private fun getCategoriesStringResources(
             subCategory in it.enums()
         }
     }.sortedBy {
-        sortPoliticalCategoriesBy.indexOf(it)
+        politicalCategoriesSortOrder.indexOf(it)
     }
 
+    /* Subcategories not in other list derivatives, minus duplicates */
     val remainingCategories = subCategories.filterNot { it in culturalCategories }
         .filterNot { it in politicalCategories }.let {
         val categoriesMutable = it.toMutableList()
@@ -968,6 +977,7 @@ private fun getCategoriesStringResources(
         return@let categoriesMutable.toList()
     }
 
+    /* Mutable list for string resources for iteration */
     @StringRes val strings = mutableListOf<Int>()
 
     if (isHistorical) {
