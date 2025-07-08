@@ -5,6 +5,7 @@
     <string name="category_super_all">All</string>
     <string name="category_super_all_detailed">All flags</string>
     <string name="category_super_sovereign_country">Country (sovereign)</string>
+    <string name="category_super_sovereign_country_short">Country</string>
     <string name="category_super_sovereign_country_game_category_preview">Country</string>
     <string name="category_super_sovereign_country_game_category_detailed">Sovereign Country</string>
     <string name="category_super_sovereign_country_title">Country Flags</string>
@@ -158,6 +159,10 @@
     <string name="category_religious_in_description">religious entity</string>
     <string name="category_regional_title">Geographical Region</string>
     <string name="category_regional_string">geographical region</string>
+    <string name="categories_associated_country">Associated Country</string>
+    <string name="categories_autonomous">Autonomous</string>
+    <string name="categories_autonomous_regional">Autonomous or (Non-Sovereign) Associated Region</string>
+    <string name="categories_and">\ &amp;\ </string>
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancel</string>
     <string name="error">Error</string>

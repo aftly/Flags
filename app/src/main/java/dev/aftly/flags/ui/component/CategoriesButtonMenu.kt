@@ -70,13 +70,19 @@ import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategoryWrapper
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
-import dev.aftly.flags.model.FlagSuperCategory.Historical
 import dev.aftly.flags.model.FlagSuperCategory.International
-import dev.aftly.flags.model.FlagSuperCategory.NonAdministrative
-import dev.aftly.flags.model.FlagSuperCategory.Political
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 import dev.aftly.flags.model.FlagSuperCategory.AutonomousRegion
 import dev.aftly.flags.model.FlagSuperCategory.Regional
+import dev.aftly.flags.model.FlagSuperCategory.Cultural
+import dev.aftly.flags.model.FlagSuperCategory.Historical
+import dev.aftly.flags.model.FlagSuperCategory.Political
+import dev.aftly.flags.model.FlagSuperCategory.TerritorialDistributionOfAuthority
+import dev.aftly.flags.model.FlagSuperCategory.ExecutiveStructure
+import dev.aftly.flags.model.FlagSuperCategory.LegalConstraint
+import dev.aftly.flags.model.FlagSuperCategory.IdeologicalOrientation
+import dev.aftly.flags.model.FlagSuperCategory.PowerDerivation
+import dev.aftly.flags.model.FlagSuperCategory.NonAdministrative
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Shapes
@@ -151,35 +157,26 @@ fun CategoriesButtonMenu(
 
     /* Manage button title & exceptions */
     val buttonTitle = if (currentSuperCategories != null && currentSubCategories != null) {
-        /*
-        filterSuperCategories(
+        getCategoriesStringResources(
             superCategories = currentSuperCategories,
             subCategories = currentSubCategories,
-        ).let { superCategoriesFiltered ->
+        ).let { stringResources ->
             var title = ""
-            val commaWhitespace = stringResource(R.string.string_comma_whitespace)
-            superCategoriesFiltered.forEach { superCategory ->
-                title += stringResource(superCategory.title) +
-                        stringResource(R.string.string_comma_whitespace)
-            }
-            currentSubCategories.forEach { subCategory ->
-                title += stringResource(subCategory.title) +
-                        stringResource(R.string.string_comma_whitespace)
-            }
-
-            return@let when (title.endsWith(commaWhitespace)) {
-                true -> title.dropLast(commaWhitespace.length)
-                false -> title
-            }
+            stringResources.forEach { title += stringResource(it) }
+            return@let title
         }
-         */
-        stringResource(R.string.menu_multiple_selection)
-
     } else {
         when (currentSuperCategory) {
             SovereignCountry -> stringResource(R.string.category_super_sovereign_country_title)
-            Political -> stringResource(currentCategoryTitle) +
-                    stringResource(R.string.button_title_state_flags)
+            Political -> {
+                if (currentCategoryTitle in PowerDerivation.enums().filterNot {
+                    it in listOf(FlagCategory.ONE_PARTY, FlagCategory.PROVISIONAL_GOVERNMENT)
+                }.map { it.title }) {
+                    stringResource(currentCategoryTitle) + stringResource(R.string.button_title_flags)
+                } else {
+                    stringResource(currentCategoryTitle) + stringResource(R.string.button_title_state_flags)
+                }
+            }
             International -> stringResource(R.string.category_international_organization_title) +
                     stringResource(R.string.button_title_flags)
             else -> stringResource(currentCategoryTitle) + stringResource(R.string.button_title_flags)
@@ -918,24 +915,27 @@ private fun filterSuperCategories(
     }
 }
 
-private fun getCategoriesStringResIds(
+private fun getCategoriesStringResources(
     superCategories: List<FlagSuperCategory>,
     subCategories: List<FlagCategory>,
 ): List<Int> {
     val superCategoriesFiltered = filterSuperCategories(
         superCategories = superCategories,
         subCategories = subCategories,
-    )
+    ).toMutableList()
 
-    val politicalCategories = subCategories.filter { subCategory ->
-        Political.subCategories.filterIsInstance<FlagSuperCategory>().any {
-            subCategory in it.enums()
-        }
-    }
-    val nonPoliticalCategories = subCategories.filterNot { it in politicalCategories }
+    val sortPoliticalCategoriesBy = listOf(
+        TerritorialDistributionOfAuthority.enums(),
+        ExecutiveStructure.enums(),
+        LegalConstraint.enums(),
+        IdeologicalOrientation.enums(),
+        PowerDerivation.enums()
+    ).flatten()
 
     val isHistorical =
         Historical in superCategoriesFiltered || FlagCategory.HISTORICAL in subCategories
+
+    val isCultural = Cultural in superCategoriesFiltered
 
     val isAssociatedCountrySupers = superCategoriesFiltered.contains(AutonomousRegion) &&
             (superCategoriesFiltered.contains(SovereignCountry) ||
@@ -948,21 +948,110 @@ private fun getCategoriesStringResIds(
     val isAutonomousRegionalSub = superCategoriesFiltered.contains(AutonomousRegion) &&
             subCategories.any { it in Regional.enums() }
 
-    val stringResIds = mutableListOf<Int>()
+    val culturalCategories = subCategories.filter { it in Cultural.enums() }
+
+    val politicalCategories = subCategories.filter { subCategory ->
+        Political.subCategories.filterIsInstance<FlagSuperCategory>().filterNot {
+            it == NonAdministrative
+        }.any {
+            subCategory in it.enums()
+        }
+    }.sortedBy {
+        sortPoliticalCategoriesBy.indexOf(it)
+    }
+
+    val remainingCategories = subCategories.filterNot { it in culturalCategories }
+        .filterNot { it in politicalCategories }.let {
+        val categoriesMutable = it.toMutableList()
+        if (isHistorical) categoriesMutable.remove(FlagCategory.HISTORICAL)
+        if (isAssociatedCountrySupers) categoriesMutable.remove(FlagCategory.SOVEREIGN_STATE)
+        return@let categoriesMutable.toList()
+    }
+
+    @StringRes val strings = mutableListOf<Int>()
 
     if (isHistorical) {
-        stringResIds.add(Historical.title)
-        stringResIds.add(R.string.string_whitespace)
+        superCategoriesFiltered.remove(Historical)
+        strings.add(Historical.title)
+        strings.add(R.string.string_whitespace)
+    }
+
+    if (isCultural) {
+        superCategoriesFiltered.remove(Cultural)
+        strings.add(Cultural.title)
+        if (superCategoriesFiltered.isNotEmpty() || politicalCategories.isNotEmpty() ||
+            remainingCategories.isNotEmpty()) {
+            strings.add(R.string.categories_and)
+        }
+    }
+
+    culturalCategories.forEach { culturalCategory ->
+        strings.add(culturalCategory.title)
+        if (culturalCategory != culturalCategories.last() || superCategoriesFiltered.isNotEmpty() ||
+            politicalCategories.isNotEmpty() || remainingCategories.isNotEmpty()) {
+            strings.add(R.string.categories_and)
+        }
     }
 
     politicalCategories.forEach { politicalCategory ->
-        when (stringResIds.isEmpty()) {
-            true -> stringResIds.add(politicalCategory.title)
-            false -> stringResIds.add(politicalCategory.string)
+        strings.add(politicalCategory.title)
+        strings.add(R.string.string_whitespace)
+    }
+
+    if (isAssociatedCountrySupers) {
+        superCategoriesFiltered.remove(SovereignCountry)
+        superCategoriesFiltered.remove(AutonomousRegion)
+        strings.add(R.string.categories_associated_country)
+        strings.add(R.string.string_comma_whitespace)
+    }
+
+    if (isAutonomousRegionalSupers && !isAutonomousRegionalSub) {
+        superCategoriesFiltered.remove(AutonomousRegion)
+        superCategoriesFiltered.remove(Regional)
+        strings.add(R.string.categories_autonomous_regional)
+        strings.add(R.string.string_comma_whitespace)
+    } else if (isAutonomousRegionalSub) {
+        superCategoriesFiltered.remove(AutonomousRegion)
+        strings.add(R.string.categories_autonomous)
+        strings.add(R.string.string_whitespace)
+    }
+
+    superCategoriesFiltered.forEach { superCategory ->
+        if (superCategory == SovereignCountry) {
+            if (politicalCategories.isEmpty()) {
+                strings.add(R.string.category_super_sovereign_country_short)
+            } else {
+                strings.add(R.string.category_state_title)
+            }
+        } else {
+            strings.add(superCategory.title)
         }
-        when (politicalCategory == politicalCategories.last()) {
-            true -> stringResIds.add(R.string.string_whitespace)
-            false -> stringResIds.add(R.string.string_comma_whitespace)
+        strings.add(R.string.string_comma_whitespace)
+    }
+
+    remainingCategories.forEach { subCategory ->
+        if (subCategory == FlagCategory.SOVEREIGN_STATE) {
+            if (politicalCategories.isEmpty()) {
+                strings.add(R.string.category_super_sovereign_country_short)
+                strings.add(R.string.string_comma_whitespace)
+
+            } else if (!politicalCategories.any { politicalCategory ->
+                politicalCategory in PowerDerivation.enums().filterNot {
+                    it in listOf(FlagCategory.ONE_PARTY, FlagCategory.PROVISIONAL_GOVERNMENT)
+                } }) {
+                strings.add(R.string.category_state_title)
+            }
+        } else {
+            strings.add(subCategory.title)
+            strings.add(R.string.string_comma_whitespace)
         }
     }
+
+    if (strings.last() == R.string.string_comma_whitespace ||
+        strings.last() == R.string.string_whitespace) {
+        strings.removeLastOrNull()
+    }
+    strings.add(R.string.button_title_flags)
+
+    return strings
 }
