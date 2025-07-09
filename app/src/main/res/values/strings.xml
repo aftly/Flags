@@ -6,9 +6,7 @@
     <string name="category_super_all_detailed">All flags</string>
     <string name="category_super_sovereign_country">Country (sovereign)</string>
     <string name="category_super_sovereign_country_short">Country</string>
-    <string name="category_super_sovereign_country_game_category_preview">Country</string>
     <string name="category_super_sovereign_country_game_category_detailed">Sovereign Country</string>
-    <string name="category_super_sovereign_country_title">Country Flags</string>
     <string name="category_super_autonomous_region">Autonomous or Associated Region</string>
     <string name="category_super_autonomous_region_game_category_preview">Autonomous Region</string>
     <string name="category_super_regional">Regional</string>

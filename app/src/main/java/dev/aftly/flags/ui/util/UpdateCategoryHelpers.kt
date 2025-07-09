@@ -113,6 +113,7 @@ fun getCategoryTitle(
 
 /* ------ For updateCurrentCategories function in ViewModels ------ */
 
+// TODO Remove
 fun getSuperCategories(
     superCategories: List<FlagSuperCategory>?,
     currentSuperCategory: FlagSuperCategory,
@@ -123,7 +124,7 @@ fun getSuperCategories(
     }
 }
 
-
+// TODO remove
 fun getSubCategories(
     subCategories: List<FlagCategory>?,
     currentSuperCategory: FlagSuperCategory,

@@ -416,7 +416,7 @@ private fun CategoriesOverviewItem(
 
         /* Super-categories */
         categoriesOverview.superCategories.forEach { superCategory ->
-            superCategory.gameCategoryDetailed?.let {
+            superCategory.gameScoreCategoryDetailed?.let {
                 Row(
                     modifier = Modifier.padding(top = spacePadding)
                 ) {

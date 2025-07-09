@@ -1,17 +1,15 @@
 package dev.aftly.flags.ui.screen.list
 
 import android.app.Application
-import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
-import dev.aftly.flags.ui.util.getCategoryTitle
 import dev.aftly.flags.ui.util.getFlagsByCategory
 import dev.aftly.flags.ui.util.getFlagsFromCategories
-import dev.aftly.flags.ui.util.getParentSuperCategory
-import dev.aftly.flags.ui.util.getSubCategories
-import dev.aftly.flags.ui.util.getSuperCategories
+//import dev.aftly.flags.ui.util.getParentSuperCategory TODO
+//import dev.aftly.flags.ui.util.getSubCategories TODO
+//import dev.aftly.flags.ui.util.getSuperCategories TODO
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
 import dev.aftly.flags.ui.util.sortFlagsAlphabetically
@@ -60,43 +58,44 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         /* If new category is All superCategory update flags with static allFlags source,
          * else dynamically generate flags list from category info */
         if (newSuperCategory == All) {
-            _uiState.update { currentState ->
-                currentState.copy(
-                    currentFlags = currentState.allFlags,
-                    currentSuperCategory = newSuperCategory,
-                    currentCategoryTitle = newSuperCategory.title,
-                    currentSuperCategories = null,
-                    currentSubCategories = null,
-                )
-            }
+            _uiState.value = ListFlagsUiState()
         } else {
             /* Determine category title Res from nullable values */
+            /*
             @StringRes val categoryTitle = getCategoryTitle(
                 superCategory = newSuperCategory,
                 subCategory = newSubCategory,
             )
+             */ // TODO
 
             /* Determine the relevant parent superCategory */
+            /*
             val parentSuperCategory = getParentSuperCategory(
                 superCategory = newSuperCategory,
                 subCategory = newSubCategory,
             )
+             */ // TODO
 
             /* Get new currentFlags list from function arguments and parent superCategory */
             val newFlags = getFlagsByCategory(
                 superCategory = newSuperCategory,
                 subCategory = newSubCategory,
                 allFlags = uiState.value.allFlags,
-                parentCategory = parentSuperCategory,
             )
 
             _uiState.update { currentState ->
                 currentState.copy(
                     currentFlags = newFlags,
-                    currentSuperCategory = parentSuperCategory,
-                    currentCategoryTitle = categoryTitle,
-                    currentSuperCategories = null,
-                    currentSubCategories = null,
+                    //currentSuperCategory = parentSuperCategory, TODO
+                    //currentCategoryTitle = categoryTitle, TODO
+                    currentSuperCategories = when (newSuperCategory) {
+                        null -> emptyList()
+                        else -> listOf(newSuperCategory)
+                    },
+                    currentSubCategories = when (newSubCategory) {
+                        null -> emptyList()
+                        else -> listOf(newSubCategory)
+                    },
                 )
             }
         }
@@ -109,52 +108,46 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
     ) {
         var isDeselect = false /* Controls whether flags are updated from current or all flags */
 
-        val superCategories = getSuperCategories(
-            superCategories = uiState.value.currentSuperCategories,
-            currentSuperCategory = uiState.value.currentSuperCategory,
-        )
-        val subCategories = getSubCategories(
-            subCategories = uiState.value.currentSubCategories,
-            currentSuperCategory = uiState.value.currentSuperCategory,
-        )
+        val newSuperCategories = uiState.value.currentSuperCategories.toMutableList()
+        val newSubCategories = uiState.value.currentSubCategories.toMutableList()
 
         /* Exit function if new<*>Category is not selectable or mutually exclusive from current.
          * Else, add/remove category argument to/from categories lists */
         newSuperCategory?.let { superCategory ->
-            if (isSuperCategoryExit(superCategory, superCategories, subCategories)) return
+            if (isSuperCategoryExit(superCategory, newSuperCategories, newSubCategories)) return
 
             isDeselect = updateCategoriesFromSuper(
                 superCategory = superCategory,
-                superCategories = superCategories,
-                subCategories = subCategories,
+                superCategories = newSuperCategories,
+                subCategories = newSubCategories,
             )
             /* Exit after All is deselected since (how) deselection is state inconsequential */
             if (!isDeselect && superCategory == All) return
         }
         newSubCategory?.let { subCategory ->
-            if (isSubCategoryExit(subCategory, subCategories, superCategories)) return
+            if (isSubCategoryExit(subCategory, newSubCategories, newSuperCategories)) return
 
             isDeselect = updateCategoriesFromSub(
                 subCategory = subCategory,
-                subCategories = subCategories,
+                subCategories = newSubCategories,
             )
         }
         /* Return updateCurrentCategory() if deselection to only 1 super category */
         if (isDeselect) {
-            if (subCategories.isEmpty()) {
-                if (superCategories.isEmpty()) {
+            if (newSubCategories.isEmpty()) {
+                if (newSuperCategories.isEmpty()) {
                     return updateCurrentCategory(newSuperCategory = All, newSubCategory = null)
 
-                } else if (superCategories.size == 1) {
+                } else if (newSuperCategories.size == 1) {
                     return updateCurrentCategory(
-                        newSuperCategory = superCategories.first(), newSubCategory = null
+                        newSuperCategory = newSuperCategories.first(), newSubCategory = null
                     )
                 }
-            } else if (subCategories.size == 1 && superCategories.size == 1 &&
-                superCategories.first().subCategories.size == 1 &&
-                subCategories.first() == superCategories.first().firstCategoryEnumOrNull()) {
+            } else if (newSubCategories.size == 1 && newSuperCategories.size == 1 &&
+                newSuperCategories.first().subCategories.size == 1 &&
+                newSubCategories.first() == newSuperCategories.first().firstCategoryEnumOrNull()) {
                 return updateCurrentCategory(
-                    newSuperCategory = superCategories.first(), newSubCategory = null
+                    newSuperCategory = newSuperCategories.first(), newSubCategory = null
                 )
             }
         }
@@ -167,8 +160,8 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
             currentFlags = uiState.value.currentFlags,
             isDeselect = isDeselect,
             newSuperCategory = newSuperCategory,
-            superCategories = superCategories,
-            subCategories = subCategories,
+            superCategories = newSuperCategories,
+            subCategories = newSubCategories,
         )
 
 
@@ -176,8 +169,8 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         _uiState.update { currentState ->
             currentState.copy(
                 currentFlags = newFlags,
-                currentSuperCategories = superCategories,
-                currentSubCategories = subCategories,
+                currentSuperCategories = newSuperCategories,
+                currentSubCategories = newSubCategories,
             )
         }
     }

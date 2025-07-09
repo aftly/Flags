@@ -87,7 +87,8 @@ import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.navigation.Screen
-import dev.aftly.flags.ui.component.CategoriesButtonMenu
+//import dev.aftly.flags.ui.component.CategoriesButtonMenu TODO
+import dev.aftly.flags.ui.component.CategoriesButtonMenu2
 import dev.aftly.flags.ui.component.NoResultsFound
 import dev.aftly.flags.ui.component.ResultsType
 import dev.aftly.flags.ui.component.ScrollToTopButton
@@ -127,13 +128,13 @@ fun ListFlagsScreen(
         isUserSearch = searchModel.isSearchQuery,
         onUserSearchChange = { searchModel.onSearchQueryChange(it) },
         onNavigateUp = onNavigateUp,
-        onCategorySelect = { newSuperCategory, newSubCategory ->
+        onCategorySelectSingle = { newSuperCategory, newSubCategory ->
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
-            searchModel.updateCurrentCategory(newSuperCategory, newSubCategory)
+            searchModel.updateCurrentCategory(newSuperCategory, newSubCategory) // TODO
         },
-        onCategoryMultiSelect = { selectSuperCategory, selectSubCategory ->
+        onCategorySelectMultiple = { selectSuperCategory, selectSubCategory ->
             viewModel.updateCurrentCategories(selectSuperCategory, selectSubCategory)
-            searchModel.updateCurrentCategories(selectSuperCategory, selectSubCategory)
+            searchModel.updateCurrentCategories(selectSuperCategory, selectSubCategory) // TODO
         },
         onFlagSelect = { flag ->
             val currentList = when (searchModel.isSearchQuery) {
@@ -159,8 +160,8 @@ private fun ListFlagsScreen(
     isUserSearch: Boolean,
     onUserSearchChange: (String) -> Unit,
     onNavigateUp: () -> Unit,
-    onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
-    onCategoryMultiSelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onFlagSelect: (FlagResources) -> Unit,
 ) {
     /* Controls FilterFlagsButton menu expansion amd tracks current button height
@@ -192,7 +193,7 @@ private fun ListFlagsScreen(
         when (isSearchBar) {
             true -> {
                 if (!uiState.currentFlags.containsAll(DataSource.allFlagsList)) {
-                    onCategorySelect(FlagSuperCategory.All, null)
+                    onCategorySelectSingle(FlagSuperCategory.All, null)
                     if (!isAtTop) {
                         coroutineScope.launch { listState.animateScrollToItem(index = 0) }
                     }
@@ -301,7 +302,7 @@ private fun ListFlagsScreen(
 
         /* Custom quasi-DropdownMenu elevated above screen content with animated nested menus for
          * selecting super or sub category to filter flags by */
-        CategoriesButtonMenu(
+        CategoriesButtonMenu2(
             modifier = Modifier.fillMaxSize(),
             scaffoldPadding = scaffoldPaddingValues,
             buttonHorizontalPadding = Dimens.marginHorizontal16,
@@ -315,16 +316,14 @@ private fun ListFlagsScreen(
             onMenuButtonClick = { isMenuExpanded = !isMenuExpanded },
             containerColor1 = containerColor1,
             containerColor2 = containerColor2,
-            currentCategoryTitle = uiState.currentCategoryTitle,
-            currentSuperCategory = uiState.currentSuperCategory,
             currentSuperCategories = uiState.currentSuperCategories,
             currentSubCategories = uiState.currentSubCategories,
-            onCategorySelect = { flagSuperCategory, flagSubCategory ->
-                onCategorySelect(flagSuperCategory, flagSubCategory)
+            onCategorySelectSingle = { flagSuperCategory, flagSubCategory ->
+                onCategorySelectSingle(flagSuperCategory, flagSubCategory)
                 coroutineScope.launch { listState.animateScrollToItem(index = 0) }
             },
-            onCategoryMultiSelect = { flagSuperCategory, flagSubCategory ->
-                onCategoryMultiSelect(flagSuperCategory, flagSubCategory)
+            onCategorySelectMultiple = { flagSuperCategory, flagSubCategory ->
+                onCategorySelectMultiple(flagSuperCategory, flagSubCategory)
                 coroutineScope.launch { listState.animateScrollToItem(index = 0) }
             },
         )

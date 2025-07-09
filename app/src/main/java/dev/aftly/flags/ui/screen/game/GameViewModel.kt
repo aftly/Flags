@@ -182,11 +182,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     ) {
         var isDeselect = false /* Controls whether flags are updated from current or all flags */
 
-        val superCategories = getSuperCategories(
+        val newSuperCategories = getSuperCategories(
             superCategories = uiState.value.currentSuperCategories,
             currentSuperCategory = uiState.value.currentSuperCategory,
         )
-        val subCategories = getSubCategories(
+        val newSubCategories = getSubCategories(
             subCategories = uiState.value.currentSubCategories,
             currentSuperCategory = uiState.value.currentSuperCategory,
         )
@@ -194,40 +194,40 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         /* Exit function if new<*>Category is not selectable or mutually exclusive from current.
          * Else, add/remove category argument to/from categories lists */
         newSuperCategory?.let { superCategory ->
-            if (isSuperCategoryExit(superCategory, superCategories, subCategories)) return
+            if (isSuperCategoryExit(superCategory, newSuperCategories, newSubCategories)) return
 
             isDeselect = updateCategoriesFromSuper(
                 superCategory = superCategory,
-                superCategories = superCategories,
-                subCategories = subCategories,
+                superCategories = newSuperCategories,
+                subCategories = newSubCategories,
             )
             /* Exit after All is deselected since (how) deselection is state inconsequential */
             if (!isDeselect && superCategory == All) return
         }
         newSubCategory?.let { subCategory ->
-            if (isSubCategoryExit(subCategory, subCategories, superCategories)) return
+            if (isSubCategoryExit(subCategory, newSubCategories, newSuperCategories)) return
 
             isDeselect = updateCategoriesFromSub(
                 subCategory = subCategory,
-                subCategories = subCategories,
+                subCategories = newSubCategories,
             )
         }
         /* Return updateCurrentCategory() if deselection to only 1 super category */
         if (isDeselect) {
-            if (subCategories.isEmpty()) {
-                if (superCategories.isEmpty()) {
+            if (newSubCategories.isEmpty()) {
+                if (newSuperCategories.isEmpty()) {
                     return updateCurrentCategory(newSuperCategory = All, newSubCategory = null)
 
-                } else if (superCategories.size == 1) {
+                } else if (newSuperCategories.size == 1) {
                     return updateCurrentCategory(
-                        newSuperCategory = superCategories.first(), newSubCategory = null
+                        newSuperCategory = newSuperCategories.first(), newSubCategory = null
                     )
                 }
-            } else if (subCategories.size == 1 && superCategories.size == 1 &&
-                superCategories.first().subCategories.size == 1 &&
-                subCategories.first() == superCategories.first().firstCategoryEnumOrNull()) {
+            } else if (newSubCategories.size == 1 && newSuperCategories.size == 1 &&
+                newSuperCategories.first().subCategories.size == 1 &&
+                newSubCategories.first() == newSuperCategories.first().firstCategoryEnumOrNull()) {
                 return updateCurrentCategory(
-                    newSuperCategory = superCategories.first(), newSubCategory = null
+                    newSuperCategory = newSuperCategories.first(), newSubCategory = null
                 )
             }
         }
@@ -239,15 +239,15 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             currentFlags = uiState.value.currentFlags,
             isDeselect = isDeselect,
             newSuperCategory = newSuperCategory,
-            superCategories = superCategories,
-            subCategories = subCategories,
+            superCategories = newSuperCategories,
+            subCategories = newSubCategories,
         )
 
         /* Update state with new categories lists and currentFlags list */
         _uiState.value = GameUiState(
             currentFlags = newFlags,
-            currentSuperCategories = superCategories,
-            currentSubCategories = subCategories,
+            currentSuperCategories = newSuperCategories,
+            currentSubCategories = newSubCategories,
         )
 
         resetGame(startGame = false)

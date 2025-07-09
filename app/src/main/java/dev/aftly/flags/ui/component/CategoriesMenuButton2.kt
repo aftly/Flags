@@ -70,10 +70,10 @@ import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategoryWrapper
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
-import dev.aftly.flags.model.FlagSuperCategory.International
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 import dev.aftly.flags.model.FlagSuperCategory.AutonomousRegion
 import dev.aftly.flags.model.FlagSuperCategory.Regional
+import dev.aftly.flags.model.FlagSuperCategory.International
 import dev.aftly.flags.model.FlagSuperCategory.Cultural
 import dev.aftly.flags.model.FlagSuperCategory.Historical
 import dev.aftly.flags.model.FlagSuperCategory.Political
@@ -90,7 +90,7 @@ import dev.aftly.flags.ui.theme.Timing
 
 
 @Composable
-fun CategoriesButtonMenu(
+fun CategoriesButtonMenu2(
     modifier: Modifier = Modifier,
     scaffoldPadding: PaddingValues,
     buttonHorizontalPadding: Dp,
@@ -105,26 +105,27 @@ fun CategoriesButtonMenu(
     cardColors2: CardColors = CardDefaults.cardColors(containerColor = containerColor2),
     buttonColors1: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor1),
     buttonColors2: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor2),
-    @StringRes currentCategoryTitle: Int,
-    currentSuperCategory: FlagSuperCategory,
-    currentSuperCategories: List<FlagSuperCategory>?,
-    currentSubCategories: List<FlagCategory>?,
-    onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
-    onCategoryMultiSelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    //@StringRes currentCategoryTitle: Int, // TODO remove
+    //currentSuperCategory: FlagSuperCategory, // TODO remove
+    currentSuperCategories: List<FlagSuperCategory>,
+    currentSubCategories: List<FlagCategory>,
+    onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
 ) {
     /* Determines the expanded menu(s) */
-    var expandMenu by remember { mutableStateOf<FlagSuperCategory?>(value = null) }
+    var expandSubMenu by remember { mutableStateOf<FlagSuperCategory?>(value = null) }
 
     /* When menu collapse, return expandMenu state to current selected category (if ui differs) */
     LaunchedEffect(isMenuExpanded) {
         /* Collapse sub-menu if it's super is selected */
+        /* // TODO
         if (!isMenuExpanded && currentCategoryTitle == currentSuperCategory.title) {
-            expandMenu = null
-        } else if (!isMenuExpanded && expandMenu != currentSuperCategory &&
-            currentCategoryTitle != expandMenu?.title &&
+            expandSubMenu = null
+        } else if (!isMenuExpanded && expandSubMenu != currentSuperCategory &&
+            currentCategoryTitle != expandSubMenu?.title &&
             currentSuperCategory != Political) {
             /* Expand sub-menu of current super when differs from current expanded menu */
-            expandMenu = currentSuperCategory
+            expandSubMenu = currentSuperCategory
 
         } else if (!isMenuExpanded && currentSuperCategory == Political) {
             /* As Political contains supers, expandMenu cannot just be determined from
@@ -133,10 +134,11 @@ fun CategoriesButtonMenu(
             for (superCategory in currentSuperCategory.subCategories) {
                 superCategory as FlagSuperCategory
                 if (superCategory.enums().any { it.title == currentCategoryTitle }) {
-                    expandMenu = superCategory
+                    expandSubMenu = superCategory
                 }
             }
         }
+         */
     }
 
     /* Manage button height */
@@ -156,7 +158,8 @@ fun CategoriesButtonMenu(
     }
 
     /* Manage button title & exceptions */
-    val buttonTitle = if (currentSuperCategories != null && currentSubCategories != null) {
+    val buttonTitle = if (currentSuperCategories.size > 1 || currentSubCategories.size > 1 ||
+        currentSuperCategories.isNotEmpty() && currentSubCategories.isNotEmpty()) {
         getCategoriesStringResources(
             superCategories = currentSuperCategories,
             subCategories = currentSubCategories,
@@ -166,21 +169,24 @@ fun CategoriesButtonMenu(
             return@let title
         }
     } else {
-        when (currentSuperCategory) {
-            SovereignCountry -> stringResource(R.string.category_super_sovereign_country_short) +
-                    stringResource(R.string.button_title_flags)
-            Political -> {
-                if (currentCategoryTitle in PowerDerivation.enums().filterNot {
+        if (currentSubCategories.isNotEmpty()) {
+            currentSubCategories.first().let { subCategory ->
+                val isStateTitle = subCategory in PowerDerivation.enums().filter {
                     it in listOf(FlagCategory.ONE_PARTY, FlagCategory.PROVISIONAL_GOVERNMENT)
-                }.map { it.title }) {
-                    stringResource(currentCategoryTitle) + stringResource(R.string.button_title_flags)
+                }
+
+                return@let if (isStateTitle) {
+                    stringResource(subCategory.title) +
+                            stringResource(R.string.button_title_state_flags)
                 } else {
-                    stringResource(currentCategoryTitle) + stringResource(R.string.button_title_state_flags)
+                    stringResource(subCategory.title) +
+                            stringResource(R.string.button_title_flags)
                 }
             }
-            International -> stringResource(R.string.category_international_organization_title) +
-                    stringResource(R.string.button_title_flags)
-            else -> stringResource(currentCategoryTitle) + stringResource(R.string.button_title_flags)
+        } else {
+            currentSuperCategories.first().categoriesMenuButton?.let { superCategoryMenuTitle ->
+                stringResource(superCategoryMenuTitle) + stringResource(R.string.button_title_flags)
+            } ?: ""
         }
     }
 
@@ -351,6 +357,7 @@ fun CategoriesButtonMenu(
                         ),
                     ) {
                         items(items = menuSuperCategoryList) { superCategory ->
+                            /* // TODO
                             val buttonColors =
                                 if (currentSuperCategories == null &&
                                     currentSubCategories == null &&
@@ -361,7 +368,7 @@ fun CategoriesButtonMenu(
                                     currentSubCategories != null &&
                                     (superCategory in currentSuperCategories || (superCategory
                                         .subCategories.size == 1 && superCategory
-                                            .firstCategoryEnumOrNull() in currentSubCategories))) {
+                                        .firstCategoryEnumOrNull() in currentSubCategories))) {
                                     buttonColors2
                                 } else if (currentSuperCategories != null &&
                                     currentSuperCategories.isEmpty() && superCategory == All) {
@@ -369,6 +376,8 @@ fun CategoriesButtonMenu(
                                 } else {
                                     buttonColors1
                                 }
+                             */
+                            val buttonColors = buttonColors1 // TODO
 
 
                             if (superCategory.subCategories.size == 1 || superCategory == All) {
@@ -380,16 +389,16 @@ fun CategoriesButtonMenu(
                                     buttonColors = buttonColors,
                                     superCategory = superCategory,
                                     onCategorySelect = { newSuperCategory ->
-                                        expandMenu = null
-                                        onCategorySelect(newSuperCategory, null)
+                                        expandSubMenu = null
+                                        onCategorySelectSingle(newSuperCategory, null)
                                         onMenuButtonClick()
                                     },
                                     onCategoryMultiSelect = { selectSuperCategory ->
-                                        onCategoryMultiSelect(selectSuperCategory, null)
+                                        onCategorySelectMultiple(selectSuperCategory, null)
                                     },
                                 )
                             } else if (superCategory.subCategories
-                                .filterIsInstance<FlagCategoryWrapper>().isNotEmpty()) {
+                                    .filterIsInstance<FlagCategoryWrapper>().isNotEmpty()) {
                                 /* If superCategory has any FlagCategories (ie. sub-categories)
                                  * use 2 tier expandable menu */
                                 MenuItemExpandable(
@@ -399,16 +408,16 @@ fun CategoriesButtonMenu(
                                     buttonColors2 = buttonColors2,
                                     cardColors2 = cardColors2,
                                     isSuperCategorySelectable = true,
-                                    currentCategoryTitle = currentCategoryTitle,
+                                    //currentCategoryTitle = currentCategoryTitle,
                                     superCategory = superCategory,
                                     subCategories = currentSubCategories,
-                                    menuExpanded = superCategory == expandMenu,
-                                    onMenuSelect = { expandMenu = it },
-                                    onCategorySelect = { newSuperCategory, newSubCategory ->
-                                        onCategorySelect(newSuperCategory,newSubCategory)
+                                    menuExpanded = superCategory == expandSubMenu,
+                                    onMenuItemSelect = { expandSubMenu = it },
+                                    onCategorySelectSingle = { newSuperCategory, newSubCategory ->
+                                        onCategorySelectSingle(newSuperCategory,newSubCategory)
                                         onMenuButtonClick()
                                     },
-                                    onCategoryMultiSelect = onCategoryMultiSelect,
+                                    onCategorySelectMultiple = onCategorySelectMultiple,
                                 )
                             } else {
                                 /* If superCategory only contains superCategories use 3 tier menu */
@@ -420,16 +429,16 @@ fun CategoriesButtonMenu(
                                     cardColors1 = cardColors1,
                                     cardColors2 = cardColors2,
                                     isChildSelectable = false,
-                                    currentCategoryTitle = currentCategoryTitle,
+                                    //currentCategoryTitle = currentCategoryTitle,
                                     parentSuperCategory = superCategory,
                                     subCategories = currentSubCategories,
-                                    expandMenu = expandMenu,
-                                    onMenuSelect = { expandMenu = it },
-                                    onCategorySelect = { newSuperCategory, newSubCategory ->
-                                        onCategorySelect(newSuperCategory,newSubCategory)
+                                    expandMenu = expandSubMenu,
+                                    onMenuItemSelect = { expandSubMenu = it },
+                                    onCategorySelectSingle = { newSuperCategory, newSubCategory ->
+                                        onCategorySelectSingle(newSuperCategory,newSubCategory)
                                         onMenuButtonClick()
                                     },
-                                    onCategoryMultiSelect = onCategoryMultiSelect,
+                                    onCategorySelectMultiple = onCategorySelectMultiple,
                                 )
                             }
                         }
@@ -474,12 +483,12 @@ private fun MenuItemStatic(
                     onCategoryMultiSelect(superCategory)
                 },
             )
-            /*
-            .indication(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = LocalIndication.current
-            ),
-             */
+        /*
+        .indication(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = LocalIndication.current
+        ),
+         */
     ) {
         Row(
             modifier = Modifier.fillMaxWidth()
@@ -506,23 +515,23 @@ private fun MenuItemExpandable(
     buttonColors2: ButtonColors,
     cardColors2: CardColors,
     isSuperCategorySelectable: Boolean,
-    @StringRes currentCategoryTitle: Int,
+    //@StringRes currentCategoryTitle: Int,
     superCategory: FlagSuperCategory,
     subCategories: List<FlagCategory>?, /* for if multiple sub-categories are selected */
     menuExpanded: Boolean,
-    onMenuSelect: (FlagSuperCategory?) -> Unit,
-    onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
-    onCategoryMultiSelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onMenuItemSelect: (FlagSuperCategory?) -> Unit,
+    onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
 ) {
     /* Separated boolean for controlling submenu expansion when multi select (subCategories) */
-    var isMultiSelected: Boolean? by remember { mutableStateOf(value = null) }
+    var isMultipleSelected: Boolean? by remember { mutableStateOf(value = null) }
 
     /* on subCategories change, if any subcategories in the menus super, expand the menu, else
      * null so that regular menu expansion property (menuExpanded) applies */
     LaunchedEffect(subCategories) {
-        isMultiSelected = if (subCategories != null && subCategories.any {
-            it in superCategory.enums()
-        }) {
+        isMultipleSelected = if (subCategories != null && subCategories.any {
+                it in superCategory.enums()
+            }) {
             true
         } else {
             null
@@ -531,11 +540,11 @@ private fun MenuItemExpandable(
 
     val iconModifier = when (isSuperCategorySelectable) {
         true -> Modifier.clickable {
-            isMultiSelected?.let {
-                isMultiSelected = !isMultiSelected!!
+            isMultipleSelected?.let {
+                isMultipleSelected = !isMultipleSelected!!
             } ?: when (menuExpanded) {
-                true -> onMenuSelect(null)
-                false -> onMenuSelect(superCategory)
+                true -> onMenuItemSelect(null)
+                false -> onMenuItemSelect(superCategory)
             }
         }
         false -> Modifier
@@ -572,27 +581,27 @@ private fun MenuItemExpandable(
                         if (isSuperCategorySelectable) {
                             /* If super is selectable make expandMenu null and select super
                              * as category */
-                            onMenuSelect(null)
-                            onCategorySelect(superCategory, null)
+                            onMenuItemSelect(null)
+                            onCategorySelectSingle(superCategory, null)
                         } else if (!menuExpanded) {
                             /* If current menu is not expanded, update expandMenu state with
                              * item's cat */
-                            onMenuSelect(superCategory)
+                            onMenuItemSelect(superCategory)
                         } else if (menuSuperCategoryList.any {
-                            superCategory in it.subCategories }) {
+                                superCategory in it.subCategories }) {
                             /* If item's cat is in a superCategory, update expandMenu state with
                              * the super */
-                            onMenuSelect(menuSuperCategoryList.find {
+                            onMenuItemSelect(menuSuperCategoryList.find {
                                 superCategory in it.subCategories
                             })
                         } else {
                             /* Else, make expandMenu state null */
-                            onMenuSelect(null)
+                            onMenuItemSelect(null)
                         }
                     },
                     onLongClick = {
                         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                        onCategoryMultiSelect(superCategory, null)
+                        onCategorySelectMultiple(superCategory, null)
                     },
                 ),
         ) {
@@ -658,7 +667,7 @@ private fun MenuItemExpandable(
 
         /* Sub-menu content */
         AnimatedVisibility(
-            visible = isMultiSelected ?: menuExpanded,
+            visible = isMultipleSelected ?: menuExpanded,
             enter = expandVertically(
                 animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
                 expandFrom = Alignment.Top,
@@ -683,52 +692,52 @@ private fun MenuItemExpandable(
                 ) {
                     superCategory.subCategories.filterIsInstance<FlagCategoryWrapper>()
                         .forEach { subWrapper ->
-
-                        Box(
-                            modifier = Modifier
-                                .padding(
-                                    top = Dimens.textButtonVertPad,
-                                    bottom = Dimens.textButtonVertPad,
-                                )
-                                .combinedClickable(
-                                    onClick = { onCategorySelect(null, subWrapper.enum) },
-                                    onLongClick = {
-                                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                                        onCategoryMultiSelect(null, subWrapper.enum)
-                                    }
-                                )
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth()
-                                    .background(color = buttonColors2.containerColor),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
+                            Box(
+                                modifier = Modifier
+                                    .padding(
+                                        top = Dimens.textButtonVertPad,
+                                        bottom = Dimens.textButtonVertPad,
+                                    )
+                                    .combinedClickable(
+                                        onClick = { onCategorySelectSingle(null, subWrapper.enum) },
+                                        onLongClick = {
+                                            haptics.performHapticFeedback(
+                                                HapticFeedbackType.LongPress
+                                            )
+                                            onCategorySelectMultiple(null, subWrapper.enum)
+                                        }
+                                    )
                             ) {
-                                Box(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = stringResource(subWrapper.enum.title),
-                                        modifier = Modifier
-                                            .padding(ButtonDefaults.TextButtonContentPadding),
-                                        color = buttonColors2.contentColor,
-                                        fontWeight = FontWeight.Normal,
-                                        style = textButtonStyle,
-                                    )
-                                }
+                                Row(
+                                    modifier = Modifier.fillMaxWidth()
+                                        .background(color = buttonColors2.containerColor),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Box(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = stringResource(subWrapper.enum.title),
+                                            modifier = Modifier
+                                                .padding(ButtonDefaults.TextButtonContentPadding),
+                                            color = buttonColors2.contentColor,
+                                            fontWeight = FontWeight.Normal,
+                                            style = textButtonStyle,
+                                        )
+                                    }
 
-                                if (subCategories != null && subWrapper.enum in subCategories ||
-                                    currentCategoryTitle == subWrapper.enum.title) {
-                                    Icon(
-                                        imageVector = Icons.Default.Check,
-                                        contentDescription = "selected",
-                                        modifier = Modifier
-                                            .padding(end = Dimens.textButtonHorizPad)
-                                            .size(Dimens.standardIconSize24 * fontScale * 0.9f),
-                                        tint = buttonColors2.contentColor,
-                                    )
+                                    if (subCategories != null && subWrapper.enum in subCategories) {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = "selected",
+                                            modifier = Modifier
+                                                .padding(end = Dimens.textButtonHorizPad)
+                                                .size(Dimens.standardIconSize24 * fontScale * 0.9f),
+                                            tint = buttonColors2.contentColor,
+                                        )
+                                    }
                                 }
                             }
                         }
-                    }
                 }
             }
         }
@@ -746,28 +755,27 @@ private fun MenuSuperItem(
     cardColors1: CardColors,
     cardColors2: CardColors,
     isChildSelectable: Boolean,
-    @StringRes currentCategoryTitle: Int,
+    //@StringRes currentCategoryTitle: Int,
     parentSuperCategory: FlagSuperCategory,
     subCategories: List<FlagCategory>?, /* for if multiple sub-categories are selected */
     expandMenu: FlagSuperCategory?,
-    onMenuSelect: (FlagSuperCategory?) -> Unit,
-    onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
-    onCategoryMultiSelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onMenuItemSelect: (FlagSuperCategory?) -> Unit,
+    onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
 ) {
     val parentExpanded = parentSuperCategory == expandMenu || parentSuperCategory
         .subCategories.filterIsInstance<FlagSuperCategory>().contains(element = expandMenu)
 
-    /* Separated boolean for controlling submenu expansion when multi select (subCategories) */
-    var isMultiSelected: Boolean? by remember { mutableStateOf(value = null) }
+    /* Separated boolean for controlling submenu expansion when cat multi select (subCategories) */
+    var isMultipleSelected: Boolean? by remember { mutableStateOf(value = null) }
 
     /* on subCategories change, if any subcategories in the menus super, expand the menu, else
      * null so that regular menu expansion property (menuExpanded) applies */
     LaunchedEffect(subCategories) {
-        isMultiSelected = if (subCategories != null &&
+        isMultipleSelected = if (subCategories != null &&
             subCategories.any { subCategory ->
                 parentSuperCategory.subCategories.filterIsInstance<FlagSuperCategory>().any {
-                    superCategory ->
-                    subCategory in superCategory.enums()
+                    superCategory -> subCategory in superCategory.enums()
                 }
             }) {
             true
@@ -788,16 +796,15 @@ private fun MenuSuperItem(
             shape = Shapes.large,
             colors = cardColors2,
         ) {
-
             TextButton(
                 onClick = {
-                    isMultiSelected?.let {
-                        isMultiSelected = !isMultiSelected!!
+                    isMultipleSelected?.let {
+                        isMultipleSelected = !isMultipleSelected!!
                     } ?: when (expandMenu) {
                         in parentSuperCategory.subCategories
-                            .filterIsInstance<FlagSuperCategory>() -> onMenuSelect(null)
-                        parentSuperCategory -> onMenuSelect(null)
-                        else -> onMenuSelect(parentSuperCategory)
+                            .filterIsInstance<FlagSuperCategory>() -> onMenuItemSelect(null)
+                        parentSuperCategory -> onMenuItemSelect(null)
+                        else -> onMenuItemSelect(parentSuperCategory)
                     }
                 },
                 shape = RoundedCornerShape(0.dp),
@@ -837,7 +844,7 @@ private fun MenuSuperItem(
                             }
                         )
 
-                        if (isMultiSelected ?: parentExpanded) {
+                        if (isMultipleSelected ?: parentExpanded) {
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowUp,
                                 contentDescription = stringResource(R.string.menu_sub_icon_collapse),
@@ -858,7 +865,7 @@ private fun MenuSuperItem(
                 }
             }
             AnimatedVisibility(
-                visible = isMultiSelected ?: parentExpanded,
+                visible = isMultipleSelected ?: parentExpanded,
                 enter = expandVertically(
                     animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
                     expandFrom = Alignment.Top,
@@ -883,13 +890,12 @@ private fun MenuSuperItem(
                                 buttonColors2 = buttonColors1,
                                 cardColors2 = cardColors1,
                                 isSuperCategorySelectable = isChildSelectable,
-                                currentCategoryTitle = currentCategoryTitle,
                                 superCategory = superCategory,
                                 subCategories = subCategories,
                                 menuExpanded = superCategory == expandMenu,
-                                onMenuSelect = onMenuSelect,
-                                onCategorySelect = onCategorySelect,
-                                onCategoryMultiSelect = onCategoryMultiSelect,
+                                onMenuItemSelect = onMenuItemSelect,
+                                onCategorySelectSingle = onCategorySelectSingle,
+                                onCategorySelectMultiple = onCategorySelectMultiple,
                             )
                         }
                     }
@@ -972,11 +978,11 @@ private fun getCategoriesStringResources(
     /* Subcategories not in other list derivatives, minus duplicates */
     val remainingCategories = subCategories.filterNot { it in culturalCategories }
         .filterNot { it in politicalCategories }.let {
-        val categoriesMutable = it.toMutableList()
-        if (isHistorical) categoriesMutable.remove(FlagCategory.HISTORICAL)
-        if (isAssociatedCountrySupers) categoriesMutable.remove(FlagCategory.SOVEREIGN_STATE)
-        return@let categoriesMutable.toList()
-    }
+            val categoriesMutable = it.toMutableList()
+            if (isHistorical) categoriesMutable.remove(FlagCategory.HISTORICAL)
+            if (isAssociatedCountrySupers) categoriesMutable.remove(FlagCategory.SOVEREIGN_STATE)
+            return@let categoriesMutable.toList()
+        }
 
     /* Mutable list for string resources for iteration */
     @StringRes val strings = mutableListOf<Int>()
@@ -1047,9 +1053,9 @@ private fun getCategoriesStringResources(
                 strings.add(R.string.string_comma_whitespace)
 
             } else if (!politicalCategories.any { politicalCategory ->
-                politicalCategory in PowerDerivation.enums().filterNot {
-                    it in listOf(FlagCategory.ONE_PARTY, FlagCategory.PROVISIONAL_GOVERNMENT)
-                } }) {
+                    politicalCategory in PowerDerivation.enums().filterNot {
+                        it in listOf(FlagCategory.ONE_PARTY, FlagCategory.PROVISIONAL_GOVERNMENT)
+                    } }) {
                 strings.add(R.string.category_state_title)
             }
         } else {
