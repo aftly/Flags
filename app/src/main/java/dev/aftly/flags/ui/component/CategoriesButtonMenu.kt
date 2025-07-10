@@ -412,7 +412,7 @@ fun CategoriesButtonMenu(
                                 )
                             } else {
                                 /* If superCategory only contains superCategories use 3 tier menu */
-                                MenuSuperItem(
+                                MenuItemOfSupers(
                                     haptics = haptics,
                                     textButtonStyle = textButtonStyle,
                                     buttonColors1 = buttonColors1,
@@ -737,7 +737,7 @@ private fun MenuItemExpandable(
 
 
 @Composable
-private fun MenuSuperItem(
+private fun MenuItemOfSupers(
     modifier: Modifier = Modifier,
     haptics: HapticFeedback,
     textButtonStyle: TextStyle,
