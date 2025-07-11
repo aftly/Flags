@@ -1,6 +1,5 @@
 package dev.aftly.flags.ui.screen.game
 
-import androidx.annotation.StringRes
 import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.data.DataSource.nullFlag
 import dev.aftly.flags.model.FlagCategory
@@ -11,10 +10,8 @@ import dev.aftly.flags.model.ScoreData
 data class GameUiState(
     val allFlags: List<FlagResources> = DataSource.allFlagsList,
     val currentFlags: List<FlagResources> = allFlags,
-    val currentSuperCategory: FlagSuperCategory = FlagSuperCategory.All,
-    val currentSuperCategories: List<FlagSuperCategory>? = null,
-    val currentSubCategories: List<FlagCategory>? = null,
-    @StringRes val currentCategoryTitle: Int = currentSuperCategory.title,
+    val currentSuperCategories: List<FlagSuperCategory> = listOf(FlagSuperCategory.All),
+    val currentSubCategories: List<FlagCategory> = emptyList(),
 
     val totalFlagCount: Int = 0,
     val currentFlag: FlagResources = nullFlag,

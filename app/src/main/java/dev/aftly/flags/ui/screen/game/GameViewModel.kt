@@ -1,7 +1,6 @@
 package dev.aftly.flags.ui.screen.game
 
 import android.app.Application
-import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,12 +14,8 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.ScoreData
 import dev.aftly.flags.model.TimeMode
-import dev.aftly.flags.ui.util.getCategoryTitle
 import dev.aftly.flags.ui.util.getFlagsByCategory
 import dev.aftly.flags.ui.util.getFlagsFromCategories
-import dev.aftly.flags.ui.util.getParentSuperCategory
-import dev.aftly.flags.ui.util.getSubCategories
-import dev.aftly.flags.ui.util.getSuperCategories
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
 import dev.aftly.flags.ui.util.normalizeString
@@ -147,30 +142,24 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             resetGame()
 
         } else {
-            @StringRes val categoryTitle = getCategoryTitle(
-                superCategory = newSuperCategory,
-                subCategory = newSubCategory,
-            )
-
-            /* Determine the relevant parent superCategory */
-            val parentSuperCategory = getParentSuperCategory(
-                superCategory = newSuperCategory,
-                subCategory = newSubCategory,
-            )
-
-            /* Get new flags list from function arguments and parent superCategory */
-            val newFlags = getFlagsByCategory(
-                superCategory = newSuperCategory,
-                subCategory = newSubCategory,
-                allFlags = uiState.value.allFlags,
-                parentCategory = parentSuperCategory,
-            )
+            val allFlags = uiState.value.allFlags
 
             _uiState.value = GameUiState(
-                currentFlags = newFlags,
-                currentSuperCategory = parentSuperCategory,
-                currentCategoryTitle = categoryTitle,
+                currentFlags = getFlagsByCategory(
+                    superCategory = newSuperCategory,
+                    subCategory = newSubCategory,
+                    allFlags = allFlags,
+                ),
+                currentSuperCategories = when (newSuperCategory) {
+                    null -> emptyList()
+                    else -> listOf(newSuperCategory)
+                },
+                currentSubCategories = when (newSubCategory) {
+                    null -> emptyList()
+                    else -> listOf(newSubCategory)
+                },
             )
+
             resetGame(startGame = false)
         }
     }
@@ -182,14 +171,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     ) {
         var isDeselect = false /* Controls whether flags are updated from current or all flags */
 
-        val newSuperCategories = getSuperCategories(
-            superCategories = uiState.value.currentSuperCategories,
-            currentSuperCategory = uiState.value.currentSuperCategory,
-        )
-        val newSubCategories = getSubCategories(
-            subCategories = uiState.value.currentSubCategories,
-            currentSuperCategory = uiState.value.currentSuperCategory,
-        )
+        val newSuperCategories = uiState.value.currentSuperCategories.toMutableList()
+        val newSubCategories = uiState.value.currentSubCategories.toMutableList()
 
         /* Exit function if new<*>Category is not selectable or mutually exclusive from current.
          * Else, add/remove category argument to/from categories lists */
@@ -232,20 +215,20 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
-        /* Get new flags list from categories list and currentFlags or allFlags (depending on
-         * processing needs) */
-        val newFlags = getFlagsFromCategories(
-            allFlags = uiState.value.allFlags,
-            currentFlags = uiState.value.currentFlags,
-            isDeselect = isDeselect,
-            newSuperCategory = newSuperCategory,
-            superCategories = newSuperCategories,
-            subCategories = newSubCategories,
-        )
-
         /* Update state with new categories lists and currentFlags list */
+        val allFlags = uiState.value.allFlags
+        val currentFlags = uiState.value.currentFlags
         _uiState.value = GameUiState(
-            currentFlags = newFlags,
+            /* Get new flags list from categories lists and either currentFlags or allFlags
+             * (depending on select vs. deselect) */
+            currentFlags = getFlagsFromCategories(
+                allFlags = allFlags,
+                currentFlags = currentFlags,
+                isDeselect = isDeselect,
+                newSuperCategory = newSuperCategory,
+                superCategories = newSuperCategories,
+                subCategories = newSubCategories,
+            ),
             currentSuperCategories = newSuperCategories,
             currentSubCategories = newSubCategories,
         )
@@ -579,16 +562,16 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private fun getScoreDataSupers(): List<FlagSuperCategory> {
         val subCategories = uiState.value.currentSubCategories ?: emptyList()
 
-        return uiState.value.currentSuperCategories?.filterNot { superCategory ->
+        return uiState.value.currentSuperCategories.filterNot { superCategory ->
             superCategory.enums().any { it in subCategories }
 
-        }?.let { superCategories ->
+        }.let { superCategories ->
             when (superCategories.size to subCategories.isEmpty()) {
                 0 to true -> superCategories
                 else -> superCategories.filterNot { it == All }
             }
 
-        } ?: listOf(uiState.value.currentSuperCategory)
+        }
     }
 
     /* Remove redundant sub categories for ScoreData */

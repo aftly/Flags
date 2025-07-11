@@ -60,34 +60,13 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         if (newSuperCategory == All) {
             _uiState.value = ListFlagsUiState()
         } else {
-            /* Determine category title Res from nullable values */
-            /*
-            @StringRes val categoryTitle = getCategoryTitle(
-                superCategory = newSuperCategory,
-                subCategory = newSubCategory,
-            )
-             */ // TODO
-
-            /* Determine the relevant parent superCategory */
-            /*
-            val parentSuperCategory = getParentSuperCategory(
-                superCategory = newSuperCategory,
-                subCategory = newSubCategory,
-            )
-             */ // TODO
-
-            /* Get new currentFlags list from function arguments and parent superCategory */
-            val newFlags = getFlagsByCategory(
-                superCategory = newSuperCategory,
-                subCategory = newSubCategory,
-                allFlags = uiState.value.allFlags,
-            )
-
             _uiState.update { currentState ->
                 currentState.copy(
-                    currentFlags = newFlags,
-                    //currentSuperCategory = parentSuperCategory, TODO
-                    //currentCategoryTitle = categoryTitle, TODO
+                    currentFlags = getFlagsByCategory(
+                        superCategory = newSuperCategory,
+                        subCategory = newSubCategory,
+                        allFlags = currentState.allFlags,
+                    ),
                     currentSuperCategories = when (newSuperCategory) {
                         null -> emptyList()
                         else -> listOf(newSuperCategory)
@@ -152,23 +131,19 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
             }
         }
 
-
-        /* Get new flags list from categories list and currentFlags or allFlags (depending on
-         * processing needs) */
-        val newFlags = getFlagsFromCategories(
-            allFlags = uiState.value.allFlags,
-            currentFlags = uiState.value.currentFlags,
-            isDeselect = isDeselect,
-            newSuperCategory = newSuperCategory,
-            superCategories = newSuperCategories,
-            subCategories = newSubCategories,
-        )
-
-
         /* Update state with new categories lists and currentFlags list */
         _uiState.update { currentState ->
             currentState.copy(
-                currentFlags = newFlags,
+                /* Get new flags list from categories lists and either currentFlags or allFlags
+                 * (depending on select vs. deselect) */
+                currentFlags = getFlagsFromCategories(
+                    allFlags = currentState.allFlags,
+                    currentFlags = currentState.currentFlags,
+                    isDeselect = isDeselect,
+                    newSuperCategory = newSuperCategory,
+                    superCategories = newSuperCategories,
+                    subCategories = newSubCategories,
+                ),
                 currentSuperCategories = newSuperCategories,
                 currentSubCategories = newSubCategories,
             )

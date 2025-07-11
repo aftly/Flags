@@ -162,7 +162,7 @@ fun GameScreen(
         GameOverDialog(
             finalScore = uiState.correctGuessCount,
             maxScore = uiState.totalFlagCount,
-            gameMode = stringResource(uiState.currentSuperCategory.title),
+            gameMode = "TODO", // TODO
             onDetails = {
                 viewModel.toggleGameOverDialog(on = false)
                 viewModel.toggleScoreDetails(on = true)
@@ -206,10 +206,10 @@ fun GameScreen(
         onNavigateUp = onNavigateUp,
         onScoreHistory = { onNavigateDetails(uiState.isGameOver) },
         onFullscreen = onFullscreen,
-        onCategorySelect = { newSuperCategory, newSubCategory ->
+        onCategorySelectSingle = { newSuperCategory, newSubCategory ->
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
         },
-        onCategoryMultiSelect = { selectSuperCategory, selectSubCategory ->
+        onCategorySelectMultiple = { selectSuperCategory, selectSubCategory ->
             viewModel.updateCurrentCategories(selectSuperCategory, selectSubCategory)
         },
     )
@@ -234,8 +234,8 @@ private fun GameScreen(
     onNavigateUp: () -> Unit,
     onScoreHistory: () -> Unit,
     onFullscreen: (Int, Boolean, Boolean) -> Unit,
-    onCategorySelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
-    onCategoryMultiSelect: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
 ) {
     /* Controls FilterFlagsButton menu expansion and tracks button height */
     var isMenuExpanded by rememberSaveable { mutableStateOf(value = false) }
@@ -357,16 +357,14 @@ private fun GameScreen(
             modifier = Modifier.fillMaxSize(),
             scaffoldPadding = scaffoldPaddingValues,
             buttonHorizontalPadding = Dimens.marginHorizontal16,
-            screen = screen,
+            flagCount = null,
             onButtonHeightChange = { buttonHeight = it },
             isMenuExpanded = isMenuExpanded,
             onMenuButtonClick = { isMenuExpanded = !isMenuExpanded },
-            currentCategoryTitle = uiState.currentCategoryTitle,
-            currentSuperCategory = uiState.currentSuperCategory,
             currentSuperCategories = uiState.currentSuperCategories,
             currentSubCategories = uiState.currentSubCategories,
-            onCategorySelect = onCategorySelect,
-            onCategoryMultiSelect = onCategoryMultiSelect,
+            onCategorySelectSingle = onCategorySelectSingle,
+            onCategorySelectMultiple = onCategorySelectMultiple,
         )
 
 

@@ -88,7 +88,7 @@ import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.navigation.Screen
 //import dev.aftly.flags.ui.component.CategoriesButtonMenu TODO
-import dev.aftly.flags.ui.component.CategoriesButtonMenu2
+import dev.aftly.flags.ui.component.CategoriesButtonMenu
 import dev.aftly.flags.ui.component.NoResultsFound
 import dev.aftly.flags.ui.component.ResultsType
 import dev.aftly.flags.ui.component.ScrollToTopButton
@@ -302,11 +302,10 @@ private fun ListFlagsScreen(
 
         /* Custom quasi-DropdownMenu elevated above screen content with animated nested menus for
          * selecting super or sub category to filter flags by */
-        CategoriesButtonMenu2(
+        CategoriesButtonMenu(
             modifier = Modifier.fillMaxSize(),
             scaffoldPadding = scaffoldPaddingValues,
             buttonHorizontalPadding = Dimens.marginHorizontal16,
-            screen = screen,
             flagCount = when (isUserSearch) {
                 false -> uiState.currentFlags.size
                 true -> searchState.size

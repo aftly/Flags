@@ -83,7 +83,6 @@ import dev.aftly.flags.model.FlagSuperCategory.PowerDerivation
 import dev.aftly.flags.model.FlagSuperCategory.Regional
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 import dev.aftly.flags.model.FlagSuperCategory.TerritorialDistributionOfAuthority
-import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Shapes
 import dev.aftly.flags.ui.theme.Timing
@@ -91,12 +90,11 @@ import dev.aftly.flags.ui.util.LocalDarkTheme
 
 
 @Composable
-fun CategoriesButtonMenu2(
+fun CategoriesButtonMenu(
     modifier: Modifier = Modifier,
     scaffoldPadding: PaddingValues,
     buttonHorizontalPadding: Dp,
-    screen: Screen,
-    flagCount: Int,
+    flagCount: Int?,
     onButtonHeightChange: (Dp) -> Unit,
     isMenuExpanded: Boolean,
     onMenuButtonClick: () -> Unit,
@@ -246,9 +244,9 @@ fun CategoriesButtonMenu2(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        /* If not game screen show flag count indicator,
+                        /* If not null (eg. on game screen) show flag count indicator,
                          * else spacer (for text centering) */
-                        if (screen != Screen.Game) {
+                        flagCount?.let { flagCount ->
                             Box(
                                 modifier = Modifier.onSizeChanged { size ->
                                     flagCountWidth = with(density) { size.width.toDp() }
@@ -269,15 +267,13 @@ fun CategoriesButtonMenu2(
                                     style = MaterialTheme.typography.titleSmall,
                                 )
                             }
-                        } else {
-                            Spacer(
-                                modifier = Modifier.width(width =
-                                    if (textWidth + iconsTotalSize < buttonWidth) {
-                                        iconSizePadding
-                                    } else 0.dp
-                                )
+                        } ?: Spacer(
+                            modifier = Modifier.width(width =
+                                if (textWidth + iconsTotalSize < buttonWidth) {
+                                    iconSizePadding
+                                } else 0.dp
                             )
-                        }
+                        )
 
                         /* Button title */
                         Text(

@@ -285,8 +285,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     }
 
 
-    /* Updates state with new currentFlags list derived from new super- or sub- category
-     * Also updates currentSuperCategory and currentCategory title details for FilterFlagsButton UI
+    /* Updates state with new currentFlags list derived from a single super- or sub- category only
      * Is intended to be called with either a newSuperCategory OR newSubCategory, and a null value */
     fun updateCurrentCategory(
         newSuperCategory: FlagSuperCategory?,
@@ -297,32 +296,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         if (newSuperCategory == All) {
             _uiState.value = SearchUiState()
         } else {
-            /* Determine category title Res from nullable values */
-            /*
-            @StringRes val categoryTitle = getCategoryTitle(
-                superCategory = newSuperCategory,
-                subCategory = newSubCategory,
-            )
-             */ // TODO
-
-            /* Determine the relevant parent superCategory */
-            /*
-            val parentSuperCategory = getParentSuperCategory(
-                superCategory = newSuperCategory,
-                subCategory = newSubCategory,
-            )
-             */ // TODO
-
-            /* Get new currentFlags list from function arguments and parent superCategory */
-            val newFlags = getFlagsByCategory(
-                superCategory = newSuperCategory,
-                subCategory = newSubCategory,
-                allFlags = uiState.value.allFlags,
-            )
-
             _uiState.update { currentState ->
                 currentState.copy(
-                    currentFlags = newFlags,
+                    currentFlags = getFlagsByCategory(
+                        superCategory = newSuperCategory,
+                        subCategory = newSubCategory,
+                        allFlags = currentState.allFlags,
+                    ),
                     currentSuperCategories = when (newSuperCategory) {
                         null -> emptyList()
                         else -> listOf(newSuperCategory)
@@ -387,23 +367,19 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             }
         }
 
-
-        /* Get new flags list from categories list and currentFlags or allFlags (depending on
-         * processing needs) */
-        val newFlags = getFlagsFromCategories(
-            allFlags = uiState.value.allFlags,
-            currentFlags = uiState.value.currentFlags,
-            isDeselect = isDeselect,
-            newSuperCategory = newSuperCategory,
-            superCategories = newSuperCategories,
-            subCategories = newSubCategories,
-        )
-
-
         /* Update state with new categories lists and currentFlags list */
         _uiState.update { currentState ->
             currentState.copy(
-                currentFlags = newFlags,
+                /* Get new flags list from categories lists and either currentFlags or allFlags
+                 * (depending on select vs. deselect) */
+                currentFlags = getFlagsFromCategories(
+                    allFlags = currentState.allFlags,
+                    currentFlags = currentState.currentFlags,
+                    isDeselect = isDeselect,
+                    newSuperCategory = newSuperCategory,
+                    superCategories = newSuperCategories,
+                    subCategories = newSubCategories,
+                ),
                 currentSuperCategories = newSuperCategories,
                 currentSubCategories = newSubCategories,
             )
