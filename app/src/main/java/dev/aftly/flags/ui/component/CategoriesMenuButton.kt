@@ -77,7 +77,6 @@ import dev.aftly.flags.model.FlagSuperCategory.ExecutiveStructure
 import dev.aftly.flags.model.FlagSuperCategory.Historical
 import dev.aftly.flags.model.FlagSuperCategory.IdeologicalOrientation
 import dev.aftly.flags.model.FlagSuperCategory.LegalConstraint
-import dev.aftly.flags.model.FlagSuperCategory.NonAdministrative
 import dev.aftly.flags.model.FlagSuperCategory.Political
 import dev.aftly.flags.model.FlagSuperCategory.PowerDerivation
 import dev.aftly.flags.model.FlagSuperCategory.Regional
@@ -545,9 +544,11 @@ private fun MenuItemExpandable(
     }
 
     /* Bottom padding when last item is expandable and expanded */
-    val lastItemPadding = when (itemSuperCategory to isMenuExpandedParentState) {
-        NonAdministrative to true -> 9.dp
-        else -> 0.dp
+    val lastItemPadding = if (itemSuperCategory == Political.subCategories.last() &&
+        (isMenuExpandedParentState || isMenuExpandedLocalState == true)) {
+        9.dp
+    } else {
+        0.dp
     }
 
     val density = LocalDensity.current
@@ -1010,9 +1011,7 @@ private fun getCategoriesStringResources(
     /* Subcategories belonging to Political SuperCategory sans NonAdministrative,
      * sorted semantically, according to sortPoliticalCategoriesBy */
     val politicalCategories = subCategories.filter { subCategory ->
-        Political.subCategories.filterIsInstance<FlagSuperCategory>().filterNot {
-            it == NonAdministrative
-        }.any {
+        Political.subCategories.filterIsInstance<FlagSuperCategory>().any {
             subCategory in it.enums()
         }
     }.sortedBy {
