@@ -30,9 +30,9 @@ sealed class FlagSuperCategory(
     @SerialName("all")
     data object All : FlagSuperCategory(
         title = R.string.category_super_all,
-        categoriesMenuButton = R.string.category_super_all,
-        gameScoreCategoryPreview = R.string.category_super_all,
-        gameScoreCategoryDetailed = R.string.category_super_all_detailed,
+        categoriesMenuButton = R.string.category_super_all_menu_button,
+        gameScoreCategoryPreview = R.string.category_super_all_score_preview,
+        gameScoreCategoryDetailed = R.string.category_super_all_score_detailed,
         subCategories = FlagCategory.entries.map(::FlagCategoryWrapper),
     )
 
@@ -40,9 +40,9 @@ sealed class FlagSuperCategory(
     @SerialName("sovereign_country")
     data object SovereignCountry : FlagSuperCategory(
         title = R.string.category_super_sovereign_country,
-        categoriesMenuButton = R.string.category_super_sovereign_country_short,
-        gameScoreCategoryPreview = R.string.category_super_sovereign_country_short,
-        gameScoreCategoryDetailed = R.string.category_super_sovereign_country_game_category_detailed,
+        categoriesMenuButton = R.string.category_super_sovereign_country_menu_button,
+        gameScoreCategoryPreview = R.string.category_super_sovereign_country_score_preview,
+        gameScoreCategoryDetailed = R.string.category_super_sovereign_country_score_detailed,
         subCategories = listOf(
             FlagCategoryWrapper(enum = FlagCategory.SOVEREIGN_STATE)
         ),
@@ -52,9 +52,9 @@ sealed class FlagSuperCategory(
     @SerialName("autonomous_region")
     data object AutonomousRegion : FlagSuperCategory(
         title = R.string.category_super_autonomous_region,
-        categoriesMenuButton = R.string.category_super_autonomous_region,
-        gameScoreCategoryPreview = R.string.category_super_autonomous_region_game_category_preview,
-        gameScoreCategoryDetailed = R.string.category_super_autonomous_region,
+        categoriesMenuButton = R.string.category_super_autonomous_region_menu_button,
+        gameScoreCategoryPreview = R.string.category_super_autonomous_region_score_preview,
+        gameScoreCategoryDetailed = R.string.category_super_autonomous_region_score_detailed,
         subCategories = listOf(
             FlagCategoryWrapper(enum = FlagCategory.FREE_ASSOCIATION),
             FlagCategoryWrapper(enum = FlagCategory.AUTONOMOUS_REGION),
@@ -67,9 +67,9 @@ sealed class FlagSuperCategory(
     @SerialName("regional")
     data object Regional : FlagSuperCategory(
         title = R.string.category_super_regional,
-        categoriesMenuButton = R.string.category_super_regional,
-        gameScoreCategoryPreview = R.string.category_super_regional,
-        gameScoreCategoryDetailed = R.string.category_super_regional,
+        categoriesMenuButton = R.string.category_super_regional_menu_button,
+        gameScoreCategoryPreview = R.string.category_super_regional_score_preview,
+        gameScoreCategoryDetailed = R.string.category_super_regional_score_detailed,
         subCategories = listOf(
             //FlagCategoryWrapper(enum = FlagCategory.CANTON),
             FlagCategoryWrapper(enum = FlagCategory.COLLECTIVITY),
@@ -100,9 +100,9 @@ sealed class FlagSuperCategory(
     @SerialName("international")
     data object International : FlagSuperCategory(
         title = R.string.category_super_international,
-        categoriesMenuButton = R.string.category_super_international_detailed,
-        gameScoreCategoryPreview = R.string.category_super_international,
-        gameScoreCategoryDetailed = R.string.category_super_international_detailed,
+        categoriesMenuButton = R.string.category_super_international_menu_button,
+        gameScoreCategoryPreview = R.string.category_super_international_score_preview,
+        gameScoreCategoryDetailed = R.string.category_super_international_score_detailed,
         subCategories = listOf(
             //FlagCategoryWrapper(enum = FlagCategory.SUPRANATIONAL_UNION),
             FlagCategoryWrapper(enum = FlagCategory.INTERNATIONAL_ORGANIZATION)
@@ -113,9 +113,9 @@ sealed class FlagSuperCategory(
     @SerialName("historical")
     data object Historical : FlagSuperCategory(
         title = R.string.category_super_historical,
-        categoriesMenuButton = R.string.category_super_historical,
-        gameScoreCategoryPreview = R.string.category_super_historical,
-        gameScoreCategoryDetailed = R.string.category_super_historical,
+        categoriesMenuButton = R.string.category_super_historical_menu_button,
+        gameScoreCategoryPreview = R.string.category_super_historical_score_preview,
+        gameScoreCategoryDetailed = R.string.category_super_historical_score_detailed,
         subCategories = listOf(
             FlagCategoryWrapper(enum = FlagCategory.HISTORICAL)
         ),
@@ -143,9 +143,9 @@ sealed class FlagSuperCategory(
     @SerialName("cultural")
     data object Cultural : FlagSuperCategory(
         title = R.string.category_super_cultural,
-        categoriesMenuButton = R.string.category_super_cultural,
-        gameScoreCategoryPreview = R.string.category_super_cultural,
-        gameScoreCategoryDetailed = R.string.category_super_all_detailed,
+        categoriesMenuButton = R.string.category_super_cultural_menu_button,
+        gameScoreCategoryPreview = R.string.category_super_cultural_score_preview,
+        gameScoreCategoryDetailed = R.string.category_super_cultural_score_detailed,
         subCategories = listOf(
             FlagCategoryWrapper(enum = FlagCategory.ETHNIC),
             FlagCategoryWrapper(enum = FlagCategory.SOCIAL),
