@@ -148,9 +148,13 @@ fun CategoriesButtonMenu(
     } else {
         if (currentSubCategories.isNotEmpty()) {
             currentSubCategories.first().let { subCategory ->
-                val isStateTitle = subCategory in PowerDerivation.enums().filter {
-                    it in listOf(FlagCategory.ONE_PARTY, FlagCategory.PROVISIONAL_GOVERNMENT)
-                }
+                /* If subCategory belongs to Political superCategory, except for exceptions,
+                 * append "State" after subCategory */
+                val isStateTitle = Political.subCategories.filterIsInstance<FlagSuperCategory>()
+                    .filterNot { it == PowerDerivation }.any {
+                        subCategory in it.enums()
+                    } || subCategory in
+                        listOf(FlagCategory.ONE_PARTY, FlagCategory.PROVISIONAL_GOVERNMENT)
 
                 return@let if (isStateTitle) {
                     stringResource(subCategory.title) +
@@ -362,12 +366,12 @@ fun CategoriesButtonMenu(
                                     textButtonStyle = textButtonStyle,
                                     buttonColors = buttonColors,
                                     superCategory = superCategory,
-                                    onCategorySelect = { newSuperCategory ->
+                                    onCategorySelectSingle = { newSuperCategory ->
                                         expandSubMenu = null
                                         onCategorySelectSingle(newSuperCategory, null)
                                         onMenuButtonClick()
                                     },
-                                    onCategoryMultiSelect = { selectSuperCategory ->
+                                    onCategorySelectMultiple = { selectSuperCategory ->
                                         onCategorySelectMultiple(selectSuperCategory, null)
                                     },
                                 )
@@ -430,8 +434,8 @@ private fun MenuItemStatic(
     textButtonStyle: TextStyle,
     buttonColors: ButtonColors,
     superCategory: FlagSuperCategory,
-    onCategorySelect: (FlagSuperCategory) -> Unit,
-    onCategoryMultiSelect: (FlagSuperCategory) -> Unit,
+    onCategorySelectSingle: (FlagSuperCategory) -> Unit,
+    onCategorySelectMultiple: (FlagSuperCategory) -> Unit,
 ) {
     val fontWeight = when (superCategory) {
         All -> FontWeight.ExtraBold
@@ -450,10 +454,10 @@ private fun MenuItemStatic(
                 bottom = Dimens.textButtonVertPad + lastItemPadding
             )
             .combinedClickable(
-                onClick = { onCategorySelect(superCategory) },
+                onClick = { onCategorySelectSingle(superCategory) },
                 onLongClick = {
                     haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                    onCategoryMultiSelect(superCategory)
+                    onCategorySelectMultiple(superCategory)
                 },
             )
         /*
@@ -984,15 +988,13 @@ private fun getCategoriesStringResources(
         PowerDerivation.enums()
     ).flatten()
 
-    val isHistorical =
-        Historical in superCategoriesFiltered || FlagCategory.HISTORICAL in subCategories
+    val isHistorical = Historical in superCategoriesFiltered
 
     val isCultural = Cultural in superCategoriesFiltered
 
     /* For string exceptions when supers mean associated countries */
     val isAssociatedCountrySupers = superCategoriesFiltered.contains(AutonomousRegion) &&
-            (superCategoriesFiltered.contains(SovereignCountry) ||
-                    subCategories.contains(FlagCategory.SOVEREIGN_STATE))
+            superCategoriesFiltered.contains(SovereignCountry)
 
     /* For string exceptions when supers mean non-sovereign autonomous and associated regions */
     val isAutonomousRegionalSupers = superCategoriesFiltered.containsAll(
@@ -1019,12 +1021,7 @@ private fun getCategoriesStringResources(
 
     /* Subcategories not in other list derivatives, minus duplicates */
     val remainingCategories = subCategories.filterNot { it in culturalCategories }
-        .filterNot { it in politicalCategories }.let {
-            val categoriesMutable = it.toMutableList()
-            if (isHistorical) categoriesMutable.remove(FlagCategory.HISTORICAL)
-            if (isAssociatedCountrySupers) categoriesMutable.remove(FlagCategory.SOVEREIGN_STATE)
-            return@let categoriesMutable.toList()
-        }
+        .filterNot { it in politicalCategories }
 
     /* Mutable list for string resources for iteration */
     @StringRes val strings = mutableListOf<Int>()
@@ -1055,6 +1052,17 @@ private fun getCategoriesStringResources(
     politicalCategories.forEach { politicalCategory ->
         strings.add(politicalCategory.title)
         strings.add(R.string.string_whitespace)
+
+        /* On last iteration, if no superCategories except for SovereignCountry AND no remaining
+         * subCategories AND politicalCategories doesn't contain exceptions, append "State" */
+        if (politicalCategory == politicalCategories.last() &&
+            superCategoriesFiltered.all { it == SovereignCountry } &&
+            remainingCategories.isEmpty() &&
+            politicalCategories.none { it in PowerDerivation.enums().filterNot { enum ->
+                enum in listOf(FlagCategory.ONE_PARTY, FlagCategory.PROVISIONAL_GOVERNMENT)
+            } }) {
+            strings.add(R.string.category_state_title)
+        }
     }
 
     if (isAssociatedCountrySupers) {
@@ -1075,35 +1083,22 @@ private fun getCategoriesStringResources(
         strings.add(R.string.string_whitespace)
     }
 
+
     superCategoriesFiltered.forEach { superCategory ->
-        if (superCategory == SovereignCountry) {
-            if (politicalCategories.isEmpty() && SovereignCountry.categoriesMenuButton != null) {
-                strings.add(SovereignCountry.categoriesMenuButton)
-            } else {
-                strings.add(R.string.category_state_title)
+        if (superCategory == SovereignCountry && superCategory.categoriesMenuButton != null) {
+            if (politicalCategories.isEmpty()) {
+                strings.add(superCategory.categoriesMenuButton)
+                strings.add(R.string.string_comma_whitespace)
             }
         } else {
             strings.add(superCategory.title)
+            strings.add(R.string.string_comma_whitespace)
         }
-        strings.add(R.string.string_comma_whitespace)
     }
 
     remainingCategories.forEach { subCategory ->
-        if (subCategory == FlagCategory.SOVEREIGN_STATE) {
-            if (politicalCategories.isEmpty() && SovereignCountry.categoriesMenuButton != null) {
-                strings.add(SovereignCountry.categoriesMenuButton)
-                strings.add(R.string.string_comma_whitespace)
-
-            } else if (!politicalCategories.any { politicalCategory ->
-                    politicalCategory in PowerDerivation.enums().filterNot {
-                        it in listOf(FlagCategory.ONE_PARTY, FlagCategory.PROVISIONAL_GOVERNMENT)
-                    } }) {
-                strings.add(R.string.category_state_title)
-            }
-        } else {
-            strings.add(subCategory.title)
-            strings.add(R.string.string_comma_whitespace)
-        }
+        strings.add(subCategory.title)
+        strings.add(R.string.string_comma_whitespace)
     }
 
     if (strings.last() == R.string.string_comma_whitespace ||
