@@ -8,6 +8,7 @@ import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories2
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategory.CONSTITUTIONAL
 import dev.aftly.flags.model.FlagCategory.HISTORICAL
+import dev.aftly.flags.model.FlagCategory.INTERNATIONAL_ORGANIZATION
 import dev.aftly.flags.model.FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
@@ -15,13 +16,14 @@ import dev.aftly.flags.model.FlagCategory.THEOCRATIC
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
+import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 import dev.aftly.flags.model.FlagSuperCategory.AutonomousRegion
+import dev.aftly.flags.model.FlagSuperCategory.Regional
+import dev.aftly.flags.model.FlagSuperCategory.International
 import dev.aftly.flags.model.FlagSuperCategory.Cultural
 import dev.aftly.flags.model.FlagSuperCategory.Historical
-import dev.aftly.flags.model.FlagSuperCategory.International
 import dev.aftly.flags.model.FlagSuperCategory.Political
-import dev.aftly.flags.model.FlagSuperCategory.Regional
-import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
+
 
 
 /* ------ For updateCurrentCategory() in ViewModels ------ */
@@ -39,10 +41,17 @@ fun getFlagsByCategory(
     /* Mutable list for adding flags to */
     val flags = mutableListOf<FlagResources>()
 
-    /* Make a categoriesNot list to exclude flags if they have a particular category/categories */
+    /* Exclude flags if they have a particular category/categories */
     val categoriesNot = when (subCategory) {
         NOMINAL_EXTRA_CONSTITUTIONAL -> listOf(CONSTITUTIONAL, HISTORICAL)
-        else -> null
+        else -> emptyList()
+    }
+
+    /* Exclude flags if they don't have any categories in this list */
+    val categoriesHasAny = when (Political.subCategories.filterIsInstance<FlagSuperCategory>()
+        .any { subCategory in it.enums() }) {
+        true -> listOf(SOVEREIGN_STATE, INTERNATIONAL_ORGANIZATION)
+        false -> null
     }
 
     /* Generate list of categories to iterate over (for flags list) from nullable values */
@@ -65,13 +74,14 @@ fun getFlagsByCategory(
         for (category in categories) {
             if (category in flag.categories) {
                 if (flag !in flags) {
-                    /* Exclude flag if has category in categoriesNot, else add to list */
-                    if (categoriesNot != null) {
-                        if (categoriesNot.none { it in flag.categories }) {
-                            flags.add(flag)
-                        }
-                    } else {
-                        flags.add(flag)
+                    /* Add flag if none of it's categories are in categoriesNot and has any of
+                    * categoriesHasAny */
+                    if (categoriesNot.none { it in flag.categories }) {
+                        categoriesHasAny?.let {
+                            if (categoriesHasAny.any { it in flag.categories }) {
+                                flags.add(flag)
+                            }
+                        } ?: flags.add(flag)
                     }
                 }
                 break
