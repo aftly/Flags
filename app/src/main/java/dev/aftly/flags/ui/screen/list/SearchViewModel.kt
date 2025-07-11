@@ -296,12 +296,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         if (newSuperCategory == All) {
             _uiState.value = SearchUiState()
         } else {
-            _uiState.update { currentState ->
-                currentState.copy(
+            _uiState.update {
+                it.copy(
                     currentFlags = getFlagsByCategory(
                         superCategory = newSuperCategory,
                         subCategory = newSubCategory,
-                        allFlags = currentState.allFlags,
+                        allFlags = it.allFlags,
                     ),
                     currentSuperCategories = when (newSuperCategory) {
                         null -> emptyList()
@@ -368,13 +368,13 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         }
 
         /* Update state with new categories lists and currentFlags list */
-        _uiState.update { currentState ->
-            currentState.copy(
+        _uiState.update {
+            it.copy(
                 /* Get new flags list from categories lists and either currentFlags or allFlags
                  * (depending on select vs. deselect) */
                 currentFlags = getFlagsFromCategories(
-                    allFlags = currentState.allFlags,
-                    currentFlags = currentState.currentFlags,
+                    allFlags = it.allFlags,
+                    currentFlags = it.currentFlags,
                     isDeselect = isDeselect,
                     newSuperCategory = newSuperCategory,
                     superCategories = newSuperCategories,
