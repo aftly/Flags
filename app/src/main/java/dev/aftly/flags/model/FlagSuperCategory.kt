@@ -134,8 +134,7 @@ sealed class FlagSuperCategory(
             LegalConstraint,
             PowerDerivation,
             //RegimeType,
-            IdeologicalOrientation,
-            NonAdministrative
+            IdeologicalOrientation
         ),
     )
 
@@ -245,18 +244,6 @@ sealed class FlagSuperCategory(
             FlagCategoryWrapper(enum = FlagCategory.THEOCRATIC),
             FlagCategoryWrapper(enum = FlagCategory.SOCIALIST),
             FlagCategoryWrapper(enum = FlagCategory.FASCIST)
-        ),
-    )
-
-    @Serializable
-    @SerialName("non_administrative_political")
-    data object NonAdministrative : FlagSuperCategory(
-        title = R.string.category_non_administrative_political,
-        categoriesMenuButton = null,
-        gameScoreCategoryPreview = null,
-        gameScoreCategoryDetailed = null,
-        subCategories = listOf(
-            FlagCategoryWrapper(enum = FlagCategory.POLITICAL)
         ),
     )
 }

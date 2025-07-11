@@ -41,7 +41,6 @@
     <string name="category_sub_power_derivation">Power Derivation</string>
     <string name="category_sub_regime_type">Political Regime</string>
     <string name="category_sub_ideological_orientation">Ideological Orientation</string>
-    <string name="category_non_administrative_political">Non-Administrative</string>
     <string name="category_sovereign_state_title">Sovereign State</string>
     <string name="category_sovereign_state_string">sovereign state</string>
     <string name="category_free_association_title">Free Association</string>
