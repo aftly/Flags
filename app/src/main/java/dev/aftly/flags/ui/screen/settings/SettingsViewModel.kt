@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.data.datastore.UserPreferencesRepository
 import dev.aftly.flags.model.AppTheme
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -14,7 +13,7 @@ import kotlinx.coroutines.launch
 class SettingsViewModel(
     private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
-    val uiState: StateFlow<SettingsUiState> =
+    val uiState =
         combine(
             userPreferencesRepository.isDynamicColor,
             userPreferencesRepository.theme

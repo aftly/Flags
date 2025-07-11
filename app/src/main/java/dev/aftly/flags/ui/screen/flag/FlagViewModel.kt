@@ -32,7 +32,6 @@ import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.ui.util.normalizeString
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
@@ -42,7 +41,7 @@ class FlagViewModel(
     savedStateHandle: SavedStateHandle,
 ) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow(FlagUiState())
-    val uiState: StateFlow<FlagUiState> = _uiState.asStateFlow()
+    val uiState = _uiState.asStateFlow()
 
     init {
         /* Initialise state from nav arg via SavedStateHandle */

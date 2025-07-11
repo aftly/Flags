@@ -7,23 +7,19 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.ui.util.getFlagsByCategory
 import dev.aftly.flags.ui.util.getFlagsFromCategories
-//import dev.aftly.flags.ui.util.getParentSuperCategory TODO
-//import dev.aftly.flags.ui.util.getSubCategories TODO
-//import dev.aftly.flags.ui.util.getSuperCategories TODO
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
 import dev.aftly.flags.ui.util.sortFlagsAlphabetically
 import dev.aftly.flags.ui.util.updateCategoriesFromSub
 import dev.aftly.flags.ui.util.updateCategoriesFromSuper
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 
 class ListFlagsViewModel(application: Application) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow(ListFlagsUiState())
-    val uiState: StateFlow<ListFlagsUiState> = _uiState.asStateFlow()
+    val uiState = _uiState.asStateFlow()
 
     /* Initialise ListFlagsScreen() with a category not FlagSuperCategory.All
      * Also sort lists by readable name (alphabetically) */

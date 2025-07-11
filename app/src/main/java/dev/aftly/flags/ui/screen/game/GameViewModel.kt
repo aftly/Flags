@@ -25,7 +25,6 @@ import dev.aftly.flags.ui.util.updateCategoriesFromSuper
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -35,7 +34,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val scoreItemsRepository =
         (application as FlagsApplication).container.scoreItemsRepository
     private val _uiState = MutableStateFlow(GameUiState())
-    val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
+    val uiState = _uiState.asStateFlow()
 
     private var guessedFlags = mutableListOf<FlagResources>()
     private var skippedFlags = mutableListOf<FlagResources>()

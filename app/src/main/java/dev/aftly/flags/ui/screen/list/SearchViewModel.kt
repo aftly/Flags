@@ -16,8 +16,6 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.ui.util.getFlagsByCategory
 import dev.aftly.flags.ui.util.getFlagsFromCategories
-//import dev.aftly.flags.ui.util.getSubCategories TODO
-//import dev.aftly.flags.ui.util.getSuperCategories TODO
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
 import dev.aftly.flags.ui.util.normalizeLower
@@ -36,7 +34,7 @@ import kotlinx.coroutines.flow.update
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow(SearchUiState())
-    val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
+    val uiState = _uiState.asStateFlow()
 
     var searchQuery by mutableStateOf(value = "")
         private set
@@ -55,7 +53,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     )
     private var the = MutableStateFlow(value = appResources.value.getString(R.string.string_the))
 
-    val searchResults: StateFlow<List<FlagResources>> = combine(
+    val searchResults = combine(
         flow = searchQueryFlow,
         flow2 = flagsFlow,
         flow3 = appResources,
@@ -256,14 +254,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                         else -> 0
                     }
                 }
-                else -> _searchResults.value /* Maintains list after clearing searchQuery */
+                else -> searchResultsCopy.value /* Maintains list after clearing searchQuery */
             }
         }.stateIn(
             scope = viewModelScope,
             initialValue = emptyList(),
             started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
         )
-    private val _searchResults = searchResults
+    private val searchResultsCopy: StateFlow<List<FlagResources>> = searchResults
 
     init { sortFlagsAndUpdate() }
 
