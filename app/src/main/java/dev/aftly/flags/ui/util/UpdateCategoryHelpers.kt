@@ -243,7 +243,7 @@ fun updateCategoriesFromSuper(
     }
     /* If either of previous are true return true */
     if (isRemove) return true
-    
+
     superCategories.add(superCategory)
     return false
 }

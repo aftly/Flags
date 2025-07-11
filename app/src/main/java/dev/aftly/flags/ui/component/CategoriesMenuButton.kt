@@ -1083,7 +1083,6 @@ private fun getCategoriesStringResources(
         strings.add(R.string.string_whitespace)
     }
 
-
     superCategoriesFiltered.forEach { superCategory ->
         if (superCategory == SovereignCountry && superCategory.categoriesMenuButton != null) {
             if (politicalCategories.isEmpty()) {
