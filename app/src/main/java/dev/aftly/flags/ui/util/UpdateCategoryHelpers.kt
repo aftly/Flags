@@ -1,6 +1,5 @@
 package dev.aftly.flags.ui.util
 
-import androidx.annotation.StringRes
 import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.data.DataSource.menuSuperCategoryList
 import dev.aftly.flags.data.DataSource.mutuallyExclusiveSubCategories
@@ -13,7 +12,6 @@ import dev.aftly.flags.model.FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
 import dev.aftly.flags.model.FlagCategory.THEOCRATIC
-import dev.aftly.flags.model.FlagCategoryWrapper
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
@@ -26,7 +24,7 @@ import dev.aftly.flags.model.FlagSuperCategory.Regional
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 
 
-/* ------ For updateCurrentCategory function in ViewModels ------ */
+/* ------ For updateCurrentCategory() in ViewModels ------ */
 
 fun getFlagsByCategory(
     superCategory: FlagSuperCategory?,
@@ -101,47 +99,7 @@ fun getParentSuperCategory(
 }
 
 
-fun getCategoryTitle(
-    superCategory: FlagSuperCategory?,
-    subCategory: FlagCategory?,
-    @StringRes titleException: Int = SovereignCountry.title,
-): Int {
-    return subCategory?.title ?: superCategory?.title ?: titleException
-}
-
-
-
-/* ------ For updateCurrentCategories function in ViewModels ------ */
-
-// TODO Remove
-fun getSuperCategories(
-    superCategories: List<FlagSuperCategory>?,
-    currentSuperCategory: FlagSuperCategory,
-): MutableList<FlagSuperCategory> {
-    return when (superCategories) {
-        null -> mutableListOf(currentSuperCategory)
-        else -> superCategories.toMutableList()
-    }
-}
-
-// TODO remove
-fun getSubCategories(
-    subCategories: List<FlagCategory>?,
-    currentSuperCategory: FlagSuperCategory,
-): MutableList<FlagCategory> {
-    return when (subCategories) {
-        null ->
-            when (currentSuperCategory.subCategories.size) {
-                1 -> mutableListOf(
-                    currentSuperCategory.subCategories.filterIsInstance<FlagCategoryWrapper>()
-                        .first().enum
-                )
-                else -> mutableListOf()
-            }
-        else -> subCategories.toMutableList()
-    }
-}
-
+/* ------ For updateCurrentCategories() in ViewModels ------ */
 
 fun isSuperCategoryExit(
     superCategory: FlagSuperCategory,
