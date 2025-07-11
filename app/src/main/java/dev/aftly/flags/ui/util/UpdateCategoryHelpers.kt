@@ -243,17 +243,8 @@ fun updateCategoriesFromSuper(
     }
     /* If either of previous are true return true */
     if (isRemove) return true
-
-
-    when (superCategory.subCategories.size) {
-        1 -> {
-            superCategories.add(superCategory)
-            subCategories.add(
-                superCategory.subCategories.filterIsInstance<FlagCategoryWrapper>().first().enum
-            )
-        }
-        else -> superCategories.add(superCategory)
-    }
+    
+    superCategories.add(superCategory)
     return false
 }
 
