@@ -1020,7 +1020,7 @@ private fun getCategoriesStringResources(
 
     /* Subcategories not in other list derivatives, minus duplicates */
     val remainingCategories = subCategories.filterNot { it in culturalCategories }
-        .filterNot { it in politicalCategories }
+        .filterNot { it in politicalCategories }.toMutableList()
 
     /* Mutable list for string resources for iteration */
     @StringRes val strings = mutableListOf<Int>()
@@ -1078,6 +1078,11 @@ private fun getCategoriesStringResources(
         strings.add(R.string.string_comma_whitespace)
     } else if (isAutonomousRegionalSub) {
         superCategoriesFiltered.remove(AutonomousRegion)
+        strings.add(R.string.categories_autonomous)
+        strings.add(R.string.string_whitespace)
+    } else if (remainingCategories.contains(FlagCategory.AUTONOMOUS_REGION) &&
+        remainingCategories.any { it in Regional.enums() }) {
+        remainingCategories.remove(FlagCategory.AUTONOMOUS_REGION)
         strings.add(R.string.categories_autonomous)
         strings.add(R.string.string_whitespace)
     }
