@@ -65,11 +65,12 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [x] ~~**Game**: Timer modes: Standard and Time Trial~~
 - [x] ~~**Settings screen** for Theme customisation and about info~~
 - [x] ~~Settings persistence (stored in app data)~~
+- [x] ~~Score details dialog~~
+- [x] ~~Score history screen (with data persistence)~~
+- [x] ~~Deselect keyboard and text fields when tap off~~
 - [x] Optimize app for different system Font sizes - **(Partially Complete)**
-- [x] ~~**Persistent Game features**: Score history~~ & exporting scores *(for sharing)* - **(Partially complete)**
 - [ ] **More settings features**: *Eg.* Strictness of user guesses for game, disable animations for older devices
 - [ ] Save flags to custom list
-- [ ] Deselect keyboard and text fields when tap off
 - [ ] Add more flags *(to less populated categories and more popular related flags)*
 - [ ] Update start menu buttons with (colourful) patterned backgrounds
 - [ ] Add screenshots of app to **README**
@@ -77,6 +78,7 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [ ] Add regime type categories (for political flags) from **OurWorldInData**
 - [ ] Download flag image to local files feature
 - [ ] Pop up warning messages when invalid/not allowed user action
+- [ ] Exportable score history *(for sharing)*
 - [ ] Add flag ISO codes
 - [ ] Optimize app for different screen resolutions and aspect ratios
 - [ ] Implement tests and production optimizations
