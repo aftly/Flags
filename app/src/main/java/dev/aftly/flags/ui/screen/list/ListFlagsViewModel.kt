@@ -7,6 +7,7 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.ui.util.getFlagsByCategory
 import dev.aftly.flags.ui.util.getFlagsFromCategories
+import dev.aftly.flags.ui.util.getSuperCategories
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
 import dev.aftly.flags.ui.util.sortFlagsAlphabetically
@@ -56,17 +57,20 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         if (newSuperCategory == All) {
             _uiState.value = ListFlagsUiState()
         } else {
+            val newFlags = getFlagsByCategory(
+                superCategory = newSuperCategory,
+                subCategory = newSubCategory,
+                allFlags = uiState.value.allFlags,
+            )
+
             _uiState.update {
                 it.copy(
-                    currentFlags = getFlagsByCategory(
+                    currentFlags = newFlags,
+                    currentSuperCategories = getSuperCategories(
                         superCategory = newSuperCategory,
                         subCategory = newSubCategory,
-                        allFlags = it.allFlags,
+                        flags = newFlags,
                     ),
-                    currentSuperCategories = when (newSuperCategory) {
-                        null -> emptyList()
-                        else -> listOf(newSuperCategory)
-                    },
                     currentSubCategories = when (newSubCategory) {
                         null -> emptyList()
                         else -> listOf(newSubCategory)

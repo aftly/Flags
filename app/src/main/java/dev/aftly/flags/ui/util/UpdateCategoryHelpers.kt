@@ -16,14 +16,13 @@ import dev.aftly.flags.model.FlagCategory.THEOCRATIC
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
-import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 import dev.aftly.flags.model.FlagSuperCategory.AutonomousRegion
-import dev.aftly.flags.model.FlagSuperCategory.Regional
-import dev.aftly.flags.model.FlagSuperCategory.International
 import dev.aftly.flags.model.FlagSuperCategory.Cultural
 import dev.aftly.flags.model.FlagSuperCategory.Historical
+import dev.aftly.flags.model.FlagSuperCategory.International
 import dev.aftly.flags.model.FlagSuperCategory.Political
-
+import dev.aftly.flags.model.FlagSuperCategory.Regional
+import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 
 
 /* ------ For updateCurrentCategory() in ViewModels ------ */
@@ -89,6 +88,29 @@ fun getFlagsByCategory(
         }
     }
     return flags.toList()
+}
+
+
+/* Handle special cases like when subcategory is Political, return SovereignCountry super when
+ * flags doesn't contain INTERNATIONAL_ORGANIZATION flags */
+fun getSuperCategories(
+    superCategory: FlagSuperCategory?,
+    subCategory: FlagCategory?,
+    flags: List<FlagResources>,
+): List<FlagSuperCategory> {
+    val isPoliticalSubCategory = subCategory?.let {
+        Political.subCategories.filterIsInstance<FlagSuperCategory>()
+            .any { subCategory in it.enums() }
+    } ?: false
+
+    return if (superCategory != null) {
+        listOf(superCategory)
+    } else if (isPoliticalSubCategory &&
+        flags.none { INTERNATIONAL_ORGANIZATION in it.categories }) {
+        listOf(SovereignCountry)
+    } else {
+        emptyList()
+    }
 }
 
 
