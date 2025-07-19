@@ -127,13 +127,6 @@ private fun GameHistoryScreen(
 
         // TODO: FilterHistoryButton()
 
-        if (uiState.scores.isEmpty()) {
-            NoResultsFound(
-                modifier = Modifier.fillMaxSize(),
-                resultsType = ResultsType.GAME_HISTORY,
-            )
-        }
-
         if (uiState.scoreDetails != null) {
             ScoreDetails(
                 visible = uiState.isScoreDetails,
@@ -156,16 +149,24 @@ private fun GameHistoryContent(
             .fillMaxSize()
             .padding(horizontal = Dimens.marginHorizontal16)
     ) {
-        LazyColumn(modifier = Modifier.fillMaxWidth()) {
-            items(
-                count = scoreHistory.size,
-                key = { index -> scoreHistory[index].timestamp }
-            ) { index ->
-                HistoryItem(
-                    modifier = Modifier.fillMaxWidth(),
-                    item = scoreHistory[index],
-                    onScoreDetails = onScoreDetails,
-                )
+        if (scoreHistory.isEmpty()) {
+            NoResultsFound(
+                modifier = Modifier.fillMaxSize(),
+                resultsType = ResultsType.GAME_HISTORY,
+                bottomSpacer = true,
+            )
+        } else {
+            LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                items(
+                    count = scoreHistory.size,
+                    key = { index -> scoreHistory[index].timestamp }
+                ) { index ->
+                    HistoryItem(
+                        modifier = Modifier.fillMaxWidth(),
+                        item = scoreHistory[index],
+                        onScoreDetails = onScoreDetails,
+                    )
+                }
             }
         }
     }
