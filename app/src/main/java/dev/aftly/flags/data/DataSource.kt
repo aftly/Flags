@@ -2172,7 +2172,7 @@ data object DataSource {
                 R.string.denmark_alt_8,
                 R.string.denmark_alt_9
             ),
-            isFlagOfThe = true,
+            isFlagOfThe = false,
             isFlagOfOfficialThe = true,
             sovereignState = null,
             associatedState = null,
@@ -4847,7 +4847,7 @@ data object DataSource {
                 R.string.micronesia_alt_5,
                 R.string.micronesia_alt_6
             ),
-            isFlagOfThe = true,
+            isFlagOfThe = false,
             isFlagOfOfficialThe = true,
             sovereignState = null,
             associatedState = "unitedStates",
