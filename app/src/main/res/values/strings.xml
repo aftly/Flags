@@ -211,7 +211,9 @@
     <string name="game_score_details_correct_absolute">%d/%d</string>
     <string name="game_score_details_categories_title">Categories:</string>
     <string name="game_score_details_time_mode">Time mode:</string>
-    <string name="game_score_details_time">%dm, %02ds</string>
+    <string name="game_score_details_time">%dm %02ds</string>
+    <string name="game_score_details_time_date_connector">,\ </string>
+    <string name="game_score_details_time_date_separator">\n</string>
     <string name="game_score_details_guessed">Flags guessed (%d)</string>
     <string name="game_score_details_skipped">Flags skipped (%d)</string>
     <string name="game_score_details_shown">Flags shown (%d)</string>

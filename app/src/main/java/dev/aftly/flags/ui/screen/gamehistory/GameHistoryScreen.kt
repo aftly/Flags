@@ -383,8 +383,8 @@ private fun HistoryItem(
                 Card(colors = dateTimeCardColors) {
                     Text(
                         text = formatTimestamp(item.timestamp).replace(
-                            oldValue = stringResource(R.string.string_whitespace),
-                            newValue = "\n",
+                            oldValue = stringResource(R.string.game_score_details_time_date_connector),
+                            newValue = stringResource(R.string.game_score_details_time_date_separator),
                         ),
                         modifier = Modifier.padding(horizontal = padding, vertical = padding / 2),
                         textAlign = TextAlign.Center,
