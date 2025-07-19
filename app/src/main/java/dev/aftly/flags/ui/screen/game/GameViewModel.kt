@@ -76,7 +76,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         cancelConfirmShowAnswer()
 
 
-        val newFlag = getRandomFlag()
+        val newFlag = getRandomFlag(isNewGame = true)
         val newFlagStrings = when (newFlag) {
             nullFlag -> emptyList()
             else -> getStringsList(flag = newFlag)
@@ -439,8 +439,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    private fun getRandomFlag(): FlagResources {
+    private fun getRandomFlag(isNewGame: Boolean = false): FlagResources {
         val currentFlags = uiState.value.currentFlags
+
+        /* To stop recursive loop app crash when current flag state carries across games and
+         * currentFlags size of 1 (as newFlag needs to be != currentFlag) */
+        if (isNewGame) {
+            _uiState.update { it.copy(currentFlag = nullFlag) }
+        }
 
         if (currentFlags.isNotEmpty()) {
             val newFlag = currentFlags.random()
@@ -577,6 +583,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     /* Remove redundant sub categories for ScoreData */
     private fun getScoreDataSubs(): List<FlagCategory> {
         return uiState.value.currentSubCategories ?: emptyList()
+        // TODO
         /*
         return uiState.value.currentSubCategories?.let { currentSubCategories ->
             val subCategories = currentSubCategories.toMutableList()
