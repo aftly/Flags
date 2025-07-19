@@ -1,6 +1,7 @@
 package dev.aftly.flags.ui.component
 
 import android.app.Activity
+import android.icu.text.NumberFormat
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -52,6 +53,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -353,6 +355,12 @@ private fun TotalsOverviewItem(
         false -> successLight
     }
 
+    /* Manage locale aware percentage that excludes redundant 0 decimals */
+    val locale = configuration.locales[0]
+    val percentFormat = NumberFormat.getPercentInstance(locale)
+    percentFormat.maximumFractionDigits = 2
+    val scorePercent = percentFormat.format(totalsOverview.scorePercent.toDouble() / 100)
+
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
@@ -384,10 +392,7 @@ private fun TotalsOverviewItem(
 
         /* Relative score */
         Text(
-            text = stringResource(
-                R.string.game_score_details_correct_relative,
-                totalsOverview.scorePercent
-            ) + stringResource(R.string.string_percent),
+            text = scorePercent,
             modifier = Modifier
                 .clip(MaterialTheme.shapes.medium)
                 .background(successColor)

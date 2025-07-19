@@ -209,7 +209,6 @@
     <string name="game_score_details_overview">Overview</string>
     <string name="game_score_details_correct_title">Correct answers:</string>
     <string name="game_score_details_correct_absolute">%d/%d</string>
-    <string name="game_score_details_correct_relative">%.2f</string>
     <string name="game_score_details_categories_title">Categories:</string>
     <string name="game_score_details_time_mode">Time mode:</string>
     <string name="game_score_details_time">%dm, %02ds</string>
@@ -266,7 +265,6 @@
     <string name="string_comma_whitespace">,\ </string>
     <string name="string_is_a">is a</string>
     <string name="string_new_paragraph">\n\n</string>
-    <string name="string_percent">%</string>
     <string name="string_period">.</string>
     <string name="string_that_is">that is</string>
     <string name="string_the">the</string>
