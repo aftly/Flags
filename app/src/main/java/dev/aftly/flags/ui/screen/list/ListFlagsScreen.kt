@@ -87,7 +87,6 @@ import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.navigation.Screen
-//import dev.aftly.flags.ui.component.CategoriesButtonMenu TODO
 import dev.aftly.flags.ui.component.CategoriesButtonMenu
 import dev.aftly.flags.ui.component.NoResultsFound
 import dev.aftly.flags.ui.component.ResultsType
@@ -127,6 +126,7 @@ fun ListFlagsScreen(
         userSearch = searchModel.searchQuery,
         isUserSearch = searchModel.isSearchQuery,
         onUserSearchChange = { searchModel.onSearchQueryChange(it) },
+        onIsSearchBarInit = { viewModel.toggleIsSearchBarInit(it) },
         onNavigateUp = onNavigateUp,
         onCategorySelectSingle = { newSuperCategory, newSubCategory ->
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
@@ -159,6 +159,7 @@ private fun ListFlagsScreen(
     userSearch: String,
     isUserSearch: Boolean,
     onUserSearchChange: (String) -> Unit,
+    onIsSearchBarInit: (Boolean) -> Unit,
     onNavigateUp: () -> Unit,
     onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
@@ -189,23 +190,29 @@ private fun ListFlagsScreen(
         if (isMenuExpanded) focusManager.clearFocus()
     }
 
-    LaunchedEffect(isSearchBar) {
-        when (isSearchBar) {
-            true -> {
-                if (!uiState.currentFlags.containsAll(DataSource.allFlagsList)) {
-                    onCategorySelectSingle(FlagSuperCategory.All, null)
-                    if (!isAtTop) {
-                        coroutineScope.launch { listState.animateScrollToItem(index = 0) }
-                    }
+    /* isSearchBar init LaunchedEffect only exists when it's needed (solves unintended launches) */
+    if (isSearchBar && !uiState.isSearchBarInit) {
+        LaunchedEffect(Unit) {
+            if (!uiState.currentFlags.containsAll(DataSource.allFlagsList)) {
+                onCategorySelectSingle(FlagSuperCategory.All, null)
+                if (!isAtTop) {
+                    coroutineScope.launch { listState.animateScrollToItem(index = 0) }
                 }
             }
-            false -> {
-                delay(Timing.MENU_COLLAPSE.toLong())
-                if (!isSearchBar && isUserSearch) {
-                    onUserSearchChange("")
-                    if (!isAtTop) {
-                        coroutineScope.launch { listState.animateScrollToItem(index = 0) }
-                    }
+            onIsSearchBarInit(true)
+        }
+    }
+
+    /* Handle isSearchBar disabled effects */
+    LaunchedEffect(isSearchBar) {
+        if (!isSearchBar) {
+            onIsSearchBarInit(false)
+            delay(Timing.MENU_COLLAPSE.toLong())
+
+            if (isUserSearch) {
+                onUserSearchChange("")
+                if (!isAtTop) {
+                    coroutineScope.launch { listState.animateScrollToItem(index = 0) }
                 }
             }
         }
