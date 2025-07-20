@@ -154,4 +154,8 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
     fun toggleIsSearchBarInit(isSearchBarInit: Boolean) {
         _uiState.update { it.copy(isSearchBarInit = isSearchBarInit) }
     }
+
+    fun toggleIsSearchBarInitTopBar(isSearchBarInit: Boolean) {
+        _uiState.update { it.copy(isSearchBarInitTopBar = isSearchBarInit) }
+    }
 }

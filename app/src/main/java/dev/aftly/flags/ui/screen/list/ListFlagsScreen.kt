@@ -26,6 +26,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
@@ -75,6 +77,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.lerp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -127,6 +130,7 @@ fun ListFlagsScreen(
         isUserSearch = searchModel.isSearchQuery,
         onUserSearchChange = { searchModel.onSearchQueryChange(it) },
         onIsSearchBarInit = { viewModel.toggleIsSearchBarInit(it) },
+        onIsSearchBarInitTopBar = { viewModel.toggleIsSearchBarInitTopBar(it) },
         onNavigateUp = onNavigateUp,
         onCategorySelectSingle = { newSuperCategory, newSubCategory ->
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
@@ -160,6 +164,7 @@ private fun ListFlagsScreen(
     isUserSearch: Boolean,
     onUserSearchChange: (String) -> Unit,
     onIsSearchBarInit: (Boolean) -> Unit,
+    onIsSearchBarInitTopBar: (Boolean) -> Unit,
     onNavigateUp: () -> Unit,
     onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
@@ -207,6 +212,7 @@ private fun ListFlagsScreen(
     LaunchedEffect(isSearchBar) {
         if (!isSearchBar) {
             onIsSearchBarInit(false)
+            onIsSearchBarInitTopBar(false)
             delay(Timing.MENU_COLLAPSE.toLong())
 
             if (isUserSearch) {
@@ -263,10 +269,16 @@ private fun ListFlagsScreen(
                         onUserSearchChange(it)
                     },
                     onFocus = { isSearchBarFocused = true },
+                    onKeyboardDismiss = {
+                        focusManager.clearFocus()
+                        isSearchBarFocused = false
+                    },
                     isMenuExpanded = isMenuExpanded,
                     isSearchBarFocused = isSearchBarFocused,
+                    isSearchBarInit = uiState.isSearchBarInitTopBar,
                     isSearchBar = isSearchBar,
                     onIsSearchBar = { isSearchBar = !isSearchBar },
+                    onIsSearchBarInitTopBar = onIsSearchBarInitTopBar,
                     onNavigateUp = {
                         focusManager.clearFocus()
                         onNavigateUp()
@@ -499,10 +511,13 @@ private fun ListFlagsTopBar(
     isUserSearch: Boolean,
     onUserSearchChange: (String) -> Unit,
     onFocus: () -> Unit,
+    onKeyboardDismiss: () -> Unit,
     isMenuExpanded: Boolean,
     isSearchBarFocused: Boolean,
+    isSearchBarInit: Boolean,
     isSearchBar: Boolean,
     onIsSearchBar: () -> Unit,
+    onIsSearchBarInitTopBar: (Boolean) -> Unit,
     onNavigateUp: () -> Unit,
 ) {
     @StringRes val title = when (currentScreen) {
@@ -568,7 +583,8 @@ private fun ListFlagsTopBar(
                         horizontalArrangement = Arrangement.Center,
                     ) {
                         Box(
-                            modifier = Modifier.size(0.dp)
+                            modifier = Modifier
+                                .size(0.dp)
                                 .weight(boxWeight)
                         )
 
@@ -579,7 +595,8 @@ private fun ListFlagsTopBar(
                         )
 
                         Box(
-                            modifier = Modifier.size(0.dp)
+                            modifier = Modifier
+                                .size(0.dp)
                                 .weight(1f)
                         )
                     }
@@ -639,10 +656,11 @@ private fun ListFlagsTopBar(
                         focusRequesterSearch.requestFocus()
                     }
                 }
-                /* Focus search bar on visibility */
-                LaunchedEffect(isSearchBar) {
-                    if (isSearchBar) {
+                /* Focus search bar on initial visibility */
+                if (isSearchBar && !isSearchBarInit) {
+                    LaunchedEffect(Unit) {
                         focusRequesterSearch.requestFocus()
+                        onIsSearchBarInitTopBar(true)
                     }
                 }
                 /* Focus search bar on menu collapse if previously focused */
@@ -655,7 +673,8 @@ private fun ListFlagsTopBar(
                 Box {
                     /* Background for TextField as clipping issues when setting size directly */
                     Surface(
-                        modifier = Modifier.offset(y = textFieldOffset)
+                        modifier = Modifier
+                            .offset(y = textFieldOffset)
                             .fillMaxWidth()
                             .padding(
                                 end = Dimens.marginHorizontal16 - textFieldOffset,
@@ -727,6 +746,9 @@ private fun ListFlagsTopBar(
                                 }
                             }
                         },
+                        keyboardActions = KeyboardActions(
+                            onDone = { onKeyboardDismiss() }
+                        ),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.Transparent,
                             unfocusedContainerColor = Color.Transparent,
