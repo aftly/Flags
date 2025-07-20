@@ -2968,7 +2968,7 @@ data object DataSource {
             id = 112,
             wikipediaUrlPath = R.string.georgia_wikipedia_url_path,
             image = R.drawable.flag_of_georgia,
-            imagePreview = R.drawable.flag_of_georgia,
+            imagePreview = R.drawable.flag_of_georgia_preview,
             flagOf = R.string.georgia,
             flagOfOfficial = R.string.georgia_official,
             flagOfAlternate = listOf(
