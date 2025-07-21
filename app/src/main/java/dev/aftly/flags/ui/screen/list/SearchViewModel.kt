@@ -16,6 +16,7 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.ui.util.getFlagsByCategory
 import dev.aftly.flags.ui.util.getFlagsFromCategories
+import dev.aftly.flags.ui.util.getRelatedFlags
 import dev.aftly.flags.ui.util.getSuperCategories
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
@@ -28,6 +29,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -43,8 +45,9 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     var isSearchQuery by mutableStateOf(value = false)
         private set
 
-    /* Holds first item in sorted list if searchQuery is exact match */
+    /* Holds flag of exact searchQuery match and it's related flags for list sorting */
     private var firstItem by mutableStateOf<FlagResources?>(value = null)
+    private var relatedFlags by mutableStateOf<List<FlagResources>>(value = emptyList())
 
     /* Flows for combining in searchResults */
     private val flagsFlow = uiState.map { it.currentFlags }
@@ -247,11 +250,19 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                             return@let false
                         }
                     )
+                }.let { results ->
+                    /* When there is an exact match (firstItem) get it's related flags */
+                    firstItem?.let { flag ->
+                        relatedFlags = getRelatedFlags(flag, application)
+                    }
+                    return@let results
                 }.sortedWith { p1, p2 ->
                     /* When firstItem is in list, sort it to first position, else no sorting */
                     when {
-                        p1 == firstItem && p2 != firstItem -> -1
-                        p1 != firstItem && p2 == firstItem -> 1
+                        p1 == firstItem -> -1
+                        p2 == firstItem -> 1
+                        p1 in relatedFlags && p2 !in relatedFlags -> -1
+                        p1 !in relatedFlags && p2 in relatedFlags -> 1
                         else -> 0
                     }
                 }
