@@ -41,6 +41,7 @@ class GameHistoryViewModel(
             it.copy(
                 scoreDetails = scoreItem?.toScoreData(
                     flagsGuessedSorted = sortFlags(scoreItem.flagsGuessed),
+                    flagsSkippedGuessedSorted = sortFlags(scoreItem.flagsSkippedGuessed),
                     flagsSkippedSorted = sortFlags(scoreItem.flagsSkipped),
                     flagsShownSorted = sortFlags(scoreItem.flagsShown),
                 ),

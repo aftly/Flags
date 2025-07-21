@@ -215,7 +215,8 @@
     <string name="game_score_details_time_date_connector">,\ </string>
     <string name="game_score_details_time_date_separator">\n</string>
     <string name="game_score_details_guessed">Flags guessed (%d)</string>
-    <string name="game_score_details_skipped">Flags skipped (%d)</string>
+    <string name="game_score_details_skipped_guessed">Flags skipped + guessed (%d)</string>
+    <string name="game_score_details_skipped">Flags skipped + not guessed (%d)</string>
     <string name="game_score_details_shown">Flags shown (%d)</string>
     <string name="game_score_details_remainder">Remaining flags (%d)</string>
     <string name="game_time_trial_title">Time trial</string>

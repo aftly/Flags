@@ -25,6 +25,8 @@ class ScoreData(
     val flagsAll: List<FlagResources>,
     val flagsGuessed: List<FlagResources>,
     flagsGuessedSorted: List<FlagResources>,
+    val flagsSkippedGuessed: List<FlagResources>,
+    flagsSkippedGuessedSorted: List<FlagResources>,
     val flagsSkipped: List<FlagResources>,
     flagsSkippedSorted: List<FlagResources>,
     val flagsShown: List<FlagResources>,
@@ -58,6 +60,10 @@ class ScoreData(
             list = flagsGuessed,
             sortedList = flagsGuessedSorted,
         ),
+        SkippedGuessedFlags(
+            list = flagsSkippedGuessed,
+            sortedList = flagsSkippedGuessedSorted,
+        ),
         SkippedFlags(
             list = flagsSkipped,
             sortedList = flagsSkippedSorted,
@@ -85,11 +91,13 @@ class ScoreData(
         gameSubCategories = gameSubCategories,
         flagsAll = flagsAll,
         flagsGuessed = flagsGuessed,
+        flagsSkippedGuessed = flagsSkippedGuessed,
         flagsSkipped = flagsSkipped,
         flagsShown = flagsShown,
     )
 
-    fun isScoresEmpty() = flagsGuessed.isEmpty() && flagsSkipped.isEmpty() && flagsShown.isEmpty()
+    fun isScoresEmpty() = flagsGuessed.isEmpty() && flagsSkippedGuessed.isEmpty() &&
+            flagsSkipped.isEmpty() && flagsShown.isEmpty()
 }
 
 
@@ -97,6 +105,7 @@ class ScoreData(
  * (needs string sorting, so eg. call from ViewModel) */
 fun ScoreItem.toScoreData(
     flagsGuessedSorted: List<FlagResources>,
+    flagsSkippedGuessedSorted: List<FlagResources>,
     flagsSkippedSorted: List<FlagResources>,
     flagsShownSorted: List<FlagResources>,
 ): ScoreData = ScoreData(
@@ -110,6 +119,8 @@ fun ScoreItem.toScoreData(
     flagsAll = flagsAll,
     flagsGuessed = flagsGuessed,
     flagsGuessedSorted = flagsGuessedSorted,
+    flagsSkippedGuessed = flagsSkippedGuessed,
+    flagsSkippedGuessedSorted = flagsSkippedGuessedSorted,
     flagsSkipped = flagsSkipped,
     flagsSkippedSorted = flagsSkippedSorted,
     flagsShown = flagsShown,
@@ -149,6 +160,11 @@ abstract class TitledList(
 )
 
 class GuessedFlags(
+    list: List<FlagResources>,
+    sortedList: List<FlagResources>,
+) : TitledList(list, sortedList)
+
+class SkippedGuessedFlags(
     list: List<FlagResources>,
     sortedList: List<FlagResources>,
 ) : TitledList(list, sortedList)

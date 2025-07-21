@@ -38,6 +38,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     val uiState = _uiState.asStateFlow()
 
     private var guessedFlags = mutableListOf<FlagResources>()
+    private var skippedGuessedFlags = mutableListOf<FlagResources>()
     private var skippedFlags = mutableListOf<FlagResources>()
     private var shownFlags = mutableListOf<FlagResources>()
 
@@ -69,6 +70,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         initTimeTrial: Boolean = false,
     ) {
         guessedFlags = mutableListOf()
+        skippedGuessedFlags = mutableListOf()
         skippedFlags = mutableListOf()
         shownFlags = mutableListOf()
         userGuess = ""
@@ -413,8 +415,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         } else { /* If user guess, add flag to guessed set */
             if (!isShowAnswer) guessedFlags.add(currentFlag)
 
-            /* If flag in skippedList, remove it */
-            if (currentFlag in skippedFlags) skippedFlags.remove(currentFlag)
+            /* If flag in skipped list, move it into skippedGuessed list */
+            if (currentFlag in skippedFlags) {
+                skippedFlags.remove(currentFlag)
+                if (!isShowAnswer) skippedGuessedFlags.add(currentFlag)
+            }
         }
 
         /* If all flags guessed, end the game */
@@ -541,6 +546,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             flagsAll = uiState.value.currentFlags,
             flagsGuessed = guessedFlags.toList(),
             flagsGuessedSorted = sortFlags(guessedFlags),
+            flagsSkippedGuessed = skippedGuessedFlags.toList(),
+            flagsSkippedGuessedSorted = sortFlags(skippedGuessedFlags),
             flagsSkipped = skippedFlags.toList(),
             flagsSkippedSorted = sortFlags(skippedFlags),
             flagsShown = shownFlags.toList(),
@@ -566,7 +573,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     /* Remove redundant super categories for ScoreData */
     private fun getScoreDataSupers(): List<FlagSuperCategory> {
-        val subCategories = uiState.value.currentSubCategories ?: emptyList()
+        val subCategories = uiState.value.currentSubCategories
 
         return uiState.value.currentSuperCategories.filterNot { superCategory ->
             superCategory.enums().any { it in subCategories }
@@ -582,7 +589,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     /* Remove redundant sub categories for ScoreData */
     private fun getScoreDataSubs(): List<FlagCategory> {
-        return uiState.value.currentSubCategories ?: emptyList()
+        return uiState.value.currentSubCategories
         // TODO
         /*
         return uiState.value.currentSubCategories?.let { currentSubCategories ->

@@ -67,6 +67,7 @@ import dev.aftly.flags.model.RemainderFlags
 import dev.aftly.flags.model.ScoreData
 import dev.aftly.flags.model.ShownFlags
 import dev.aftly.flags.model.SkippedFlags
+import dev.aftly.flags.model.SkippedGuessedFlags
 import dev.aftly.flags.model.TimeMode
 import dev.aftly.flags.model.TimeOverview
 import dev.aftly.flags.model.TitledList
@@ -570,6 +571,8 @@ private fun ScoresItem(
     val scoreTitle = when (scoreDetails) {
         is GuessedFlags ->
             stringResource(R.string.game_score_details_guessed, scoreDetails.list.size)
+        is SkippedGuessedFlags ->
+            stringResource(R.string.game_score_details_skipped_guessed, scoreDetails.list.size)
         is SkippedFlags ->
             stringResource(R.string.game_score_details_skipped, scoreDetails.list.size)
         is ShownFlags ->
