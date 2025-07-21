@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -257,7 +256,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     }
                     return@let results
                 }.sortedWith { p1, p2 ->
-                    /* When firstItem is in list, sort it to first position, else no sorting */
+                    /* Sort list starting with firstItem, then elements in relatedFlags, then else */
                     when {
                         p1 == firstItem -> -1
                         p2 == firstItem -> 1
