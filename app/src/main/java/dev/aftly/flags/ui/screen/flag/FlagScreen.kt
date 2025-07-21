@@ -133,8 +133,6 @@ private fun FlagScreen(
      * Also for FilterFlagsButton to access Scaffold() padding */
     var buttonExpanded by rememberSaveable { mutableStateOf(value = false) }
     var scaffoldPaddingValues by remember { mutableStateOf(value = PaddingValues()) }
-    var scaffoldTopPadding by remember { mutableStateOf(value = 0.dp) }
-    var scaffoldBottomPadding by remember { mutableStateOf(value = 0.dp) }
     var buttonOffset by remember { mutableStateOf(value = Offset(x = 0f, y = 0f)) }
     var buttonWidth by remember { mutableIntStateOf(value = 0) }
 
@@ -157,8 +155,6 @@ private fun FlagScreen(
             }
         ) { scaffoldPadding ->
             scaffoldPaddingValues = scaffoldPadding
-            scaffoldTopPadding = scaffoldPadding.calculateTopPadding()
-            scaffoldBottomPadding = scaffoldPadding.calculateBottomPadding()
 
             FlagContent(
                 modifier = Modifier.padding(scaffoldPadding),
