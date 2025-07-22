@@ -18,6 +18,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -68,8 +69,7 @@ import kotlinx.coroutines.launch
 fun SettingsScreen(
     viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory),
     screen: Screen,
-    canNavigateBack: Boolean,
-    onNavigateUp: () -> Unit,
+    onNavigationDrawer: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val view = LocalView.current
@@ -82,7 +82,6 @@ fun SettingsScreen(
     SettingsScreen(
         uiState = uiState,
         screen = screen,
-        canNavigateBack = canNavigateBack,
         onCheckDynamicColor = { viewModel.saveDynamicColor(it) },
         onClickTheme = {
             viewModel.saveTheme(it)
@@ -94,7 +93,7 @@ fun SettingsScreen(
                 )
             }
         },
-        onNavigateUp = onNavigateUp,
+        onNavigationDrawer = onNavigationDrawer,
     )
 }
 
@@ -104,10 +103,9 @@ private fun SettingsScreen(
     modifier: Modifier = Modifier,
     uiState: SettingsUiState,
     screen: Screen,
-    canNavigateBack: Boolean,
     onCheckDynamicColor: (Boolean) -> Unit,
     onClickTheme: (AppTheme) -> Unit,
-    onNavigateUp: () -> Unit,
+    onNavigationDrawer: () -> Unit,
 ) {
     var isThemeDialog by remember { mutableStateOf(value = false) }
     if (isThemeDialog) {
@@ -124,8 +122,7 @@ private fun SettingsScreen(
         topBar = {
             SettingsTopBar(
                 screen = screen,
-                canNavigateBack = canNavigateBack,
-                onNavigateUp = onNavigateUp,
+                onNavigationDrawer = onNavigationDrawer,
             )
         },
     ) { scaffoldPadding ->
@@ -479,12 +476,8 @@ private fun ThemeDialog(
 private fun SettingsTopBar(
     modifier: Modifier = Modifier,
     screen: Screen,
-    canNavigateBack: Boolean,
-    onNavigateUp: () -> Unit,
+    onNavigationDrawer: () -> Unit,
 ) {
-    /* Ensures navigationIcon persists throughout the lifecycle */
-    val canNavigateBackStatic by remember { mutableStateOf(canNavigateBack) }
-
     TopAppBar(
         title = {
             screen.title?.let {
@@ -497,13 +490,11 @@ private fun SettingsTopBar(
         },
         modifier = modifier,
         navigationIcon = {
-            if (canNavigateBackStatic) {
-                IconButton(onClick = onNavigateUp) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                        contentDescription = "back",
-                    )
-                }
+            IconButton(onClick = onNavigationDrawer) {
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = stringResource(R.string.navigation_drawer_content_description),
+                )
             }
         },
     )

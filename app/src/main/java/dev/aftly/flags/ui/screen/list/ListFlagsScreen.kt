@@ -27,10 +27,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -77,7 +77,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.lerp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -106,7 +105,7 @@ fun ListFlagsScreen(
     viewModel: ListFlagsViewModel = viewModel(),
     searchModel: SearchViewModel = viewModel(),
     screen: Screen,
-    onNavigateUp: () -> Unit,
+    onNavigationDrawer: () -> Unit,
     onNavigateDetails: (Int, List<Int>) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -131,7 +130,7 @@ fun ListFlagsScreen(
         onUserSearchChange = { searchModel.onSearchQueryChange(it) },
         onIsSearchBarInit = { viewModel.toggleIsSearchBarInit(it) },
         onIsSearchBarInitTopBar = { viewModel.toggleIsSearchBarInitTopBar(it) },
-        onNavigateUp = onNavigateUp,
+        onNavigationDrawer = onNavigationDrawer,
         onCategorySelectSingle = { newSuperCategory, newSubCategory ->
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
             searchModel.updateCurrentCategory(newSuperCategory, newSubCategory) // TODO
@@ -165,7 +164,7 @@ private fun ListFlagsScreen(
     onUserSearchChange: (String) -> Unit,
     onIsSearchBarInit: (Boolean) -> Unit,
     onIsSearchBarInitTopBar: (Boolean) -> Unit,
-    onNavigateUp: () -> Unit,
+    onNavigationDrawer: () -> Unit,
     onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onFlagSelect: (FlagResources) -> Unit,
@@ -279,10 +278,16 @@ private fun ListFlagsScreen(
                     isSearchBar = isSearchBar,
                     onIsSearchBar = { isSearchBar = !isSearchBar },
                     onIsSearchBarInitTopBar = onIsSearchBarInitTopBar,
+                    onNavigationDrawer = {
+                        focusManager.clearFocus()
+                        onNavigationDrawer()
+                    },
+                    /*
                     onNavigateUp = {
                         focusManager.clearFocus()
                         onNavigateUp()
                     },
+                     */
                 )
             },
             floatingActionButton = {
@@ -518,7 +523,7 @@ private fun ListFlagsTopBar(
     isSearchBar: Boolean,
     onIsSearchBar: () -> Unit,
     onIsSearchBarInitTopBar: (Boolean) -> Unit,
-    onNavigateUp: () -> Unit,
+    onNavigationDrawer: () -> Unit,
 ) {
     @StringRes val title = when (currentScreen) {
         Screen.List -> Screen.StartMenu.title
@@ -606,15 +611,15 @@ private fun ListFlagsTopBar(
         modifier = modifier,
         navigationIcon = {
             IconButton(
-                onClick = onNavigateUp,
+                onClick = onNavigationDrawer,
                 modifier = Modifier.onGloballyPositioned { layout ->
                     navigationIconOffsetX = layout.positionInParent().x
                     navigationIconWidth = layout.size.width
-                }
+                },
             ) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = "back",
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = stringResource(R.string.navigation_drawer_content_description),
                 )
             }
         },

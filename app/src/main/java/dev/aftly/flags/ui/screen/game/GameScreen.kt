@@ -29,9 +29,9 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.BasicAlertDialog
@@ -115,8 +115,9 @@ fun GameScreen(
     viewModel: GameViewModel = viewModel(),
     navController: NavHostController,
     screen: Screen,
-    onNavigateUp: () -> Unit,
-    onNavigateDetails: (Boolean) -> Unit, // isGameOver Boolean
+    onNavigationDrawer: () -> Unit,
+    onExit: () -> Unit,
+    onScoreHistory: (Boolean) -> Unit, // isGameOver Boolean
     onFullscreen: (Int, Boolean, Boolean) -> Unit,
 ) {
     /* Expose screen and backStack state */
@@ -169,7 +170,7 @@ fun GameScreen(
             },
             onScoreHistory = {
                 viewModel.toggleGameOverDialog(on = false)
-                onNavigateDetails(uiState.isGameOver)
+                onScoreHistory(uiState.isGameOver)
             },
             onShare = { text ->
                 shareText(
@@ -180,7 +181,7 @@ fun GameScreen(
             },
             onExit = {
                 viewModel.toggleGameOverDialog(on = false)
-                onNavigateUp()
+                onExit()
             },
             onReplay = { viewModel.resetGame() },
         )
@@ -203,8 +204,8 @@ fun GameScreen(
         onToggleTimeTrial = { viewModel.toggleTimeTrialDialog() },
         onStartGame = { viewModel.startGame() },
         onEndGame = { viewModel.endGame() },
-        onNavigateUp = onNavigateUp,
-        onScoreHistory = { onNavigateDetails(uiState.isGameOver) },
+        onNavigationDrawer = onNavigationDrawer,
+        onScoreHistory = { onScoreHistory(uiState.isGameOver) },
         onFullscreen = onFullscreen,
         onCategorySelectSingle = { newSuperCategory, newSubCategory ->
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
@@ -231,7 +232,7 @@ private fun GameScreen(
     onToggleTimeTrial: () -> Unit,
     onStartGame: () -> Unit,
     onEndGame: () -> Unit,
-    onNavigateUp: () -> Unit,
+    onNavigationDrawer: () -> Unit,
     onScoreHistory: () -> Unit,
     onFullscreen: (Int, Boolean, Boolean) -> Unit,
     onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
@@ -296,9 +297,9 @@ private fun GameScreen(
                     isFlags = uiState.currentFlags.isNotEmpty(),
                     isTimerPaused = uiState.isTimerPaused,
                     timer = timerString,
-                    onNavigateUp = {
+                    onNavigationDrawer = {
                         focusManager.clearFocus()
-                        onNavigateUp()
+                        onNavigationDrawer()
                     },
                     onScoreHistory = {
                         focusManager.clearFocus()
@@ -1169,7 +1170,7 @@ private fun GameTopBar(
     isFlags: Boolean,
     isTimerPaused: Boolean,
     timer: String = "0:00",
-    onNavigateUp: () -> Unit,
+    onNavigationDrawer: () -> Unit,
     onScoreHistory: () -> Unit,
     onAction: () -> Unit,
 ) {
@@ -1185,10 +1186,10 @@ private fun GameTopBar(
         },
         modifier = modifier,
         navigationIcon = {
-            IconButton(onClick = onNavigateUp) {
+            IconButton(onClick = onNavigationDrawer) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = "back",
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = stringResource(R.string.navigation_drawer_content_description),
                 )
             }
         },

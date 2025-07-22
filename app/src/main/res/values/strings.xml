@@ -237,6 +237,7 @@
     <string name="menu_sub_icon_expand">expand sub-menu</string>
     <string name="menu_sub_icon_collapse">collapse sub-menu</string>
     <string name="multi_select_no_results_description">Try selecting less or different categories</string>
+    <string name="navigation_drawer_content_description">App menu</string>
     <string name="no_flags_found">No flags found</string>
     <string name="no_score_history">No score history</string>
     <string name="search_bar_placeholder">Search flags</string>
