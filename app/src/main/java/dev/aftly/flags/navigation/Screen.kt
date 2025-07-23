@@ -9,11 +9,6 @@ sealed class Screen(
     @StringRes val title: Int? = null,
     @StringRes val description: Int? = null,
 ) {
-    data object StartMenu : Screen(
-        route = "start_menu_screen",
-        title = R.string.start_menu_title,
-    )
-
     data object List : Screen(
         route = "list_screen",
         title = R.string.list_title,
@@ -43,4 +38,26 @@ sealed class Screen(
         route = "settings_screen",
         title = R.string.settings_title,
     )
+
+
+    enum class Menu { LIST, GAME, SETTINGS }
+
+    fun getMenuOrNull(): Menu? = when (this) {
+        List -> Menu.LIST
+        Game -> Menu.GAME
+        Settings -> Menu.SETTINGS
+        else -> null
+    }
+
+    companion object {
+        fun getScreenFromRoute(route: String?): Screen? = when (route) {
+            List.route -> List
+            Flag.route -> Flag
+            Game.route -> Game
+            GameHistory.route -> GameHistory
+            Fullscreen.route -> Fullscreen
+            Settings.route -> Settings
+            else -> null
+        }
+    }
 }

@@ -181,6 +181,7 @@
     <string name="error">Error</string>
     <string name="flag">flag</string>
     <string name="flags">flags</string>
+    <string name="flags_of_the_world">"Flags of the World"</string>
     <string name="game_title">Game</string>
     <string name="game_description">Guess names of flags from their pictures</string>
     <string name="game_button_submit">Submit</string>
@@ -261,7 +262,6 @@
     <string name="settings_about_privacy_policy_description">This app doesn\'t collect or store any personal info</string>
     <string name="settings_about_app_version_title">App version</string>
     <string name="settings_about_app_version_description">%s</string>
-    <string name="start_menu_title">"Flags of the World"</string>
     <string name="string_a">a</string>
     <string name="string_and">and</string>
     <string name="string_and_a">and a</string>

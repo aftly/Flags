@@ -14,12 +14,19 @@ import dev.aftly.flags.ui.AppViewModelProvider
 import dev.aftly.flags.ui.theme.AppTheme
 import dev.aftly.flags.ui.util.LocalOrientationController
 import dev.aftly.flags.ui.util.OrientationController
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        val userPrefs = (application as FlagsApplication).container.userPreferencesRepository
+        AppViewModelProvider.initThemePreference = runBlocking { userPrefs.theme.first() }
+        AppViewModelProvider.initIsDynamicColor = runBlocking { userPrefs.isDynamicColor.first() }
+
         enableEdgeToEdge()
+        super.onCreate(savedInstanceState)
+
         setContent {
             val viewModel: MainActivityViewModel = viewModel(factory = AppViewModelProvider.Factory)
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()

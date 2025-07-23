@@ -2,6 +2,7 @@ package dev.aftly.flags.ui.theme
 
 import android.app.Activity
 import android.os.Build
+import androidx.annotation.StringRes
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -13,6 +14,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import dev.aftly.flags.R
 import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.SystemUiController
 
@@ -134,6 +136,20 @@ private val BlackColorScheme = darkColorScheme(
 )
 
 
+enum class AppThemePreference(@StringRes val title: Int) {
+    SYSTEM (title = R.string.settings_theme_system),
+    SYSTEM_BLACK (title = R.string.settings_theme_system_black),
+    LIGHT (title = R.string.settings_theme_light),
+    DARK (title = R.string.settings_theme_dark),
+    BLACK (title = R.string.settings_theme_black);
+
+    companion object {
+        fun get(theme: String?): AppThemePreference =
+            entries.firstOrNull { it.name == theme } ?: SYSTEM
+    }
+}
+
+
 @Composable
 fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -144,10 +160,11 @@ fun AppTheme(
 ) {
     /* Initialize system bars colors if theme != system theme */
     val view = LocalView.current
+    val window = (view.context as Activity).window
+
     LaunchedEffect(initSystemBarsIsLight) {
         if (initSystemBarsIsLight != null) {
-            SystemUiController(view, (view.context as Activity).window)
-                .setLightStatusBar(light = initSystemBarsIsLight)
+            SystemUiController(view, window).setLightStatusBar(light = initSystemBarsIsLight)
         }
     }
 

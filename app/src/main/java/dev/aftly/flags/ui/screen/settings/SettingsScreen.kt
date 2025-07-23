@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.BasicAlertDialog
@@ -54,11 +53,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.SOURCE_URL
-import dev.aftly.flags.model.AppTheme
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.AppViewModelProvider
 import dev.aftly.flags.ui.component.DialogActionButton
 import dev.aftly.flags.ui.component.openWebLink
+import dev.aftly.flags.ui.theme.AppThemePreference
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.util.SystemUiController
 import kotlinx.coroutines.delay
@@ -104,7 +103,7 @@ private fun SettingsScreen(
     uiState: SettingsUiState,
     screen: Screen,
     onCheckDynamicColor: (Boolean) -> Unit,
-    onClickTheme: (AppTheme) -> Unit,
+    onClickTheme: (AppThemePreference) -> Unit,
     onNavigationDrawer: () -> Unit,
 ) {
     var isThemeDialog by remember { mutableStateOf(value = false) }
@@ -141,7 +140,7 @@ private fun SettingsScreen(
 private fun SettingsContent(
     modifier: Modifier = Modifier,
     isDynamicColor: Boolean,
-    theme: AppTheme,
+    theme: AppThemePreference,
     onThemeDialog: () -> Unit,
     onCheckDynamicColor: (Boolean) -> Unit,
 ) {
@@ -173,12 +172,16 @@ private fun SettingsContent(
 private fun ColorsSettings(
     halfMarginPadding: Dp,
     isDynamicColor: Boolean,
-    theme: AppTheme,
+    theme: AppThemePreference,
     onCheckDynamicColor: (Boolean) -> Unit,
     onThemeDialog: () -> Unit,
 ) {
     val isApi30 = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-
+    val isDynamicColorsSettingEnabled = when (theme) {
+        AppThemePreference.SYSTEM_BLACK -> false
+        AppThemePreference.BLACK -> false
+        else -> true
+    }
 
     /* Theme section label */
     SettingsLabel(
@@ -190,6 +193,7 @@ private fun ColorsSettings(
     if (isApi30) {
         Surface(
             onClick = { onCheckDynamicColor(!isDynamicColor) },
+            enabled = isDynamicColorsSettingEnabled,
             shape = MaterialTheme.shapes.medium,
         ) {
             Row(
@@ -201,12 +205,14 @@ private fun ColorsSettings(
                 SettingsBody(
                     modifier = Modifier.weight(1f),
                     title = R.string.settings_dynamic_colors_title,
+                    color = if (isDynamicColorsSettingEnabled) Color.Unspecified else Color.Gray,
                     description = R.string.settings_dynamic_colors_description,
                 )
 
                 Switch(
                     checked = isDynamicColor,
                     onCheckedChange = { onCheckDynamicColor(it) },
+                    enabled = isDynamicColorsSettingEnabled,
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
                         checkedTrackColor = MaterialTheme.colorScheme.primary,
@@ -333,11 +339,13 @@ private fun SettingsBody(
     modifier: Modifier = Modifier,
     @StringRes title: Int,
     @StringRes description: Int,
+    color: Color = Color.Unspecified,
     descriptionFormatArg: String? = null,
 ) {
     Column(modifier = modifier) {
         Text(
             text = stringResource(title),
+            color = color,
             fontWeight = FontWeight.Bold,
             lineHeight = 12.sp,
         )
@@ -345,12 +353,14 @@ private fun SettingsBody(
         if (descriptionFormatArg == null) {
             Text(
                 text = stringResource(description),
+                color = color,
                 fontSize = 14.sp,
                 lineHeight = 12.sp,
             )
         } else {
             Text(
                 text = stringResource(description, descriptionFormatArg),
+                color = color,
                 fontSize = 14.sp,
                 lineHeight = 12.sp,
             )
@@ -362,9 +372,9 @@ private fun SettingsBody(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ThemeDialog(
-    theme: AppTheme,
+    theme: AppThemePreference,
     isDynamicColor: Boolean,
-    onOptionSelected: (AppTheme) -> Unit,
+    onOptionSelected: (AppThemePreference) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val fullPadding = Dimens.large24
@@ -397,7 +407,7 @@ private fun ThemeDialog(
                         )
                         .selectableGroup()
                 ) {
-                    val radioOptions = AppTheme.entries
+                    val radioOptions = AppThemePreference.entries
 
                     radioOptions.forEach { themeOption ->
                         Box(
@@ -405,8 +415,8 @@ private fun ThemeDialog(
                                 .selectable(
                                     selected = (themeOption == theme),
                                     enabled = when (themeOption) {
-                                        AppTheme.SYSTEM_BLACK -> !isDynamicColor
-                                        AppTheme.BLACK -> !isDynamicColor
+                                        AppThemePreference.SYSTEM_BLACK -> !isDynamicColor
+                                        AppThemePreference.BLACK -> !isDynamicColor
                                         else -> true
                                     },
                                     onClick = {
@@ -429,8 +439,8 @@ private fun ThemeDialog(
                                 Text(
                                     text = stringResource(themeOption.title),
                                     color = when (isDynamicColor to themeOption) {
-                                        true to AppTheme.SYSTEM_BLACK -> disabledTextColor
-                                        true to AppTheme.BLACK -> disabledTextColor
+                                        true to AppThemePreference.SYSTEM_BLACK -> disabledTextColor
+                                        true to AppThemePreference.BLACK -> disabledTextColor
                                         else -> Color.Unspecified
                                     }
                                 )
@@ -439,8 +449,8 @@ private fun ThemeDialog(
                                     selected = (themeOption == theme),
                                     onClick = null,
                                     enabled = when (themeOption) {
-                                        AppTheme.SYSTEM_BLACK -> !isDynamicColor
-                                        AppTheme.BLACK -> !isDynamicColor
+                                        AppThemePreference.SYSTEM_BLACK -> !isDynamicColor
+                                        AppThemePreference.BLACK -> !isDynamicColor
                                         else -> true
                                     },
                                 )

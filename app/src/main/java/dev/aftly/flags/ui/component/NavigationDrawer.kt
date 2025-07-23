@@ -6,8 +6,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -15,14 +18,17 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import dev.aftly.flags.R
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.theme.Dimens
 
 @Composable
 fun AppNavigationDrawer(
     drawerState: DrawerState,
-    currentBackStackEntryRoute: String?,
+    currentScreen: Screen?,
     onClose: () -> Unit,
     onNavigateDetails: (Screen) -> Unit,
     content: @Composable () -> Unit,
@@ -36,21 +42,27 @@ fun AppNavigationDrawer(
                 ) {
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = "Flags",
+                        text = stringResource(R.string.app_name),
                         modifier = Modifier.padding(Dimens.medium16),
-                        style = MaterialTheme.typography.titleLarge
+                        fontWeight = FontWeight.Medium,
+                        style = MaterialTheme.typography.titleLarge,
                     )
 
                     HorizontalDivider(modifier = Modifier.padding(vertical = Dimens.small8))
 
                     NavigationDrawerItem(
-                        label = { Text(text = "View") },
-                        selected = when (currentBackStackEntryRoute) {
-                            Screen.List.route -> true
+                        label = {
+                            Text(
+                                text = Screen.List.title?.let { stringResource(it) } ?: "",
+                                fontWeight = FontWeight.Medium,
+                            )
+                        },
+                        selected = when (currentScreen) {
+                            Screen.List -> true
                             else -> false
                         },
                         onClick = {
-                            if (currentBackStackEntryRoute != Screen.List.route) {
+                            if (currentScreen != Screen.List) {
                                 onNavigateDetails(Screen.List)
                             }
                             onClose()
@@ -58,10 +70,18 @@ fun AppNavigationDrawer(
                     )
 
                     NavigationDrawerItem(
-                        label = { Text(text = "Game") },
-                        selected = currentBackStackEntryRoute?.contains(Screen.Game.route) == true,
+                        label = {
+                            Text(
+                                text = Screen.Game.title?.let { stringResource(it) } ?: "",
+                                fontWeight = FontWeight.Medium,
+                            )
+                        },
+                        selected = when (currentScreen) {
+                            Screen.Game -> true
+                            else -> false
+                        },
                         onClick = {
-                            if (currentBackStackEntryRoute?.contains(Screen.Game.route) == false) {
+                            if (currentScreen != Screen.Game) {
                                 onNavigateDetails(Screen.Game)
                             }
                             onClose()
@@ -71,13 +91,21 @@ fun AppNavigationDrawer(
                     HorizontalDivider(modifier = Modifier.padding(vertical = Dimens.small8))
 
                     NavigationDrawerItem(
-                        label = { Text(text = "Settings") },
-                        selected = when (currentBackStackEntryRoute) {
-                            Screen.Settings.route -> true
+                        label = {
+                            Text(
+                                text = Screen.Settings.title?.let { stringResource(it) } ?: "",
+                                fontWeight = FontWeight.Medium,
+                            )
+                        },
+                        selected = when (currentScreen) {
+                            Screen.Settings -> true
                             else -> false
                         },
+                        icon = {
+                            Icon(imageVector = Icons.Default.Settings, contentDescription = null)
+                        },
                         onClick = {
-                            if (currentBackStackEntryRoute != Screen.Settings.route) {
+                            if (currentScreen != Screen.Settings) {
                                 onNavigateDetails(Screen.Settings)
                             }
                             onClose()

@@ -7,11 +7,19 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.MainActivityViewModel
 import dev.aftly.flags.ui.screen.settings.SettingsViewModel
+import dev.aftly.flags.ui.theme.AppThemePreference
 
 object AppViewModelProvider {
+    var initThemePreference: AppThemePreference? = null
+    var initIsDynamicColor: Boolean? = null
+
     val Factory = viewModelFactory {
         initializer {
-            MainActivityViewModel(flagsApplication().container.userPreferencesRepository)
+            MainActivityViewModel(
+                userPreferencesRepository = flagsApplication().container.userPreferencesRepository,
+                initThemePreference = initThemePreference,
+                initIsDynamicColor = initIsDynamicColor,
+            )
         }
 
         initializer {

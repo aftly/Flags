@@ -1,6 +1,5 @@
 package dev.aftly.flags.ui.screen.list
 
-import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
@@ -28,7 +27,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
@@ -76,8 +74,11 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.lerp
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
@@ -88,7 +89,6 @@ import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
-import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.CategoriesButtonMenu
 import dev.aftly.flags.ui.component.NoResultsFound
 import dev.aftly.flags.ui.component.ResultsType
@@ -104,7 +104,6 @@ import kotlinx.coroutines.launch
 fun ListFlagsScreen(
     viewModel: ListFlagsViewModel = viewModel(),
     searchModel: SearchViewModel = viewModel(),
-    screen: Screen,
     onNavigationDrawer: () -> Unit,
     onNavigateDetails: (Int, List<Int>) -> Unit,
 ) {
@@ -124,7 +123,6 @@ fun ListFlagsScreen(
     ListFlagsScreen(
         uiState = uiState,
         searchState = searchState,
-        screen = screen,
         userSearch = searchModel.searchQuery,
         isUserSearch = searchModel.isSearchQuery,
         onUserSearchChange = { searchModel.onSearchQueryChange(it) },
@@ -156,7 +154,6 @@ private fun ListFlagsScreen(
     modifier: Modifier = Modifier,
     uiState: ListFlagsUiState,
     searchState: List<FlagResources>,
-    screen: Screen,
     containerColor1: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     containerColor2: Color = MaterialTheme.colorScheme.secondary,
     userSearch: String,
@@ -257,7 +254,6 @@ private fun ListFlagsScreen(
                 },
             topBar = {
                 ListFlagsTopBar(
-                    currentScreen = screen,
                     scrollBehaviour = scrollBehaviour,
                     userSearch = userSearch,
                     isUserSearch = isUserSearch,
@@ -510,7 +506,6 @@ private fun ListItem(
 @Composable
 private fun ListFlagsTopBar(
     modifier: Modifier = Modifier,
-    currentScreen: Screen,
     scrollBehaviour: TopAppBarScrollBehavior,
     userSearch: String,
     isUserSearch: Boolean,
@@ -525,10 +520,22 @@ private fun ListFlagsTopBar(
     onIsSearchBarInitTopBar: (Boolean) -> Unit,
     onNavigationDrawer: () -> Unit,
 ) {
-    @StringRes val title = when (currentScreen) {
-        Screen.List -> Screen.StartMenu.title
-        Screen.StartMenu -> null
-        else -> currentScreen.title
+    val annotatedTitle = buildAnnotatedString {
+        val title = stringResource(R.string.flags_of_the_world)
+        val flags = stringResource(R.string.flags)
+        val whitespace = stringResource(R.string.string_whitespace)
+        val words: List<String> = title.split(whitespace)
+
+        words.forEachIndexed { index, word ->
+            if (word.contains(flags, ignoreCase = true)) {
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(text = word)
+                }
+            } else {
+                append(text = word)
+            }
+            if (index < words.size - 1) append(text = whitespace)
+        }
     }
 
     /* Manage TitleStyle transition between expanded (start) and collapsed (stop) TopAppBar title */
@@ -574,37 +581,32 @@ private fun ListFlagsTopBar(
 
     MediumTopAppBar(
         title = {
-            title?.let {
-                AnimatedVisibility(
-                    visible = isTopBarTitleDelay,
-                    enter = expandHorizontally(
-                        animationSpec = tween(durationMillis = Timing.MENU_EXPAND * 2),
-                        expandFrom = Alignment.Start,
-                    ),
-                    exit = ExitTransition.None,
+            AnimatedVisibility(
+                visible = isTopBarTitleDelay,
+                enter = expandHorizontally(
+                    animationSpec = tween(durationMillis = Timing.MENU_EXPAND * 2),
+                    expandFrom = Alignment.Start,
+                ),
+                exit = ExitTransition.None,
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(0.dp)
-                                .weight(boxWeight)
-                        )
+                    Box(modifier = Modifier
+                        .size(0.dp)
+                        .weight(boxWeight)
+                    )
 
-                        Text(
-                            text = stringResource(it),
-                            style = titleStyle,
-                            fontWeight = FontWeight.Bold
-                        )
+                    Text(
+                        text = annotatedTitle,
+                        style = titleStyle,
+                    )
 
-                        Box(
-                            modifier = Modifier
-                                .size(0.dp)
-                                .weight(1f)
-                        )
-                    }
+                    Box(modifier = Modifier
+                        .size(0.dp)
+                        .weight(1f)
+                    )
                 }
             }
         },

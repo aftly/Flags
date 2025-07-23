@@ -10,6 +10,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -24,10 +25,18 @@ import dev.aftly.flags.ui.screen.game.GameScreen
 import dev.aftly.flags.ui.screen.gamehistory.GameHistoryScreen
 import dev.aftly.flags.ui.screen.list.ListFlagsScreen
 import dev.aftly.flags.ui.screen.settings.SettingsScreen
-import dev.aftly.flags.ui.screen.startmenu.StartMenuScreen
 import dev.aftly.flags.ui.theme.Timing
 import kotlinx.coroutines.launch
 
+
+private val gameRoute = "${Screen.Game.route}?isGameOver={isGameOver}"
+
+private fun getScreenFromBackStackEntry(
+    backStackEntry: NavBackStackEntry?
+): Screen? = when (backStackEntry?.destination?.route) {
+    gameRoute -> Screen.getScreenFromRoute(route = Screen.Game.route)
+    else -> Screen.getScreenFromRoute(route = backStackEntry?.destination?.route)
+}
 
 @Composable
 fun AppNavHost(
@@ -39,21 +48,40 @@ fun AppNavHost(
     val startDestination = Screen.List.route
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val gameRoute = "${Screen.Game.route}?isGameOver={isGameOver}"
 
     AppNavigationDrawer(
         drawerState = drawerState,
-        currentBackStackEntryRoute = currentBackStackEntry?.destination?.route,
+        currentScreen = getScreenFromBackStackEntry(currentBackStackEntry),
         onClose = {
             scope.launch { drawerState.close() }
         },
         onNavigateDetails = { screen ->
-            val route = when (screen) {
-                Screen.Game -> gameRoute
-                else -> screen
+            screen.getMenuOrNull()?.let { menu ->
+                when (menu) {
+                    Screen.Menu.LIST -> navController.popBackStack(
+                        route = screen.route,
+                        inclusive = false,
+                    )
+                    Screen.Menu.GAME ->
+                        if (navController.previousBackStackEntry?.destination?.route == gameRoute) {
+                            navController.popBackStack(
+                                route = gameRoute,
+                                inclusive = false,
+                            )
+                        } else {
+                            if (currentBackStackEntry?.destination?.route ==
+                                Screen.Settings.route) {
+                                navController.popBackStack()
+                            }
+                            navController.navigate(route = screen.route) {
+                                launchSingleTop = true
+                            }
+                        }
+                    Screen.Menu.SETTINGS -> navController.navigate(route = screen.route) {
+                        launchSingleTop = true
+                    }
+                }
             }
-
-            /* TODO navigate forwards when screen not in backstack, else popBackStack */
         },
     ) {
         NavHost(
@@ -84,25 +112,11 @@ fun AppNavHost(
                 )
             },
         ) {
-
-            /* StartMenuScreen NavGraph */
-            composable(
-                route = Screen.StartMenu.route
-            ) {
-                StartMenuScreen(
-                    screen = Screen.StartMenu,
-                    onNavigateDetails = { screen ->
-                        navController.navigate(route = screen.route) { launchSingleTop = true }
-                    },
-                )
-            }
-
             /* ListFlagsScreen NavGraph */
             composable(
                 route = Screen.List.route
             ) {
                 ListFlagsScreen(
-                    screen = Screen.List,
                     onNavigationDrawer = {
                         scope.launch {
                             when (drawerState.isClosed) {

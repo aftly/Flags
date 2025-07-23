@@ -1,8 +1,8 @@
 package dev.aftly.flags
 
-import dev.aftly.flags.model.AppTheme
+import dev.aftly.flags.ui.theme.AppThemePreference
 
 data class MainActivityUiState(
+    val theme: AppThemePreference = AppThemePreference.SYSTEM,
     val isDynamicColor: Boolean = false,
-    val theme: String = AppTheme.SYSTEM.name,
 )
