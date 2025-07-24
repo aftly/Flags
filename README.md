@@ -47,7 +47,7 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 <br>
 
  **📌 TODO:**
-- [x] ~~Create **App icon**~~
+- [x] <span style="color:gray">Create **App icon**</span>
 - [x] ~~Add **Scroll to top button** on list and search screens~~
 - [x] ~~**Fullscreen flag image screen**~~
 - [x] ~~Fullscreen view orientation relative to image aspect ratio & button for unlocking screen orientation~~
