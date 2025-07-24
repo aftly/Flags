@@ -209,7 +209,7 @@ fun AppNavHost(
                         }
                     },
                     onExit = {
-                        navController.navigate(route = Screen.List.route) { launchSingleTop = true }
+                        navController.popBackStack()
                     },
                     onScoreHistory = { isGameOver ->
                         navController.navigate(route = "${Screen.GameHistory.route}/$isGameOver")
