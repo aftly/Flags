@@ -68,21 +68,23 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [x] ~~**Game**: Score details dialog~~
 - [x] ~~**Game**: Score history screen *(with data persistence)*~~
 - [x] ~~Deselect keyboard and text fields when tap off~~
+- [x] ~~Replace start menu with navigation drawer~~
+- [x] ~~Implement basic splash screen theming~~
 - [x] Optimize app for different system Font sizes - **(Partially Complete)**
-- [ ] **More settings features**: *Eg.* Strictness of user guesses for game, disable animations for older devices
 - [ ] Save flags to custom list
 - [ ] Add more flags *(to less populated categories and more popular related flags)*
-- [ ] Update start menu buttons with (colourful) patterned backgrounds
 - [ ] Add screenshots of app to **README**
 - [ ] Add Python scripts to external repository
 - [ ] Add regime type categories (for political flags) from **OurWorldInData**
+- [ ] **More settings features**: *Eg.* Strictness of user guesses for game, disable animations for older devices
 - [ ] Download flag image to local files feature
 - [ ] Pop up warning messages when invalid/not allowed user action
 - [ ] Exportable score history *(for sharing)*
-- [ ] Add flag ISO codes
+- [ ] Add flag ISO codes?
 - [ ] Optimize app for different screen resolutions and aspect ratios
-- [ ] Implement tests and production optimizations
+- [ ] Implement production tests (and performance optimizations?)
 - [ ] Language translations
+- [ ] **Submit app to F-Droid**
 - [ ] **Release app on the Google Play Store**
 <br>
 
