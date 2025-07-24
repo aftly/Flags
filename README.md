@@ -72,6 +72,7 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [x] Implement basic **Splash screen** theming *(reflects system theme & basic app colors)*
 - [x] Optimize app for different system Font sizes - **(Partially Complete)**
 <br>
+
 - [ ] Save flags to custom list
 - [ ] Add more flags *(to less populated categories and more popular related flags)*
 - [ ] Add screenshots of app to **README**
