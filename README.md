@@ -62,7 +62,7 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [x] ~~Add **Open in Wikipedia button** to Flag screen~~
 - [x] ~~**Game**: Button to show correct answer~~
 - [x] ~~**Game over dialog** with basic score info and buttons for exit, replay, score details, history and share ~~
-- [x] ~~**Game timer** Standard and Time Trial modes~~
+- [x] ~~**Game timer** with Standard and Time Trial modes~~
 - [x] ~~**Settings screen** for Theme customisation and about info~~
 - [x] ~~**Settings data persistence** (stored in app data)~~
 - [x] ~~**Game score details** card shows basic score overview & lists of guessed, skipped, shown and remainder flags~~
