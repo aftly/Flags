@@ -47,29 +47,29 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 <br>
 
  **📌 TODO:**
-- [x] ~~Create app icon~~
-- [x] ~~Add scroll to top button on list and search screens~~
-- [x] ~~Fullscreen flag image view~~
+- [x] ~~Create **App icon**~~
+- [x] ~~Add **Scroll to top button** on list and search screens~~
+- [x] ~~**Fullscreen flag image screen**~~
 - [x] ~~Fullscreen view orientation relative to image aspect ratio & button for unlocking screen orientation~~
 - [x] ~~Searches return politically related flags~~
-- [x] ~~Search result exact match sorts item to first position in list~~
+- [x] ~~Search result exact match sorts item to first position in list, followed by related flags~~
 - [x] ~~Filter searches~~
-- [x] ~~Category multi-selection in filter menu~~
+- [x] ~~**Category multi-selection** in filter menu~~
 - [x] ~~Show and select politically related flags on flag view screen (with button in top bar)~~
-- [x] ~~Full screen carousel for flags in current list & flag name as header~~
+- [x] ~~**Full screen carousel** for flags in current list & flag name as header~~
 - [x] ~~UI Counter to show number of flags in current list on View/List screen~~
-- [x] ~~Move search function into list flags screen~~
-- [x] ~~Add open in Wikipedia button to Flag screen~~
+- [x] ~~Move search feature into list/view flags screen~~
+- [x] ~~Add **Open in Wikipedia button** to Flag screen~~
 - [x] ~~**Game**: Button to show correct answer~~
-- [x] ~~**Game**: Open card from Game Over dialog to show score overview & lists of guessed, skipped, shown and remainder flags~~
-- [x] ~~**Game**: Timer modes: Standard and Time Trial~~
+- [x] ~~**Game over dialog** with basic score info and buttons for exit, replay, score details, history and share ~~
+- [x] ~~**Game timer** Standard and Time Trial modes~~
 - [x] ~~**Settings screen** for Theme customisation and about info~~
-- [x] ~~**Settings persistence** (stored in app data)~~
-- [x] ~~**Game**: Score details dialog~~
-- [x] ~~**Game**: Score history screen *(with data persistence)*~~
+- [x] ~~**Settings data persistence** (stored in app data)~~
+- [x] ~~**Game score details** card shows basic score overview & lists of guessed, skipped, shown and remainder flags~~
+- [x] ~~**Game score history screen & data persistence** *(stored in app data)*~~
 - [x] ~~Deselect keyboard and text fields when tap off~~
-- [x] ~~Replace start menu with navigation drawer~~
-- [x] ~~Implement basic splash screen theming *(reflects system theme & basic app colors)*~~
+- [x] ~~Replace **Start menu** with **Navigation drawer**~~
+- [x] ~~Implement basic **Splash screen** theming *(reflects system theme & basic app colors)*~~
 - [x] Optimize app for different system Font sizes - **(Partially Complete)**
 - [ ] Save flags to custom list
 - [ ] Add more flags *(to less populated categories and more popular related flags)*
