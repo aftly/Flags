@@ -38,13 +38,12 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 <br>
 
 ## ⭐ Features
-- List flags by categories
+- List flags and search with text
 - View flags and description of it's entity from it's categories
-- Search for flags
-- View & Search supports (politically) related flags
-- Menu for selecting single or multiple categories
+- View & Search shows (politically) related flags
 - Flag (guessing) game
 - View score history and details
+- Filter flags (in list and game) via a categories menu
 - Settings for basic theme preferences
 <br>
 
