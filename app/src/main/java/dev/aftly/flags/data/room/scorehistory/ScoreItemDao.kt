@@ -15,6 +15,6 @@ interface ScoreItemDao {
     @Delete
     suspend fun delete(item: ScoreItem)
 
-    @Query("SELECT * from score_items ORDER BY timestamp DESC")
+    @Query(value = "SELECT * from score_items ORDER BY timestamp DESC")
     fun getAllScores(): Flow<List<ScoreItem>>
 }
