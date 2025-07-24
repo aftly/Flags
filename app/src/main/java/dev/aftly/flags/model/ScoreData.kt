@@ -2,7 +2,7 @@ package dev.aftly.flags.model
 
 import androidx.annotation.StringRes
 import dev.aftly.flags.R
-import dev.aftly.flags.data.room.ScoreItem
+import dev.aftly.flags.data.room.scorehistory.ScoreItem
 import kotlinx.serialization.Serializable
 
 

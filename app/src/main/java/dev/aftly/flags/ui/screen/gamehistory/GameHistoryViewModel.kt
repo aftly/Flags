@@ -5,7 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
-import dev.aftly.flags.data.room.ScoreItem
+import dev.aftly.flags.data.room.scorehistory.ScoreItem
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.toScoreData
 import dev.aftly.flags.ui.util.sortFlagsAlphabetically

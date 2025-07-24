@@ -1,4 +1,4 @@
-package dev.aftly.flags.data.room
+package dev.aftly.flags.data.room.scorehistory
 
 import androidx.room.Dao
 import androidx.room.Delete

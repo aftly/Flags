@@ -1,6 +1,6 @@
 package dev.aftly.flags.ui.screen.gamehistory
 
-import dev.aftly.flags.data.room.ScoreItem
+import dev.aftly.flags.data.room.scorehistory.ScoreItem
 import dev.aftly.flags.model.ScoreData
 
 data class GameHistoryUiState(

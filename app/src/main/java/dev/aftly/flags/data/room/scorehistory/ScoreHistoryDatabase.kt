@@ -1,4 +1,4 @@
-package dev.aftly.flags.data.room
+package dev.aftly.flags.data.room.scorehistory
 
 import android.content.Context
 import androidx.room.Database
@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import dev.aftly.flags.data.room.Converters
 
 @Database(entities = [ScoreItem::class], version = 2, exportSchema = false)
 @TypeConverters(Converters::class)

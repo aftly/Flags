@@ -6,9 +6,9 @@ import androidx.datastore.dataStoreFile
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import dev.aftly.flags.data.datastore.UserPreferencesRepository
-import dev.aftly.flags.data.room.OfflineScoreItemsRepository
-import dev.aftly.flags.data.room.ScoreHistoryDatabase
-import dev.aftly.flags.data.room.ScoreItemsRepository
+import dev.aftly.flags.data.room.scorehistory.OfflineScoreItemsRepository
+import dev.aftly.flags.data.room.scorehistory.ScoreHistoryDatabase
+import dev.aftly.flags.data.room.scorehistory.ScoreItemsRepository
 
 
 private const val THEME_PREFERENCES_NAME = "theme_preferences.preferences_pb"
