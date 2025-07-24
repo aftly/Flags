@@ -231,9 +231,10 @@ fun CategoriesButtonMenu(
                 colors = buttonColors2,
                 contentPadding = PaddingValues(horizontal = Dimens.medium16),
             ) {
+                @Suppress("UnusedBoxWithConstraintsScope")
                 BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
                     /* Manage dynamic spacer size for button title center alignment */
-                    val buttonWidth = maxWidth
+                    val buttonWidth = maxWidth /* (BoxWithConstraintsScope usage) */
                     var textWidth by remember { mutableStateOf(value = 0.dp) }
 
                     val iconSize = Dimens.standardIconSize24 * fontScale
@@ -304,21 +305,18 @@ fun CategoriesButtonMenu(
                             modifier = Modifier.width(flagCountWidth),
                             contentAlignment = Alignment.CenterEnd,
                         ) {
-                            if (!isMenuExpanded) {
-                                Icon(
-                                    imageVector = Icons.Default.KeyboardArrowDown,
-                                    contentDescription = stringResource(R.string.menu_icon_expand),
-                                    modifier = Modifier.size(iconSize),
-                                    tint = buttonColors1.contentColor,
-                                )
-                            } else {
-                                Icon(
-                                    imageVector = Icons.Default.KeyboardArrowUp,
-                                    contentDescription = stringResource(R.string.menu_icon_collapse),
-                                    modifier = Modifier.size(iconSize),
-                                    tint = buttonColors1.contentColor,
-                                )
-                            }
+                            Icon(
+                                imageVector = when (isMenuExpanded) {
+                                    false -> Icons.Default.KeyboardArrowDown
+                                    true -> Icons.Default.KeyboardArrowUp
+                                },
+                                contentDescription = when (isMenuExpanded) {
+                                    false -> stringResource(R.string.menu_icon_expand)
+                                    true -> stringResource(R.string.menu_icon_collapse)
+                                },
+                                modifier = Modifier.size(iconSize),
+                                tint = buttonColors1.contentColor,
+                            )
                         }
                     }
                 }
@@ -559,6 +557,7 @@ private fun MenuItemExpandable(
     /* Menu item content */
     Column(modifier = modifier.padding(bottom = lastItemPadding)) {
         /* Header content */
+        @Suppress("UnusedBoxWithConstraintsScope")
         BoxWithConstraints(
             modifier = Modifier.fillMaxWidth()
                 .padding(
@@ -603,7 +602,7 @@ private fun MenuItemExpandable(
                 ),
         ) {
             /* Manage dynamic spacer size for button title center alignment */
-            val buttonWidth = maxWidth
+            val buttonWidth = maxWidth /* (BoxWithConstraintsScope usage) */
             var textWidth by remember { mutableStateOf(value = 0.dp) }
 
             val iconSize = Dimens.standardIconSize24 * fontScale
@@ -641,35 +640,21 @@ private fun MenuItemExpandable(
                 )
 
                 /* Local state takes priority for icon shown */
-                if (isMenuExpandedLocalState == true) {
-                    MenuItemExpandableArrowIcon(
-                        modifier = superIconModifier,
-                        isExpanded = true,
-                        iconSize = iconSize,
-                        tint = buttonColors1.contentColor,
-                    )
-                } else if (isMenuExpandedLocalState == false) {
-                    MenuItemExpandableArrowIcon(
-                        modifier = superIconModifier,
-                        isExpanded = false,
-                        iconSize = iconSize,
-                        tint = buttonColors1.contentColor,
-                    )
-                } else if (isMenuExpandedParentState) {
-                    MenuItemExpandableArrowIcon(
-                        modifier = superIconModifier,
-                        isExpanded = true,
-                        iconSize = iconSize,
-                        tint = buttonColors1.contentColor,
-                    )
-                } else {
-                    MenuItemExpandableArrowIcon(
-                        modifier = superIconModifier,
-                        isExpanded = false,
-                        iconSize = iconSize,
-                        tint = buttonColors1.contentColor,
-                    )
-                }
+                MenuItemExpandableArrowIcon(
+                    modifier = superIconModifier,
+                    isExpanded =
+                        if (isMenuExpandedLocalState == true) {
+                            true
+                        } else if (isMenuExpandedLocalState == false) {
+                            false
+                        } else if (isMenuExpandedParentState) {
+                            true
+                        } else {
+                            false
+                        },
+                    iconSize = iconSize,
+                    tint = buttonColors1.contentColor,
+                )
             }
         }
 
@@ -830,9 +815,10 @@ private fun MenuItemOfSupers(
                 shape = RoundedCornerShape(0.dp),
                 colors = buttonColors2,
             ) {
+                @Suppress("UnusedBoxWithConstraintsScope")
                 BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
                     /* Manage dynamic spacer size for button title center alignment */
-                    val buttonWidth = maxWidth
+                    val buttonWidth = maxWidth /* (BoxWithConstraintsScope usage) */
                     var textWidth by remember { mutableStateOf(value = 0.dp) }
 
                     val iconSize = Dimens.standardIconSize24 * fontScale
@@ -864,23 +850,20 @@ private fun MenuItemOfSupers(
                             }
                         )
 
-                        if (isMenuExpandedLocalState ?: isSuperItemExpanded) {
-                            Icon(
-                                imageVector = Icons.Default.KeyboardArrowUp,
-                                contentDescription = stringResource(R.string.menu_sub_icon_collapse),
-                                modifier = Modifier.size(iconSize)
-                                    .padding(start = iconPadding),
-                                tint = buttonColors1.contentColor,
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.KeyboardArrowDown,
-                                contentDescription = stringResource(R.string.menu_sub_icon_expand),
-                                modifier = Modifier.size(iconSize)
-                                    .padding(start = iconPadding),
-                                tint = buttonColors1.contentColor,
-                            )
-                        }
+                        Icon(
+                            imageVector = when (isMenuExpandedLocalState ?: isSuperItemExpanded) {
+                                true -> Icons.Default.KeyboardArrowUp
+                                false -> Icons.Default.KeyboardArrowDown
+                            },
+                            contentDescription = when (isMenuExpandedLocalState
+                                ?: isSuperItemExpanded) {
+                                true -> stringResource(R.string.menu_sub_icon_collapse)
+                                false -> stringResource(R.string.menu_sub_icon_expand)
+                            },
+                            modifier = Modifier.size(iconSize)
+                                .padding(start = iconPadding),
+                            tint = buttonColors1.contentColor,
+                        )
                     }
                 }
             }
