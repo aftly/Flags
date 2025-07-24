@@ -1,12 +1,16 @@
 package dev.aftly.flags.ui.component
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Games
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.HorizontalDivider
@@ -17,7 +21,9 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -41,15 +47,26 @@ fun AppNavigationDrawer(
                         .verticalScroll(state = rememberScrollState())
                 ) {
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = stringResource(R.string.app_name),
-                        modifier = Modifier.padding(Dimens.medium16),
-                        fontWeight = FontWeight.Medium,
-                        style = MaterialTheme.typography.titleLarge,
-                    )
+
+                    /* App drawer title (App icon & name) */
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painter = painterResource(R.drawable.flags_icon_circle),
+                            contentDescription = null,
+                            modifier = Modifier.height(Dimens.defaultListItemHeight48),
+                        )
+
+                        Text(
+                            text = stringResource(R.string.app_name),
+                            modifier = Modifier.padding(Dimens.medium16),
+                            fontWeight = FontWeight.Medium,
+                            style = MaterialTheme.typography.titleLarge,
+                        )
+                    }
 
                     HorizontalDivider(modifier = Modifier.padding(vertical = Dimens.small8))
 
+                    /* List/View screen */
                     NavigationDrawerItem(
                         label = {
                             Text(
@@ -61,6 +78,12 @@ fun AppNavigationDrawer(
                             Screen.List -> true
                             else -> false
                         },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Default.List,
+                                contentDescription = null,
+                            )
+                        },
                         onClick = {
                             if (currentScreen != Screen.List) {
                                 onNavigateDetails(Screen.List)
@@ -69,6 +92,7 @@ fun AppNavigationDrawer(
                         },
                     )
 
+                    /* Game screen */
                     NavigationDrawerItem(
                         label = {
                             Text(
@@ -80,6 +104,12 @@ fun AppNavigationDrawer(
                             Screen.Game -> true
                             else -> false
                         },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Games,
+                                contentDescription = null
+                            )
+                        },
                         onClick = {
                             if (currentScreen != Screen.Game) {
                                 onNavigateDetails(Screen.Game)
@@ -90,6 +120,7 @@ fun AppNavigationDrawer(
 
                     HorizontalDivider(modifier = Modifier.padding(vertical = Dimens.small8))
 
+                    /* Settings screen */
                     NavigationDrawerItem(
                         label = {
                             Text(
@@ -102,7 +133,10 @@ fun AppNavigationDrawer(
                             else -> false
                         },
                         icon = {
-                            Icon(imageVector = Icons.Default.Settings, contentDescription = null)
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = null,
+                            )
                         },
                         onClick = {
                             if (currentScreen != Screen.Settings) {

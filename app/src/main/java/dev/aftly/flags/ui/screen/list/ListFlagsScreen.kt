@@ -131,11 +131,11 @@ fun ListFlagsScreen(
         onNavigationDrawer = onNavigationDrawer,
         onCategorySelectSingle = { newSuperCategory, newSubCategory ->
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
-            searchModel.updateCurrentCategory(newSuperCategory, newSubCategory) // TODO
+            searchModel.updateCurrentCategory(newSuperCategory, newSubCategory) // TODO merge
         },
         onCategorySelectMultiple = { selectSuperCategory, selectSubCategory ->
             viewModel.updateCurrentCategories(selectSuperCategory, selectSubCategory)
-            searchModel.updateCurrentCategories(selectSuperCategory, selectSubCategory) // TODO
+            searchModel.updateCurrentCategories(selectSuperCategory, selectSubCategory) // TODO merge
         },
         onFlagSelect = { flag ->
             val currentList = when (searchModel.isSearchQuery) {
