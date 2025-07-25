@@ -5,7 +5,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategoryBase
-import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.TimeMode
 import kotlinx.serialization.Serializable
 
@@ -30,14 +29,15 @@ data class ScoreItem(
     val gameSuperCategories: List<FlagCategoryBase>,
     @ColumnInfo(name = "game_sub_categories")
     val gameSubCategories: List<FlagCategory>,
+
     @ColumnInfo(name = "flags_all")
-    val flagsAll: List<FlagResources>,
+    val flagsAll: List<String>,
     @ColumnInfo(name = "flags_guessed")
-    val flagsGuessed: List<FlagResources>,
+    val flagsGuessed: List<String>,
     @ColumnInfo(name = "flags_skipped_guessed")
-    val flagsSkippedGuessed: List<FlagResources> = emptyList(),
+    val flagsSkippedGuessed: List<String> = emptyList(),
     @ColumnInfo(name = "flags_skipped")
-    val flagsSkipped: List<FlagResources>,
+    val flagsSkipped: List<String>,
     @ColumnInfo(name = "flags_shown")
-    val flagsShown: List<FlagResources>,
+    val flagsShown: List<String>,
 )

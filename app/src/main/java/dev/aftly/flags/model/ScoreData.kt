@@ -3,6 +3,8 @@ package dev.aftly.flags.model
 import androidx.annotation.StringRes
 import dev.aftly.flags.R
 import dev.aftly.flags.data.room.scorehistory.ScoreItem
+import dev.aftly.flags.ui.util.getFlagKeys
+import dev.aftly.flags.ui.util.getFlagResources
 import kotlinx.serialization.Serializable
 
 
@@ -89,11 +91,11 @@ class ScoreData(
         timerEnd = timerEnd,
         gameSuperCategories = gameSuperCategories as List<FlagCategoryBase>,
         gameSubCategories = gameSubCategories,
-        flagsAll = flagsAll,
-        flagsGuessed = flagsGuessed,
-        flagsSkippedGuessed = flagsSkippedGuessed,
-        flagsSkipped = flagsSkipped,
-        flagsShown = flagsShown,
+        flagsAll = getFlagKeys(flags = flagsAll),
+        flagsGuessed = getFlagKeys(flags = flagsGuessed),
+        flagsSkippedGuessed = getFlagKeys(flags = flagsSkippedGuessed),
+        flagsSkipped = getFlagKeys(flags = flagsSkipped),
+        flagsShown = getFlagKeys(flags = flagsShown),
     )
 
     fun isScoresEmpty() = flagsGuessed.isEmpty() && flagsSkippedGuessed.isEmpty() &&
@@ -116,14 +118,14 @@ fun ScoreItem.toScoreData(
     timerEnd = timerEnd,
     gameSuperCategories = gameSuperCategories.filterIsInstance<FlagSuperCategory>(),
     gameSubCategories = gameSubCategories,
-    flagsAll = flagsAll,
-    flagsGuessed = flagsGuessed,
+    flagsAll = getFlagResources(flagKeys = flagsAll),
+    flagsGuessed = getFlagResources(flagKeys = flagsGuessed),
     flagsGuessedSorted = flagsGuessedSorted,
-    flagsSkippedGuessed = flagsSkippedGuessed,
+    flagsSkippedGuessed = getFlagResources(flagKeys = flagsSkippedGuessed),
     flagsSkippedGuessedSorted = flagsSkippedGuessedSorted,
-    flagsSkipped = flagsSkipped,
+    flagsSkipped = getFlagResources(flagKeys = flagsSkipped),
     flagsSkippedSorted = flagsSkippedSorted,
-    flagsShown = flagsShown,
+    flagsShown = getFlagResources(flagKeys = flagsShown),
     flagsShownSorted = flagsShownSorted,
 )
 

@@ -3,7 +3,6 @@ package dev.aftly.flags.data.room
 import androidx.room.TypeConverter
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategoryBase
-import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.TimeMode
 import kotlinx.serialization.json.Json
 
@@ -26,12 +25,12 @@ class Converters {
         Json.decodeFromString(string = value)
 
 
-    /* For List<FlagResources> */
+    /* For List<String> */
     @TypeConverter
-    fun fromFlagResourcesList(value: List<FlagResources>): String =
+    fun fromStringList(value: List<String>): String =
         Json.encodeToString(value = value)
     @TypeConverter
-    fun toFlagResourcesList(value: String): List<FlagResources> =
+    fun toStringList(value: String): List<String> =
         Json.decodeFromString(string = value)
 
 
