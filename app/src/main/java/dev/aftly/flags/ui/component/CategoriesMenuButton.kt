@@ -642,16 +642,7 @@ private fun MenuItemExpandable(
                 /* Local state takes priority for icon shown */
                 MenuItemExpandableArrowIcon(
                     modifier = superIconModifier,
-                    isExpanded =
-                        if (isMenuExpandedLocalState == true) {
-                            true
-                        } else if (isMenuExpandedLocalState == false) {
-                            false
-                        } else if (isMenuExpandedParentState) {
-                            true
-                        } else {
-                            false
-                        },
+                    isExpanded = isMenuExpandedLocalState ?: isMenuExpandedParentState,
                     iconSize = iconSize,
                     tint = buttonColors1.contentColor,
                 )
