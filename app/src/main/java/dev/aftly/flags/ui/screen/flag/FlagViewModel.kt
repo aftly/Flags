@@ -4,11 +4,13 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.application
+import androidx.lifecycle.viewModelScope
+import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.allFlagsList
 import dev.aftly.flags.data.DataSource.flagsMap
 import dev.aftly.flags.data.DataSource.flagsMapId
-import dev.aftly.flags.data.DataSource.reverseFlagsMap
+import dev.aftly.flags.data.room.savedflags.SavedFlag
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
 import dev.aftly.flags.model.FlagCategory.CONSTITUTIONAL
@@ -32,16 +34,18 @@ import dev.aftly.flags.model.FlagCategory.THEOCRACY
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.ui.util.getRelatedFlags
-import dev.aftly.flags.ui.util.normalizeString
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 
 class FlagViewModel(
     application: Application,
     savedStateHandle: SavedStateHandle,
 ) : AndroidViewModel(application) {
+    private val savedFlagsRepository =
+        (application as FlagsApplication).container.savedFlagsRepository
     private val _uiState = MutableStateFlow(FlagUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -63,6 +67,30 @@ class FlagViewModel(
                 )
             }
             updateDescriptionString(flag = flag)
+        }
+
+        viewModelScope.launch {
+            savedFlagsRepository.getAllFlagsStream().collect { flags ->
+                val savedFlag = flags.find { it.flag == uiState.value.currentFlag }
+
+                _uiState.update { state ->
+                    state.copy(
+                        savedFlags = flags,
+                        savedFlag = savedFlag,
+                        isFlagSaved = savedFlag != null,
+                    )
+                }
+            }
+        }
+    }
+
+    fun updateSavedFlag() {
+        val savedFlag = uiState.value.savedFlag
+
+        viewModelScope.launch {
+            savedFlag?.let { flag ->
+                savedFlagsRepository.deleteFlag(flag)
+            } ?: savedFlagsRepository.insertFlag(SavedFlag(flag = uiState.value.currentFlag))
         }
     }
 

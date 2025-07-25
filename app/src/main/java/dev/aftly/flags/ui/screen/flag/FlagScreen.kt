@@ -2,7 +2,6 @@ package dev.aftly.flags.ui.screen.flag
 
 import android.app.Activity
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -113,9 +113,10 @@ fun FlagScreen(
 
     FlagScreen(
         uiState = uiState,
-        navigateUp = onNavigateUp,
+        onFlagSave = { viewModel.updateSavedFlag() },
         onRelatedFlag = { viewModel.updateFlagRelated(flag = it) },
-        onFullscreen = viewModel.callOnFullScreen(onFullscreen),
+        onFullscreen = { viewModel.callOnFullScreen(onFullscreen) },
+        onNavigateUp = onNavigateUp,
     )
 }
 
@@ -124,15 +125,16 @@ fun FlagScreen(
 private fun FlagScreen(
     modifier: Modifier = Modifier,
     uiState: FlagUiState,
-    navigateUp: () -> Unit,
+    onFlagSave: () -> Unit,
     onRelatedFlag: (FlagResources) -> Unit,
     onFullscreen: (Boolean) -> Unit,
+    onNavigateUp: () -> Unit,
 ) {
     val isRelatedFlagsButton = uiState.relatedFlags.size > 1
 
     /* Controls FilterFlagsButton menu expansion amd tracks current button height
      * Also for FilterFlagsButton to access Scaffold() padding */
-    var buttonExpanded by rememberSaveable { mutableStateOf(value = false) }
+    var isButtonExpanded by rememberSaveable { mutableStateOf(value = false) }
     var scaffoldPaddingValues by remember { mutableStateOf(value = PaddingValues()) }
     var buttonOffset by remember { mutableStateOf(value = Offset(x = 0f, y = 0f)) }
     var buttonWidth by remember { mutableIntStateOf(value = 0) }
@@ -146,12 +148,14 @@ private fun FlagScreen(
             modifier = modifier.fillMaxSize(),
             topBar = {
                 FlagTopBar(
+                    isFlagSaved = uiState.isFlagSaved,
+                    onFlagSave = onFlagSave,
                     isRelatedFlagsButton = isRelatedFlagsButton,
-                    buttonExpanded = buttonExpanded,
-                    onButtonExpand = { buttonExpanded = !buttonExpanded },
+                    isButtonExpanded = isButtonExpanded,
+                    onButtonExpand = { isButtonExpanded = !isButtonExpanded },
                     onButtonPosition = { buttonOffset = it },
                     onButtonWidth = { buttonWidth = it },
-                    onNavigateUp = navigateUp,
+                    onNavigateUp = onNavigateUp,
                 )
             }
         ) { scaffoldPadding ->
@@ -175,13 +179,13 @@ private fun FlagScreen(
                 scaffoldPadding = scaffoldPaddingValues,
                 menuButtonOffset = buttonOffset,
                 menuButtonWidth = buttonWidth,
-                isExpanded = buttonExpanded,
-                onExpand = { buttonExpanded = !buttonExpanded },
+                isExpanded = isButtonExpanded,
+                onExpand = { isButtonExpanded = !isButtonExpanded },
                 currentFlag = uiState.currentFlag,
                 relatedFlags = uiState.relatedFlags,
                 onFlagSelect = { newFlag ->
                     if (newFlag != uiState.currentFlag) {
-                        buttonExpanded = false
+                        isButtonExpanded = false
                         onRelatedFlag(newFlag)
                     }
                 },
@@ -385,8 +389,10 @@ fun WikipediaButton(
 @Composable
 private fun FlagTopBar(
     modifier: Modifier = Modifier,
+    isFlagSaved: Boolean,
+    onFlagSave: () -> Unit,
     isRelatedFlagsButton: Boolean,
-    buttonExpanded: Boolean,
+    isButtonExpanded: Boolean,
     onButtonExpand: () -> Unit,
     onButtonPosition: (Offset) -> Unit,
     onButtonWidth: (Int) -> Unit,
@@ -400,7 +406,7 @@ private fun FlagTopBar(
                     horizontalArrangement = Arrangement.Center,
                 ) {
                     RelatedFlagsButton(
-                        menuExpanded = buttonExpanded,
+                        menuExpanded = isButtonExpanded,
                         onMenuExpand = onButtonExpand,
                         onButtonPosition = onButtonPosition,
                         onButtonWidth = onButtonWidth,
@@ -418,11 +424,16 @@ private fun FlagTopBar(
             }
         },
         actions = {
-            // TODO: Implement (persistent) saved list
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = onFlagSave) {
                 Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "make favorite",
+                    imageVector = when (isFlagSaved) {
+                        false -> Icons.Default.Add
+                        true -> Icons.Default.Check
+                    },
+                    contentDescription = when (isFlagSaved) {
+                        false -> stringResource(R.string.save_flag_add)
+                        true -> stringResource(R.string.save_flag_remove)
+                    },
                 )
             }
         },

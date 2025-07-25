@@ -241,6 +241,8 @@
     <string name="navigation_drawer_content_description">App menu</string>
     <string name="no_flags_found">No flags found</string>
     <string name="no_score_history">No score history</string>
+    <string name="save_flag_add">Save flag</string>
+    <string name="save_flag_remove">Unsave flag</string>
     <string name="search_bar_placeholder">Search flags</string>
     <string name="search_clear">Clear search</string>
     <string name="search_no_results_description_1">Queries will match common &amp; official names</string>
