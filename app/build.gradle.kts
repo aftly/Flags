@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "dev.aftly.flags"
-        minSdk = 27
+        minSdk = 24
         targetSdk = 35
         versionCode = 17
         versionName = "0.9.8-alpha"
