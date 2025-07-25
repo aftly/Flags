@@ -10,6 +10,7 @@ import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.allFlagsList
 import dev.aftly.flags.data.DataSource.flagsMap
 import dev.aftly.flags.data.DataSource.flagsMapId
+import dev.aftly.flags.data.DataSource.reverseFlagsMap
 import dev.aftly.flags.data.room.savedflags.SavedFlag
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
@@ -55,13 +56,15 @@ class FlagViewModel(
         val flagsArg = savedStateHandle.get<String>("flags")
 
         if (flagArg != null && flagsArg != null) {
-            val flag = flagsMapId.getValue(flagArg)
+            val flag = flagsMapId.getValue(key = flagArg)
+            val flagKey = reverseFlagsMap.getValue(key = flag)
             val flags = flagsArg.split(",").mapNotNull { it.toIntOrNull() }
             val relatedFlags = getRelatedFlags(flag, application)
 
             _uiState.update { currentState ->
                 currentState.copy(
-                    currentFlag = flag,
+                    flag = flag,
+                    flagKey = flagKey,
                     relatedFlags = relatedFlags,
                     flagsFromList = flags,
                 )
@@ -71,7 +74,7 @@ class FlagViewModel(
 
         viewModelScope.launch {
             savedFlagsRepository.getAllFlagsStream().collect { flags ->
-                val savedFlag = flags.find { it.flag == uiState.value.currentFlag }
+                val savedFlag = flags.find { it.flagKey == uiState.value.flagKey }
 
                 _uiState.update { state ->
                     state.copy(
@@ -86,11 +89,14 @@ class FlagViewModel(
 
     fun updateSavedFlag() {
         val savedFlag = uiState.value.savedFlag
+        val flagKey = uiState.value.flagKey
 
         viewModelScope.launch {
             savedFlag?.let { flag ->
                 savedFlagsRepository.deleteFlag(flag)
-            } ?: savedFlagsRepository.insertFlag(SavedFlag(flag = uiState.value.currentFlag))
+            } ?: flagKey?.let { key ->
+                savedFlagsRepository.insertFlag(SavedFlag(flagKey = key))
+            }
         }
     }
 
@@ -98,7 +104,7 @@ class FlagViewModel(
     fun callOnFullScreen(
         onFullscreenUp: (Int, List<Int>, Boolean) -> Unit,
     ): (Boolean) -> Unit {
-        val currentFlag = uiState.value.currentFlag
+        val currentFlag = uiState.value.flag
 
         val flags = when (uiState.value.isNavigatingRelated) {
             false -> uiState.value.flagsFromList
@@ -115,10 +121,10 @@ class FlagViewModel(
     fun updateFlagNav(flagId: Int) {
         val flag = flagsMapId.getValue(flagId)
 
-        if (flag != uiState.value.currentFlag) {
+        if (flag != uiState.value.flag) {
             _uiState.update {
                 it.copy(
-                    currentFlag = flag,
+                    flag = flag,
                     relatedFlags = getRelatedFlags(flag, application),
                 )
             }
@@ -128,10 +134,10 @@ class FlagViewModel(
 
 
     fun updateFlagRelated(flag: FlagResources) {
-        if (flag != uiState.value.currentFlag) {
+        if (flag != uiState.value.flag) {
             _uiState.update {
                 it.copy(
-                    currentFlag = flag,
+                    flag = flag,
                     relatedFlags = getRelatedFlags(flag, application),
                     isNavigatingRelated = true,
                 )

@@ -8,15 +8,6 @@ import dev.aftly.flags.model.TimeMode
 import kotlinx.serialization.json.Json
 
 class Converters {
-    /* For FlagResources */
-    @TypeConverter
-    fun fromFlagResources(value: FlagResources): String =
-        Json.encodeToString(value = value)
-    @TypeConverter
-    fun toFlagResources(value: String): FlagResources =
-        Json.decodeFromString(string = value)
-
-
     /* For List<FlagSuperCategory> as List<FlagCategoryBase> */
     @TypeConverter
     fun fromFlagSuperCategoryList(value: List<FlagCategoryBase>): String =

@@ -88,7 +88,7 @@ fun FlagScreen(
     val backStackEntry = navController.currentBackStackEntryAsState()
 
     /* Handle navigation null case */
-    if (uiState.currentFlag == DataSource.nullFlag) onNavigateError()
+    if (uiState.flag == DataSource.nullFlag) onNavigateError()
 
     /* Manage system bars and flag state after returning from FullScreen */
     val view = LocalView.current
@@ -163,7 +163,7 @@ private fun FlagScreen(
 
             FlagContent(
                 modifier = Modifier.padding(scaffoldPadding),
-                flag = uiState.currentFlag,
+                flag = uiState.flag,
                 description = uiState.description,
                 boldWordPositions = uiState.descriptionBoldWordIndexes,
                 onImageWide = { isFlagWide = it },
@@ -181,10 +181,10 @@ private fun FlagScreen(
                 menuButtonWidth = buttonWidth,
                 isExpanded = isButtonExpanded,
                 onExpand = { isButtonExpanded = !isButtonExpanded },
-                currentFlag = uiState.currentFlag,
+                currentFlag = uiState.flag,
                 relatedFlags = uiState.relatedFlags,
                 onFlagSelect = { newFlag ->
-                    if (newFlag != uiState.currentFlag) {
+                    if (newFlag != uiState.flag) {
                         isButtonExpanded = false
                         onRelatedFlag(newFlag)
                     }
