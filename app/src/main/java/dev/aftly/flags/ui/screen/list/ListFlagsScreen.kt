@@ -331,10 +331,10 @@ private fun ListFlagsScreen(
             modifier = Modifier.fillMaxSize(),
             scaffoldPadding = scaffoldPaddingValues,
             buttonHorizontalPadding = Dimens.marginHorizontal16,
-            flagCount = when (isUserSearch) {
-                false -> uiState.currentFlags.size
-                true -> searchState.size
-            },
+            flagCount =
+                if (isUserSearch) searchState.size
+                else if (uiState.isSavedFlags) uiState.savedFlags.size
+                else uiState.currentFlags.size,
             onButtonHeightChange = { buttonHeight = it },
             isMenuExpanded = isMenuExpanded,
             onMenuButtonClick = { isMenuExpanded = !isMenuExpanded },
