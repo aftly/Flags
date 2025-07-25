@@ -88,7 +88,7 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [ ] Implement production tests (and performance optimizations?)
 - [ ] Language translations
 - [ ] **Submit app to F-Droid**
-- [ ] **Release app on the Google Play Store**
+- [ ] **Release app on the Google Play Store** 
 <br>
 
 
