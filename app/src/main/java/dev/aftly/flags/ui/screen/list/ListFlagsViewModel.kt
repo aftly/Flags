@@ -2,9 +2,12 @@ package dev.aftly.flags.ui.screen.list
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
+import dev.aftly.flags.ui.util.getFlagResource
 import dev.aftly.flags.ui.util.getFlagsByCategory
 import dev.aftly.flags.ui.util.getFlagsFromCategories
 import dev.aftly.flags.ui.util.getSuperCategories
@@ -16,9 +19,12 @@ import dev.aftly.flags.ui.util.updateCategoriesFromSuper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 
 class ListFlagsViewModel(application: Application) : AndroidViewModel(application) {
+    private val savedFlagsRepository =
+        (application as FlagsApplication).container.savedFlagsRepository
     private val _uiState = MutableStateFlow(ListFlagsUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -30,6 +36,16 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
             newSuperCategory = FlagSuperCategory.SovereignCountry,
             newSubCategory = null,
         )
+
+        viewModelScope.launch {
+            savedFlagsRepository.getAllFlagsStream().collect { savedFlags ->
+                _uiState.update { state ->
+                    state.copy(
+                        savedFlags = savedFlags.map { it.getFlagResource() }
+                    )
+                }
+            }
+        }
     }
 
     /* Default allFlagsList derives from flagsMap key order, not readable name order
@@ -55,7 +71,14 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         /* If new category is All superCategory update flags with static allFlags source,
          * else dynamically generate flags list from category info */
         if (newSuperCategory == All) {
-            _uiState.value = ListFlagsUiState()
+            _uiState.update {
+                it.copy(
+                    currentFlags = it.allFlags,
+                    isSavedFlags = false,
+                    currentSuperCategories = listOf(All),
+                    currentSubCategories = emptyList(),
+                )
+            }
         } else {
             val newFlags = getFlagsByCategory(
                 superCategory = newSuperCategory,
@@ -66,6 +89,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
             _uiState.update {
                 it.copy(
                     currentFlags = newFlags,
+                    isSavedFlags = false,
                     currentSuperCategories = getSuperCategories(
                         superCategory = newSuperCategory,
                         subCategory = newSubCategory,
@@ -144,12 +168,22 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                     superCategories = newSuperCategories,
                     subCategories = newSubCategories,
                 ),
+                isSavedFlags = false, // TODO
                 currentSuperCategories = newSuperCategories,
                 currentSubCategories = newSubCategories,
             )
         }
     }
 
+    fun selectSavedFlags() {
+        _uiState.update {
+            it.copy(
+                isSavedFlags = true,
+                currentSuperCategories = emptyList(),
+                currentSubCategories = emptyList(),
+            )
+        }
+    }
 
     fun toggleIsSearchBarInit(isSearchBarInit: Boolean) {
         _uiState.update { it.copy(isSearchBarInit = isSearchBarInit) }

@@ -73,12 +73,12 @@ class FlagViewModel(
         }
 
         viewModelScope.launch {
-            savedFlagsRepository.getAllFlagsStream().collect { flags ->
-                val savedFlag = flags.find { it.flagKey == uiState.value.flagKey }
+            savedFlagsRepository.getAllFlagsStream().collect { savedFlags ->
+                val savedFlag = savedFlags.find { it.flagKey == uiState.value.flagKey }
 
                 _uiState.update { state ->
                     state.copy(
-                        savedFlags = flags,
+                        savedFlags = savedFlags,
                         savedFlag = savedFlag,
                         isFlagSaved = savedFlag != null,
                     )

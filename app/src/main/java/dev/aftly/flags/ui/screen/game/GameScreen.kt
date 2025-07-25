@@ -361,10 +361,12 @@ private fun GameScreen(
             onButtonHeightChange = { buttonHeight = it },
             isMenuExpanded = isMenuExpanded,
             onMenuButtonClick = { isMenuExpanded = !isMenuExpanded },
+            isSavedFlagsNotEmpty = false, // TODO
             currentSuperCategories = uiState.currentSuperCategories,
             currentSubCategories = uiState.currentSubCategories,
             onCategorySelectSingle = onCategorySelectSingle,
             onCategorySelectMultiple = onCategorySelectMultiple,
+            onSavedFlagsSelect = { /* TODO */ },
         )
 
 

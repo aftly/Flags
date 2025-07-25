@@ -103,10 +103,12 @@ fun CategoriesButtonMenu(
     cardColors2: CardColors = CardDefaults.cardColors(containerColor = containerColor2),
     buttonColors1: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor1),
     buttonColors2: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor2),
+    isSavedFlagsNotEmpty: Boolean,
     currentSuperCategories: List<FlagSuperCategory>,
     currentSubCategories: List<FlagCategory>,
     onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onSavedFlagsSelect: () -> Unit,
 ) {
     /* Expand single sub-menu at a time when it's category's are not selected. State represented by
      * the sub-menu's FlagSuperCategory */
@@ -163,10 +165,14 @@ fun CategoriesButtonMenu(
                             stringResource(R.string.button_title_flags)
                 }
             }
-        } else {
+        } else if (currentSuperCategories.isNotEmpty()) {
             currentSuperCategories.first().categoriesMenuButton?.let { superCategoryMenuTitle ->
                 stringResource(superCategoryMenuTitle) + stringResource(R.string.button_title_flags)
             } ?: ""
+        } else {
+            /* Saved flags title */
+            stringResource(R.string.saved_flags) +
+                    stringResource(R.string.button_title_flags)
         }
     }
 
@@ -215,7 +221,8 @@ fun CategoriesButtonMenu(
 
         /* Filter button content */
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(
                     top = scaffoldPadding.calculateTopPadding(),
                     bottom = scaffoldPadding.calculateBottomPadding(),
@@ -225,7 +232,8 @@ fun CategoriesButtonMenu(
         ) {
             Button(
                 onClick = onMenuButtonClick,
-                modifier = Modifier.padding(bottom = Dimens.small8) /* Separate Button from Menu */
+                modifier = Modifier
+                    .padding(bottom = Dimens.small8) /* Separate Button from Menu */
                     .height(buttonHeight),
                 shape = MaterialTheme.shapes.large,
                 colors = buttonColors2,
@@ -282,7 +290,8 @@ fun CategoriesButtonMenu(
                         /* Button title */
                         Text(
                             text = buttonTitle,
-                            modifier = Modifier.weight(weight = 1f, fill = false)
+                            modifier = Modifier
+                                .weight(weight = 1f, fill = false)
                                 .padding(horizontal = iconPadding),
                             textAlign = TextAlign.Center,
                             onTextLayout = { textLayoutResult ->
@@ -344,6 +353,30 @@ fun CategoriesButtonMenu(
                             bottom = Dimens.small10,
                         ),
                     ) {
+                        /* Saved flags item */
+                        if (isSavedFlagsNotEmpty) {
+                            item {
+                                MenuItemStatic(
+                                    haptics = haptics,
+                                    textButtonStyle = textButtonStyle,
+                                    buttonColors =
+                                        if (currentSuperCategories.isEmpty() &&
+                                            currentSubCategories.isEmpty()) {
+                                            buttonColors2
+                                        } else {
+                                            buttonColors1
+                                        },
+                                    superCategory = null,
+                                    onSavedFlagsSelect = {
+                                        expandSubMenu = null
+                                        onSavedFlagsSelect()
+                                        onMenuButtonClick()
+                                    },
+                                )
+                            }
+                        }
+
+                        /* Flag category items */
                         items(items = menuSuperCategoryList) { superCategory ->
                             val buttonColors = if (superCategory in currentSuperCategories) {
                                 buttonColors2
@@ -430,19 +463,20 @@ private fun MenuItemStatic(
     haptics: HapticFeedback,
     textButtonStyle: TextStyle,
     buttonColors: ButtonColors,
-    superCategory: FlagSuperCategory,
-    onCategorySelectSingle: (FlagSuperCategory) -> Unit,
-    onCategorySelectMultiple: (FlagSuperCategory) -> Unit,
+    superCategory: FlagSuperCategory?, /* menu item is for SavedFlags when superCategory null */
+    onCategorySelectSingle: (FlagSuperCategory) -> Unit = {},
+    onCategorySelectMultiple: (FlagSuperCategory) -> Unit = {},
+    onSavedFlagsSelect: () -> Unit = {},
 ) {
     val fontWeight = when (superCategory) {
         All -> FontWeight.ExtraBold
+        null -> FontWeight.Normal
         else -> null
     }
     val lastItemPadding = when (superCategory) {
         Historical -> 5.dp
         else -> 0.dp
     }
-
 
     Box(
         modifier = modifier
@@ -451,10 +485,12 @@ private fun MenuItemStatic(
                 bottom = Dimens.textButtonVertPad + lastItemPadding
             )
             .combinedClickable(
-                onClick = { onCategorySelectSingle(superCategory) },
+                onClick = {
+                    superCategory?.let { onCategorySelectSingle(it) } ?: onSavedFlagsSelect()
+                },
                 onLongClick = {
                     haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                    onCategorySelectMultiple(superCategory)
+                    superCategory?.let { onCategorySelectMultiple(it) }
                 },
             )
         /*
@@ -465,11 +501,13 @@ private fun MenuItemStatic(
          */
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth()
-                .background(color = buttonColors.containerColor)
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = buttonColors.containerColor),
         ) {
             Text(
-                text = stringResource(superCategory.title),
+                text = superCategory?.let { stringResource(it.title) }
+                    ?: stringResource(R.string.saved_flags),
                 modifier = Modifier.padding(ButtonDefaults.TextButtonContentPadding),
                 color = buttonColors.contentColor,
                 fontWeight = fontWeight,
@@ -559,7 +597,8 @@ private fun MenuItemExpandable(
         /* Header content */
         @Suppress("UnusedBoxWithConstraintsScope")
         BoxWithConstraints(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(
                     top = Dimens.textButtonVertPad,
                     bottom = Dimens.textButtonVertPad + lastItemPadding,
@@ -582,7 +621,8 @@ private fun MenuItemExpandable(
                             onSuperItemSelect(itemSuperCategory)
 
                         } else if (menuSuperCategoryList.any {
-                            itemSuperCategory in it.subCategories }) {
+                                itemSuperCategory in it.subCategories
+                            }) {
                             /* If item's category is in a menu superCategory, update parent expand
                              * menu state with the super (keeps super open upon item collapse) */
                             onSuperItemSelect(menuSuperCategoryList.find {
@@ -612,7 +652,8 @@ private fun MenuItemExpandable(
 
             /* Top text button content */
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .background(color = buttonColors1.containerColor),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
@@ -629,7 +670,8 @@ private fun MenuItemExpandable(
 
                 Text(
                     text = stringResource(itemSuperCategory.title),
-                    modifier = Modifier.padding(ButtonDefaults.TextButtonContentPadding)
+                    modifier = Modifier
+                        .padding(ButtonDefaults.TextButtonContentPadding)
                         .weight(weight = 1f, fill = false),
                     color = buttonColors1.contentColor,
                     textAlign = textAlign,
@@ -671,7 +713,8 @@ private fun MenuItemExpandable(
                 colors = cardColors2,
             ) {
                 Column(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .padding(vertical = Dimens.extraSmall4),
                 ) {
                     itemSuperCategory.subCategories.filterIsInstance<FlagCategoryWrapper>()
@@ -693,7 +736,8 @@ private fun MenuItemExpandable(
                                     )
                             ) {
                                 Row(
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier
+                                        .fillMaxWidth()
                                         .background(color = buttonColors2.containerColor),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically,
@@ -851,7 +895,8 @@ private fun MenuItemOfSupers(
                                 true -> stringResource(R.string.menu_sub_icon_collapse)
                                 false -> stringResource(R.string.menu_sub_icon_expand)
                             },
-                            modifier = Modifier.size(iconSize)
+                            modifier = Modifier
+                                .size(iconSize)
                                 .padding(start = iconPadding),
                             tint = buttonColors1.contentColor,
                         )
@@ -920,7 +965,8 @@ private fun MenuItemExpandableArrowIcon(
             true -> stringResource(R.string.menu_sub_icon_collapse)
             false -> stringResource(R.string.menu_sub_icon_expand)
         },
-        modifier = modifier.padding(end = Dimens.textButtonHorizPad)
+        modifier = modifier
+            .padding(end = Dimens.textButtonHorizPad)
             .size(iconSize),
         tint = tint,
     )

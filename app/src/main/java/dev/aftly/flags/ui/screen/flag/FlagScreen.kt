@@ -431,8 +431,8 @@ private fun FlagTopBar(
                         true -> Icons.Default.Check
                     },
                     contentDescription = when (isFlagSaved) {
-                        false -> stringResource(R.string.save_flag_add)
-                        true -> stringResource(R.string.save_flag_remove)
+                        false -> stringResource(R.string.saved_flags_add)
+                        true -> stringResource(R.string.saved_flags_remove)
                     },
                 )
             }

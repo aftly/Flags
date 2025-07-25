@@ -137,6 +137,7 @@ fun ListFlagsScreen(
             viewModel.updateCurrentCategories(selectSuperCategory, selectSubCategory)
             searchModel.updateCurrentCategories(selectSuperCategory, selectSubCategory) // TODO merge
         },
+        onSavedFlagsSelect = { viewModel.selectSavedFlags() },
         onFlagSelect = { flag ->
             val currentList = when (searchModel.isSearchQuery) {
                 true -> searchState.map { it.id }
@@ -164,6 +165,7 @@ private fun ListFlagsScreen(
     onNavigationDrawer: () -> Unit,
     onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onSavedFlagsSelect: () -> Unit,
     onFlagSelect: (FlagResources) -> Unit,
 ) {
     /* Controls FilterFlagsButton menu expansion amd tracks current button height
@@ -187,13 +189,13 @@ private fun ListFlagsScreen(
     var isSearchBarFocused by rememberSaveable { mutableStateOf(value = false) }
     var isSearchBar by rememberSaveable { mutableStateOf(value = false) }
 
-    LaunchedEffect(isMenuExpanded) {
+    LaunchedEffect(key1 = isMenuExpanded) {
         if (isMenuExpanded) focusManager.clearFocus()
     }
 
     /* isSearchBar init LaunchedEffect only exists when it's needed (solves unintended launches) */
     if (isSearchBar && !uiState.isSearchBarInit) {
-        LaunchedEffect(Unit) {
+        LaunchedEffect(key1 = Unit) {
             if (!uiState.currentFlags.containsAll(DataSource.allFlagsList)) {
                 onCategorySelectSingle(FlagSuperCategory.All, null)
                 if (!isAtTop) {
@@ -205,7 +207,7 @@ private fun ListFlagsScreen(
     }
 
     /* Handle isSearchBar disabled effects */
-    LaunchedEffect(isSearchBar) {
+    LaunchedEffect(key1 = isSearchBar) {
         if (!isSearchBar) {
             onIsSearchBarInit(false)
             onIsSearchBarInitTopBar(false)
@@ -220,7 +222,7 @@ private fun ListFlagsScreen(
         }
     }
 
-    LaunchedEffect(userSearch) {
+    LaunchedEffect(key1 = userSearch) {
         /* Reset scroll state after each userSearch character entry unless empty */
         if (isUserSearch && !isAtTop) {
             coroutineScope.launch { listState.scrollToItem(index = 0) }
@@ -229,6 +231,13 @@ private fun ListFlagsScreen(
         /* Minimize filter menu when keyboard input */
         if (isUserSearch && isMenuExpanded) {
             isMenuExpanded = false
+        }
+    }
+
+    /* If returning from FlagScreen to SavedFlags and SavedFlags isEmpty() select All category */
+    LaunchedEffect(key1 = uiState.savedFlags) {
+        if (uiState.isSavedFlags && uiState.savedFlags.isEmpty()) {
+            onCategorySelectSingle(FlagSuperCategory.All, null)
         }
     }
 
@@ -278,12 +287,6 @@ private fun ListFlagsScreen(
                         focusManager.clearFocus()
                         onNavigationDrawer()
                     },
-                    /*
-                    onNavigateUp = {
-                        focusManager.clearFocus()
-                        onNavigateUp()
-                    },
-                     */
                 )
             },
             floatingActionButton = {
@@ -308,9 +311,11 @@ private fun ListFlagsScreen(
                 scaffoldBottomPadding = scaffoldPadding.calculateBottomPadding(),
                 scrollBehaviour = scrollBehaviour,
                 listState = listState,
+                isSavedFlags = uiState.isSavedFlags,
                 isUserSearch = isUserSearch,
                 searchResults = searchState,
-                currentFlagsList = uiState.currentFlags,
+                currentFlags = uiState.currentFlags,
+                savedFlags = uiState.savedFlags,
                 onFlagSelect = {
                     focusManager.clearFocus()
                     onFlagSelect(it)
@@ -335,6 +340,7 @@ private fun ListFlagsScreen(
             onMenuButtonClick = { isMenuExpanded = !isMenuExpanded },
             containerColor1 = containerColor1,
             containerColor2 = containerColor2,
+            isSavedFlagsNotEmpty = uiState.savedFlags.isNotEmpty(),
             currentSuperCategories = uiState.currentSuperCategories,
             currentSubCategories = uiState.currentSubCategories,
             onCategorySelectSingle = { flagSuperCategory, flagSubCategory ->
@@ -343,6 +349,10 @@ private fun ListFlagsScreen(
             },
             onCategorySelectMultiple = { flagSuperCategory, flagSubCategory ->
                 onCategorySelectMultiple(flagSuperCategory, flagSubCategory)
+                coroutineScope.launch { listState.animateScrollToItem(index = 0) }
+            },
+            onSavedFlagsSelect = {
+                onSavedFlagsSelect()
                 coroutineScope.launch { listState.animateScrollToItem(index = 0) }
             },
         )
@@ -358,12 +368,15 @@ private fun ListFlagsContent(
     scaffoldBottomPadding: Dp,
     scrollBehaviour: TopAppBarScrollBehavior,
     listState: LazyListState,
+    isSavedFlags: Boolean,
     isUserSearch: Boolean,
     searchResults: List<FlagResources>,
-    currentFlagsList: List<FlagResources>,
+    currentFlags: List<FlagResources>,
+    savedFlags: List<FlagResources>,
     onFlagSelect: (FlagResources) -> Unit,
 ) {
     val listItemVerticalPadding = Dimens.small8
+    val flags = if (isSavedFlags) savedFlags else currentFlags
 
     Column(modifier = modifier) {
         /* To make LazyColumn scroll disappear into center of FilterFlagsButton */
@@ -375,7 +388,7 @@ private fun ListFlagsContent(
 
         when (isUserSearch) {
             false -> {
-                if (currentFlagsList.isNotEmpty()) {
+                if (flags.isNotEmpty()) {
                     /* Flags list */
                     LazyColumn(
                         modifier = Modifier
@@ -390,13 +403,13 @@ private fun ListFlagsContent(
                         horizontalAlignment = Alignment.Start,
                     ) {
                         items(
-                            count = currentFlagsList.size,
-                            key = { index -> currentFlagsList[index].id }
+                            count = flags.size,
+                            key = { index -> flags[index].id }
                         ) { index ->
                             ListItem(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalPadding = listItemVerticalPadding,
-                                flag = currentFlagsList[index],
+                                flag = flags[index],
                                 onFlagSelect = onFlagSelect,
                             )
                         }
