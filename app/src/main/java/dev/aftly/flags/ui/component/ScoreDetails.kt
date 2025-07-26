@@ -2,6 +2,7 @@ package dev.aftly.flags.ui.component
 
 import android.app.Activity
 import android.icu.text.NumberFormat
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -56,6 +57,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -430,45 +432,72 @@ private fun CategoriesOverviewItem(
             )
         }
 
-        /* Super-categories */
-        categoriesOverview.superCategories.forEach { superCategory ->
-            superCategory.gameScoreCategoryDetailed?.let {
-                Row(
-                    modifier = Modifier.padding(top = spacePadding)
-                ) {
-                    Text(
-                        text = stringResource(it),
-                        modifier = Modifier
-                            .clip(MaterialTheme.shapes.medium)
-                            .background(MaterialTheme.colorScheme.primary)
-                            .padding(vertical = 2.dp, horizontal = Dimens.small8),
-                        color = MaterialTheme.colorScheme.onPrimary,
+        /* If game list is saved flags */
+        if (categoriesOverview.superCategories.isEmpty() &&
+            categoriesOverview.subCategories.isEmpty()) {
+            CategoryItem(
+                topPadding = spacePadding,
+                stringResId = R.string.saved_flags_score_detailed,
+                fontSize = fontSize,
+                lineHeight = lineHeight,
+                isPrimary = true,
+            )
+        } else {
+            /* Super-categories */
+            categoriesOverview.superCategories.forEach { superCategory ->
+                superCategory.gameScoreCategoryDetailed?.let {
+                    CategoryItem(
+                        topPadding = spacePadding,
+                        stringResId = it,
                         fontSize = fontSize,
                         lineHeight = lineHeight,
+                        isPrimary = true,
                     )
                 }
             }
-        }
 
-        /* Sub-categories */
-        categoriesOverview.subCategories.forEach { subCategory ->
-            Row(
-                modifier = Modifier.padding(top = spacePadding)
-            ) {
-                Text(
-                    text = stringResource(subCategory.title),
-                    modifier = Modifier
-                        .clip(MaterialTheme.shapes.medium)
-                        .background(MaterialTheme.colorScheme.secondary)
-                        .padding(vertical = 2.dp, horizontal = Dimens.small8),
-                    color = MaterialTheme.colorScheme.surface,
+            /* Sub-categories */
+            categoriesOverview.subCategories.forEach { subCategory ->
+                CategoryItem(
+                    topPadding = spacePadding,
+                    stringResId = subCategory.title,
                     fontSize = fontSize,
                     lineHeight = lineHeight,
+                    isPrimary = false,
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(spacePadding))
+    }
+}
+
+@Composable
+private fun CategoryItem(
+    topPadding: Dp,
+    @StringRes stringResId: Int,
+    fontSize: TextUnit,
+    lineHeight: TextUnit,
+    isPrimary: Boolean,
+) {
+    Row(
+        modifier = Modifier.padding(top = topPadding)
+    ) {
+        Text(
+            text = stringResource(stringResId),
+            modifier = Modifier
+                .clip(shape = MaterialTheme.shapes.medium)
+                .background(color =
+                    if (isPrimary) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.secondary
+                )
+                .padding(vertical = 2.dp, horizontal = Dimens.small8),
+            color =
+                if (isPrimary) MaterialTheme.colorScheme.onPrimary
+                else MaterialTheme.colorScheme.surface,
+            fontSize = fontSize,
+            lineHeight = lineHeight,
+        )
     }
 }
 
@@ -674,7 +703,6 @@ private fun ScoresItem(
         }
     }
 }
-
 
 /* Item composable for the score details lists */
 @Composable

@@ -122,6 +122,7 @@ fun GameScreen(
 ) {
     /* Expose screen and backStack state */
     val uiState by viewModel.uiState.collectAsState()
+    val savedFlags by viewModel.savedFlagsState.collectAsState()
     val backStackEntry = navController.currentBackStackEntryAsState()
 
     /* Manage system bars and flag state after returning from FullScreen */
@@ -190,6 +191,7 @@ fun GameScreen(
 
     GameScreen(
         uiState = uiState,
+        savedFlags = savedFlags,
         screen = screen,
         userGuess = viewModel.userGuess,
         onUserGuessChange = { viewModel.updateUserGuess(it) },
@@ -213,6 +215,7 @@ fun GameScreen(
         onCategorySelectMultiple = { selectSuperCategory, selectSubCategory ->
             viewModel.updateCurrentCategories(selectSuperCategory, selectSubCategory)
         },
+        onSavedFlagsSelect = { viewModel.selectSavedFlags() },
     )
 }
 
@@ -221,6 +224,7 @@ fun GameScreen(
 private fun GameScreen(
     modifier: Modifier = Modifier,
     uiState: GameUiState,
+    savedFlags: List<FlagResources>,
     screen: Screen,
     userGuess: String,
     onUserGuessChange: (String) -> Unit,
@@ -237,6 +241,7 @@ private fun GameScreen(
     onFullscreen: (Int, Boolean, Boolean) -> Unit,
     onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onSavedFlagsSelect: () -> Unit,
 ) {
     /* Controls FilterFlagsButton menu expansion and tracks button height */
     var isMenuExpanded by rememberSaveable { mutableStateOf(value = false) }
@@ -361,12 +366,12 @@ private fun GameScreen(
             onButtonHeightChange = { buttonHeight = it },
             isMenuExpanded = isMenuExpanded,
             onMenuButtonClick = { isMenuExpanded = !isMenuExpanded },
-            isSavedFlagsNotEmpty = false, // TODO
+            isSavedFlagsNotEmpty = savedFlags.isNotEmpty(),
             currentSuperCategories = uiState.currentSuperCategories,
             currentSubCategories = uiState.currentSubCategories,
             onCategorySelectSingle = onCategorySelectSingle,
             onCategorySelectMultiple = onCategorySelectMultiple,
-            onSavedFlagsSelect = { /* TODO */ },
+            onSavedFlagsSelect = onSavedFlagsSelect,
         )
 
 

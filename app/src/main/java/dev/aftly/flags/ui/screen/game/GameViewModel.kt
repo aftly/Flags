@@ -14,6 +14,7 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.ScoreData
 import dev.aftly.flags.model.TimeMode
+import dev.aftly.flags.ui.util.getFlagResource
 import dev.aftly.flags.ui.util.getFlagsByCategory
 import dev.aftly.flags.ui.util.getFlagsFromCategories
 import dev.aftly.flags.ui.util.getSuperCategories
@@ -27,6 +28,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -34,8 +36,13 @@ import kotlinx.coroutines.launch
 class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val scoreItemsRepository =
         (application as FlagsApplication).container.scoreItemsRepository
-    private val _uiState = MutableStateFlow(GameUiState())
+    private val savedFlagsRepository =
+        (application as FlagsApplication).container.savedFlagsRepository
+
+    private val _uiState = MutableStateFlow(value = GameUiState())
     val uiState = _uiState.asStateFlow()
+    private val _savedFlagsState = MutableStateFlow(value = emptyList<FlagResources>())
+    val savedFlagsState = _savedFlagsState.asStateFlow()
 
     private var guessedFlags = mutableListOf<FlagResources>()
     private var skippedGuessedFlags = mutableListOf<FlagResources>()
@@ -61,6 +68,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             newSuperCategory = FlagSuperCategory.SovereignCountry,
             newSubCategory = null,
         )
+
+        /* Initialize savedFlags list */
+        viewModelScope.launch {
+            savedFlagsRepository.getAllFlagsStream().first().let { savedFlags ->
+                _savedFlagsState.value = savedFlags.map { it.getFlagResource() }
+            }
+        }
     }
 
 
@@ -236,6 +250,19 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         )
 
         resetGame(startGame = false)
+    }
+
+
+    fun selectSavedFlags() {
+        _uiState.update {
+            it.copy(
+                currentFlags = savedFlagsState.value,
+                currentSuperCategories = emptyList(),
+                currentSubCategories = emptyList(),
+            )
+        }
+
+        resetGame()
     }
 
 

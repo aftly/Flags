@@ -5,6 +5,7 @@ import dev.aftly.flags.data.DataSource.menuSuperCategoryList
 import dev.aftly.flags.data.DataSource.mutuallyExclusiveSubCategories
 import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories1
 import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories2
+import dev.aftly.flags.data.room.scorehistory.ScoreItem
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategory.CONSTITUTIONAL
 import dev.aftly.flags.model.FlagCategory.HISTORICAL
@@ -23,6 +24,29 @@ import dev.aftly.flags.model.FlagSuperCategory.International
 import dev.aftly.flags.model.FlagSuperCategory.Political
 import dev.aftly.flags.model.FlagSuperCategory.Regional
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
+
+
+/* ------ General category helpers ------ */
+
+/* Get single category (stringResId) title from single or multiple selected categories */
+fun getSingleCategoryPreviewTitleOrNull(
+    superCategories: List<FlagSuperCategory>,
+    subCategories: List<FlagCategory>,
+): Int? {
+    return if (superCategories.size == 1 && subCategories.isEmpty()) {
+        superCategories.first().gameScoreCategoryPreview
+
+    } else if (subCategories.size == 1 && superCategories.isEmpty()) {
+        subCategories.first().title
+
+    } else {
+        null
+    }
+}
+
+fun ScoreItem.isCategoriesEmpty(): Boolean =
+    this.gameSuperCategories.isEmpty() && this.gameSubCategories.isEmpty()
+
 
 
 /* ------ For updateCurrentCategory() in ViewModels ------ */
@@ -129,6 +153,7 @@ fun getParentSuperCategory(
         superCategory ?: exceptionCategory
     }
 }
+
 
 
 /* ------ For updateCurrentCategories() in ViewModels ------ */

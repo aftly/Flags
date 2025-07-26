@@ -57,7 +57,8 @@ import dev.aftly.flags.ui.theme.successDark
 import dev.aftly.flags.ui.theme.successLight
 import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.formatTimestamp
-import dev.aftly.flags.ui.util.getCategoryTitleSingle
+import dev.aftly.flags.ui.util.getSingleCategoryPreviewTitleOrNull
+import dev.aftly.flags.ui.util.isCategoriesEmpty
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -195,10 +196,12 @@ private fun HistoryItem(
         color = iconBackgroundColor,
         shape = MaterialTheme.shapes.large
     )
-    @StringRes val categoryTitle = getCategoryTitleSingle(
-        superCategories = item.gameSuperCategories.filterIsInstance<FlagSuperCategory>(),
-        subCategories = item.gameSubCategories,
-    ) ?: R.string.game_history_category_multiple
+    @StringRes val categoryTitle =
+        if (item.isCategoriesEmpty()) R.string.saved_flags_score_preview
+        else getSingleCategoryPreviewTitleOrNull(
+            superCategories = item.gameSuperCategories.filterIsInstance<FlagSuperCategory>(),
+            subCategories = item.gameSubCategories,
+        ) ?: R.string.game_history_category_multiple
 
 
     /* Icon properties */

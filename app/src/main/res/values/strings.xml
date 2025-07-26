@@ -242,6 +242,8 @@
     <string name="no_flags_found">No flags found</string>
     <string name="no_score_history">No score history</string>
     <string name="saved_flags">Saved</string>
+    <string name="saved_flags_score_preview">Saved</string>
+    <string name="saved_flags_score_detailed">Saved flags</string>
     <string name="saved_flags_add">Save flag</string>
     <string name="saved_flags_remove">Unsave flag</string>
     <string name="search_bar_placeholder">Search flags</string>
