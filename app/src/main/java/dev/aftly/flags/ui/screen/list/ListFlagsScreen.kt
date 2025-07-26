@@ -103,12 +103,11 @@ import kotlinx.coroutines.launch
 @Composable
 fun ListFlagsScreen(
     viewModel: ListFlagsViewModel = viewModel(),
-    searchModel: SearchViewModel = viewModel(),
     onNavigationDrawer: () -> Unit,
     onNavigateDetails: (Int, List<Int>) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val searchState by searchModel.searchResults.collectAsStateWithLifecycle()
+    val searchResults by viewModel.searchResults.collectAsStateWithLifecycle()
 
     /* Update (alphabetical) order of flag lists when language changes */
     val configuration = LocalConfiguration.current
@@ -122,28 +121,25 @@ fun ListFlagsScreen(
 
     ListFlagsScreen(
         uiState = uiState,
-        searchState = searchState,
-        userSearch = searchModel.searchQuery,
-        isUserSearch = searchModel.isSearchQuery,
-        onUserSearchChange = { searchModel.onSearchQueryChange(it) },
+        searchResults = searchResults,
+        searchQuery = viewModel.searchQuery,
+        onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
         onIsSearchBarInit = { viewModel.toggleIsSearchBarInit(it) },
         onIsSearchBarInitTopBar = { viewModel.toggleIsSearchBarInitTopBar(it) },
         onNavigationDrawer = onNavigationDrawer,
         onCategorySelectSingle = { newSuperCategory, newSubCategory ->
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
-            searchModel.updateCurrentCategory(newSuperCategory, newSubCategory) // TODO merge
         },
         onCategorySelectMultiple = { selectSuperCategory, selectSubCategory ->
             viewModel.updateCurrentCategories(selectSuperCategory, selectSubCategory)
-            searchModel.updateCurrentCategories(selectSuperCategory, selectSubCategory) // TODO merge
         },
         onSavedFlagsSelect = { viewModel.selectSavedFlags() },
         onFlagSelect = { flag ->
-            val currentList = when (searchModel.isSearchQuery) {
-                true -> searchState.map { it.id }
+            val flags = when (viewModel.isSearchQuery) {
+                true -> searchResults.map { it.id }
                 false -> uiState.currentFlags.map { it.id }
             }
-            onNavigateDetails(flag.id, currentList)
+            onNavigateDetails(flag.id, flags)
         },
     )
 }
@@ -154,12 +150,11 @@ fun ListFlagsScreen(
 private fun ListFlagsScreen(
     modifier: Modifier = Modifier,
     uiState: ListFlagsUiState,
-    searchState: List<FlagResources>,
+    searchResults: List<FlagResources>,
     containerColor1: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     containerColor2: Color = MaterialTheme.colorScheme.secondary,
-    userSearch: String,
-    isUserSearch: Boolean,
-    onUserSearchChange: (String) -> Unit,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
     onIsSearchBarInit: (Boolean) -> Unit,
     onIsSearchBarInitTopBar: (Boolean) -> Unit,
     onNavigationDrawer: () -> Unit,
@@ -213,8 +208,8 @@ private fun ListFlagsScreen(
             onIsSearchBarInitTopBar(false)
             delay(Timing.MENU_COLLAPSE.toLong())
 
-            if (isUserSearch) {
-                onUserSearchChange("")
+            if (uiState.isSearchQuery) {
+                onSearchQueryChange("")
                 if (!isAtTop) {
                     coroutineScope.launch { listState.animateScrollToItem(index = 0) }
                 }
@@ -222,14 +217,17 @@ private fun ListFlagsScreen(
         }
     }
 
-    LaunchedEffect(key1 = userSearch) {
-        /* Reset scroll state after each userSearch character entry unless empty */
-        if (isUserSearch && !isAtTop) {
+    LaunchedEffect(key1 = searchQuery) {
+        /* Reset scroll state without animation after any change to existent searchQuery */
+        if (!isAtTop && uiState.isSearchQuery) {
             coroutineScope.launch { listState.scrollToItem(index = 0) }
+        } else if (!isAtTop) {
+            /* Reset scroll state with animation when no searchQuery */
+            coroutineScope.launch { listState.animateScrollToItem(index = 0) }
         }
 
         /* Minimize filter menu when keyboard input */
-        if (isUserSearch && isMenuExpanded) {
+        if (uiState.isSearchQuery && isMenuExpanded) {
             isMenuExpanded = false
         }
     }
@@ -264,14 +262,9 @@ private fun ListFlagsScreen(
             topBar = {
                 ListFlagsTopBar(
                     scrollBehaviour = scrollBehaviour,
-                    userSearch = userSearch,
-                    isUserSearch = isUserSearch,
-                    onUserSearchChange = {
-                        if (it == "" && !isAtTop) {
-                            coroutineScope.launch { listState.animateScrollToItem(index = 0) }
-                        }
-                        onUserSearchChange(it)
-                    },
+                    searchQuery = searchQuery,
+                    isSearchQuery = uiState.isSearchQuery,
+                    onSearchQueryChange = { onSearchQueryChange(it) },
                     onFocus = { isSearchBarFocused = true },
                     onKeyboardDismiss = {
                         focusManager.clearFocus()
@@ -293,7 +286,9 @@ private fun ListFlagsScreen(
                 ScrollToTopButton(
                     isVisible = !isAtTop,
                     containerColor = containerColor2,
-                    onClick = { coroutineScope.launch { listState.animateScrollToItem(index = 0) } }
+                    onClick = {
+                        coroutineScope.launch { listState.animateScrollToItem(index = 0) }
+                    }
                 )
             }
         ) { scaffoldPadding ->
@@ -312,8 +307,8 @@ private fun ListFlagsScreen(
                 scrollBehaviour = scrollBehaviour,
                 listState = listState,
                 isSavedFlags = uiState.isSavedFlags,
-                isUserSearch = isUserSearch,
-                searchResults = searchState,
+                isSearchQuery = uiState.isSearchQuery,
+                searchResults = searchResults,
                 currentFlags = uiState.currentFlags,
                 savedFlags = uiState.savedFlags,
                 onFlagSelect = {
@@ -332,7 +327,7 @@ private fun ListFlagsScreen(
             scaffoldPadding = scaffoldPaddingValues,
             buttonHorizontalPadding = Dimens.marginHorizontal16,
             flagCount =
-                if (isUserSearch) searchState.size
+                if (uiState.isSearchQuery) searchResults.size
                 else if (uiState.isSavedFlags) uiState.savedFlags.size
                 else uiState.currentFlags.size,
             onButtonHeightChange = { buttonHeight = it },
@@ -369,7 +364,7 @@ private fun ListFlagsContent(
     scrollBehaviour: TopAppBarScrollBehavior,
     listState: LazyListState,
     isSavedFlags: Boolean,
-    isUserSearch: Boolean,
+    isSearchQuery: Boolean,
     searchResults: List<FlagResources>,
     currentFlags: List<FlagResources>,
     savedFlags: List<FlagResources>,
@@ -386,7 +381,7 @@ private fun ListFlagsContent(
                 .height(filterButtonHeight / 2)
         )
 
-        when (isUserSearch) {
+        when (isSearchQuery) {
             false -> {
                 if (flags.isNotEmpty()) {
                     /* Flags list */
@@ -520,9 +515,9 @@ private fun ListItem(
 private fun ListFlagsTopBar(
     modifier: Modifier = Modifier,
     scrollBehaviour: TopAppBarScrollBehavior,
-    userSearch: String,
-    isUserSearch: Boolean,
-    onUserSearchChange: (String) -> Unit,
+    searchQuery: String,
+    isSearchQuery: Boolean,
+    onSearchQueryChange: (String) -> Unit,
     onFocus: () -> Unit,
     onKeyboardDismiss: () -> Unit,
     isMenuExpanded: Boolean,
@@ -706,8 +701,8 @@ private fun ListFlagsTopBar(
                     ) { }
 
                     TextField(
-                        value = userSearch,
-                        onValueChange = onUserSearchChange,
+                        value = searchQuery,
+                        onValueChange = onSearchQueryChange,
                         modifier = Modifier//.height(48.dp * configuration.fontScale)
                             .fillMaxWidth()
                             .padding(
@@ -728,7 +723,7 @@ private fun ListFlagsTopBar(
                             ) {
                                 Row {
                                     AnimatedVisibility(
-                                        visible = isUserSearch,
+                                        visible = isSearchQuery,
                                         enter = scaleIn(
                                             animationSpec = tween(
                                                 durationMillis = Timing.TEXTFIELD_ACTION
@@ -741,7 +736,7 @@ private fun ListFlagsTopBar(
                                         ),
                                     ) {
                                         IconButton(
-                                            onClick = { onUserSearchChange("") }
+                                            onClick = { onSearchQueryChange("") }
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Default.Clear,

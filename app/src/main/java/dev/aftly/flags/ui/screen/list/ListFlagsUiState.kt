@@ -12,6 +12,7 @@ data class ListFlagsUiState(
     val isSavedFlags: Boolean = false,
     val currentSuperCategories: List<FlagSuperCategory> = listOf(FlagSuperCategory.All),
     val currentSubCategories: List<FlagCategory> = emptyList(),
+    val isSearchQuery: Boolean = false,
     val isSearchBarInit: Boolean = false, /* Hold initialised state for effects */
     val isSearchBarInitTopBar: Boolean = false, /* Hold initialised state for effects */
 )
