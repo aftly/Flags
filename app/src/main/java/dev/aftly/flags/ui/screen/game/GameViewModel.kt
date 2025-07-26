@@ -527,10 +527,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         mutableList.add(appResources.getString(flag.flagOf))
         mutableList.add(appResources.getString(flag.flagOfOfficial))
 
-        if (flag.flagOfAlternate != null) {
-            flag.flagOfAlternate.forEach { resId ->
-                mutableList.add(appResources.getString(resId))
-            }
+        flag.flagOfAlternate?.forEach { resId ->
+            mutableList.add(appResources.getString(resId))
         }
         return mutableList.toList()
     }

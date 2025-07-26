@@ -112,12 +112,14 @@ fun ListFlagsScreen(
     /* Update (alphabetical) order of flag lists when language changes */
     val configuration = LocalConfiguration.current
     val locale = configuration.locales[0]
-    /*
-    LaunchedEffect(locale) {
+    /* LaunchedEffect(locale) {
         viewModel.sortFlagsAlphabetically()
         searchModel.sortFlagsAlphabetically()
-    }
-     */
+    } */
+
+    /* To permit/block onCategorySelectMultiple() */
+    val isSavedFlagsSelected =
+        uiState.currentSuperCategories.isEmpty() && uiState.currentSubCategories.isEmpty()
 
     ListFlagsScreen(
         uiState = uiState,

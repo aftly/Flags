@@ -365,6 +365,8 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         newSuperCategory: FlagSuperCategory?,
         newSubCategory: FlagCategory?,
     ) {
+        //if (uiState.value.currentSuperCategories.isEmpty())
+
         var isDeselect = false /* Controls whether flags are updated from current or all flags */
 
         val newSuperCategories = uiState.value.currentSuperCategories.toMutableList()

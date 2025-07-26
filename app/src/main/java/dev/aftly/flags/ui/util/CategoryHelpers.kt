@@ -167,8 +167,11 @@ fun isSuperCategoryExit(
     val exclusive2 = mutuallyExclusiveSuperCategories2
 
     /* TODO: Make hardcoded solutions (#2 & #4) dynamic */
-    /* First 2 conditionals regard exclusive1, subsequent 2 regard exclusive2 */
-    return if (superCategory !in superCategories &&
+    /* After first, next 2 conditionals regard exclusive1, subsequent 2 regard exclusive2 */
+    return if (superCategories.isEmpty() && subCategories.isEmpty()) {
+        /* SavedFlags (currently) represented by no selected categories */
+        true
+    } else if (superCategory !in superCategories &&
         exclusive1.contains(superCategory) && exclusive1.any { it in superCategories }) {
         true
 
@@ -196,6 +199,9 @@ fun isSubCategoryExit(
     subCategories: MutableList<FlagCategory>,
     superCategories: MutableList<FlagSuperCategory>,
 ): Boolean {
+    /* SavedFlags (currently) represented by no selected categories */
+    if (subCategories.isEmpty() && superCategories.isEmpty()) return true
+
     mutuallyExclusiveSubCategories.forEach { superCategory ->
         if (subCategory !in subCategories &&
             superCategory.enums().any { it in subCategories } &&
