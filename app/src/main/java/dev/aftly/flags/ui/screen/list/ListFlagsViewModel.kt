@@ -30,7 +30,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -54,28 +53,26 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
     private var relatedFlags by mutableStateOf<List<FlagResources>>(value = emptyList())
 
     /* Flows for combining in searchResults */
-    private val flagsFlow = uiState.map { it.currentFlags }
+    private val currentFlagsFlow = uiState.map { it.currentFlags }
+    private val savedFlagsFlow = uiState.map { it.savedFlags }
     private val searchQueryFlow = snapshotFlow { searchQuery }
-    private var appResourcesFlow = flowOf(
-        value = getApplication<Application>().applicationContext.resources
-    )
-    /*
-    private var appResources = MutableStateFlow(
-        value = getApplication<Application>().applicationContext.resources
-    )
-     */
-    private var theStringFlow = flowOf(
-        value = getApplication<Application>().applicationContext.resources
+    private var appResourcesFlow = snapshotFlow {
+        getApplication<Application>().applicationContext.resources
+    }
+    private var theStringFlow = snapshotFlow {
+        getApplication<Application>().applicationContext.resources
             .getString(R.string.string_the)
-    )
-    //private var the = MutableStateFlow(value = appResources.value.getString(R.string.string_the))
+    }
 
     val searchResults = combine(
         flow = searchQueryFlow,
-        flow2 = flagsFlow,
-        flow3 = appResourcesFlow,
-        flow4 = theStringFlow
-    ) { query, flags, res, the ->
+        flow2 = currentFlagsFlow,
+        flow3 = savedFlagsFlow,
+        flow4 = appResourcesFlow,
+        flow5 = theStringFlow
+    ) { query, current, saved, res, the ->
+        val flags = if (uiState.value.isSavedFlags) saved else current
+
         when {
             query.isNotEmpty() -> flags.filter { flag ->
                 /* Handle searchQuery matching flag's common name */
@@ -433,14 +430,16 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun selectSavedFlags() {
-        _uiState.update {
-            it.copy(
-                isSavedFlags = true,
-                currentSuperCategories = emptyList(),
-                currentSubCategories = emptyList(),
-            )
-        }
+    fun toggleSavedFlags(on: Boolean = true) {
+        if (on) {
+            _uiState.update {
+                it.copy(
+                    isSavedFlags = true,
+                    currentSuperCategories = emptyList(),
+                    currentSubCategories = emptyList(),
+                )
+            }
+        } else _uiState.update { it.copy(isSavedFlags = false) }
     }
 
     fun onSearchQueryChange(newQuery: String) {

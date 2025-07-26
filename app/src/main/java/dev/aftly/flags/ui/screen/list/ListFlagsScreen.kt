@@ -133,7 +133,7 @@ fun ListFlagsScreen(
         onCategorySelectMultiple = { selectSuperCategory, selectSubCategory ->
             viewModel.updateCurrentCategories(selectSuperCategory, selectSubCategory)
         },
-        onSavedFlagsSelect = { viewModel.selectSavedFlags() },
+        onSavedFlagsSelect = { viewModel.toggleSavedFlags(on = it) },
         onFlagSelect = { flag ->
             val flags = when (viewModel.isSearchQuery) {
                 true -> searchResults.map { it.id }
@@ -160,7 +160,7 @@ private fun ListFlagsScreen(
     onNavigationDrawer: () -> Unit,
     onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
-    onSavedFlagsSelect: () -> Unit,
+    onSavedFlagsSelect: (Boolean) -> Unit,
     onFlagSelect: (FlagResources) -> Unit,
 ) {
     /* Controls FilterFlagsButton menu expansion amd tracks current button height
@@ -191,6 +191,8 @@ private fun ListFlagsScreen(
     /* isSearchBar init LaunchedEffect only exists when it's needed (solves unintended launches) */
     if (isSearchBar && !uiState.isSearchBarInit) {
         LaunchedEffect(key1 = Unit) {
+            onSavedFlagsSelect(false)
+
             if (!uiState.currentFlags.containsAll(DataSource.allFlagsList)) {
                 onCategorySelectSingle(FlagSuperCategory.All, null)
                 if (!isAtTop) {
@@ -347,7 +349,7 @@ private fun ListFlagsScreen(
                 coroutineScope.launch { listState.animateScrollToItem(index = 0) }
             },
             onSavedFlagsSelect = {
-                onSavedFlagsSelect()
+                onSavedFlagsSelect(true)
                 coroutineScope.launch { listState.animateScrollToItem(index = 0) }
             },
         )
