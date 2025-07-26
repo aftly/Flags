@@ -220,14 +220,6 @@ private fun ListFlagsScreen(
     }
 
     LaunchedEffect(key1 = searchQuery) {
-        /* Reset scroll state without animation after any change to existent searchQuery */
-        if (!isAtTop && uiState.isSearchQuery) {
-            coroutineScope.launch { listState.scrollToItem(index = 0) }
-        } else if (!isAtTop) {
-            /* Reset scroll state with animation when no searchQuery */
-            coroutineScope.launch { listState.animateScrollToItem(index = 0) }
-        }
-
         /* Minimize filter menu when keyboard input */
         if (uiState.isSearchQuery && isMenuExpanded) {
             isMenuExpanded = false
@@ -266,7 +258,16 @@ private fun ListFlagsScreen(
                     scrollBehaviour = scrollBehaviour,
                     searchQuery = searchQuery,
                     isSearchQuery = uiState.isSearchQuery,
-                    onSearchQueryChange = { onSearchQueryChange(it) },
+                    onSearchQueryChange = {
+                        if (!isAtTop) coroutineScope.launch { listState.scrollToItem(index = 0) }
+                        onSearchQueryChange(it)
+                    },
+                    onSearchQueryClear = {
+                        if (!isAtTop) coroutineScope.launch {
+                            listState.animateScrollToItem(index = 0)
+                        }
+                        onSearchQueryChange("")
+                    },
                     onFocus = { isSearchBarFocused = true },
                     onKeyboardDismiss = {
                         focusManager.clearFocus()
@@ -520,6 +521,7 @@ private fun ListFlagsTopBar(
     searchQuery: String,
     isSearchQuery: Boolean,
     onSearchQueryChange: (String) -> Unit,
+    onSearchQueryClear: () -> Unit,
     onFocus: () -> Unit,
     onKeyboardDismiss: () -> Unit,
     isMenuExpanded: Boolean,
@@ -738,7 +740,7 @@ private fun ListFlagsTopBar(
                                         ),
                                     ) {
                                         IconButton(
-                                            onClick = { onSearchQueryChange("") }
+                                            onClick = onSearchQueryClear
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Default.Clear,
