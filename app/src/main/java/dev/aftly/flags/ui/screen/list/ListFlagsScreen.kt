@@ -191,10 +191,10 @@ private fun ListFlagsScreen(
     /* isSearchBar init LaunchedEffect only exists when it's needed (solves unintended launches) */
     if (isSearchBar && !uiState.isSearchBarInit) {
         LaunchedEffect(key1 = Unit) {
-            onSavedFlagsSelect(false)
-
-            if (!uiState.currentFlags.containsAll(DataSource.allFlagsList)) {
+            if (!uiState.currentFlags.containsAll(DataSource.allFlagsList) ||
+                uiState.isSavedFlags) {
                 onCategorySelectSingle(FlagSuperCategory.All, null)
+                onSavedFlagsSelect(false)
                 if (!isAtTop) {
                     coroutineScope.launch { listState.animateScrollToItem(index = 0) }
                 }
