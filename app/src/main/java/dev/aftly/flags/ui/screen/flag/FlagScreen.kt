@@ -73,20 +73,19 @@ import dev.aftly.flags.ui.component.openWebLink
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.SystemUiController
-import dev.aftly.flags.ui.util.getFlagFromId
 
 
 @Composable
 fun FlagScreen(
     viewModel: FlagViewModel = viewModel(),
     navController: NavHostController,
-    onNavigateUp: () -> Unit,
+    onNavigateBack: (FlagResources) -> Unit,
     onFullscreen: (FlagResources, List<Int>, Boolean) -> Unit,
     onNavigateError: () -> Unit,
 ) {
     /* Expose screen and backStack state */
     val uiState by viewModel.uiState.collectAsState()
-    val backStackEntry = navController.currentBackStackEntryAsState()
+    val backStackEntry by navController.currentBackStackEntryAsState()
 
     /* Handle navigation null case */
     if (uiState.flag == DataSource.nullFlag) onNavigateError()
@@ -97,11 +96,11 @@ fun FlagScreen(
     val systemUiController = remember { SystemUiController(view, window) }
     val isDarkTheme = LocalDarkTheme.current
 
-    LaunchedEffect(backStackEntry) {
+    LaunchedEffect(key1 = backStackEntry) {
         systemUiController.setLightStatusBar(light = !isDarkTheme)
         systemUiController.setSystemBars(visible = true)
 
-        backStackEntry.value?.savedStateHandle?.get<Int>("flag")?.let { flagId ->
+        backStackEntry?.savedStateHandle?.get<Int>("flagId")?.let { flagId ->
             viewModel.updateFlag(flagId)
         }
     }
@@ -120,7 +119,11 @@ fun FlagScreen(
             val flagIds = viewModel.getFlagIds()
             onFullscreen(uiState.flag, flagIds, isLandscape)
         },
-        onNavigateUp = onNavigateUp,
+        onNavigateBack = {
+            val flag =
+                if (uiState.isRelatedFlagNavigation) uiState.initRelatedFlag else uiState.flag
+            onNavigateBack(flag)
+        },
     )
 }
 
@@ -132,7 +135,7 @@ private fun FlagScreen(
     onFlagSave: () -> Unit,
     onRelatedFlag: (FlagResources) -> Unit,
     onFullscreen: (Boolean) -> Unit,
-    onNavigateUp: () -> Unit,
+    onNavigateBack: () -> Unit,
 ) {
     val isRelatedFlagsButton = uiState.relatedFlags.size > 1
 
@@ -159,7 +162,7 @@ private fun FlagScreen(
                     onButtonExpand = { isButtonExpanded = !isButtonExpanded },
                     onButtonPosition = { buttonOffset = it },
                     onButtonWidth = { buttonWidth = it },
-                    onNavigateUp = onNavigateUp,
+                    onNavigateBack = onNavigateBack,
                 )
             }
         ) { scaffoldPadding ->
@@ -400,7 +403,7 @@ private fun FlagTopBar(
     onButtonExpand: () -> Unit,
     onButtonPosition: (Offset) -> Unit,
     onButtonWidth: (Int) -> Unit,
-    onNavigateUp: () -> Unit,
+    onNavigateBack: () -> Unit,
 ) {
     TopAppBar(
         title = {
@@ -420,7 +423,7 @@ private fun FlagTopBar(
         },
         modifier = modifier,
         navigationIcon = {
-            IconButton(onClick = onNavigateUp) {
+            IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
                     contentDescription = "back",

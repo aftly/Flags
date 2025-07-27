@@ -17,8 +17,8 @@ class FullscreenViewModel(
     val uiState = _uiState.asStateFlow()
 
     init {
-        val flagArg = savedStateHandle.get<Int>("flag")
-        val flagsArg = savedStateHandle.get<String>("flags")
+        val flagArg = savedStateHandle.get<Int>("flagId")
+        val flagsArg = savedStateHandle.get<String>("flagIds")
 
         if (flagArg != null && flagsArg != null) {
             val flag = flagsMapId.getValue(flagArg)
@@ -33,7 +33,7 @@ class FullscreenViewModel(
         }
     }
 
-    fun updateCurrentFlagId(
+    fun updateCurrentFlagIds(
         flagId: Int,
         @StringRes flagTitle: Int,
     ) {

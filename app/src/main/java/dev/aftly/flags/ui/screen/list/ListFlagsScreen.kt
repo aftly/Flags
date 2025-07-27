@@ -84,6 +84,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.model.FlagCategory
@@ -95,6 +98,7 @@ import dev.aftly.flags.ui.component.ResultsType
 import dev.aftly.flags.ui.component.ScrollToTopButton
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
+import dev.aftly.flags.ui.util.getFlagFromId
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -103,11 +107,13 @@ import kotlinx.coroutines.launch
 @Composable
 fun ListFlagsScreen(
     viewModel: ListFlagsViewModel = viewModel(),
+    navController: NavHostController,
     onNavigationDrawer: () -> Unit,
     onNavigateToFlagScreen: (FlagResources, List<FlagResources>) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val searchResults by viewModel.searchResults.collectAsStateWithLifecycle()
+    val backStackEntry by navController.currentBackStackEntryAsState()
 
     /* Update (alphabetical) order of flag lists when language changes */
     val configuration = LocalConfiguration.current
@@ -121,8 +127,10 @@ fun ListFlagsScreen(
     val isSavedFlagsSelected =
         uiState.currentSuperCategories.isEmpty() && uiState.currentSubCategories.isEmpty()
 
+
     ListFlagsScreen(
         uiState = uiState,
+        backStackEntry = backStackEntry,
         searchResults = searchResults,
         searchQuery = viewModel.searchQuery,
         onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
@@ -140,8 +148,6 @@ fun ListFlagsScreen(
             val flags = when (viewModel.isSearchQuery) {
                 true -> searchResults
                 false -> uiState.currentFlags
-                //true -> searchResults.map { it.id } TODO
-                //false -> uiState.currentFlags.map { it.id } TODO
             }
             onNavigateToFlagScreen(flag, flags)
         },
@@ -154,6 +160,7 @@ fun ListFlagsScreen(
 private fun ListFlagsScreen(
     modifier: Modifier = Modifier,
     uiState: ListFlagsUiState,
+    backStackEntry: NavBackStackEntry?,
     searchResults: List<FlagResources>,
     containerColor1: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     containerColor2: Color = MaterialTheme.colorScheme.secondary,
@@ -234,6 +241,22 @@ private fun ListFlagsScreen(
     LaunchedEffect(key1 = uiState.savedFlags) {
         if (uiState.isSavedFlags && uiState.savedFlags.isEmpty()) {
             onCategorySelectSingle(FlagSuperCategory.All, null)
+        }
+    }
+
+    /* Scroll to flag from flag screen in list (if valid and present) */
+    LaunchedEffect(key1 = backStackEntry) {
+        backStackEntry?.savedStateHandle?.get<Int>(key = "scrollToFlagId")?.let { flagId ->
+            if (flagId > 0) {
+                val flag = getFlagFromId(flagId)
+                val flags =
+                    if (uiState.isSearchQuery) searchResults
+                    else if (uiState.isSavedFlags) uiState.savedFlags
+                    else uiState.currentFlags
+
+                val index = flags.indexOf(flag)
+                coroutineScope.launch { listState.scrollToItem(index = index) }
+            }
         }
     }
 

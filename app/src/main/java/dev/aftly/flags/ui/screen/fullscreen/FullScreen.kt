@@ -126,7 +126,7 @@ fun FullScreen(
                 orientationController.unsetLandscapeOrientation()
             },
             onCarouselRotation = { id, title ->
-                viewModel.updateCurrentFlagId(id, title)
+                viewModel.updateCurrentFlagIds(id, title)
             },
         )
     }

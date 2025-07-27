@@ -54,8 +54,8 @@ class FlagViewModel(
 
     init {
         /* Initialise state from nav arg via SavedStateHandle */
-        val flagIdArg = savedStateHandle.get<Int>("flag")
-        val flagIdsArg = savedStateHandle.get<String>("flags")
+        val flagIdArg = savedStateHandle.get<Int>("flagId")
+        val flagIdsArg = savedStateHandle.get<String>("flagIds")
 
         if (flagIdArg != null && flagIdsArg != null) {
             val flagIdsFromList = getFlagIdsFromString(string = flagIdsArg)

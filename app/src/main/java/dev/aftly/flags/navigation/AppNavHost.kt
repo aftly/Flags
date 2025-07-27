@@ -31,11 +31,13 @@ import dev.aftly.flags.ui.util.getFlagIdsString
 import kotlinx.coroutines.launch
 
 
+private val listRoute = "${Screen.List.route}?scrollToFlagId={scrollToFlagId}"
 private val gameRoute = "${Screen.Game.route}?isGameOver={isGameOver}"
 
 private fun getScreenFromBackStackEntry(
     backStackEntry: NavBackStackEntry?
 ): Screen? = when (backStackEntry?.destination?.route) {
+    listRoute -> Screen.getScreenFromRoute(route = Screen.List.route)
     gameRoute -> Screen.getScreenFromRoute(route = Screen.Game.route)
     else -> Screen.getScreenFromRoute(route = backStackEntry?.destination?.route)
 }
@@ -47,7 +49,7 @@ fun AppNavHost(
     /* currentBackStackEntryAsState() triggers recomposition after navigation events which ensures
      * (dynamic) ScreenTopBars update and scrollBehaviour in screens works after navigation(s) */
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
-    val startDestination = Screen.List.route
+    val startDestination = listRoute
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -61,7 +63,7 @@ fun AppNavHost(
             screen.getMenuOrNull()?.let { menu ->
                 when (menu) {
                     Screen.Menu.LIST -> navController.popBackStack(
-                        route = screen.route,
+                        route = listRoute,
                         inclusive = false,
                     )
                     Screen.Menu.GAME ->
@@ -116,15 +118,19 @@ fun AppNavHost(
         ) {
             /* ListFlagsScreen NavGraph */
             composable(
-                route = Screen.List.route
+                route = listRoute,
+                arguments = listOf(
+                    navArgument(name = "scrollToFlagId") {
+                        type = NavType.IntType
+                        defaultValue = 0
+                    }
+                ),
             ) {
                 ListFlagsScreen(
+                    navController = navController,
                     onNavigationDrawer = {
                         scope.launch {
-                            when (drawerState.isClosed) {
-                                true -> drawerState.open()
-                                false -> drawerState.close()
-                            }
+                            if (drawerState.isClosed) drawerState.open() else drawerState.close()
                         }
                     },
                     onNavigateToFlagScreen = { flag, flags ->
@@ -141,11 +147,11 @@ fun AppNavHost(
 
             /* FlagScreen NavGraph */
             composable(
-                route = "${Screen.Flag.route}/{flag}/{flags}",
+                route = "${Screen.Flag.route}/{flagId}/{flagIds}",
                 arguments = listOf(
-                    navArgument(name = "flag") { type = NavType.IntType },
-                    /* Although String type, is functionally List<Int> with immediate CSV conversions */
-                    navArgument(name = "flags") { type = NavType.StringType }
+                    navArgument(name = "flagId") { type = NavType.IntType },
+                    /* Although String type, is List<Int> with CSV conversion */
+                    navArgument(name = "flagIds") { type = NavType.StringType }
                 ),
                 exitTransition = {
                     when (targetState.destination.route) {
@@ -154,8 +160,7 @@ fun AppNavHost(
                     }
                 },
                 popEnterTransition = { EnterTransition.None },
-
-                ) {
+            ) {
                 /* Handling null error navigation to FlagScreen() by popping back to current ?: home */
                 val onNullError: () -> Unit = {
                     navController.popBackStack(
@@ -166,11 +171,14 @@ fun AppNavHost(
 
                 FlagScreen(
                     navController = navController,
-                    onNavigateUp = { navController.navigateUp() },
+                    onNavigateBack = { flag ->
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle?.set(key = "scrollToFlagId", value = flag.id)
+                        navController.navigateUp()
+                    },
                     onFullscreen = { flag, flagIds, isLandscape ->
                         val flagIdArg = flag.id
                         val flagIdsArg = getFlagIdsString(flagIds)
-                        //val flagsAsString = flagsArg.joinToString(separator = ",")
 
                         navController.navigate(
                             route = "${Screen.Fullscreen.route}/$flagIdArg/$flagIdsArg/$isLandscape?hideTitle=false"
@@ -200,18 +208,14 @@ fun AppNavHost(
                         Screen.Fullscreen.route -> EnterTransition.None
                         else -> null
                     }
-                }
-
+                },
             ) {
                 GameScreen(
                     navController = navController,
                     screen = Screen.Game,
                     onNavigationDrawer = {
                         scope.launch {
-                            when (drawerState.isClosed) {
-                                true -> drawerState.open()
-                                false -> drawerState.close()
-                            }
+                            if (drawerState.isClosed) drawerState.open() else drawerState.close()
                         }
                     },
                     onExit = {
@@ -233,15 +237,13 @@ fun AppNavHost(
                 route = "${Screen.GameHistory.route}/{isGameOver}",
                 arguments = listOf(
                     navArgument(name = "isGameOver") { type = NavType.BoolType }
-                )
+                ),
             ) {
                 GameHistoryScreen(
                     screen = Screen.GameHistory,
                     onNavigateUp = { isGameOver ->
-                        navController.previousBackStackEntry?.savedStateHandle?.set(
-                            key = "isGameOver",
-                            value = isGameOver,
-                        )
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle?.set(key = "isGameOver", value = isGameOver)
                         navController.navigateUp()
                     },
                 )
@@ -249,25 +251,26 @@ fun AppNavHost(
 
             /* FullScreen NavGraph */
             composable(
-                route = "${Screen.Fullscreen.route}/{flag}/{flags}/{landscape}?hideTitle={hideTitle}",
+                route = "${Screen.Fullscreen.route}/{flagId}/{flagIds}/{isLandscape}?hideTitle={hideTitle}",
                 arguments = listOf(
-                    navArgument(name = "flag") { type = NavType.IntType },
+                    navArgument(name = "flagId") { type = NavType.IntType },
                     /* Although String type, is functionally List<Int> with immediate CSV conversions */
-                    navArgument(name = "flags") { type = NavType.StringType },
-                    navArgument(name = "landscape") { type = NavType.BoolType },
+                    navArgument(name = "flagIds") { type = NavType.StringType },
+                    navArgument(name = "isLandscape") { type = NavType.BoolType },
                     navArgument(name = "hideTitle") { type = NavType.BoolType },
                 ),
                 enterTransition = { EnterTransition.None },
                 exitTransition = { ExitTransition.None },
             ) { backStackEntry ->
-                val isLandscape = backStackEntry.arguments?.getBoolean("landscape") ?: true
+                val isLandscape = backStackEntry.arguments?.getBoolean("isLandscape") ?: true
                 val hideTitle = backStackEntry.arguments?.getBoolean("hideTitle") ?: false
 
                 FullScreen(
                     hideTitle = hideTitle,
                     isFlagWide = isLandscape,
                     onExitFullScreen = { flagId ->
-                        navController.previousBackStackEntry?.savedStateHandle?.set("flag", flagId)
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle?.set(key = "flagId", value = flagId)
                         navController.navigateUp()
                     },
                 )
@@ -275,16 +278,13 @@ fun AppNavHost(
 
             /* SettingsScreen NavGraph */
             composable(
-                route = Screen.Settings.route
+                route = Screen.Settings.route,
             ) {
                 SettingsScreen(
                     screen = Screen.Settings,
                     onNavigationDrawer = {
                         scope.launch {
-                            when (drawerState.isClosed) {
-                                true -> drawerState.open()
-                                false -> drawerState.close()
-                            }
+                            if (drawerState.isClosed) drawerState.open() else drawerState.close()
                         }
                     },
                 )
