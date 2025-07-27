@@ -127,7 +127,7 @@ fun AppNavHost(
                 ),
             ) {
                 ListFlagsScreen(
-                    navController = navController,
+                    currentBackStackEntry = currentBackStackEntry,
                     onNavigationDrawer = {
                         scope.launch {
                             if (drawerState.isClosed) drawerState.open() else drawerState.close()
@@ -170,7 +170,7 @@ fun AppNavHost(
                 }
 
                 FlagScreen(
-                    navController = navController,
+                    currentBackStackEntry = currentBackStackEntry,
                     onNavigateBack = { flag ->
                         navController.previousBackStackEntry
                             ?.savedStateHandle?.set(key = "scrollToFlagId", value = flag.id)

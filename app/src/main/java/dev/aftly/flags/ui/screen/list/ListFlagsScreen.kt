@@ -107,13 +107,12 @@ import kotlinx.coroutines.launch
 @Composable
 fun ListFlagsScreen(
     viewModel: ListFlagsViewModel = viewModel(),
-    navController: NavHostController,
+    currentBackStackEntry: NavBackStackEntry?,
     onNavigationDrawer: () -> Unit,
     onNavigateToFlagScreen: (FlagResources, List<FlagResources>) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val searchResults by viewModel.searchResults.collectAsStateWithLifecycle()
-    val backStackEntry by navController.currentBackStackEntryAsState()
 
     /* Update (alphabetical) order of flag lists when language changes */
     val configuration = LocalConfiguration.current
@@ -130,7 +129,7 @@ fun ListFlagsScreen(
 
     ListFlagsScreen(
         uiState = uiState,
-        backStackEntry = backStackEntry,
+        currentBackStackEntry = currentBackStackEntry,
         searchResults = searchResults,
         searchQuery = viewModel.searchQuery,
         onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
@@ -160,7 +159,7 @@ fun ListFlagsScreen(
 private fun ListFlagsScreen(
     modifier: Modifier = Modifier,
     uiState: ListFlagsUiState,
-    backStackEntry: NavBackStackEntry?,
+    currentBackStackEntry: NavBackStackEntry?,
     searchResults: List<FlagResources>,
     containerColor1: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     containerColor2: Color = MaterialTheme.colorScheme.secondary,
@@ -245,8 +244,8 @@ private fun ListFlagsScreen(
     }
 
     /* Scroll to flag from flag screen in list (if valid and present) */
-    LaunchedEffect(key1 = backStackEntry) {
-        backStackEntry?.savedStateHandle?.get<Int>(key = "scrollToFlagId")?.let { flagId ->
+    LaunchedEffect(key1 = currentBackStackEntry) {
+        currentBackStackEntry?.savedStateHandle?.get<Int>(key = "scrollToFlagId")?.let { flagId ->
             if (flagId > 0) {
                 val flag = getFlagFromId(flagId)
                 val flags =

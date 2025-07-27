@@ -61,6 +61,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import dev.aftly.flags.R
@@ -78,14 +79,13 @@ import dev.aftly.flags.ui.util.SystemUiController
 @Composable
 fun FlagScreen(
     viewModel: FlagViewModel = viewModel(),
-    navController: NavHostController,
+    currentBackStackEntry: NavBackStackEntry?,
     onNavigateBack: (FlagResources) -> Unit,
     onFullscreen: (FlagResources, List<Int>, Boolean) -> Unit,
     onNavigateError: () -> Unit,
 ) {
     /* Expose screen and backStack state */
     val uiState by viewModel.uiState.collectAsState()
-    val backStackEntry by navController.currentBackStackEntryAsState()
 
     /* Handle navigation null case */
     if (uiState.flag == DataSource.nullFlag) onNavigateError()
@@ -102,8 +102,8 @@ fun FlagScreen(
         systemUiController.setSystemBars(visible = true)
     }
 
-    LaunchedEffect(key1 = backStackEntry) {
-        backStackEntry?.savedStateHandle?.get<Int>("flagId")?.let { flagId ->
+    LaunchedEffect(key1 = currentBackStackEntry) {
+        currentBackStackEntry?.savedStateHandle?.get<Int>("flagId")?.let { flagId ->
             viewModel.updateFlag(flagId)
         }
     }
