@@ -8,7 +8,7 @@ import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.data.room.scorehistory.ScoreItem
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.toScoreData
-import dev.aftly.flags.ui.util.getFlagResources
+import dev.aftly.flags.ui.util.getFlagsFromKeys
 import dev.aftly.flags.ui.util.sortFlagsAlphabetically
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -43,16 +43,16 @@ class GameHistoryViewModel(
                 scoreDetails = scoreItem?.toScoreData(
                     //flagsGuessedSorted = sortFlags(scoreItem.flagsGuessed),
                     flagsGuessedSorted = sortFlags(
-                        flags = getFlagResources(flagKeys = scoreItem.flagsGuessed)
+                        flags = getFlagsFromKeys(flagKeys = scoreItem.flagsGuessed)
                     ),
                     flagsSkippedGuessedSorted = sortFlags(
-                        flags = getFlagResources(flagKeys = scoreItem.flagsSkippedGuessed)
+                        flags = getFlagsFromKeys(flagKeys = scoreItem.flagsSkippedGuessed)
                     ),
                     flagsSkippedSorted = sortFlags(
-                        flags = getFlagResources(flagKeys = scoreItem.flagsSkipped)
+                        flags = getFlagsFromKeys(flagKeys = scoreItem.flagsSkipped)
                     ),
                     flagsShownSorted = sortFlags(
-                        flags = getFlagResources(flagKeys = scoreItem.flagsShown)
+                        flags = getFlagsFromKeys(flagKeys = scoreItem.flagsShown)
                     ),
                 ),
             )

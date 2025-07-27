@@ -10,7 +10,6 @@ import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.allFlagsList
 import dev.aftly.flags.data.DataSource.flagsMap
 import dev.aftly.flags.data.DataSource.flagsMapId
-import dev.aftly.flags.data.DataSource.reverseFlagsMap
 import dev.aftly.flags.data.room.savedflags.SavedFlag
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
@@ -34,6 +33,9 @@ import dev.aftly.flags.model.FlagCategory.SUPRANATIONAL_UNION
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
+import dev.aftly.flags.ui.util.getFlagFromId
+import dev.aftly.flags.ui.util.getFlagIdsFromString
+import dev.aftly.flags.ui.util.getFlagKey
 import dev.aftly.flags.ui.util.getRelatedFlags
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -52,40 +54,70 @@ class FlagViewModel(
 
     init {
         /* Initialise state from nav arg via SavedStateHandle */
-        val flagArg = savedStateHandle.get<Int>("flag")
-        val flagsArg = savedStateHandle.get<String>("flags")
+        val flagIdArg = savedStateHandle.get<Int>("flag")
+        val flagIdsArg = savedStateHandle.get<String>("flags")
 
-        if (flagArg != null && flagsArg != null) {
-            val flag = flagsMapId.getValue(key = flagArg)
-            val flagKey = reverseFlagsMap.getValue(key = flag)
-            val flags = flagsArg.split(",").mapNotNull { it.toIntOrNull() }
-            val relatedFlags = getRelatedFlags(flag, application)
+        if (flagIdArg != null && flagIdsArg != null) {
+            val flagIdsFromList = getFlagIdsFromString(string = flagIdsArg)
 
-            _uiState.update { currentState ->
-                currentState.copy(
-                    flag = flag,
-                    flagKey = flagKey,
-                    relatedFlags = relatedFlags,
-                    flagsFromList = flags,
-                )
-            }
-            updateDescriptionString(flag = flag)
+            updateFlag(flagIdArg, flagIdsFromList)
         }
 
         viewModelScope.launch {
             savedFlagsRepository.getAllFlagsStream().collect { savedFlags ->
                 val savedFlag = savedFlags.find { it.flagKey == uiState.value.flagKey }
-
-                _uiState.update { state ->
-                    state.copy(
-                        savedFlags = savedFlags,
-                        savedFlag = savedFlag,
-                        isFlagSaved = savedFlag != null,
-                    )
+                _uiState.update {
+                    it.copy(savedFlags = savedFlags, savedFlag = savedFlag)
                 }
             }
         }
     }
+
+
+    fun updateFlag(
+        flagId: Int,
+        flagIdsFromList: List<Int>? = null,
+    ) {
+        val flag = getFlagFromId(flagId)
+
+        if (flag != uiState.value.flag) {
+            val flagKey = getFlagKey(flag)
+
+            _uiState.update {
+                it.copy(
+                    flag = flag,
+                    flagKey = flagKey,
+                    relatedFlags = getRelatedFlags(flag, application),
+                    flagIdsFromList = flagIdsFromList ?: it.flagIdsFromList,
+                    isRelatedFlagNavigation =
+                        if (it.isRelatedFlagNavigation) flag != it.initRelatedFlag
+                        else false,
+                    savedFlag = it.savedFlags.find { savedFlag ->
+                        savedFlag.flagKey == flagKey
+                    }
+                )
+            }
+            updateDescriptionString(flag = flag)
+        }
+    }
+
+
+    fun updateFlagRelated(flag: FlagResources) {
+        val state = uiState.value
+
+        val initRelatedFlag =
+            if (!state.isRelatedFlagNavigation) state.flag
+            else state.initRelatedFlag
+
+        _uiState.update {
+            it.copy(
+                initRelatedFlag = initRelatedFlag,
+                isRelatedFlagNavigation = flag != initRelatedFlag,
+            )
+        }
+        updateFlag(flagId = flag.id)
+    }
+
 
     fun updateSavedFlag() {
         val savedFlag = uiState.value.savedFlag
@@ -101,13 +133,23 @@ class FlagViewModel(
     }
 
 
+    fun getFlagIds(): List<Int> = when (uiState.value.isRelatedFlagNavigation) {
+        false -> uiState.value.flagIdsFromList
+        true -> uiState.value.relatedFlags.map { it.id }
+    }
+    /*
+        return if (uiState.value.isRelatedFlagNavigation) uiState.value.relatedFlags.map { it.id }
+        else uiState.value.flagIdsFromList
+    }
+     */
+
     fun callOnFullScreen(
         onFullscreenUp: (Int, List<Int>, Boolean) -> Unit,
     ): (Boolean) -> Unit {
         val currentFlag = uiState.value.flag
 
-        val flags = when (uiState.value.isNavigatingRelated) {
-            false -> uiState.value.flagsFromList
+        val flags = when (uiState.value.isRelatedFlagNavigation) {
+            false -> uiState.value.flagIdsFromList
             true -> uiState.value.relatedFlags.map { it.id }
         }
 
@@ -115,35 +157,6 @@ class FlagViewModel(
             onFullscreenUp(currentFlag.id, flags, isLandscape)
         }
         return onFullScreenDown
-    }
-
-
-    fun updateFlagNav(flagId: Int) {
-        val flag = flagsMapId.getValue(flagId)
-
-        if (flag != uiState.value.flag) {
-            _uiState.update {
-                it.copy(
-                    flag = flag,
-                    relatedFlags = getRelatedFlags(flag, application),
-                )
-            }
-            updateDescriptionString(flag = flag)
-        }
-    }
-
-
-    fun updateFlagRelated(flag: FlagResources) {
-        if (flag != uiState.value.flag) {
-            _uiState.update {
-                it.copy(
-                    flag = flag,
-                    relatedFlags = getRelatedFlags(flag, application),
-                    isNavigatingRelated = true,
-                )
-            }
-            updateDescriptionString(flag = flag)
-        }
     }
 
 

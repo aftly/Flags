@@ -73,6 +73,7 @@ import dev.aftly.flags.ui.component.openWebLink
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.SystemUiController
+import dev.aftly.flags.ui.util.getFlagFromId
 
 
 @Composable
@@ -80,7 +81,7 @@ fun FlagScreen(
     viewModel: FlagViewModel = viewModel(),
     navController: NavHostController,
     onNavigateUp: () -> Unit,
-    onFullscreen: (Int, List<Int>, Boolean) -> Unit,
+    onFullscreen: (FlagResources, List<Int>, Boolean) -> Unit,
     onNavigateError: () -> Unit,
 ) {
     /* Expose screen and backStack state */
@@ -100,8 +101,8 @@ fun FlagScreen(
         systemUiController.setLightStatusBar(light = !isDarkTheme)
         systemUiController.setSystemBars(visible = true)
 
-        backStackEntry.value?.savedStateHandle?.get<Int>("flag").let { flagId ->
-            flagId?.let { viewModel.updateFlagNav(flagId = it) }
+        backStackEntry.value?.savedStateHandle?.get<Int>("flag")?.let { flagId ->
+            viewModel.updateFlag(flagId)
         }
     }
 
@@ -115,7 +116,10 @@ fun FlagScreen(
         uiState = uiState,
         onFlagSave = { viewModel.updateSavedFlag() },
         onRelatedFlag = { viewModel.updateFlagRelated(flag = it) },
-        onFullscreen = { viewModel.callOnFullScreen(onFullscreen) },
+        onFullscreen = { isLandscape ->
+            val flagIds = viewModel.getFlagIds()
+            onFullscreen(uiState.flag, flagIds, isLandscape)
+        },
         onNavigateUp = onNavigateUp,
     )
 }
@@ -148,7 +152,7 @@ private fun FlagScreen(
             modifier = modifier.fillMaxSize(),
             topBar = {
                 FlagTopBar(
-                    isFlagSaved = uiState.isFlagSaved,
+                    isFlagSaved = uiState.savedFlag != null,
                     onFlagSave = onFlagSave,
                     isRelatedFlagsButton = isRelatedFlagsButton,
                     isButtonExpanded = isButtonExpanded,

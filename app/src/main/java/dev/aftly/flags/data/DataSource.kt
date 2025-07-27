@@ -8,6 +8,7 @@ import dev.aftly.flags.model.FlagSuperCategory
 
 data object DataSource {
     const val SOURCE_URL = "https://github.com/aftly/Flags"
+    const val NAV_SEPARATOR = ","
 
     /* For use in Filter Menu */
     val menuSuperCategoryList = listOf(

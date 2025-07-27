@@ -4,7 +4,7 @@ import androidx.annotation.StringRes
 import dev.aftly.flags.R
 import dev.aftly.flags.data.room.scorehistory.ScoreItem
 import dev.aftly.flags.ui.util.getFlagKeys
-import dev.aftly.flags.ui.util.getFlagResources
+import dev.aftly.flags.ui.util.getFlagsFromKeys
 import kotlinx.serialization.Serializable
 
 
@@ -118,14 +118,14 @@ fun ScoreItem.toScoreData(
     timerEnd = timerEnd,
     gameSuperCategories = gameSuperCategories.filterIsInstance<FlagSuperCategory>(),
     gameSubCategories = gameSubCategories,
-    flagsAll = getFlagResources(flagKeys = flagsAll),
-    flagsGuessed = getFlagResources(flagKeys = flagsGuessed),
+    flagsAll = getFlagsFromKeys(flagKeys = flagsAll),
+    flagsGuessed = getFlagsFromKeys(flagKeys = flagsGuessed),
     flagsGuessedSorted = flagsGuessedSorted,
-    flagsSkippedGuessed = getFlagResources(flagKeys = flagsSkippedGuessed),
+    flagsSkippedGuessed = getFlagsFromKeys(flagKeys = flagsSkippedGuessed),
     flagsSkippedGuessedSorted = flagsSkippedGuessedSorted,
-    flagsSkipped = getFlagResources(flagKeys = flagsSkipped),
+    flagsSkipped = getFlagsFromKeys(flagKeys = flagsSkipped),
     flagsSkippedSorted = flagsSkippedSorted,
-    flagsShown = getFlagResources(flagKeys = flagsShown),
+    flagsShown = getFlagsFromKeys(flagKeys = flagsShown),
     flagsShownSorted = flagsShownSorted,
 )
 

@@ -104,7 +104,7 @@ import kotlinx.coroutines.launch
 fun ListFlagsScreen(
     viewModel: ListFlagsViewModel = viewModel(),
     onNavigationDrawer: () -> Unit,
-    onNavigateDetails: (Int, List<Int>) -> Unit,
+    onNavigateToFlagScreen: (FlagResources, List<FlagResources>) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val searchResults by viewModel.searchResults.collectAsStateWithLifecycle()
@@ -138,10 +138,12 @@ fun ListFlagsScreen(
         onSavedFlagsSelect = { viewModel.toggleSavedFlags(on = it) },
         onFlagSelect = { flag ->
             val flags = when (viewModel.isSearchQuery) {
-                true -> searchResults.map { it.id }
-                false -> uiState.currentFlags.map { it.id }
+                true -> searchResults
+                false -> uiState.currentFlags
+                //true -> searchResults.map { it.id } TODO
+                //false -> uiState.currentFlags.map { it.id } TODO
             }
-            onNavigateDetails(flag.id, flags)
+            onNavigateToFlagScreen(flag, flags)
         },
     )
 }

@@ -26,6 +26,8 @@ import dev.aftly.flags.ui.screen.gamehistory.GameHistoryScreen
 import dev.aftly.flags.ui.screen.list.ListFlagsScreen
 import dev.aftly.flags.ui.screen.settings.SettingsScreen
 import dev.aftly.flags.ui.theme.Timing
+import dev.aftly.flags.ui.util.getFlagIds
+import dev.aftly.flags.ui.util.getFlagIdsString
 import kotlinx.coroutines.launch
 
 
@@ -125,11 +127,13 @@ fun AppNavHost(
                             }
                         }
                     },
-                    onNavigateDetails = { flagArg, flagsArg ->
-                        val flagsAsString = flagsArg.joinToString(separator = ",")
+                    onNavigateToFlagScreen = { flag, flags ->
+                        val flagIdArg = flag.id
+                        val flagIds = getFlagIds(flags)
+                        val flagIdsArg = getFlagIdsString(flagIds)
 
                         navController.navigate(
-                            route = "${Screen.Flag.route}/$flagArg/$flagsAsString"
+                            route = "${Screen.Flag.route}/$flagIdArg/$flagIdsArg"
                         ) { launchSingleTop = true }
                     },
                 )
@@ -163,11 +167,13 @@ fun AppNavHost(
                 FlagScreen(
                     navController = navController,
                     onNavigateUp = { navController.navigateUp() },
-                    onFullscreen = { flagArg, flagsArg, isLandscape ->
-                        val flagsAsString = flagsArg.joinToString(separator = ",")
+                    onFullscreen = { flag, flagIds, isLandscape ->
+                        val flagIdArg = flag.id
+                        val flagIdsArg = getFlagIdsString(flagIds)
+                        //val flagsAsString = flagsArg.joinToString(separator = ",")
 
                         navController.navigate(
-                            route = "${Screen.Fullscreen.route}/$flagArg/$flagsAsString/$isLandscape?hideTitle=false"
+                            route = "${Screen.Fullscreen.route}/$flagIdArg/$flagIdsArg/$isLandscape?hideTitle=false"
                         ) { launchSingleTop = true }
                     },
                     onNavigateError = onNullError,
