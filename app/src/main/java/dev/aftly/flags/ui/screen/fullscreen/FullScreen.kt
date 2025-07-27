@@ -83,6 +83,7 @@ import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.theme.surfaceDark
 import dev.aftly.flags.ui.theme.surfaceLight
+import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.LocalOrientationController
 import dev.aftly.flags.ui.util.OrientationController
 import dev.aftly.flags.ui.util.SystemUiController
@@ -180,7 +181,8 @@ private fun FullScreen(
     val systemBarsExitDelay = if (isApi30) 0 else Timing.SYSTEM_BARS_HANG.toLong()
     val exitButtonAnimationTiming = if (isApi30) Timing.SYSTEM_BARS / 2 else Timing.SYSTEM_BARS
 
-    systemUiController.setLightStatusBar(light = false) /* Makes top bar icons white */
+    /* Make top bar icons white (as fullscreen is always dark mode) */
+    systemUiController.setLightStatusBar(light = false)
 
     /* For when device SDK version is 30+ (app minimum SDK version is 24) */
     systemUiController.setSystemBarsSwipeBehaviour()

@@ -96,10 +96,13 @@ fun FlagScreen(
     val systemUiController = remember { SystemUiController(view, window) }
     val isDarkTheme = LocalDarkTheme.current
 
-    LaunchedEffect(key1 = backStackEntry) {
+    /* For nav back from fullscreen */
+    LaunchedEffect(key1 = Unit) {
         systemUiController.setLightStatusBar(light = !isDarkTheme)
         systemUiController.setSystemBars(visible = true)
+    }
 
+    LaunchedEffect(key1 = backStackEntry) {
         backStackEntry?.savedStateHandle?.get<Int>("flagId")?.let { flagId ->
             viewModel.updateFlag(flagId)
         }
