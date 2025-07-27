@@ -1,10 +1,12 @@
 package dev.aftly.flags.ui.screen.fullscreen
 
 import android.app.Application
-import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
-import dev.aftly.flags.data.DataSource.flagsMapId
+import dev.aftly.flags.model.FlagResources
+import dev.aftly.flags.ui.util.getFlagFromId
+import dev.aftly.flags.ui.util.getFlagIdsFromString
+import dev.aftly.flags.ui.util.getFlagsFromIds
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -17,26 +19,20 @@ class FullscreenViewModel(
     val uiState = _uiState.asStateFlow()
 
     init {
-        val flagArg = savedStateHandle.get<Int>("flagId")
-        val flagsArg = savedStateHandle.get<String>("flagIds")
+        val flagIdArg = savedStateHandle.get<Int>("flagId")
+        val flagIdsArg = savedStateHandle.get<String>("flagIds")
 
-        if (flagArg != null && flagsArg != null) {
-            val flag = flagsMapId.getValue(flagArg)
-            val flags = flagsArg.split(",").mapNotNull { it.toIntOrNull() }
+        if (flagIdArg != null && flagIdsArg != null) {
+            val flag = getFlagFromId(id = flagIdArg)
+            val flagIds = getFlagIdsFromString(string = flagIdsArg)
+            val flags = getFlagsFromIds(flagIds)
 
-            _uiState.value = FullscreenUiState(
-                initialFlag = flag,
-                currentFlagId = flag.id,
-                currentFlagTitle = flag.flagOf,
-                flags = flagsMapId.filterKeys { it in flags }.values.toList(),
-            )
+            _uiState.value =
+                FullscreenUiState(initialFlag = flag, currentFlag = flag, flags = flags)
         }
     }
 
-    fun updateCurrentFlagIds(
-        flagId: Int,
-        @StringRes flagTitle: Int,
-    ) {
-        _uiState.update { it.copy(currentFlagId = flagId, currentFlagTitle = flagTitle) }
+    fun updateCurrentFlag(flag: FlagResources) {
+        _uiState.update { it.copy(currentFlag = flag) }
     }
 }

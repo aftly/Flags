@@ -83,7 +83,6 @@ import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.theme.surfaceDark
 import dev.aftly.flags.ui.theme.surfaceLight
-import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.LocalOrientationController
 import dev.aftly.flags.ui.util.OrientationController
 import dev.aftly.flags.ui.util.SystemUiController
@@ -98,7 +97,7 @@ fun FullScreen(
     viewModel: FullscreenViewModel = viewModel(),
     hideTitle: Boolean,
     isFlagWide: Boolean,
-    onExitFullScreen: (Int) -> Unit,
+    onExitFullScreen: (FlagResources) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val orientationController = LocalOrientationController.current
@@ -123,11 +122,11 @@ fun FullScreen(
             isFlagWide = isFlagWide,
             isGame = hideTitle,
             onExitFullscreen = {
-                onExitFullScreen(uiState.currentFlagId)
+                onExitFullScreen(uiState.currentFlag)
                 orientationController.unsetLandscapeOrientation()
             },
-            onCarouselRotation = { id, title ->
-                viewModel.updateCurrentFlagIds(id, title)
+            onCarouselRotation = { flag ->
+                viewModel.updateCurrentFlag(flag)
             },
         )
     }
@@ -144,7 +143,7 @@ private fun FullScreen(
     isFlagWide: Boolean,
     isGame: Boolean,
     onExitFullscreen: () -> Unit,
-    onCarouselRotation: (Int, Int) -> Unit,
+    onCarouselRotation: (FlagResources) -> Unit,
 ) {
     BackHandler { onExitFullscreen() }
 
@@ -278,7 +277,7 @@ private fun FullScreen(
                     exit = fadeOut(animationSpec = tween(durationMillis = Timing.SYSTEM_BARS)),
                 ) {
                     FullscreenTopBar(
-                        currentTitle = uiState.currentFlagTitle,
+                        topBarTitle = uiState.currentFlag.flagOf,
                         isActionOn = isTopBarLocked,
                         isPortraitOrientation = isScreenPortrait,
                         isGame = isGame,
@@ -322,7 +321,7 @@ private fun FullscreenContent(
     isLandscape: Boolean,
     onLandscapeChange: () -> Unit,
     onExitFullScreen: () -> Unit,
-    onCarouselRotation: (Int, Int) -> Unit,
+    onCarouselRotation: (FlagResources) -> Unit,
 ) {
     val displayMetrics = LocalContext.current.resources.displayMetrics
     val density = LocalDensity.current
@@ -382,7 +381,7 @@ private fun FullscreenContent(
             key2 = rightEdgeFromWindowRight
         ) {
             if (abs(x = leftEdgeFromWindowLeft - rightEdgeFromWindowRight) <= 2f) {
-                onCarouselRotation(item.id, item.flagOf)
+                onCarouselRotation(item)
 
                 isFirstItem = when (i) {
                     0 -> true
@@ -629,7 +628,7 @@ private fun OrientationLockButton(
 @Composable
 private fun FullscreenTopBar(
     modifier: Modifier = Modifier,
-    @StringRes currentTitle: Int?,
+    @StringRes topBarTitle: Int?,
     isActionOn: Boolean, /* When multi-icon state */
     isPortraitOrientation: Boolean?,
     isGame: Boolean,
@@ -638,7 +637,7 @@ private fun FullscreenTopBar(
 ) {
     @StringRes val title = when (isGame) {
         true -> null
-        false -> currentTitle
+        false -> topBarTitle
     }
 
     TopAppBar(

@@ -268,9 +268,9 @@ fun AppNavHost(
                 FullScreen(
                     hideTitle = hideTitle,
                     isFlagWide = isLandscape,
-                    onExitFullScreen = { flagId ->
+                    onExitFullScreen = { flag ->
                         navController.previousBackStackEntry
-                            ?.savedStateHandle?.set(key = "flagId", value = flagId)
+                            ?.savedStateHandle?.set(key = "flagId", value = flag.id)
                         navController.navigateUp()
                     },
                 )

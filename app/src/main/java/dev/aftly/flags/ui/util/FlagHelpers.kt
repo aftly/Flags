@@ -28,6 +28,9 @@ fun getFlagIdsString(flagIds: List<Int>): String = flagIds.joinToString(separato
 fun getFlagIdsFromString(string: String): List<Int> =
     string.split(NAV_SEPARATOR).mapNotNull { it.toIntOrNull() }
 
+fun getFlagsFromIds(flagIds: List<Int>): List<FlagResources> =
+    flagIds.map { flagsMapId.getValue(key = it) }
+
 fun getFlagFromId(id: Int): FlagResources = flagsMapId.getValue(key = id)
 
 
