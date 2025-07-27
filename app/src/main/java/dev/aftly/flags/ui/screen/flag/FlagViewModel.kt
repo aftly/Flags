@@ -137,27 +137,6 @@ class FlagViewModel(
         false -> uiState.value.flagIdsFromList
         true -> uiState.value.relatedFlags.map { it.id }
     }
-    /*
-        return if (uiState.value.isRelatedFlagNavigation) uiState.value.relatedFlags.map { it.id }
-        else uiState.value.flagIdsFromList
-    }
-     */
-
-    fun callOnFullScreen(
-        onFullscreenUp: (Int, List<Int>, Boolean) -> Unit,
-    ): (Boolean) -> Unit {
-        val currentFlag = uiState.value.flag
-
-        val flags = when (uiState.value.isRelatedFlagNavigation) {
-            false -> uiState.value.flagIdsFromList
-            true -> uiState.value.relatedFlags.map { it.id }
-        }
-
-        val onFullScreenDown: (Boolean) -> Unit = { isLandscape ->
-            onFullscreenUp(currentFlag.id, flags, isLandscape)
-        }
-        return onFullScreenDown
-    }
 
 
     /* Convert the @StringRes list into a legible string

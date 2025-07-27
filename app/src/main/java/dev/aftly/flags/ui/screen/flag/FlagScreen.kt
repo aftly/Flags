@@ -1,6 +1,7 @@
 package dev.aftly.flags.ui.screen.flag
 
 import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -62,8 +63,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.model.FlagResources
@@ -150,6 +149,9 @@ private fun FlagScreen(
     var buttonWidth by remember { mutableIntStateOf(value = 0) }
 
     var isFlagWide by rememberSaveable { mutableStateOf(value = true) }
+
+    /* To ensure same custom back behaviour as in-app back functionality */
+    BackHandler { onNavigateBack() }
 
 
     Box(modifier = Modifier.fillMaxSize()) {

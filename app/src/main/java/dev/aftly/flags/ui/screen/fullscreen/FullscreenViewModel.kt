@@ -27,12 +27,11 @@ class FullscreenViewModel(
             val flagIds = getFlagIdsFromString(string = flagIdsArg)
             val flags = getFlagsFromIds(flagIds)
 
-            _uiState.value =
-                FullscreenUiState(initialFlag = flag, currentFlag = flag, flags = flags)
+            _uiState.value = FullscreenUiState(flag, flags)
         }
     }
 
     fun updateCurrentFlag(flag: FlagResources) {
-        _uiState.update { it.copy(currentFlag = flag) }
+        _uiState.update { it.copy(flag = flag) }
     }
 }

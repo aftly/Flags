@@ -181,7 +181,7 @@ fun AppNavHost(
                         val flagIdsArg = getFlagIdsString(flagIds)
 
                         navController.navigate(
-                            route = "${Screen.Fullscreen.route}/$flagIdArg/$flagIdsArg/$isLandscape?hideTitle=false"
+                            route = "${Screen.Fullscreen.route}/$flagIdArg/$flagIdsArg/$isLandscape?isHideTitle=false"
                         ) { launchSingleTop = true }
                     },
                     onNavigateError = onNullError,
@@ -224,9 +224,9 @@ fun AppNavHost(
                     onScoreHistory = { isGameOver ->
                         navController.navigate(route = "${Screen.GameHistory.route}/$isGameOver")
                     },
-                    onFullscreen = { flagArg, isLandscape, hideTitle ->
+                    onFullscreen = { flagArg, isLandscape, isHideTitle ->
                         navController.navigate(
-                            route = "${Screen.Fullscreen.route}/$flagArg/$flagArg/$isLandscape?hideTitle=$hideTitle"
+                            route = "${Screen.Fullscreen.route}/$flagArg/$flagArg/$isLandscape?isHideTitle=$isHideTitle"
                         ) { launchSingleTop = true }
                     }
                 )
@@ -251,22 +251,22 @@ fun AppNavHost(
 
             /* FullScreen NavGraph */
             composable(
-                route = "${Screen.Fullscreen.route}/{flagId}/{flagIds}/{isLandscape}?hideTitle={hideTitle}",
+                route = "${Screen.Fullscreen.route}/{flagId}/{flagIds}/{isLandscape}?isHideTitle={isHideTitle}",
                 arguments = listOf(
                     navArgument(name = "flagId") { type = NavType.IntType },
                     /* Although String type, is functionally List<Int> with immediate CSV conversions */
                     navArgument(name = "flagIds") { type = NavType.StringType },
                     navArgument(name = "isLandscape") { type = NavType.BoolType },
-                    navArgument(name = "hideTitle") { type = NavType.BoolType },
+                    navArgument(name = "isHideTitle") { type = NavType.BoolType },
                 ),
                 enterTransition = { EnterTransition.None },
                 exitTransition = { ExitTransition.None },
             ) { backStackEntry ->
                 val isLandscape = backStackEntry.arguments?.getBoolean("isLandscape") ?: true
-                val hideTitle = backStackEntry.arguments?.getBoolean("hideTitle") ?: false
+                val isHideTitle = backStackEntry.arguments?.getBoolean("isHideTitle") ?: false
 
                 FullScreen(
-                    hideTitle = hideTitle,
+                    isHideTitle = isHideTitle,
                     isFlagWide = isLandscape,
                     onExitFullScreen = { flag ->
                         navController.previousBackStackEntry

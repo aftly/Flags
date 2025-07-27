@@ -85,8 +85,6 @@ import androidx.compose.ui.util.lerp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.model.FlagCategory
@@ -122,10 +120,6 @@ fun ListFlagsScreen(
         searchModel.sortFlagsAlphabetically()
     } */
 
-    /* To permit/block onCategorySelectMultiple() */
-    val isSavedFlagsSelected =
-        uiState.currentSuperCategories.isEmpty() && uiState.currentSubCategories.isEmpty()
-
 
     ListFlagsScreen(
         uiState = uiState,
@@ -144,10 +138,11 @@ fun ListFlagsScreen(
         },
         onSavedFlagsSelect = { viewModel.toggleSavedFlags(on = it) },
         onFlagSelect = { flag ->
-            val flags = when (viewModel.isSearchQuery) {
-                true -> searchResults
-                false -> uiState.currentFlags
-            }
+            val flags =
+                if (uiState.isSearchQuery) searchResults
+                else if (uiState.isSavedFlags) uiState.savedFlags
+                else uiState.currentFlags
+
             onNavigateToFlagScreen(flag, flags)
         },
     )
@@ -253,8 +248,11 @@ private fun ListFlagsScreen(
                     else if (uiState.isSavedFlags) uiState.savedFlags
                     else uiState.currentFlags
 
-                val index = flags.indexOf(flag)
-                coroutineScope.launch { listState.scrollToItem(index = index) }
+                /* If not returning to saved flags from a removed saved flag */
+                if (!(uiState.isSavedFlags && flag !in uiState.savedFlags)) {
+                    val index = flags.indexOf(flag)
+                    coroutineScope.launch { listState.scrollToItem(index = index) }
+                }
             }
         }
     }

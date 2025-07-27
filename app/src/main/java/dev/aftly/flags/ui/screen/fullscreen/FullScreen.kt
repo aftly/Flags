@@ -95,7 +95,7 @@ import kotlin.math.abs
 @Composable
 fun FullScreen(
     viewModel: FullscreenViewModel = viewModel(),
-    hideTitle: Boolean,
+    isHideTitle: Boolean,
     isFlagWide: Boolean,
     onExitFullScreen: (FlagResources) -> Unit,
 ) {
@@ -120,9 +120,9 @@ fun FullScreen(
             orientationController = orientationController,
             isInitOrientationLandscape = isInitOrientationLandscape,
             isFlagWide = isFlagWide,
-            isGame = hideTitle,
+            isGame = isHideTitle,
             onExitFullscreen = {
-                onExitFullScreen(uiState.currentFlag)
+                onExitFullScreen(uiState.flag)
                 orientationController.unsetLandscapeOrientation()
             },
             onCarouselRotation = { flag ->
@@ -277,7 +277,7 @@ private fun FullScreen(
                     exit = fadeOut(animationSpec = tween(durationMillis = Timing.SYSTEM_BARS)),
                 ) {
                     FullscreenTopBar(
-                        topBarTitle = uiState.currentFlag.flagOf,
+                        topBarTitle = uiState.flag.flagOf,
                         isActionOn = isTopBarLocked,
                         isPortraitOrientation = isScreenPortrait,
                         isGame = isGame,
@@ -293,7 +293,7 @@ private fun FullScreen(
                 isFlagWide = isFlagWide,
                 isButtons = isButtons,
                 exitButtonAnimationTiming = exitButtonAnimationTiming,
-                flag = uiState.initialFlag,
+                flag = uiState.flag,
                 flags = uiState.flags,
                 isScreenPortrait = isScreenPortrait,
                 isLandscape = isLandscape,

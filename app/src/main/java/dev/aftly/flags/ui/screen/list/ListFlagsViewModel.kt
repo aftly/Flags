@@ -45,9 +45,6 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
     var searchQuery by mutableStateOf(value = "")
         private set
 
-    var isSearchQuery by mutableStateOf(value = false)
-        private set
-
     /* Holds flag of exact searchQuery match and it's related flags for list sorting */
     private var firstItem by mutableStateOf<FlagResources?>(value = null)
     private var relatedFlags by mutableStateOf<List<FlagResources>>(value = emptyList())
