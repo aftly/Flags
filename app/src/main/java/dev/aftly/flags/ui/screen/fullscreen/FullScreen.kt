@@ -330,9 +330,12 @@ private fun FullscreenContent(
     val screenWidthPx = remember { displayMetrics.widthPixels.toFloat() }
     val screenWidthDp = remember { with(density) { screenWidthPx.toDp() } }
 
+    val flagsSize = flags.size
+    val flagsEndIndex = flagsSize - 1
+
     val carouselState = rememberCarouselState(
         initialItem = flags.indexOf(flag),
-        itemCount = { flags.size },
+        itemCount = { flagsSize },
     )
 
     /* For controlling scroll to end/beginning when at first or last item in carousel */
@@ -375,6 +378,16 @@ private fun FullscreenContent(
         var leftEdgeFromWindowLeft by remember { mutableFloatStateOf(value = 0f) }
         var rightEdgeFromWindowRight by remember { mutableFloatStateOf(value = 100f) }
 
+        isFirstItem = when (i) {
+            0 -> true
+            else -> false
+        }
+
+        isLastItem = when (i) {
+            flagsEndIndex -> true
+            else -> false
+        }
+
         /* If item becomes centred on screen update external item state */
         LaunchedEffect(
             key1 = leftEdgeFromWindowLeft,
@@ -382,16 +395,6 @@ private fun FullscreenContent(
         ) {
             if (abs(x = leftEdgeFromWindowLeft - rightEdgeFromWindowRight) <= 2f) {
                 onCarouselRotation(item)
-
-                isFirstItem = when (i) {
-                    0 -> true
-                    else -> false
-                }
-
-                isLastItem = when (i) {
-                    flags.size - 1 -> true
-                    else -> false
-                }
             }
         }
 
