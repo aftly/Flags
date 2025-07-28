@@ -1,6 +1,7 @@
 package dev.aftly.flags.ui.screen.game
 
 import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.animateColorAsState
@@ -86,8 +87,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import dev.aftly.flags.R
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
@@ -146,6 +145,23 @@ fun GameScreen(
     //LaunchedEffect(locale) { viewModel.setFlagStrings() }
 
 
+    /* Handle system back when game progress */
+    BackHandler {
+        if (viewModel.isScoresEmpty()) onExit()
+        else viewModel.toggleConfirmExitDialog(on = true)
+    }
+
+    /* Show confirm exit dialog when game progress and navigation back */
+    if (uiState.isConfirmExitDialog) {
+        ConfirmExitDialog(
+            onExit = {
+                viewModel.toggleConfirmExitDialog(on = false)
+                onExit()
+            },
+            onDismiss = { viewModel.toggleConfirmExitDialog(on = false) },
+        )
+    }
+
     /* Show time trial dialog when timer action button pressed */
     if (uiState.isTimeTrialDialog) {
         TimeTrialDialog(
@@ -154,7 +170,7 @@ fun GameScreen(
             onUserMinutesInputChange = { viewModel.updateUserMinutesInput(it) },
             onUserSecondsInputChange = { viewModel.updateUserSecondsInput(it) },
             onTimeTrial = { viewModel.initTimeTrial(it) },
-            onDismiss = { viewModel.toggleTimeTrialDialog() },
+            onDismiss = { viewModel.toggleTimeTrialDialog(on = false) },
         )
     }
 
@@ -203,7 +219,7 @@ fun GameScreen(
         onSkip = { viewModel.skipFlag() },
         onConfirmShowAnswer = { viewModel.confirmShowAnswer() },
         onShowAnswer = { viewModel.showAnswer() },
-        onToggleTimeTrial = { viewModel.toggleTimeTrialDialog() },
+        onTimeTrialDialog = { viewModel.toggleTimeTrialDialog(on = true) },
         onStartGame = { viewModel.startGame() },
         onEndGame = { viewModel.endGame() },
         onNavigationDrawer = onNavigationDrawer,
@@ -235,7 +251,7 @@ private fun GameScreen(
     onSkip: () -> Unit,
     onConfirmShowAnswer: () -> Unit,
     onShowAnswer: () -> Unit,
-    onToggleTimeTrial: () -> Unit,
+    onTimeTrialDialog: () -> Unit,
     onStartGame: () -> Unit,
     onEndGame: () -> Unit,
     onNavigationDrawer: () -> Unit,
@@ -312,9 +328,9 @@ private fun GameScreen(
                         focusManager.clearFocus()
                         onScoreHistory()
                     },
-                    onAction = {
+                    onTimeTrialAction = {
                         focusManager.clearFocus()
-                        onToggleTimeTrial()
+                        onTimeTrialDialog()
                     },
                 )
             }
@@ -950,7 +966,7 @@ private fun TimeTrialDialog(
         onDismiss()
     }
 
-    LaunchedEffect(Unit) { focusRequesterMinutes.requestFocus() }
+    LaunchedEffect(key1 = Unit) { focusRequesterMinutes.requestFocus() }
 
 
     Dialog(onDismissRequest = onDismiss) {
@@ -1097,7 +1113,7 @@ private fun GameOverDialog(
     ) {
         Card(
             modifier = Modifier.wrapContentWidth(),
-            shape = MaterialTheme.shapes.extraLarge
+            shape = MaterialTheme.shapes.extraLarge,
         ) {
             Column(
                 modifier = Modifier.padding(
@@ -1147,7 +1163,7 @@ private fun GameOverDialog(
                     )
                 }
 
-                /* Action buttons 1 */
+                /* Action buttons */
                 Row(
                     modifier = Modifier
                         .padding(top = Dimens.small8, bottom = Dimens.medium16)
@@ -1175,6 +1191,69 @@ private fun GameOverDialog(
 }
 
 
+@Composable
+private fun ConfirmExitDialog(
+    onExit: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+    ) {
+        Card(
+            modifier = Modifier.padding(all = Dimens.small8),
+            shape = MaterialTheme.shapes.extraLarge,
+        ) {
+            Column(
+                modifier = Modifier.padding(
+                    top = Dimens.large24,
+                    start = Dimens.large24
+                ),
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                /* Title */
+                Text(
+                    text = stringResource(R.string.game_confirm_exit_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                )
+
+                /* Description */
+                Row(
+                    modifier = Modifier.padding(
+                        top = Dimens.large24,
+                        end = Dimens.large24,
+                    ),
+                ) {
+                    Text(
+                        text = stringResource(R.string.game_confirm_exit_description),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+
+                /* Action buttons */
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(
+                            vertical = Dimens.small8,
+                            horizontal = Dimens.small8,
+                        ),
+                ) {
+                    DialogActionButton(
+                        onClick = onDismiss,
+                        buttonStringResId = R.string.dialog_cancel,
+                    )
+
+                    DialogActionButton(
+                        onClick = onExit,
+                        buttonStringResId = R.string.dialog_ok,
+                    )
+                }
+            }
+        }
+    }
+}
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun GameTopBar(
@@ -1186,7 +1265,7 @@ private fun GameTopBar(
     timer: String = "0:00",
     onNavigationDrawer: () -> Unit,
     onScoreHistory: () -> Unit,
-    onAction: () -> Unit,
+    onTimeTrialAction: () -> Unit,
 ) {
     TopAppBar(
         title = {
@@ -1220,7 +1299,7 @@ private fun GameTopBar(
             )
 
             IconButton(
-                onClick = onAction,
+                onClick = onTimeTrialAction,
                 enabled = isFlags,
             ) {
                 Icon(

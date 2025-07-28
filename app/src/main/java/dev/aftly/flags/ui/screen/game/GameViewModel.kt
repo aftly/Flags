@@ -266,9 +266,35 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    fun updateUserGuess(newString: String) {
-        userGuess = newString
+    fun isScoresEmpty(): Boolean =
+        guessedFlags.isEmpty() && skippedFlags.isEmpty() && shownFlags.isEmpty()
+
+    fun toggleConfirmExitDialog(on: Boolean) {
+        _uiState.update { it.copy(isConfirmExitDialog = on) }
     }
+
+
+    fun toggleTimeTrialDialog(on: Boolean) {
+        _uiState.update { it.copy(isTimeTrialDialog = on) }
+    }
+
+    fun initTimeTrial(startTime: Int) {
+        /* Cancel timers and reset game */
+        cancelTimers()
+        cancelConfirmShowAnswer()
+        resetGame(initTimeTrial = true)
+
+        _uiState.update {
+            it.copy(
+                isTimeTrial = true,
+                timerTimeTrial = startTime,
+                timeTrialStartTime = startTime,
+            )
+        }
+
+        timerTimeTrialJob = viewModelScope.launch { startTimerTimeTrial() }
+    }
+
     fun updateUserMinutesInput(newString: String) {
         /* Only update if 2 characters or less AND a number OR empty */
         if ((newString.toIntOrNull() != null || newString == "") && newString.length <= 2) {
@@ -283,6 +309,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+
+    fun updateUserGuess(newString: String) {
+        userGuess = newString
+    }
 
     fun checkUserGuess() {
         cancelConfirmShowAnswer()
@@ -360,29 +390,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
         shownFlags.add(uiState.value.currentFlag)
     }
-
-
-    fun toggleTimeTrialDialog() {
-        _uiState.update { it.copy(isTimeTrialDialog = !it.isTimeTrialDialog) }
-    }
-
-    fun initTimeTrial(startTime: Int) {
-        /* Cancel timers and reset game */
-        cancelTimers()
-        cancelConfirmShowAnswer()
-        resetGame(initTimeTrial = true)
-
-        _uiState.update {
-            it.copy(
-                isTimeTrial = true,
-                timerTimeTrial = startTime,
-                timeTrialStartTime = startTime,
-            )
-        }
-
-        timerTimeTrialJob = viewModelScope.launch { startTimerTimeTrial() }
-    }
-
 
     fun confirmShowAnswer() {
         timerShowAnswerJob = viewModelScope.launch {

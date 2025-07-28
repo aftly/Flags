@@ -17,6 +17,8 @@ data class GameUiState(
     val currentFlag: FlagResources = nullFlag,
     val currentFlagStrings: List<String> = emptyList(),
 
+    val isConfirmExitDialog: Boolean = false,
+
     val isTimeTrialDialog: Boolean = false,
     val isTimeTrial: Boolean = false,
     val isTimerPaused: Boolean = false,

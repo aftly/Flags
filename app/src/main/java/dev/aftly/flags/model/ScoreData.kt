@@ -98,8 +98,7 @@ class ScoreData(
         flagsShown = getFlagKeys(flags = flagsShown),
     )
 
-    fun isScoresEmpty() = flagsGuessed.isEmpty() && flagsSkippedGuessed.isEmpty() &&
-            flagsSkipped.isEmpty() && flagsShown.isEmpty()
+    fun isScoresEmpty() = flagsGuessed.isEmpty() && flagsSkipped.isEmpty() && flagsShown.isEmpty()
 }
 
 
