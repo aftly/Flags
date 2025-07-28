@@ -11,11 +11,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class FullscreenViewModel(
+class FullScreenViewModel(
     application: Application,
     savedStateHandle: SavedStateHandle,
 ) : AndroidViewModel(application) {
-    private val _uiState = MutableStateFlow(FullscreenUiState())
+    private val _uiState = MutableStateFlow(FullScreenUiState())
     val uiState = _uiState.asStateFlow()
 
     init {
@@ -27,7 +27,7 @@ class FullscreenViewModel(
             val flagIds = getFlagIdsFromString(string = flagIdsArg)
             val flags = getFlagsFromIds(flagIds)
 
-            _uiState.value = FullscreenUiState(flag, flags)
+            _uiState.value = FullScreenUiState(flag, flags)
         }
     }
 

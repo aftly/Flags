@@ -93,7 +93,7 @@ fun GameHistoryScreen(
                 viewModel.toggleScoreDetails()
             }
         },
-        onNavigateUp = { onNavigateUp(uiState.isGameOver) },
+        onNavigateUp = { onNavigateUp(uiState.isFromGameOver) },
     )
 }
 

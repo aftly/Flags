@@ -85,6 +85,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import dev.aftly.flags.R
@@ -113,17 +114,16 @@ import java.util.Locale
 @Composable
 fun GameScreen(
     viewModel: GameViewModel = viewModel(),
-    navController: NavHostController,
+    currentBackStackEntry: NavBackStackEntry?,
     screen: Screen,
     onNavigationDrawer: () -> Unit,
     onExit: () -> Unit,
     onScoreHistory: (Boolean) -> Unit, // isGameOver Boolean
-    onFullscreen: (Int, Boolean, Boolean) -> Unit,
+    onFullscreen: (FlagResources, Boolean, Boolean) -> Unit,
 ) {
     /* Expose screen and backStack state */
     val uiState by viewModel.uiState.collectAsState()
     val savedFlags by viewModel.savedFlagsState.collectAsState()
-    val backStackEntry = navController.currentBackStackEntryAsState()
 
     /* Manage system bars and flag state after returning from FullScreen */
     val view = LocalView.current
@@ -131,12 +131,12 @@ fun GameScreen(
     val systemUiController = remember { SystemUiController(view, window) }
     val isDarkTheme = LocalDarkTheme.current
 
-    LaunchedEffect(backStackEntry) {
+    LaunchedEffect(currentBackStackEntry) {
         systemUiController.setLightStatusBar(light = !isDarkTheme)
         systemUiController.setSystemBars(visible = true)
 
-        backStackEntry.value?.savedStateHandle?.get<Boolean>("isGameOver").let { isGameOver ->
-            if (isGameOver == true) viewModel.toggleGameOverDialog(on = true)
+        currentBackStackEntry?.savedStateHandle?.get<Boolean>("isGameOver")?.let { isGameOver ->
+            if (isGameOver) viewModel.toggleGameOverDialog(on = true)
         }
     }
 
@@ -208,7 +208,9 @@ fun GameScreen(
         onEndGame = { viewModel.endGame() },
         onNavigationDrawer = onNavigationDrawer,
         onScoreHistory = { onScoreHistory(uiState.isGameOver) },
-        onFullscreen = onFullscreen,
+        onFullscreen = { isFlagWide ->
+            onFullscreen(uiState.currentFlag, isFlagWide, !uiState.isShowAnswer)
+        },
         onCategorySelectSingle = { newSuperCategory, newSubCategory ->
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
         },
@@ -238,7 +240,7 @@ private fun GameScreen(
     onEndGame: () -> Unit,
     onNavigationDrawer: () -> Unit,
     onScoreHistory: () -> Unit,
-    onFullscreen: (Int, Boolean, Boolean) -> Unit,
+    onFullscreen: (Boolean) -> Unit,
     onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onSavedFlagsSelect: () -> Unit,
@@ -348,9 +350,7 @@ private fun GameScreen(
                 onShowAnswer = onShowAnswer,
                 onEndGame = onEndGame,
                 onImageWide = { isFlagWide = it },
-                onFullscreen = {
-                    onFullscreen(uiState.currentFlag.id, isFlagWide, !uiState.isShowAnswer)
-                },
+                onFullscreen = { onFullscreen(isFlagWide) },
             )
         }
         /* ------------------- END OF SCAFFOLD ------------------- */
@@ -772,6 +772,16 @@ private fun GameCard(
                 contentAlignment = Alignment.BottomEnd,
             ) {
                 if (totalFlagCount > 0) {
+                    /* Invisible image for determining fullscreen orientation */
+                    Image(
+                        modifier = Modifier
+                            .fillMaxSize(fraction = 0.15f)
+                            .onSizeChanged { onImageWide(it.width > it.height) },
+                        painter = painterResource(currentFlag.imagePreview),
+                        contentDescription = null,
+                        alpha = 0f,
+                    )
+
                     Image(
                         modifier = Modifier
                             .onSizeChanged { size ->
@@ -798,9 +808,6 @@ private fun GameCard(
                                         Modifier.fillMaxWidth()
                                     )
                                 }
-
-                                /* For fullscreen orientation */
-                                onImageWide(size.width > size.height)
                             }
                             /* Concatenate height after onSizeChanged */
                             .then(cardImageHeightModifier)

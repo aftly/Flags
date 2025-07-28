@@ -155,7 +155,7 @@ fun AppNavHost(
                 ),
                 exitTransition = {
                     when (targetState.destination.route) {
-                        Screen.Fullscreen.route -> ExitTransition.None
+                        Screen.FullScreen.route -> ExitTransition.None
                         else -> null
                     }
                 },
@@ -181,7 +181,7 @@ fun AppNavHost(
                         val flagIdsArg = getFlagIdsString(flagIds)
 
                         navController.navigate(
-                            route = "${Screen.Fullscreen.route}/$flagIdArg/$flagIdsArg/$isLandscape?isHideTitle=false"
+                            route = "${Screen.FullScreen.route}/$flagIdArg/$flagIdsArg/$isLandscape?isHideTitle=false"
                         ) { launchSingleTop = true }
                     },
                     onNavigateError = onNullError,
@@ -199,19 +199,19 @@ fun AppNavHost(
                 ),
                 exitTransition = {
                     when (targetState.destination.route) {
-                        Screen.Fullscreen.route -> ExitTransition.None
+                        Screen.FullScreen.route -> ExitTransition.None
                         else -> null
                     }
                 },
                 popEnterTransition = {
                     when (initialState.destination.route) {
-                        Screen.Fullscreen.route -> EnterTransition.None
+                        Screen.FullScreen.route -> EnterTransition.None
                         else -> null
                     }
                 },
             ) {
                 GameScreen(
-                    navController = navController,
+                    currentBackStackEntry = currentBackStackEntry,
                     screen = Screen.Game,
                     onNavigationDrawer = {
                         scope.launch {
@@ -224,9 +224,12 @@ fun AppNavHost(
                     onScoreHistory = { isGameOver ->
                         navController.navigate(route = "${Screen.GameHistory.route}/$isGameOver")
                     },
-                    onFullscreen = { flagArg, isLandscape, isHideTitle ->
+                    onFullscreen = { flag, isLandscape, isHideTitle ->
+                        val flagIdArg = flag.id
+                        val flagIdsArg = getFlagIdsString(flagIds = listOf(flagIdArg))
+
                         navController.navigate(
-                            route = "${Screen.Fullscreen.route}/$flagArg/$flagArg/$isLandscape?isHideTitle=$isHideTitle"
+                            route = "${Screen.FullScreen.route}/$flagIdArg/$flagIdsArg/$isLandscape?isHideTitle=$isHideTitle"
                         ) { launchSingleTop = true }
                     }
                 )
@@ -234,9 +237,9 @@ fun AppNavHost(
 
             /* GameHistory NavGraph (for score history) */
             composable(
-                route = "${Screen.GameHistory.route}/{isGameOver}",
+                route = "${Screen.GameHistory.route}/{isFromGameOver}",
                 arguments = listOf(
-                    navArgument(name = "isGameOver") { type = NavType.BoolType }
+                    navArgument(name = "isFromGameOver") { type = NavType.BoolType }
                 ),
             ) {
                 GameHistoryScreen(
@@ -251,7 +254,7 @@ fun AppNavHost(
 
             /* FullScreen NavGraph */
             composable(
-                route = "${Screen.Fullscreen.route}/{flagId}/{flagIds}/{isLandscape}?isHideTitle={isHideTitle}",
+                route = "${Screen.FullScreen.route}/{flagId}/{flagIds}/{isLandscape}?isHideTitle={isHideTitle}",
                 arguments = listOf(
                     navArgument(name = "flagId") { type = NavType.IntType },
                     /* Although String type, is functionally List<Int> with immediate CSV conversions */

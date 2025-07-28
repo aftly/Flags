@@ -7,5 +7,5 @@ data class GameHistoryUiState(
     val scores: List<ScoreItem> = emptyList(),
     val isScoreDetails: Boolean = false,
     val scoreDetails: ScoreData? = null, /* Opens score item with ScoreDetails() */
-    val isGameOver: Boolean = false,
+    val isFromGameOver: Boolean = false,
 )

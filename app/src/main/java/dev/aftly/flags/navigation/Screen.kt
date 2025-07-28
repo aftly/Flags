@@ -30,7 +30,7 @@ sealed class Screen(
         title = R.string.game_history_title,
     )
 
-    data object Fullscreen : Screen(
+    data object FullScreen : Screen(
         route = "full_screen",
     )
 
@@ -55,7 +55,7 @@ sealed class Screen(
             Flag.route -> Flag
             Game.route -> Game
             GameHistory.route -> GameHistory
-            Fullscreen.route -> Fullscreen
+            FullScreen.route -> FullScreen
             Settings.route -> Settings
             else -> null
         }

@@ -25,8 +25,8 @@ class GameHistoryViewModel(
     val uiState = _uiState.asStateFlow()
 
     init {
-        savedStateHandle.get<Boolean>("isGameOver")?.let { isGameOver ->
-            _uiState.update { it.copy(isGameOver = isGameOver) }
+        savedStateHandle.get<Boolean>("isFromGameOver")?.let { isFromGameOver ->
+            _uiState.update { it.copy(isFromGameOver = isFromGameOver) }
         }
 
         viewModelScope.launch {

@@ -94,7 +94,7 @@ import kotlin.math.abs
 
 @Composable
 fun FullScreen(
-    viewModel: FullscreenViewModel = viewModel(),
+    viewModel: FullScreenViewModel = viewModel(),
     isHideTitle: Boolean,
     isFlagWide: Boolean,
     onExitFullScreen: (FlagResources) -> Unit,
@@ -137,7 +137,7 @@ fun FullScreen(
 @Composable
 private fun FullScreen(
     modifier: Modifier = Modifier,
-    uiState: FullscreenUiState,
+    uiState: FullScreenUiState,
     orientationController: OrientationController,
     isInitOrientationLandscape: Boolean,
     isFlagWide: Boolean,
