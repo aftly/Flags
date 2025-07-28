@@ -9,7 +9,10 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -34,7 +37,7 @@ import kotlinx.coroutines.launch
 private val listRoute = "${Screen.List.route}?scrollToFlagId={scrollToFlagId}"
 private val gameRoute = "${Screen.Game.route}?isGameOver={isGameOver}"
 
-private fun getScreenFromBackStackEntry(
+private fun getScreen(
     backStackEntry: NavBackStackEntry?
 ): Screen? = when (backStackEntry?.destination?.route) {
     listRoute -> Screen.getScreenFromRoute(route = Screen.List.route)
@@ -52,29 +55,35 @@ fun AppNavHost(
     val startDestination = listRoute
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    var onDrawerNavToListFromGame by remember { mutableStateOf(value = false) }
 
     AppNavigationDrawer(
         drawerState = drawerState,
-        currentScreen = getScreenFromBackStackEntry(currentBackStackEntry),
+        currentScreen = getScreen(currentBackStackEntry),
         onClose = {
             scope.launch { drawerState.close() }
         },
         onNavigateDetails = { screen ->
             screen.getMenuOrNull()?.let { menu ->
                 when (menu) {
-                    Screen.Menu.LIST -> navController.popBackStack(
-                        route = listRoute,
-                        inclusive = false,
-                    )
-                    Screen.Menu.GAME ->
-                        if (navController.previousBackStackEntry?.destination?.route == gameRoute) {
+                    Screen.Menu.LIST ->
+                        if (getScreen(currentBackStackEntry) == Screen.Game) {
+                            onDrawerNavToListFromGame = true
+
+                        } else {
                             navController.popBackStack(
-                                route = gameRoute,
+                                route = listRoute,
                                 inclusive = false,
                             )
+                        }
+                    Screen.Menu.GAME ->
+                        if (getScreen(navController.previousBackStackEntry) == Screen.Game) {
+                            navController.popBackStack(route = gameRoute, inclusive = false)
+
                         } else {
-                            if (currentBackStackEntry?.destination?.route ==
-                                Screen.Settings.route) {
+                            /* Pop settings if current screen to prevent screen duplication when
+                             * navigating forwards to settings from game */
+                            if (getScreen(currentBackStackEntry) == Screen.Settings) {
                                 navController.popBackStack()
                             }
                             navController.navigate(route = screen.route) {
@@ -213,6 +222,8 @@ fun AppNavHost(
                 GameScreen(
                     currentBackStackEntry = currentBackStackEntry,
                     screen = Screen.Game,
+                    onNavigateToList = onDrawerNavToListFromGame,
+                    onResetNavigateToList = { onDrawerNavToListFromGame = false },
                     onNavigationDrawer = {
                         scope.launch {
                             if (drawerState.isClosed) drawerState.open() else drawerState.close()
@@ -220,6 +231,7 @@ fun AppNavHost(
                     },
                     onExit = {
                         navController.popBackStack()
+                        onDrawerNavToListFromGame = false
                     },
                     onScoreHistory = { isGameOver ->
                         navController.navigate(route = "${Screen.GameHistory.route}/$isGameOver")

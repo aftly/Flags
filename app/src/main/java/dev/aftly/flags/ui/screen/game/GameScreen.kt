@@ -115,6 +115,8 @@ fun GameScreen(
     viewModel: GameViewModel = viewModel(),
     currentBackStackEntry: NavBackStackEntry?,
     screen: Screen,
+    onNavigateToList: Boolean,
+    onResetNavigateToList: () -> Unit,
     onNavigationDrawer: () -> Unit,
     onExit: () -> Unit,
     onScoreHistory: (Boolean) -> Unit, // isGameOver Boolean
@@ -145,22 +147,33 @@ fun GameScreen(
     //LaunchedEffect(locale) { viewModel.setFlagStrings() }
 
 
-    /* Handle system back when game progress */
+    /* Handle if confirm exit from game progress when navigation back from NavigationDrawer or
+     * system back action ------------------------------- */
+    LaunchedEffect(key1 = onNavigateToList) {
+        if (onNavigateToList) {
+            if (viewModel.isScoresEmpty()) onExit()
+            else viewModel.toggleConfirmExitDialog(on = true)
+        }
+    }
+
     BackHandler {
         if (viewModel.isScoresEmpty()) onExit()
         else viewModel.toggleConfirmExitDialog(on = true)
     }
 
-    /* Show confirm exit dialog when game progress and navigation back */
     if (uiState.isConfirmExitDialog) {
         ConfirmExitDialog(
             onExit = {
                 viewModel.toggleConfirmExitDialog(on = false)
                 onExit()
             },
-            onDismiss = { viewModel.toggleConfirmExitDialog(on = false) },
+            onDismiss = {
+                viewModel.toggleConfirmExitDialog(on = false)
+                if (onNavigateToList) onResetNavigateToList()
+            },
         )
     }
+    /* -------------------------------------------------- */
 
     /* Show time trial dialog when timer action button pressed */
     if (uiState.isTimeTrialDialog) {
