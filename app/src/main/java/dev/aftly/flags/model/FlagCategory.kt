@@ -11,7 +11,7 @@ enum class FlagCategory(
     @StringRes val title: Int,
     @StringRes val string: Int,
 ) {
-    /* ENTITY CATEGORIES: */
+    /* POLITICAL ENTITIES: */
 
     /* Top level (de jure and recognised) state */
     SOVEREIGN_STATE (title = R.string.category_sovereign_state_title, string = R.string.category_sovereign_state_string),
@@ -27,6 +27,7 @@ enum class FlagCategory(
     /* Administrative units within a sovereign state (eg. federated state or unitary region) */
     CANTON (title = R.string.category_canton_title, string = R.string.category_canton_string),
     COLLECTIVITY (title = R.string.category_collectivity_title, string = R.string.category_collectivity_string),
+    COLONY(title = R.string.category_colony_title, string = R.string.category_colony_string),
     COMMUNITY (title = R.string.category_community_title, string = R.string.category_community_string),
     COUNTRY (title = R.string.category_country_title, string = R.string.category_country_string),
     COUNTY (title = R.string.category_county_title, string = R.string.category_county_string),
@@ -51,8 +52,11 @@ enum class FlagCategory(
     SUPRANATIONAL_UNION (title = R.string.category_supranational_union_title, string = R.string.category_supranational_union_string),
     INTERNATIONAL_ORGANIZATION (title = R.string.category_international_organization_title, string = R.string.category_international_organization_string),
 
-    /* For entities that don't exist anymore */
-    HISTORICAL (title = R.string.category_historical_title, string = R.string.category_historical_string),
+    /* Institutions */
+    LOWER_HOUSE(title = R.string.category_lower_house_title, string = R.string.category_lower_house_string),
+    UPPER_HOUSE(title = R.string.category_upper_house_title, string = R.string.category_upper_house_string),
+    PARLIAMENT(title = R.string.category_parliament_title, string = R.string.category_parliament_string),
+    CONGRESS(title = R.string.category_congress_title, string = R.string.category_congress_string),
 
 
     /* POLITICAL CATEGORIES: */
@@ -101,4 +105,8 @@ enum class FlagCategory(
     POLITICAL (title = R.string.category_political_title, string = R.string.category_political_string),
     RELIGIOUS (title = R.string.category_religious_title, string = R.string.category_religious_string),
     REGIONAL (title = R.string.category_regional_title, string = R.string.category_regional_string),
+
+
+    /* For entities that don't exist anymore */
+    HISTORICAL (title = R.string.category_historical_title, string = R.string.category_historical_string),
 }
