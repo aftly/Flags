@@ -8,8 +8,8 @@ import kotlinx.serialization.Serializable
 /* List of categories for use in flag list filtering and flag page descriptions */
 @Serializable
 enum class FlagCategory(
-    @StringRes val title: Int,
-    @StringRes val string: Int,
+    @param:StringRes val title: Int,
+    @param:StringRes val string: Int,
 ) {
     /* POLITICAL ENTITIES: */
 

@@ -9,10 +9,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 sealed class FlagSuperCategory(
-    @StringRes val title: Int,
-    @StringRes val categoriesMenuButton: Int?,
-    @StringRes val gameScoreCategoryPreview: Int?,
-    @StringRes val gameScoreCategoryDetailed: Int? = R.string.string_whitespace,
+    @param:StringRes val title: Int,
+    @param:StringRes val categoriesMenuButton: Int?,
+    @param:StringRes val gameScoreCategoryPreview: Int?,
+    @param:StringRes val gameScoreCategoryDetailed: Int? = R.string.string_whitespace,
     @Polymorphic val subCategories: List<FlagCategoryBase>,
 ) : FlagCategoryBase() {
     fun enums(): List<FlagCategory> {

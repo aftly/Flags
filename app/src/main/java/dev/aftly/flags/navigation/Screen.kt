@@ -6,8 +6,8 @@ import dev.aftly.flags.R
 
 sealed class Screen(
     val route: String,
-    @StringRes val title: Int? = null,
-    @StringRes val description: Int? = null,
+    @param:StringRes val title: Int? = null,
+    @param:StringRes val description: Int? = null,
 ) {
     data object List : Screen(
         route = "list_screen",

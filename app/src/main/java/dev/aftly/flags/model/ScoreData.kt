@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 
 
 @Serializable
-enum class TimeMode(@StringRes val title: Int) {
+enum class TimeMode(@param:StringRes val title: Int) {
     STANDARD (title = R.string.time_mode_standard),
     TIME_TRIAL (title = R.string.time_mode_time_trial)
 }

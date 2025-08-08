@@ -136,7 +136,7 @@ private val BlackColorScheme = darkColorScheme(
 )
 
 
-enum class AppThemePreference(@StringRes val title: Int) {
+enum class AppThemePreference(@param:StringRes val title: Int) {
     SYSTEM (title = R.string.settings_theme_system),
     SYSTEM_BLACK (title = R.string.settings_theme_system_black),
     LIGHT (title = R.string.settings_theme_light),
