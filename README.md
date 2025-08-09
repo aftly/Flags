@@ -72,10 +72,10 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [x] Replace **Start menu** with **Navigation drawer**
 - [x] Implement basic **Splash screen** theming *(reflects system theme & basic app colors)*
 - [x] **Save flags** to user list
+- [x] Add more flags *(to less populated categories and more popular related flags)*
 - [x] **(Partially Complete)** - Optimize app for different system Font sizes
 <br>
 
-- [ ] Add more flags *(to less populated categories and more popular related flags)*
 - [ ] Add screenshots of app to **README**
 - [ ] Add Python scripts to external repository
 - [ ] Add regime type categories (for political flags) from **OurWorldInData**
