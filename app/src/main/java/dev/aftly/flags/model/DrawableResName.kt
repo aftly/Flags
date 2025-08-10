@@ -6,6 +6,11 @@ import kotlinx.serialization.Serializable
 @JvmInline
 @Serializable
 value class DrawableResName(val name: String) {
-    fun resId(context: Context): Int =
-        context.resources.getIdentifier(name, "drawable", context.packageName)
+    fun resId(context: Context): Int {
+        val resourceId =
+            context.resources.getIdentifier(name, "drawable", context.packageName)
+
+        return if (resourceId == 0) error("drawableResource \"$name\" not found")
+        else resourceId
+    }
 }
