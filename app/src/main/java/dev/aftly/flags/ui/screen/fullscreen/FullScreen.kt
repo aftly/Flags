@@ -77,7 +77,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
-import dev.aftly.flags.model.FlagResources
+import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.ui.component.FullscreenButton
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
@@ -97,7 +97,7 @@ fun FullScreen(
     viewModel: FullScreenViewModel = viewModel(),
     isHideTitle: Boolean,
     isFlagWide: Boolean,
-    onExitFullScreen: (FlagResources) -> Unit,
+    onExitFullScreen: (FlagView) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val orientationController = LocalOrientationController.current
@@ -143,7 +143,7 @@ private fun FullScreen(
     isFlagWide: Boolean,
     isGame: Boolean,
     onExitFullscreen: () -> Unit,
-    onCarouselRotation: (FlagResources) -> Unit,
+    onCarouselRotation: (FlagView) -> Unit,
 ) {
     BackHandler { onExitFullscreen() }
 
@@ -316,12 +316,12 @@ private fun FullscreenContent(
     isFlagWide: Boolean,
     isButtons: Boolean,
     exitButtonAnimationTiming: Int,
-    flag: FlagResources,
-    flags: List<FlagResources>,
+    flag: FlagView,
+    flags: List<FlagView>,
     isLandscape: Boolean,
     onLandscapeChange: () -> Unit,
     onExitFullScreen: () -> Unit,
-    onCarouselRotation: (FlagResources) -> Unit,
+    onCarouselRotation: (FlagView) -> Unit,
 ) {
     val displayMetrics = LocalContext.current.resources.displayMetrics
     val density = LocalDensity.current
@@ -719,10 +719,3 @@ private fun FullscreenTopBar(
         }
     )
 }
-
-
-/*
-@Composable
-private fun ScrollToFirstButton() {
-}
- */

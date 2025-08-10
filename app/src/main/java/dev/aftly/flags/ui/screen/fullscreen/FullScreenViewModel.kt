@@ -3,7 +3,7 @@ package dev.aftly.flags.ui.screen.fullscreen
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
-import dev.aftly.flags.model.FlagResources
+import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.ui.util.getFlagFromId
 import dev.aftly.flags.ui.util.getFlagIdsFromString
 import dev.aftly.flags.ui.util.getFlagsFromIds
@@ -31,7 +31,7 @@ class FullScreenViewModel(
         }
     }
 
-    fun updateCurrentFlag(flag: FlagResources) {
+    fun updateCurrentFlag(flag: FlagView) {
         _uiState.update { it.copy(flag = flag) }
     }
 }

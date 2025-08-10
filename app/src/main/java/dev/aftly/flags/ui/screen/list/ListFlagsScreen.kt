@@ -90,6 +90,7 @@ import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
+import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.ui.component.CategoriesButtonMenu
 import dev.aftly.flags.ui.component.NoResultsFound
 import dev.aftly.flags.ui.component.ResultsType
@@ -107,7 +108,7 @@ fun ListFlagsScreen(
     viewModel: ListFlagsViewModel = viewModel(),
     currentBackStackEntry: NavBackStackEntry?,
     onNavigationDrawer: () -> Unit,
-    onNavigateToFlagScreen: (FlagResources, List<FlagResources>) -> Unit,
+    onNavigateToFlagScreen: (FlagView, List<FlagView>) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val searchResults by viewModel.searchResults.collectAsStateWithLifecycle()
@@ -155,7 +156,7 @@ private fun ListFlagsScreen(
     modifier: Modifier = Modifier,
     uiState: ListFlagsUiState,
     currentBackStackEntry: NavBackStackEntry?,
-    searchResults: List<FlagResources>,
+    searchResults: List<FlagView>,
     containerColor1: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     containerColor2: Color = MaterialTheme.colorScheme.secondary,
     searchQuery: String,
@@ -166,7 +167,7 @@ private fun ListFlagsScreen(
     onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onSavedFlagsSelect: (Boolean) -> Unit,
-    onFlagSelect: (FlagResources) -> Unit,
+    onFlagSelect: (FlagView) -> Unit,
 ) {
     /* Controls FilterFlagsButton menu expansion amd tracks current button height
      * Also for FilterFlagsButton to access Scaffold() padding */
@@ -392,10 +393,10 @@ private fun ListFlagsContent(
     listState: LazyListState,
     isSavedFlags: Boolean,
     isSearchQuery: Boolean,
-    searchResults: List<FlagResources>,
-    currentFlags: List<FlagResources>,
-    savedFlags: List<FlagResources>,
-    onFlagSelect: (FlagResources) -> Unit,
+    searchResults: List<FlagView>,
+    currentFlags: List<FlagView>,
+    savedFlags: List<FlagView>,
+    onFlagSelect: (FlagView) -> Unit,
 ) {
     val listItemVerticalPadding = Dimens.small8
     val flags = if (isSavedFlags) savedFlags else currentFlags
@@ -485,8 +486,8 @@ private fun ListFlagsContent(
 private fun ListItem(
     modifier: Modifier = Modifier,
     verticalPadding: Dp,
-    flag: FlagResources,
-    onFlagSelect: (FlagResources) -> Unit,
+    flag: FlagView,
+    onFlagSelect: (FlagView) -> Unit,
 ) {
     val configuration = LocalConfiguration.current
     val fontScale = configuration.fontScale

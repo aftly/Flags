@@ -8,8 +8,7 @@ import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.allFlagsList
-import dev.aftly.flags.data.DataSource.flagsMap
-import dev.aftly.flags.data.DataSource.flagsMapId
+import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.data.room.savedflags.SavedFlag
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
@@ -31,12 +30,14 @@ import dev.aftly.flags.model.FlagCategory.SOCIAL
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.SUPRANATIONAL_UNION
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
-import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
+import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.ui.util.getFlagFromId
 import dev.aftly.flags.ui.util.getFlagIdsFromString
 import dev.aftly.flags.ui.util.getFlagKey
-import dev.aftly.flags.ui.util.getRelatedFlags
+import dev.aftly.flags.ui.util.getFlagsFromKeys
+import dev.aftly.flags.ui.util.normalizeString
+import dev.aftly.flags.ui.util.sortFlagsAlphabetically
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -78,6 +79,7 @@ class FlagViewModel(
         flagId: Int,
         flagIdsFromList: List<Int>? = null,
     ) {
+        val appResources = application.applicationContext.resources
         val flag = getFlagFromId(flagId)
 
         if (flag != uiState.value.flag) {
@@ -87,10 +89,13 @@ class FlagViewModel(
                 it.copy(
                     flag = flag,
                     flagKey = flagKey,
-                    relatedFlags = getRelatedFlags(flag, application),
+                    externalRelatedFlags = sortFlagsAlphabetically(
+                        application = application,
+                        flags = getFlagsFromKeys(flag.externalRelatedFlags)
+                    ),
                     flagIdsFromList = flagIdsFromList ?: it.flagIdsFromList,
-                    isRelatedFlagNavigation =
-                        if (it.isRelatedFlagNavigation) flag != it.initRelatedFlag
+                    isExtRelatedFlagNavigation =
+                        if (it.isExtRelatedFlagNavigation) flag != it.initExtRelatedFlag
                         else false,
                     savedFlag = it.savedFlags.find { savedFlag ->
                         savedFlag.flagKey == flagKey
@@ -102,17 +107,17 @@ class FlagViewModel(
     }
 
 
-    fun updateFlagRelated(flag: FlagResources) {
+    fun updateFlagRelated(flag: FlagView) {
         val state = uiState.value
 
         val initRelatedFlag =
-            if (!state.isRelatedFlagNavigation) state.flag
-            else state.initRelatedFlag
+            if (!state.isExtRelatedFlagNavigation) state.flag
+            else state.initExtRelatedFlag
 
         _uiState.update {
             it.copy(
-                initRelatedFlag = initRelatedFlag,
-                isRelatedFlagNavigation = flag != initRelatedFlag,
+                initExtRelatedFlag = initRelatedFlag,
+                isExtRelatedFlagNavigation = flag != initRelatedFlag,
             )
         }
         updateFlag(flagId = flag.id)
@@ -133,15 +138,15 @@ class FlagViewModel(
     }
 
 
-    fun getFlagIds(): List<Int> = when (uiState.value.isRelatedFlagNavigation) {
+    fun getFlagIds(): List<Int> = when (uiState.value.isExtRelatedFlagNavigation) {
         false -> uiState.value.flagIdsFromList
-        true -> uiState.value.relatedFlags.map { it.id }
+        true -> uiState.value.externalRelatedFlags.map { it.id }
     }
 
 
     /* Convert the @StringRes list into a legible string
      * Also for execution upon locale/language configuration changes */
-    fun updateDescriptionString(flag: FlagResources) {
+    fun updateDescriptionString(flag: FlagView) {
         val appResources = getApplication<Application>().applicationContext.resources
         val stringIds = getDescriptionIds(flag = flag)
         val whitespaceExceptions = uiState.value.descriptionIdsWhitespaceExceptions
@@ -177,7 +182,7 @@ class FlagViewModel(
 
     /* Return appropriate @StringRes list from flag info to make a legible entity description
      * Also, update state with whitespace exceptions for @StringRes list */
-    private fun getDescriptionIds(flag: FlagResources): List<Int> {
+    private fun getDescriptionIds(flag: FlagView): List<Int> {
         val categories = flag.categories
         val stringIds = mutableListOf<Int>()
         val whitespaceExceptionIndexes = mutableListOf(0)
@@ -218,7 +223,7 @@ class FlagViewModel(
 
             /* If relevant add strings about the associated state */
             if (flag.associatedState != null) {
-                val associatedState = flagsMap.getValue(flag.associatedState)
+                val associatedState = flagViewMap.getValue(flag.associatedState)
 
                 stringIds.add(element = R.string.category_free_association_in_description)
                 if (associatedState.isFlagOfThe) stringIds.add(element = R.string.string_the)
@@ -227,7 +232,7 @@ class FlagViewModel(
 
             /* If relevant add strings about the sovereign state */
             if (flag.sovereignState != null) {
-                val sovereign = flagsMap.getValue(flag.sovereignState)
+                val sovereign = flagViewMap.getValue(flag.sovereignState)
                 val isSovereignConstitutional = CONSTITUTIONAL in sovereign.categories
 
                 /* If sovereign state isn't the associated state add it's name info */

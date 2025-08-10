@@ -65,7 +65,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource
-import dev.aftly.flags.model.FlagResources
+import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.ui.component.FullscreenButton
 import dev.aftly.flags.ui.component.RelatedFlagsButton
 import dev.aftly.flags.ui.component.RelatedFlagsMenu
@@ -79,8 +79,8 @@ import dev.aftly.flags.ui.util.SystemUiController
 fun FlagScreen(
     viewModel: FlagViewModel = viewModel(),
     currentBackStackEntry: NavBackStackEntry?,
-    onNavigateBack: (FlagResources) -> Unit,
-    onFullscreen: (FlagResources, List<Int>, Boolean) -> Unit,
+    onNavigateBack: (FlagView) -> Unit,
+    onFullscreen: (FlagView, List<Int>, Boolean) -> Unit,
     onNavigateError: () -> Unit,
 ) {
     /* Expose screen and backStack state */
@@ -123,7 +123,7 @@ fun FlagScreen(
         },
         onNavigateBack = {
             val flag =
-                if (uiState.isRelatedFlagNavigation) uiState.initRelatedFlag else uiState.flag
+                if (uiState.isExtRelatedFlagNavigation) uiState.initExtRelatedFlag else uiState.flag
             onNavigateBack(flag)
         },
     )
@@ -135,11 +135,11 @@ private fun FlagScreen(
     modifier: Modifier = Modifier,
     uiState: FlagUiState,
     onFlagSave: () -> Unit,
-    onRelatedFlag: (FlagResources) -> Unit,
+    onRelatedFlag: (FlagView) -> Unit,
     onFullscreen: (Boolean) -> Unit,
     onNavigateBack: () -> Unit,
 ) {
-    val isRelatedFlagsButton = uiState.relatedFlags.size > 1
+    val isRelatedFlagsButton = uiState.externalRelatedFlags.size > 1
 
     /* Controls FilterFlagsButton menu expansion amd tracks current button height
      * Also for FilterFlagsButton to access Scaffold() padding */
@@ -194,7 +194,7 @@ private fun FlagScreen(
                 isExpanded = isButtonExpanded,
                 onExpand = { isButtonExpanded = !isButtonExpanded },
                 currentFlag = uiState.flag,
-                relatedFlags = uiState.relatedFlags,
+                relatedFlags = uiState.externalRelatedFlags,
                 onFlagSelect = { newFlag ->
                     if (newFlag != uiState.flag) {
                         isButtonExpanded = false
@@ -210,7 +210,7 @@ private fun FlagScreen(
 @Composable
 private fun FlagContent(
     modifier: Modifier = Modifier,
-    flag: FlagResources,
+    flag: FlagView,
     description: List<String>,
     boldWordPositions: List<Int>,
     onImageWide: (Boolean) -> Unit,

@@ -24,6 +24,7 @@ import dev.aftly.flags.model.FlagSuperCategory.International
 import dev.aftly.flags.model.FlagSuperCategory.Political
 import dev.aftly.flags.model.FlagSuperCategory.Regional
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
+import dev.aftly.flags.model.FlagView
 
 
 /* ------ General category helpers ------ */
@@ -54,15 +55,15 @@ fun ScoreItem.isCategoriesEmpty(): Boolean =
 fun getFlagsByCategory(
     superCategory: FlagSuperCategory?,
     subCategory: FlagCategory?,
-    allFlags: List<FlagResources>,
+    allFlags: List<FlagView>,
     parentCategory: FlagSuperCategory = getParentSuperCategory(
         superCategory = superCategory,
         subCategory = subCategory,
     ),
     exceptionCategories: List<FlagCategory> = SovereignCountry.enums(),
-): List<FlagResources> {
+): List<FlagView> {
     /* Mutable list for adding flags to */
-    val flags = mutableListOf<FlagResources>()
+    val flags = mutableListOf<FlagView>()
 
     /* Exclude flags if they have a particular category/categories */
     val categoriesNot = when (subCategory) {
@@ -120,7 +121,7 @@ fun getFlagsByCategory(
 fun getSuperCategories(
     superCategory: FlagSuperCategory?,
     subCategory: FlagCategory?,
-    flags: List<FlagResources>,
+    flags: List<FlagView>,
 ): List<FlagSuperCategory> {
     val isPoliticalSubCategory = subCategory?.let {
         Political.subCategories.filterIsInstance<FlagSuperCategory>()
@@ -286,13 +287,13 @@ fun updateCategoriesFromSub(
 
 
 fun getFlagsFromCategories(
-    allFlags: List<FlagResources>,
-    currentFlags: List<FlagResources>,
+    allFlags: List<FlagView>,
+    currentFlags: List<FlagView>,
     isDeselect: Boolean,
     newSuperCategory: FlagSuperCategory?,
     superCategories: MutableList<FlagSuperCategory>,
     subCategories: MutableList<FlagCategory>,
-): List<FlagResources> {
+): List<FlagView> {
     return if (isDeselect || newSuperCategory == Historical) {
         allFlags
     } else {

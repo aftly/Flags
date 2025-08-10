@@ -9,12 +9,12 @@ import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.data.DataSource.nullFlag
 import dev.aftly.flags.model.FlagCategory
-import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
+import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.ScoreData
 import dev.aftly.flags.model.TimeMode
-import dev.aftly.flags.ui.util.getFlagResource
+import dev.aftly.flags.ui.util.getFlagView
 import dev.aftly.flags.ui.util.getFlagsByCategory
 import dev.aftly.flags.ui.util.getFlagsFromCategories
 import dev.aftly.flags.ui.util.getSuperCategories
@@ -41,13 +41,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(value = GameUiState())
     val uiState = _uiState.asStateFlow()
-    private val _savedFlagsState = MutableStateFlow(value = emptyList<FlagResources>())
+    private val _savedFlagsState = MutableStateFlow(value = emptyList<FlagView>())
     val savedFlagsState = _savedFlagsState.asStateFlow()
 
-    private var guessedFlags = mutableListOf<FlagResources>()
-    private var skippedGuessedFlags = mutableListOf<FlagResources>()
-    private var skippedFlags = mutableListOf<FlagResources>()
-    private var shownFlags = mutableListOf<FlagResources>()
+    private var guessedFlags = mutableListOf<FlagView>()
+    private var skippedGuessedFlags = mutableListOf<FlagView>()
+    private var skippedFlags = mutableListOf<FlagView>()
+    private var shownFlags = mutableListOf<FlagView>()
 
     private var timerStandardJob: Job? = null
     private var timerTimeTrialJob: Job? = null
@@ -72,7 +72,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         /* Initialize savedFlags list */
         viewModelScope.launch {
             savedFlagsRepository.getAllFlagsStream().first().let { savedFlags ->
-                _savedFlagsState.value = savedFlags.map { it.getFlagResource() }
+                _savedFlagsState.value = savedFlags.map { it.getFlagView() }
             }
         }
     }
@@ -441,7 +441,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         isSkip: Boolean = false,
         isShowAnswer: Boolean = false,
     ) {
-        val currentFlag: FlagResources = uiState.value.currentFlag
+        val currentFlag: FlagView = uiState.value.currentFlag
 
         if (isSkip) { /* If user skip & un-skipped flags remain, add flag to skip list */
             if (!isSkipMax()) skippedFlags.add(currentFlag)
@@ -478,7 +478,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    private fun getRandomFlag(isNewGame: Boolean = false): FlagResources {
+    private fun getRandomFlag(isNewGame: Boolean = false): FlagView {
         val currentFlags = uiState.value.currentFlags
 
         /* To stop recursive loop app crash when current flag state carries across games and
@@ -503,7 +503,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
      * If nextFlagInSkipped is @ end of skippedFlags list, state is updated to skippedFlags[0].
      * If nextFlagInSkipped is null, (ie. on first time call,) returns skippedFlags[0].
      * If nextFlagInSkipped is null, is set to skippedFlags[0] if size of 1, else [1]. */
-    private fun getSkippedFlag(): FlagResources {
+    private fun getSkippedFlag(): FlagView {
         val nextFlagInSkipped = uiState.value.nextFlagInSkipped
 
         if (nextFlagInSkipped != null) { // Ie. After first time call to getSkippedFlag()
@@ -527,7 +527,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    private fun getStringsList(flag: FlagResources): List<String> {
+    private fun getStringsList(flag: FlagView): List<String> {
         val appResources = getApplication<Application>().applicationContext.resources
         val mutableList: MutableList<String> = mutableListOf()
 
@@ -555,10 +555,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    private fun sortFlags(flags: MutableList<FlagResources>): List<FlagResources> {
-        val application = getApplication<Application>()
-        return sortFlagsAlphabetically(application, flags)
-    }
+    private fun sortFlags(flags: MutableList<FlagView>): List<FlagView> =
+        sortFlagsAlphabetically(getApplication(), flags)
 
 
     private fun cancelTimers() {

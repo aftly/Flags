@@ -1,20 +1,20 @@
 package dev.aftly.flags.ui.screen.game
 
-import dev.aftly.flags.data.DataSource
+import dev.aftly.flags.data.DataSource.allFlagsList
 import dev.aftly.flags.data.DataSource.nullFlag
 import dev.aftly.flags.model.FlagCategory
-import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
+import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.ScoreData
 
 data class GameUiState(
-    val allFlags: List<FlagResources> = DataSource.allFlagsList,
-    val currentFlags: List<FlagResources> = allFlags,
+    val allFlags: List<FlagView> = allFlagsList,
+    val currentFlags: List<FlagView> = allFlagsList,
     val currentSuperCategories: List<FlagSuperCategory> = listOf(FlagSuperCategory.All),
     val currentSubCategories: List<FlagCategory> = emptyList(),
 
     val totalFlagCount: Int = 0,
-    val currentFlag: FlagResources = nullFlag,
+    val currentFlag: FlagView = nullFlag,
     val currentFlagStrings: List<String> = emptyList(),
 
     val isConfirmExitDialog: Boolean = false,
@@ -32,7 +32,7 @@ data class GameUiState(
     val isGuessCorrectEvent: Boolean = false,
     val isGuessWrong: Boolean = false,
     val isGuessWrongEvent: Boolean = false,
-    val nextFlagInSkipped: FlagResources? = null,
+    val nextFlagInSkipped: FlagView? = null,
 
     val timerShowAnswerReset: Int = 5,
     val isConfirmShowAnswer: Boolean = false,

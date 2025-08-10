@@ -6,7 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.data.room.scorehistory.ScoreItem
-import dev.aftly.flags.model.FlagResources
+import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.toScoreData
 import dev.aftly.flags.ui.util.getFlagsFromKeys
 import dev.aftly.flags.ui.util.sortFlagsAlphabetically
@@ -65,8 +65,6 @@ class GameHistoryViewModel(
     }
 
 
-    private fun sortFlags(flags: List<FlagResources>): List<FlagResources> {
-        val application = getApplication<Application>()
-        return sortFlagsAlphabetically(application, flags)
-    }
+    private fun sortFlags(flags: List<FlagView>): List<FlagView> =
+        sortFlagsAlphabetically(getApplication(), flags)
 }

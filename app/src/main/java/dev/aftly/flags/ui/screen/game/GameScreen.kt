@@ -91,6 +91,7 @@ import dev.aftly.flags.R
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
+import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.CategoriesButtonMenu
 import dev.aftly.flags.ui.component.DialogActionButton
@@ -120,7 +121,7 @@ fun GameScreen(
     onNavigationDrawer: () -> Unit,
     onExit: () -> Unit,
     onScoreHistory: (Boolean) -> Unit, // isGameOver Boolean
-    onFullscreen: (FlagResources, Boolean, Boolean) -> Unit,
+    onFullscreen: (FlagView, Boolean, Boolean) -> Unit,
 ) {
     /* Expose screen and backStack state */
     val uiState by viewModel.uiState.collectAsState()
@@ -255,7 +256,7 @@ fun GameScreen(
 private fun GameScreen(
     modifier: Modifier = Modifier,
     uiState: GameUiState,
-    savedFlags: List<FlagResources>,
+    savedFlags: List<FlagView>,
     screen: Screen,
     userGuess: String,
     onUserGuessChange: (String) -> Unit,
@@ -426,7 +427,7 @@ private fun GameContent(
     totalFlagCount: Int,
     correctGuessCount: Int,
     shownAnswerCount: Int,
-    currentFlag: FlagResources,
+    currentFlag: FlagView,
     userGuess: String,
     onUserGuessChange: (String) -> Unit,
     onFocusChanged: (Boolean) -> Unit,
@@ -603,7 +604,7 @@ private fun GameCard(
     totalFlagCount: Int,
     correctGuessCount: Int,
     shownAnswerCount: Int,
-    currentFlag: FlagResources,
+    currentFlag: FlagView,
     userGuess: String,
     onUserGuessChange: (String) -> Unit,
     onFocusChanged: (Boolean) -> Unit,

@@ -24,15 +24,15 @@ class ScoreData(
     val timerEnd: Int, /* In seconds */
     val gameSuperCategories: List<FlagSuperCategory>,
     val gameSubCategories: List<FlagCategory>,
-    val flagsAll: List<FlagResources>,
-    val flagsGuessed: List<FlagResources>,
-    flagsGuessedSorted: List<FlagResources>,
-    val flagsSkippedGuessed: List<FlagResources>,
-    flagsSkippedGuessedSorted: List<FlagResources>,
-    val flagsSkipped: List<FlagResources>,
-    flagsSkippedSorted: List<FlagResources>,
-    val flagsShown: List<FlagResources>,
-    flagsShownSorted: List<FlagResources>,
+    val flagsAll: List<FlagView>,
+    val flagsGuessed: List<FlagView>,
+    flagsGuessedSorted: List<FlagView>,
+    val flagsSkippedGuessed: List<FlagView>,
+    flagsSkippedGuessedSorted: List<FlagView>,
+    val flagsSkipped: List<FlagView>,
+    flagsSkippedSorted: List<FlagView>,
+    val flagsShown: List<FlagView>,
+    flagsShownSorted: List<FlagView>,
 ) {
     private val remainderFlags = flagsAll.filterNot { it in flagsGuessed }
         .filterNot { it in flagsSkipped }.filterNot { it in flagsShown }
@@ -105,10 +105,10 @@ class ScoreData(
 /* Extension function to return ScoreData from ScoreItem instance (Room Dao class)
  * (needs string sorting, so eg. call from ViewModel) */
 fun ScoreItem.toScoreData(
-    flagsGuessedSorted: List<FlagResources>,
-    flagsSkippedGuessedSorted: List<FlagResources>,
-    flagsSkippedSorted: List<FlagResources>,
-    flagsShownSorted: List<FlagResources>,
+    flagsGuessedSorted: List<FlagView>,
+    flagsSkippedGuessedSorted: List<FlagView>,
+    flagsSkippedSorted: List<FlagView>,
+    flagsShownSorted: List<FlagView>,
 ): ScoreData = ScoreData(
     id = id,
     timestamp = timestamp,
@@ -156,31 +156,31 @@ data class TimeOverview(
 
 /* ------------ Score details classes ------------ */
 abstract class TitledList(
-    val list: List<FlagResources>,
-    val sortedList: List<FlagResources>,
+    val list: List<FlagView>,
+    val sortedList: List<FlagView>,
 )
 
 class GuessedFlags(
-    list: List<FlagResources>,
-    sortedList: List<FlagResources>,
+    list: List<FlagView>,
+    sortedList: List<FlagView>,
 ) : TitledList(list, sortedList)
 
 class SkippedGuessedFlags(
-    list: List<FlagResources>,
-    sortedList: List<FlagResources>,
+    list: List<FlagView>,
+    sortedList: List<FlagView>,
 ) : TitledList(list, sortedList)
 
 class SkippedFlags(
-    list: List<FlagResources>,
-    sortedList: List<FlagResources>,
+    list: List<FlagView>,
+    sortedList: List<FlagView>,
 ) : TitledList(list, sortedList)
 
 class ShownFlags(
-    list: List<FlagResources>,
-    sortedList: List<FlagResources>,
+    list: List<FlagView>,
+    sortedList: List<FlagView>,
 ) : TitledList(list, sortedList)
 
 class RemainderFlags(
-    list: List<FlagResources>,
-    sortedList: List<FlagResources>,
+    list: List<FlagView>,
+    sortedList: List<FlagView>,
 ) : TitledList(list, sortedList)

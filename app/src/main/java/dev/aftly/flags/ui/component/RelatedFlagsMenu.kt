@@ -48,6 +48,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import dev.aftly.flags.model.FlagResources
+import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Shapes
 import dev.aftly.flags.ui.theme.Timing
@@ -67,9 +68,9 @@ fun RelatedFlagsMenu(
     cardColors: CardColors = CardDefaults.cardColors(containerColor = containerColor1),
     buttonColors1: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor1),
     buttonColors2: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor2),
-    currentFlag: FlagResources,
-    relatedFlags: List<FlagResources>,
-    onFlagSelect: (FlagResources) -> Unit,
+    currentFlag: FlagView,
+    relatedFlags: List<FlagView>,
+    onFlagSelect: (FlagView) -> Unit,
 ) {
     val listState = rememberLazyListState()
     val density = LocalDensity.current
@@ -175,11 +176,11 @@ fun RelatedFlagsMenu(
 @Composable
 private fun RelatedItem(
     modifier: Modifier = Modifier,
-    flag: FlagResources,
-    currentFlag: FlagResources,
+    flag: FlagView,
+    currentFlag: FlagView,
     buttonColors1: ButtonColors,
     buttonColor2: ButtonColors,
-    onFlagSelect: (FlagResources) -> Unit,
+    onFlagSelect: (FlagView) -> Unit,
 ) {
     val configuration = LocalConfiguration.current
     val fontScale = configuration.fontScale

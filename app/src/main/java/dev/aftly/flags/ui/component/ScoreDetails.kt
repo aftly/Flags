@@ -63,7 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.aftly.flags.R
 import dev.aftly.flags.model.CategoriesOverview
-import dev.aftly.flags.model.FlagResources
+import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.GuessedFlags
 import dev.aftly.flags.model.RemainderFlags
 import dev.aftly.flags.model.ScoreData
@@ -708,7 +708,7 @@ private fun ScoresItem(
 @Composable
 private fun ScoreItem(
     modifier: Modifier = Modifier,
-    flag: FlagResources,
+    flag: FlagView,
     fontSize: TextUnit,
     lineHeight: TextUnit,
 ) {

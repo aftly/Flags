@@ -9,16 +9,16 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.R
+import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.data.DataSource.flagsMap
-import dev.aftly.flags.data.DataSource.reverseFlagsMap
+import dev.aftly.flags.data.DataSource.inverseFlagsMap
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
-import dev.aftly.flags.ui.util.getFlagResource
+import dev.aftly.flags.ui.util.getFlagView
 import dev.aftly.flags.ui.util.getFlagsByCategory
 import dev.aftly.flags.ui.util.getFlagsFromCategories
-import dev.aftly.flags.ui.util.getRelatedFlags
 import dev.aftly.flags.ui.util.getSuperCategories
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
@@ -61,6 +61,11 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
             .getString(R.string.string_the)
     }
 
+    // TODO UPDATE
+    val searchResults = MutableStateFlow(
+        value = listOf(flagViewMap.getValue("UnitedKingdom"))
+    )
+    /*
     val searchResults = combine(
         flow = searchQueryFlow,
         flow2 = currentFlagsFlow,
@@ -187,7 +192,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 ).or(
                     /* Handle search queries matching info of flags that have the flag as
                      * their sovereignState value */
-                    other = reverseFlagsMap.getValue(flag).let { sovereign ->
+                    other = inverseFlagsMap.getValue(flag).let { sovereign ->
                         val search = normalizeLower(query)
                         val isThe = search.startsWith(the)
 
@@ -223,7 +228,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 ).or(
                     /* Handle search queries matching info of flags that have the flag as
                      * their associatedState value */
-                    other = reverseFlagsMap.getValue(flag).let { associated ->
+                    other = inverseFlagsMap.getValue(flag).let { associated ->
                         val search = normalizeLower(query)
                         val isThe = search.startsWith(the)
 
@@ -260,7 +265,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
             }.let { results ->
                 /* When there is an exact match (firstItem) get it's related flags */
                 firstItem?.let { flag ->
-                    relatedFlags = getRelatedFlags(flag, application)
+                    relatedFlags = getExternalRelatedFlagsSorted(flag, application)
                 }
                 return@let results
             }.sortedWith { p1, p2 ->
@@ -280,6 +285,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         initialValue = uiState.value.currentFlags,
         started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
     )
+     */
 
     /* Initialise ListFlagsScreen() with a category not FlagSuperCategory.All
      * Also sort lists by readable name (alphabetically) */
@@ -294,7 +300,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
             savedFlagsRepository.getAllFlagsStream().collect { savedFlags ->
                 _uiState.update { state ->
                     state.copy(
-                        savedFlags = savedFlags.map { it.getFlagResource() }
+                        savedFlags = savedFlags.map { it.getFlagView() }
                     )
                 }
             }
