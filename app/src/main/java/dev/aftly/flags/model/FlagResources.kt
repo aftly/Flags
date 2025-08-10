@@ -1,17 +1,18 @@
 package dev.aftly.flags.model
 
-import androidx.annotation.DrawableRes
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class FlagResources(
     val id: Int, // For LazyColumn's items() key param
     val wikipediaUrlPath: StringResSource, // So that other locales can use a different wikipedia
-    @param:DrawableRes val image: Int,
-    @param:DrawableRes val imagePreview: Int, // Smaller image for lists (if relevant)
+    val image: DrawableResName,
+    val imagePreview: DrawableResName, // Smaller image for lists (if relevant)
     val fromYear: Int?, // Year flag was adopted
     val toYear: Int?, // Year flag was unadopted
     val flagOf: StringResSource, // flagOf<> params are for common, official & alt names (of entity)
     val flagOfOfficial: StringResSource,
-    val flagOfAlternate: List<Int>?, // List of StringResIds
+    val flagOfAlternate: List<StringResName>?, // List of StringResIds
     val isFlagOfThe: BooleanSource, // <>The params are for if name is preceded by "the"
     val isFlagOfOfficialThe: BooleanSource,
     val associatedState: String?, // Like below but for states in a Compact of Free Association

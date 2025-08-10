@@ -1,9 +1,16 @@
 package dev.aftly.flags.model
 
-import androidx.annotation.StringRes
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /* For use in DataSource to handle compile time enforcement for downstream usage of the data */
+@Serializable
 sealed interface StringResSource {
-    data class Explicit(@param:StringRes val resId: Int) : StringResSource
+    @Serializable
+    @SerialName("StringRes.Explicit")
+    data class Explicit(val resName: StringResName) : StringResSource
+
+    @Serializable
+    @SerialName("StringRes.Inherit")
     object Inherit : StringResSource
 }

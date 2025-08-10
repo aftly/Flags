@@ -10,8 +10,6 @@ import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.flagViewMap
-import dev.aftly.flags.data.DataSource.flagsMap
-import dev.aftly.flags.data.DataSource.inverseFlagsMap
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
@@ -22,16 +20,12 @@ import dev.aftly.flags.ui.util.getFlagsFromCategories
 import dev.aftly.flags.ui.util.getSuperCategories
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
-import dev.aftly.flags.ui.util.normalizeLower
 import dev.aftly.flags.ui.util.sortFlagsAlphabetically
 import dev.aftly.flags.ui.util.updateCategoriesFromSub
 import dev.aftly.flags.ui.util.updateCategoriesFromSuper
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -63,7 +57,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
 
     // TODO UPDATE
     val searchResults = MutableStateFlow(
-        value = listOf(flagViewMap.getValue("UnitedKingdom"))
+        value = listOf(flagViewMap.getValue("unitedKingdom"))
     )
     /*
     val searchResults = combine(

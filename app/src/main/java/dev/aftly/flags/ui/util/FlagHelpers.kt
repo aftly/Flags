@@ -4,7 +4,7 @@ import android.app.Application
 import dev.aftly.flags.data.DataSource.NAV_SEPARATOR
 import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.data.DataSource.flagViewMapId
-import dev.aftly.flags.data.DataSource.flagsMap
+import dev.aftly.flags.data.DataSource.flagResMap
 import dev.aftly.flags.data.DataSource.inverseFlagViewMap
 import dev.aftly.flags.data.DataSource.inverseFlagsMap
 import dev.aftly.flags.data.room.savedflags.SavedFlag
@@ -47,7 +47,7 @@ fun getInternalRelatedFlagKeys(
     val relatedKeys = mutableListOf<String>()
 
     flagResources.previousFlagOf?.let { parentKey ->
-        flagsMap.values.filter { flagRes ->
+        flagResMap.values.filter { flagRes ->
             flagRes.previousFlagOf == parentKey
         }.map { flagRes ->
             inverseFlagsMap.getValue(flagRes)
@@ -58,7 +58,7 @@ fun getInternalRelatedFlagKeys(
     }
 
     flagResources.latestEntity?.let { latestEntityKey ->
-        flagsMap.values.filter { flagRes ->
+        flagResMap.values.filter { flagRes ->
             flagRes.latestEntity == latestEntityKey
         }.map { flagRes ->
             inverseFlagsMap.getValue(flagRes)
@@ -68,7 +68,7 @@ fun getInternalRelatedFlagKeys(
         }
     }
 
-    flagsMap.values.filter { flagRes ->
+    flagResMap.values.filter { flagRes ->
         flagRes.previousFlagOf == flagKey || flagRes.latestEntity == flagKey
     }.map { flagRes ->
         inverseFlagsMap.getValue(flagRes)
@@ -87,7 +87,7 @@ fun getExternalRelatedFlagKeys(
     val relatedKeys = mutableListOf<String>()
 
     flagResources.sovereignState?.let { sovereignStateKey ->
-        flagsMap.values.filter { flagRes ->
+        flagResMap.values.filter { flagRes ->
             flagRes.sovereignState == sovereignStateKey
         }.map { flagRes ->
             inverseFlagsMap.getValue(flagRes)
@@ -98,7 +98,7 @@ fun getExternalRelatedFlagKeys(
     }
 
     flagResources.associatedState?.let { associatedStateKey ->
-        flagsMap.values.filter { flagRes ->
+        flagResMap.values.filter { flagRes ->
             flagRes.associatedState == associatedStateKey
         }.map { flagRes ->
             inverseFlagsMap.getValue(flagRes)
@@ -108,7 +108,7 @@ fun getExternalRelatedFlagKeys(
         }
     }
 
-    flagsMap.values.filter { flagRes ->
+    flagResMap.values.filter { flagRes ->
         flagRes.sovereignState == flagKey || flagRes.associatedState == flagKey
     }.map { flagRes ->
         inverseFlagsMap.getValue(flagRes)
