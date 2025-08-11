@@ -7,10 +7,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed interface BooleanSource {
     @Serializable
-    @SerialName("Boolean.Explicit")
+    @SerialName("BooleanSource.Explicit")
     data class Explicit(val bool: Boolean) : BooleanSource
 
     @Serializable
-    @SerialName("Boolean.Inherit")
+    @SerialName("BooleanSource.Inherit")
     object Inherit : BooleanSource
 }
