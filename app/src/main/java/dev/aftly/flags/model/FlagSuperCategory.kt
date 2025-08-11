@@ -71,7 +71,7 @@ sealed class FlagSuperCategory(
         gameScoreCategoryPreview = R.string.category_super_regional_score_preview,
         gameScoreCategoryDetailed = R.string.category_super_regional_score_detailed,
         subCategories = listOf(
-            //FlagCategoryWrapper(enum = FlagCategory.CANTON),
+            FlagCategoryWrapper(enum = FlagCategory.CANTON),
             FlagCategoryWrapper(enum = FlagCategory.COLLECTIVITY),
             FlagCategoryWrapper(enum = FlagCategory.COMMUNITY),
             FlagCategoryWrapper(enum = FlagCategory.COUNTRY),
