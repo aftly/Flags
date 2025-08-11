@@ -10829,7 +10829,7 @@
             "resName": "kemerovo_oblast_wikipedia_url_path"
         },
         "image": "flag_of_kemerovo_oblast",
-        "imagePreview": "flag_of_kemerovo_oblast",
+        "imagePreview": "flag_of_kemerovo_oblast_preview",
         "fromYear": null,
         "toYear": null,
         "flagOf": {
@@ -11717,7 +11717,7 @@
             "resName": "kursk_oblast_wikipedia_url_path"
         },
         "image": "flag_of_kursk_oblast__large_fix_",
-        "imagePreview": "flag_of_kursk_oblast__large_fix_",
+        "imagePreview": "flag_of_kursk_oblast__large_fix__preview",
         "fromYear": null,
         "toYear": null,
         "flagOf": {
@@ -17518,8 +17518,8 @@
             "type": "StringRes.Explicit",
             "resName": "palencia_province_wikipedia_url_path"
         },
-        "image": "bandera_de_la_provincia_de_palencia",
-        "imagePreview": "bandera_de_la_provincia_de_palencia_preview",
+        "image": "bandera_de_la_provincia_de_palencia1",
+        "imagePreview": "bandera_de_la_provincia_de_palencia1_preview",
         "fromYear": null,
         "toYear": null,
         "flagOf": {
@@ -18352,7 +18352,7 @@
             "resName": "pskov_oblast_wikipedia_url_path"
         },
         "image": "flag_of_pskov_oblast",
-        "imagePreview": "flag_of_pskov_oblast",
+        "imagePreview": "flag_of_pskov_oblast_preview",
         "fromYear": null,
         "toYear": null,
         "flagOf": {
