@@ -9,17 +9,16 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.R
-import dev.aftly.flags.data.DataSource.flagViewMap
-import dev.aftly.flags.data.DataSource.inverseFlagViewMap
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.SearchFlow
+import dev.aftly.flags.ui.util.getExternalRelatedFlagsSorted
 import dev.aftly.flags.ui.util.getFlagView
 import dev.aftly.flags.ui.util.getFlagsByCategory
 import dev.aftly.flags.ui.util.getFlagsFromCategories
-import dev.aftly.flags.ui.util.getExternalRelatedFlagsSorted
+import dev.aftly.flags.ui.util.getFlagsFromKeys
 import dev.aftly.flags.ui.util.getSuperCategories
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
@@ -33,7 +32,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -79,6 +77,107 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         relatedFlagsFlow
     )
 
+    val searchResults = combine(flows) { flowArray ->
+        val query = (flowArray[0] as SearchFlow.SearchQuery).value
+        val current = (flowArray[1] as SearchFlow.CurrentFlags).value
+        val saved = (flowArray[2] as SearchFlow.SavedFlags).value
+        val isSaved = (flowArray[3] as SearchFlow.IsSavedFlags).value
+        val res = (flowArray[4] as SearchFlow.AppResources).value
+        val the = (flowArray[5] as SearchFlow.TheString).value
+        val first = (flowArray[6] as SearchFlow.FirstItem).value
+        val related = (flowArray[7] as SearchFlow.RelatedFlags).value
+
+        val flags = if (isSaved) saved else current
+
+        when {
+            query.isNotEmpty() -> flags.filter { flag ->
+                /* Handle searchQuery matching flag's common name */
+                normalizeLower(res.getString(flag.flagOf)).let { flagOf ->
+                    if (flag.isFlagOfThe && normalizeLower(query).startsWith(the)) {
+                        (the + flagOf).contains(normalizeLower(query))
+                    } else {
+                        flagOf.contains(normalizeLower(query))
+                    }
+                }.let { isMatch ->
+                    /* If exact match set flag as firstItem in results list */
+                    if (isMatch) {
+                        val search = normalizeLower(query)
+                        val flagOf = if (flag.isFlagOfThe && search.startsWith(the)) {
+                            the + normalizeLower(res.getString(flag.flagOf))
+                        } else {
+                            normalizeLower(res.getString(flag.flagOf))
+                        }
+
+                        if (flagOf == search) _firstItem.value = flag
+                    }
+                    return@let isMatch
+                }.or(
+                    /* Handle searchQuery matching flag's official name */
+                    other = normalizeLower(res.getString(flag.flagOfOfficial)).let { official ->
+                        if (flag.isFlagOfOfficialThe && normalizeLower(query).startsWith(the)) {
+                            (the + official).contains(normalizeLower(query))
+                        } else {
+                            official.contains(normalizeLower(query))
+                        }
+                    }
+                ).let { isMatch ->
+                    /* If exact match set flag as firstItem in results list */
+                    if (isMatch) {
+                        val search = normalizeLower(query)
+                        val official = if (flag.isFlagOfOfficialThe && search.startsWith(the)) {
+                            the + normalizeLower(res.getString(flag.flagOfOfficial))
+                        } else {
+                            normalizeLower(res.getString(flag.flagOfOfficial))
+                        }
+
+                        if (official == search) _firstItem.value = flag
+                    }
+                    return@let isMatch
+                }.or(
+                    /* Handle searchQuery matching any of flag's alt names if applicable */
+                    other = flag.flagOfAlternate?.any { alt ->
+                        normalizeLower(res.getString(alt)).contains(normalizeLower(query))
+                    } ?: false
+                ).let { isMatch ->
+                    /* If exact match set flag as firstItem in results list */
+                    if (isMatch && flag.flagOfAlternate != null) {
+                        if (flag.flagOfAlternate.any { alt ->
+                                normalizeLower(res.getString(alt)) == normalizeLower(query) }) {
+                            _firstItem.value = flag
+                        }
+                    }
+                    return@let isMatch
+                }
+            }.let { results ->
+                /* When there is an exact match (firstItem) append related flags to results */
+                _relatedFlags.value = first?.let { flag ->
+                    sortFlagsAlphabetically(
+                        application = application,
+                        flags = getFlagsFromKeys(flag.externalRelatedFlagKeys)
+                    )
+                    //getExternalRelatedFlagsSorted(flag, application)
+                } ?: emptyList()
+
+                return@let (related + results).distinct()
+            }.sortedWith { p1, p2 ->
+                /* Sort list starting with firstItem, then elements in relatedFlags, then else */
+                when {
+                    p1 == first -> -1
+                    p2 == first -> 1
+                    p1 in related && p2 !in related -> -1
+                    p1 !in related && p2 in related -> 1
+                    else -> 0
+                }
+            }
+            else -> flags /* Show unfiltered list when searchQuery is clear */
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        initialValue = uiState.value.currentFlags,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+    )
+
+    /*
     val searchResults = combine(flows) { flowArray ->
         val query = (flowArray[0] as SearchFlow.SearchQuery).value
         val current = (flowArray[1] as SearchFlow.CurrentFlags).value
@@ -283,7 +382,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 _relatedFlags.value = first?.let { flag ->
                     getExternalRelatedFlagsSorted(flag, application)
                 } ?: emptyList()
-                
+
                 return@let results
             }.sortedWith { p1, p2 ->
                 /* Sort list starting with firstItem, then elements in relatedFlags, then else */
@@ -302,6 +401,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         initialValue = uiState.value.currentFlags,
         started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
     )
+     */
 
 
     /* Initialise ListFlagsScreen() with a category not FlagSuperCategory.All
@@ -465,12 +565,13 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun onSearchQueryChange(newQuery: String) {
+        _firstItem.value = null /* Reset exact match state with each change to searchQuery */
+        //_relatedFlags.value = emptyList()
         searchQuery = newQuery
 
         _uiState.update {
             it.copy(isSearchQuery = newQuery != "")
         }
-        _firstItem.value = null /* Reset exact match state with each change to searchQuery */
     }
 
     fun toggleIsSearchBarInit(isSearchBarInit: Boolean) {

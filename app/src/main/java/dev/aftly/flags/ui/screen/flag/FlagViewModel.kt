@@ -36,7 +36,6 @@ import dev.aftly.flags.ui.util.getFlagFromId
 import dev.aftly.flags.ui.util.getFlagIdsFromString
 import dev.aftly.flags.ui.util.getFlagKey
 import dev.aftly.flags.ui.util.getFlagsFromKeys
-import dev.aftly.flags.ui.util.normalizeString
 import dev.aftly.flags.ui.util.sortFlagsAlphabetically
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -89,9 +88,11 @@ class FlagViewModel(
                 it.copy(
                     flag = flag,
                     flagKey = flagKey,
+                    //externalRelatedFlags = getExternalRelatedFlagsSorted(flag, application),
+                    // TODO
                     externalRelatedFlags = sortFlagsAlphabetically(
                         application = application,
-                        flags = getFlagsFromKeys(flag.externalRelatedFlags)
+                        flags = getFlagsFromKeys(flag.externalRelatedFlagKeys)
                     ),
                     flagIdsFromList = flagIdsFromList ?: it.flagIdsFromList,
                     isExtRelatedFlagNavigation =
@@ -222,8 +223,8 @@ class FlagViewModel(
             )
 
             /* If relevant add strings about the associated state */
-            if (flag.associatedState != null) {
-                val associatedState = flagViewMap.getValue(flag.associatedState)
+            if (flag.associatedStateKey != null) {
+                val associatedState = flagViewMap.getValue(flag.associatedStateKey)
 
                 stringIds.add(element = R.string.category_free_association_in_description)
                 if (associatedState.isFlagOfThe) stringIds.add(element = R.string.string_the)
@@ -231,12 +232,12 @@ class FlagViewModel(
             }
 
             /* If relevant add strings about the sovereign state */
-            if (flag.sovereignState != null) {
-                val sovereign = flagViewMap.getValue(flag.sovereignState)
+            if (flag.sovereignStateKey != null) {
+                val sovereign = flagViewMap.getValue(flag.sovereignStateKey)
                 val isSovereignConstitutional = CONSTITUTIONAL in sovereign.categories
 
                 /* If sovereign state isn't the associated state add it's name info */
-                if (flag.associatedState == null) {
+                if (flag.associatedStateKey == null) {
                     stringIds.add(element = R.string.string_within)
                     if (sovereign.isFlagOfThe) stringIds.add(element = R.string.string_the)
                     stringIds.add(element = sovereign.flagOf)

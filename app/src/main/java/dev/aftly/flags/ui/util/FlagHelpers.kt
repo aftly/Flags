@@ -7,7 +7,7 @@ import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.data.DataSource.flagViewMapId
 import dev.aftly.flags.data.DataSource.flagResMap
 import dev.aftly.flags.data.DataSource.inverseFlagViewMap
-import dev.aftly.flags.data.DataSource.inverseFlagsMap
+import dev.aftly.flags.data.DataSource.inverseFlagResMap
 import dev.aftly.flags.data.room.savedflags.SavedFlag
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagView
@@ -52,7 +52,7 @@ fun getInternalRelatedFlagKeys(
         flagResMap.values.filter { flagRes ->
             flagRes.previousFlagOf == parentKey
         }.map { flagRes ->
-            inverseFlagsMap.getValue(flagRes)
+            inverseFlagResMap.getValue(flagRes)
         }.let { siblingKeys ->
             relatedKeys.add(parentKey)
             relatedKeys.addAll(siblingKeys)
@@ -63,7 +63,7 @@ fun getInternalRelatedFlagKeys(
         flagResMap.values.filter { flagRes ->
             flagRes.latestEntity == latestEntityKey
         }.map { flagRes ->
-            inverseFlagsMap.getValue(flagRes)
+            inverseFlagResMap.getValue(flagRes)
         }.let { siblingKeys ->
             relatedKeys.add(latestEntityKey)
             relatedKeys.addAll(siblingKeys)
@@ -73,7 +73,7 @@ fun getInternalRelatedFlagKeys(
     flagResMap.values.filter { flagRes ->
         flagRes.previousFlagOf == flagKey || flagRes.latestEntity == flagKey
     }.map { flagRes ->
-        inverseFlagsMap.getValue(flagRes)
+        inverseFlagResMap.getValue(flagRes)
     }.let { childKeys ->
         relatedKeys.addAll(childKeys)
     }
@@ -92,7 +92,7 @@ fun getExternalRelatedFlagKeys(
         flagResMap.values.filter { flagRes ->
             flagRes.sovereignState == sovereignStateKey
         }.map { flagRes ->
-            inverseFlagsMap.getValue(flagRes)
+            inverseFlagResMap.getValue(flagRes)
         }.let { siblingKeys ->
             relatedKeys.add(sovereignStateKey)
             relatedKeys.addAll(siblingKeys)
@@ -103,7 +103,7 @@ fun getExternalRelatedFlagKeys(
         flagResMap.values.filter { flagRes ->
             flagRes.associatedState == associatedStateKey
         }.map { flagRes ->
-            inverseFlagsMap.getValue(flagRes)
+            inverseFlagResMap.getValue(flagRes)
         }.let { siblingKeys ->
             relatedKeys.add(associatedStateKey)
             relatedKeys.addAll(siblingKeys)
@@ -113,7 +113,7 @@ fun getExternalRelatedFlagKeys(
     flagResMap.values.filter { flagRes ->
         flagRes.sovereignState == flagKey || flagRes.associatedState == flagKey
     }.map { flagRes ->
-        inverseFlagsMap.getValue(flagRes)
+        inverseFlagResMap.getValue(flagRes)
     }.let { childKeys ->
         relatedKeys.addAll(childKeys)
     }
@@ -170,19 +170,19 @@ fun getExternalRelatedFlagsSorted(
     application: Application,
 ): List<FlagView> {
     val appResources = application.applicationContext.resources
-    val list = mutableListOf(flag)
+    val list = mutableListOf<FlagView>()
 
-    flag.sovereignState?.let { sovereignState ->
+    flag.sovereignStateKey?.let { sovereignState ->
         val siblings = flagViewMap.values.filter {
-            it.sovereignState == sovereignState
+            it.sovereignStateKey == sovereignState
         }
         list.addAll(siblings)
         list.add(flagViewMap.getValue(sovereignState))
     }
 
-    flag.associatedState?.let { associatedState ->
+    flag.associatedStateKey?.let { associatedState ->
         val siblings = flagViewMap.values.filter {
-            it.associatedState == associatedState
+            it.associatedStateKey == associatedState
         }
         list.addAll(siblings)
         list.add(flagViewMap.getValue(associatedState))
@@ -190,7 +190,7 @@ fun getExternalRelatedFlagsSorted(
 
     val flagKey = inverseFlagViewMap.getValue(flag)
     val children = flagViewMap.values.filter {
-        it.sovereignState == flagKey || it.associatedState == flagKey
+        it.sovereignStateKey == flagKey || it.associatedStateKey == flagKey
     }
     list.addAll(children)
 

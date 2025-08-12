@@ -76,19 +76,19 @@ data object DataSource {
         flagOfAlternate = null,
         isFlagOfThe = false,
         isFlagOfOfficialThe = false,
-        associatedState = null,
-        sovereignState = null,
+        isPreviousFlag = false,
+        associatedStateKey = null,
+        sovereignStateKey = null,
         flagStringResIds = emptyList(),
-        allSearchStringResIds = emptyList(),
-        externalRelatedFlags = emptyList(),
-        internalRelatedFlags = emptyList(),
+        externalRelatedFlagKeys = emptyList(),
+        internalRelatedFlagKeys = emptyList(),
         categories = emptyList(),
     )
 
     private val json = Json { ignoreUnknownKeys = true }
 
     lateinit var flagResMap: Map<String, FlagResources>; private set
-    lateinit var inverseFlagsMap: Map<FlagResources, String>; private set
+    lateinit var inverseFlagResMap: Map<FlagResources, String>; private set
     lateinit var flagViewMap: Map<String, FlagView>; private set
     lateinit var inverseFlagViewMap: Map<FlagView, String>; private set
     lateinit var flagViewMapId: Map<Int, FlagView>; private set
@@ -106,7 +106,7 @@ data object DataSource {
             context.resources.openRawResource(R.raw.flags_map).use {
                 flagResMap = json.decodeFromStream<Map<String, FlagResources>>(it)
             }
-            inverseFlagsMap = getInverseFlagResMap(flagResMap)
+            inverseFlagResMap = getInverseFlagResMap(flagResMap)
             flagViewMap = getFlagViewMap(flagResMap, context)
             inverseFlagViewMap = getInverseFlagViewMap(flagViewMap)
             flagViewMapId = getFlagViewMapId(flagViewMap)
@@ -125,11 +125,6 @@ data object DataSource {
         map: Map<String, FlagResources>,
         context: Context,
     ): Map<String, FlagView> = map.mapValues { (flagKey, flagRes) ->
-        val externalRelatedFlags = getExternalRelatedFlagKeys(flagKey, flagRes)
-        val internalRelatedFlags = getInternalRelatedFlagKeys(flagKey, flagRes)
-
-        val flagStringResIds = getFlagNameResIds(flagKey, flagRes, context)
-
         /* Transform expression */
         FlagView(
             id = flagRes.id,
@@ -201,57 +196,12 @@ data object DataSource {
                     }
                 } ?: error("$flagKey has no previousFlagOf key")
             },
-            associatedState = flagRes.associatedState,
-            sovereignState = flagRes.sovereignState,
-            flagStringResIds = flagStringResIds,
-            allSearchStringResIds = flagStringResIds + (externalRelatedFlags + internalRelatedFlags)
-                .distinct().flatMap { relatedFlagKey ->
-                    val relatedFlagRes = flagResMap.getValue(relatedFlagKey)
-
-                    getFlagNameResIds(relatedFlagKey, relatedFlagRes, context)
-                },
-            /*
-            allSearchStringResIds = flagStringResIds + (externalRelatedFlags + internalRelatedFlags)
-                .distinct().flatMap { relatedKey ->
-                val relatedRes = flagResMap.getValue(relatedKey)
-
-                val flagOf = when (relatedRes.flagOf) {
-                    is StringResSource.Explicit -> relatedRes.flagOf.resName.resId(context)
-                    is StringResSource.Inherit -> relatedRes.previousFlagOf?.let { parentKey ->
-                        flagResMap.getValue(parentKey).let { parentFlagRes ->
-                            when (parentFlagRes.flagOf) {
-                                is StringResSource.Explicit ->
-                                    parentFlagRes.flagOf.resName.resId(context)
-                                is StringResSource.Inherit ->
-                                    error("$relatedKey and $parentKey have no name")
-                            }
-                        }
-                    } ?: error("$relatedKey has no previousFlagOf key")
-                }
-                val flagOfOfficial = when (relatedRes.flagOfOfficial) {
-                    is StringResSource.Explicit -> relatedRes.flagOfOfficial.resName.resId(context)
-                    is StringResSource.Inherit -> relatedRes.previousFlagOf?.let { parentKey ->
-                        flagResMap.getValue(parentKey).let { parentFlagRes ->
-                            when (parentFlagRes.flagOfOfficial) {
-                                is StringResSource.Explicit ->
-                                    parentFlagRes.flagOfOfficial.resName.resId(context)
-                                is StringResSource.Inherit ->
-                                    error("$relatedKey and $parentKey have no official name")
-                            }
-                        }
-                    } ?: error("$relatedKey has no previousFlagOf key")
-                }
-
-                val primaryNames = listOf(flagOf, flagOfOfficial)
-
-                /* Transform expression */
-                relatedRes.flagOfAlternate?.map { it.resId(context) }?.let { secondaryNames ->
-                    primaryNames + secondaryNames
-                } ?: primaryNames
-            },
-             */
-            externalRelatedFlags = externalRelatedFlags,
-            internalRelatedFlags = internalRelatedFlags,
+            isPreviousFlag = flagRes.previousFlagOf != null,
+            associatedStateKey = flagRes.associatedState,
+            sovereignStateKey = flagRes.sovereignState,
+            flagStringResIds = getFlagNameResIds(flagKey, flagRes, context),
+            externalRelatedFlagKeys = getExternalRelatedFlagKeys(flagKey, flagRes),
+            internalRelatedFlagKeys = getInternalRelatedFlagKeys(flagKey, flagRes),
             categories = flagRes.categories,
         )
     }

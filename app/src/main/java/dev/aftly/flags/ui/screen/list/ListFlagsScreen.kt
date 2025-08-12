@@ -252,13 +252,13 @@ private fun ListFlagsScreen(
                 /* If not returning to saved flags from a removed saved flag */
                 if (!(uiState.isSavedFlags && flag !in uiState.savedFlags)) {
                     val index = flags.indexOf(flag)
-                    //coroutineScope.launch { listState.scrollToItem(index = index) } TODO uncomment, make isNavBackInit property
+                    coroutineScope.launch { listState.scrollToItem(index = index) } // TODO make isNavBackInit property?
                 }
             }
         }
     }
 
-    // TODO keep?
+    // TODO keep? address unintended launches
     LaunchedEffect(key1 = searchResults) {
         coroutineScope.launch { listState.scrollToItem(index = 0) }
     }
@@ -288,15 +288,7 @@ private fun ListFlagsScreen(
                     scrollBehaviour = scrollBehaviour,
                     searchQuery = searchQuery,
                     isSearchQuery = uiState.isSearchQuery,
-                    onSearchQueryChange = {
-                        /* TODO remove?
-                        if (!isAtTop) coroutineScope.launch {
-                            delay(100)
-                            listState.scrollToItem(index = 0)
-                        }
-                         */
-                        onSearchQueryChange(it)
-                    },
+                    onSearchQueryChange = onSearchQueryChange,
                     onSearchQueryClear = {
                         if (!isAtTop) coroutineScope.launch {
                             listState.animateScrollToItem(index = 0)
