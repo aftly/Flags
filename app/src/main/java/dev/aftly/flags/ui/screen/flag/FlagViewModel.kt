@@ -78,7 +78,6 @@ class FlagViewModel(
         flagId: Int,
         flagIdsFromList: List<Int>? = null,
     ) {
-        val appResources = application.applicationContext.resources
         val flag = getFlagFromId(flagId)
 
         if (flag != uiState.value.flag) {
@@ -88,8 +87,6 @@ class FlagViewModel(
                 it.copy(
                     flag = flag,
                     flagKey = flagKey,
-                    //externalRelatedFlags = getExternalRelatedFlagsSorted(flag, application),
-                    // TODO
                     externalRelatedFlags = sortFlagsAlphabetically(
                         application = application,
                         flags = getFlagsFromKeys(flag.externalRelatedFlagKeys)
