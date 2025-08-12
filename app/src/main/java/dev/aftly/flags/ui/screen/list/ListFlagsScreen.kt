@@ -252,10 +252,15 @@ private fun ListFlagsScreen(
                 /* If not returning to saved flags from a removed saved flag */
                 if (!(uiState.isSavedFlags && flag !in uiState.savedFlags)) {
                     val index = flags.indexOf(flag)
-                    coroutineScope.launch { listState.scrollToItem(index = index) }
+                    //coroutineScope.launch { listState.scrollToItem(index = index) } TODO uncomment, make isNavBackInit property
                 }
             }
         }
+    }
+
+    // TODO keep?
+    LaunchedEffect(key1 = searchResults) {
+        coroutineScope.launch { listState.scrollToItem(index = 0) }
     }
 
     /* For expandable/collapsable Scaffold TopBar */
@@ -284,7 +289,12 @@ private fun ListFlagsScreen(
                     searchQuery = searchQuery,
                     isSearchQuery = uiState.isSearchQuery,
                     onSearchQueryChange = {
-                        if (!isAtTop) coroutineScope.launch { listState.scrollToItem(index = 0) }
+                        /* TODO remove?
+                        if (!isAtTop) coroutineScope.launch {
+                            delay(100)
+                            listState.scrollToItem(index = 0)
+                        }
+                         */
                         onSearchQueryChange(it)
                     },
                     onSearchQueryClear = {

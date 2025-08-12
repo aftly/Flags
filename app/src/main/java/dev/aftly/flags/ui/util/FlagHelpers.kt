@@ -165,6 +165,37 @@ fun getFlagNameResIds(
 
 /* ------------------------------------- */
 
+fun getExternalRelatedFlagsSorted(
+    flag: FlagView,
+    application: Application,
+): List<FlagView> {
+    val appResources = application.applicationContext.resources
+    val list = mutableListOf(flag)
+
+    flag.sovereignState?.let { sovereignState ->
+        val siblings = flagViewMap.values.filter {
+            it.sovereignState == sovereignState
+        }
+        list.addAll(siblings)
+        list.add(flagViewMap.getValue(sovereignState))
+    }
+
+    flag.associatedState?.let { associatedState ->
+        val siblings = flagViewMap.values.filter {
+            it.associatedState == associatedState
+        }
+        list.addAll(siblings)
+        list.add(flagViewMap.getValue(associatedState))
+    }
+
+    val flagKey = inverseFlagViewMap.getValue(flag)
+    val children = flagViewMap.values.filter {
+        it.sovereignState == flagKey || it.associatedState == flagKey
+    }
+    list.addAll(children)
+
+    return list.distinct().sortedBy { normalizeString(appResources.getString(it.flagOf)) }
+}
 
 fun sortFlagsAlphabetically(
     application: Application,

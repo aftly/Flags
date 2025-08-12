@@ -9,6 +9,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.R
+import dev.aftly.flags.data.DataSource.flagViewMap
+import dev.aftly.flags.data.DataSource.inverseFlagViewMap
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
@@ -17,11 +19,11 @@ import dev.aftly.flags.model.SearchFlow
 import dev.aftly.flags.ui.util.getFlagView
 import dev.aftly.flags.ui.util.getFlagsByCategory
 import dev.aftly.flags.ui.util.getFlagsFromCategories
+import dev.aftly.flags.ui.util.getExternalRelatedFlagsSorted
 import dev.aftly.flags.ui.util.getSuperCategories
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
 import dev.aftly.flags.ui.util.normalizeLower
-import dev.aftly.flags.ui.util.normalizeString
 import dev.aftly.flags.ui.util.sortFlagsAlphabetically
 import dev.aftly.flags.ui.util.updateCategoriesFromSub
 import dev.aftly.flags.ui.util.updateCategoriesFromSuper
@@ -31,6 +33,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -47,8 +50,9 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val _firstItem = MutableStateFlow<FlagView?>(value = null)
     private val firstItem = _firstItem.asStateFlow()
+    private val _relatedFlags = MutableStateFlow<List<FlagView>>(value = emptyList())
+    private val relatedFlags = _relatedFlags.asStateFlow()
 
-    /* Flows for combining in searchResults */
     private val currentFlagsFlow = uiState.map { SearchFlow.CurrentFlags(it.currentFlags) }
     private val savedFlagsFlow = uiState.map { SearchFlow.SavedFlags(it.savedFlags) }
     private var isSavedFlagsFlow = uiState.map { SearchFlow.IsSavedFlags(it.isSavedFlags) }
@@ -61,6 +65,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
             .getString(R.string.string_the_whitespace)
     }.map { SearchFlow.TheString(it) }
     private val firstItemFlow = firstItem.map { SearchFlow.FirstItem(it) }
+    private val relatedFlagsFlow = relatedFlags.map { SearchFlow.RelatedFlags(it) }
 
     /* Use sealed interface SearchFlow for safe casting in combine() transform lambda */
     val flows: List<Flow<SearchFlow>> = listOf(
@@ -70,7 +75,8 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         isSavedFlagsFlow,
         appResourcesFlow,
         theStringFlow,
-        firstItemFlow
+        firstItemFlow,
+        relatedFlagsFlow
     )
 
     val searchResults = combine(flows) { flowArray ->
@@ -81,53 +87,9 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         val res = (flowArray[4] as SearchFlow.AppResources).value
         val the = (flowArray[5] as SearchFlow.TheString).value
         val first = (flowArray[6] as SearchFlow.FirstItem).value
+        val related = (flowArray[7] as SearchFlow.RelatedFlags).value
 
         val flags = if (isSaved) saved else current
-        val search = query.lowercase().removePrefix(the).let {
-            normalizeString(it)
-        }
-
-        when {
-            query.isNotEmpty() -> flags.filter { flag ->
-                /* Handle searchQuery matching any flag string */
-                flag.allSearchStringResIds.any { resId ->
-                    normalizeLower(res.getString(resId)).contains(search)
-                }.let { isMatch ->
-                    /* If any is exact match set flag as firstItem in results list */
-                    if (isMatch) {
-                        flag.flagStringResIds.forEach { resId ->
-                            if (normalizeLower(res.getString(resId)) == search) {
-                                _firstItem.value = flag
-                            }
-                        }
-                    }
-                    return@let isMatch
-                }
-            }.sortedWith { p1, p2 ->
-                /* Sort list starting with firstItem */
-                when {
-                    p1 == first -> -1
-                    p2 == first -> 1
-                    else -> 0
-                }
-            }
-            else -> flags /* Show unfiltered list when searchQuery is clear */
-        }
-    }.stateIn(
-        scope = viewModelScope,
-        initialValue = uiState.value.currentFlags,
-        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
-    )
-
-    /*
-    val searchResults = combine(
-        flow = searchQueryFlow,
-        flow2 = currentFlagsFlow,
-        flow3 = savedFlagsFlow,
-        flow4 = appResourcesFlow,
-        flow5 = theStringFlow
-    ) { query, current, saved, res, the ->
-        val flags = if (uiState.value.isSavedFlags) saved else current
 
         when {
             query.isNotEmpty() -> flags.filter { flag ->
@@ -148,7 +110,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                             normalizeLower(res.getString(flag.flagOf))
                         }
 
-                        if (flagOf == search) firstItem = flag
+                        if (flagOf == search) _firstItem.value = flag
                     }
                     return@let isMatch
                 }.or(
@@ -170,7 +132,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                             normalizeLower(res.getString(flag.flagOfOfficial))
                         }
 
-                        if (official == search) firstItem = flag
+                        if (official == search) _firstItem.value = flag
                     }
                     return@let isMatch
                 }.or(
@@ -183,14 +145,14 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                     if (isMatch && flag.flagOfAlternate != null) {
                         if (flag.flagOfAlternate.any { alt ->
                                 normalizeLower(res.getString(alt)) == normalizeLower(query) }) {
-                            firstItem = flag
+                            _firstItem.value = flag
                         }
                     }
                     return@let isMatch
                 }.or(
                     /* Handle search queries matching info of a flag's sovereign state */
                     other = flag.sovereignState?.let { sovereignState ->
-                        val sov = flagsMap.getValue(sovereignState)
+                        val sov = flagViewMap.getValue(sovereignState)
 
                         normalizeLower(res.getString(sov.flagOf)).let { flagOf ->
                             if (sov.isFlagOfThe && normalizeLower(query).startsWith(the)) {
@@ -218,7 +180,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 ).or(
                     /* Handle search queries matching info of a flag's associated state */
                     other = flag.associatedState?.let { associatedState ->
-                        val ass = flagsMap.getValue(associatedState)
+                        val ass = flagViewMap.getValue(associatedState)
 
                         normalizeLower(res.getString(ass.flagOf)).let { flagOf ->
                             if (ass.isFlagOfThe && normalizeLower(query).startsWith(the)) {
@@ -246,7 +208,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 ).or(
                     /* Handle search queries matching info of flags that have the flag as
                      * their sovereignState value */
-                    other = inverseFlagsMap.getValue(flag).let { sovereign ->
+                    other = inverseFlagViewMap.getValue(flag).let { sovereign ->
                         val search = normalizeLower(query)
                         val isThe = search.startsWith(the)
 
@@ -282,7 +244,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 ).or(
                     /* Handle search queries matching info of flags that have the flag as
                      * their associatedState value */
-                    other = inverseFlagsMap.getValue(flag).let { associated ->
+                    other = inverseFlagViewMap.getValue(flag).let { associated ->
                         val search = normalizeLower(query)
                         val isThe = search.startsWith(the)
 
@@ -318,17 +280,18 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 )
             }.let { results ->
                 /* When there is an exact match (firstItem) get it's related flags */
-                firstItem?.let { flag ->
-                    relatedFlags = getExternalRelatedFlagsSorted(flag, application)
-                }
+                _relatedFlags.value = first?.let { flag ->
+                    getExternalRelatedFlagsSorted(flag, application)
+                } ?: emptyList()
+                
                 return@let results
             }.sortedWith { p1, p2 ->
                 /* Sort list starting with firstItem, then elements in relatedFlags, then else */
                 when {
-                    p1 == firstItem -> -1
-                    p2 == firstItem -> 1
-                    p1 in relatedFlags && p2 !in relatedFlags -> -1
-                    p1 !in relatedFlags && p2 in relatedFlags -> 1
+                    p1 == first -> -1
+                    p2 == first -> 1
+                    p1 in related && p2 !in related -> -1
+                    p1 !in related && p2 in related -> 1
                     else -> 0
                 }
             }
@@ -339,7 +302,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         initialValue = uiState.value.currentFlags,
         started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
     )
-     */
+
 
     /* Initialise ListFlagsScreen() with a category not FlagSuperCategory.All
      * Also sort lists by readable name (alphabetically) */
