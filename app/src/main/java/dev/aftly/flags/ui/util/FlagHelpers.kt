@@ -1,6 +1,7 @@
 package dev.aftly.flags.ui.util
 
 import android.app.Application
+import android.content.Context
 import dev.aftly.flags.data.DataSource.NAV_SEPARATOR
 import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.data.DataSource.flagViewMapId
@@ -10,6 +11,7 @@ import dev.aftly.flags.data.DataSource.inverseFlagsMap
 import dev.aftly.flags.data.room.savedflags.SavedFlag
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagView
+import dev.aftly.flags.model.StringResSource
 
 
 fun getFlagKey(flag: FlagView): String = inverseFlagViewMap.getValue(key = flag)
@@ -119,6 +121,48 @@ fun getExternalRelatedFlagKeys(
     relatedKeys.remove(flagKey)
     return relatedKeys.distinct()
 }
+
+fun getFlagNameResIds(
+    flagKey: String,
+    flagRes: FlagResources,
+    context: Context,
+): List<Int> {
+    val flagOf = when (flagRes.flagOf) {
+        is StringResSource.Explicit -> flagRes.flagOf.resName.resId(context)
+        is StringResSource.Inherit -> flagRes.previousFlagOf?.let { parentKey ->
+            flagResMap.getValue(parentKey).let { parentFlagRes ->
+                when (parentFlagRes.flagOf) {
+                    is StringResSource.Explicit ->
+                        parentFlagRes.flagOf.resName.resId(context)
+                    is StringResSource.Inherit ->
+                        error("$flagKey and $parentKey have no name")
+                }
+            }
+        } ?: error("$flagKey has no previousFlagOf key")
+    }
+    val flagOfOfficial = when (flagRes.flagOfOfficial) {
+        is StringResSource.Explicit -> flagRes.flagOfOfficial.resName.resId(context)
+        is StringResSource.Inherit -> flagRes.previousFlagOf?.let { parentKey ->
+            flagResMap.getValue(parentKey).let { parentFlagRes ->
+                when (parentFlagRes.flagOfOfficial) {
+                    is StringResSource.Explicit ->
+                        parentFlagRes.flagOfOfficial.resName.resId(context)
+                    is StringResSource.Inherit ->
+                        error("$flagKey and $parentKey have no official name")
+                }
+            }
+        } ?: error("$flagKey has no previousFlagOf key")
+    }
+
+    val primaryNames = listOf(flagOf, flagOfOfficial)
+
+    /* Transform expression */
+    return flagRes.flagOfAlternate?.map { it.resId(context) }?.let { secondaryNames ->
+        primaryNames + secondaryNames
+    } ?: primaryNames
+}
+
+
 /* ------------------------------------- */
 
 

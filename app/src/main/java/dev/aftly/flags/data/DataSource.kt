@@ -9,6 +9,7 @@ import dev.aftly.flags.model.StringResSource
 import dev.aftly.flags.ui.util.getExternalRelatedFlagKeys
 import dev.aftly.flags.ui.util.getInternalRelatedFlagKeys
 import android.content.Context
+import dev.aftly.flags.ui.util.getFlagNameResIds
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
@@ -77,7 +78,8 @@ data object DataSource {
         isFlagOfOfficialThe = false,
         associatedState = null,
         sovereignState = null,
-        searchStrings = emptyList(),
+        flagStringResIds = emptyList(),
+        allSearchStringResIds = emptyList(),
         externalRelatedFlags = emptyList(),
         internalRelatedFlags = emptyList(),
         categories = emptyList(),
@@ -122,9 +124,11 @@ data object DataSource {
     private fun getFlagViewMap(
         map: Map<String, FlagResources>,
         context: Context,
-    ): Map<String, FlagView> = map.mapValues { (key, flagRes) ->
-        val externalRelatedFlags = getExternalRelatedFlagKeys(key, flagRes)
-        val internalRelatedFlags = getInternalRelatedFlagKeys(key, flagRes)
+    ): Map<String, FlagView> = map.mapValues { (flagKey, flagRes) ->
+        val externalRelatedFlags = getExternalRelatedFlagKeys(flagKey, flagRes)
+        val internalRelatedFlags = getInternalRelatedFlagKeys(flagKey, flagRes)
+
+        val flagStringResIds = getFlagNameResIds(flagKey, flagRes, context)
 
         /* Transform expression */
         FlagView(
@@ -137,10 +141,10 @@ data object DataSource {
                             is StringResSource.Explicit ->
                                 parentFlagRes.wikipediaUrlPath.resName.resId(context)
                             is StringResSource.Inherit ->
-                                error("$key and $parentKey have no wikipedia url path")
+                                error("$flagKey and $parentKey have no wikipedia url path")
                         }
                     }
-                } ?: error("$key has no previousFlagOf key")
+                } ?: error("$flagKey has no previousFlagOf key")
             },
             image = flagRes.image.resId(context),
             imagePreview = flagRes.imagePreview.resId(context),
@@ -154,10 +158,10 @@ data object DataSource {
                             is StringResSource.Explicit ->
                                 parentFlagRes.flagOf.resName.resId(context)
                             is StringResSource.Inherit ->
-                                error("$key and $parentKey have no name")
+                                error("$flagKey and $parentKey have no name")
                         }
                     }
-                } ?: error("$key has no previousFlagOf key")
+                } ?: error("$flagKey has no previousFlagOf key")
             },
             flagOfOfficial = when (flagRes.flagOfOfficial) {
                 is StringResSource.Explicit -> flagRes.flagOfOfficial.resName.resId(context)
@@ -167,10 +171,10 @@ data object DataSource {
                             is StringResSource.Explicit ->
                                 parentFlagRes.flagOfOfficial.resName.resId(context)
                             is StringResSource.Inherit ->
-                                error("$key and $parentKey have no official name")
+                                error("$flagKey and $parentKey have no official name")
                         }
                     }
-                } ?: error("$key has no previousFlagOf key")
+                } ?: error("$flagKey has no previousFlagOf key")
             },
             flagOfAlternate = flagRes.flagOfAlternate?.map { it.resId(context) },
             isFlagOfThe = when (flagRes.isFlagOfThe) {
@@ -180,10 +184,10 @@ data object DataSource {
                         when (parentFlagRes.isFlagOfThe) {
                             is BooleanSource.Explicit -> parentFlagRes.isFlagOfThe.bool
                             is BooleanSource.Inherit ->
-                                error("$key and $parentKey have no isFlagOfThe")
+                                error("$flagKey and $parentKey have no isFlagOfThe")
                         }
                     }
-                } ?: error("$key has no previousFlagOf key")
+                } ?: error("$flagKey has no previousFlagOf key")
             },
             isFlagOfOfficialThe = when (flagRes.isFlagOfOfficialThe) {
                 is BooleanSource.Explicit -> flagRes.isFlagOfOfficialThe.bool
@@ -192,15 +196,23 @@ data object DataSource {
                         when (parentFlagRes.isFlagOfOfficialThe) {
                             is BooleanSource.Explicit -> parentFlagRes.isFlagOfOfficialThe.bool
                             is BooleanSource.Inherit ->
-                                error("$key and $parentKey have no isFlagOfOfficialThe")
+                                error("$flagKey and $parentKey have no isFlagOfOfficialThe")
                         }
                     }
-                } ?: error("$key has no previousFlagOf key")
+                } ?: error("$flagKey has no previousFlagOf key")
             },
             associatedState = flagRes.associatedState,
             sovereignState = flagRes.sovereignState,
-            searchStrings = (externalRelatedFlags + internalRelatedFlags).distinct().flatMap {
-                    relatedKey ->
+            flagStringResIds = flagStringResIds,
+            allSearchStringResIds = flagStringResIds + (externalRelatedFlags + internalRelatedFlags)
+                .distinct().flatMap { relatedFlagKey ->
+                    val relatedFlagRes = flagResMap.getValue(relatedFlagKey)
+
+                    getFlagNameResIds(relatedFlagKey, relatedFlagRes, context)
+                },
+            /*
+            allSearchStringResIds = flagStringResIds + (externalRelatedFlags + internalRelatedFlags)
+                .distinct().flatMap { relatedKey ->
                 val relatedRes = flagResMap.getValue(relatedKey)
 
                 val flagOf = when (relatedRes.flagOf) {
@@ -233,10 +245,11 @@ data object DataSource {
                 val primaryNames = listOf(flagOf, flagOfOfficial)
 
                 /* Transform expression */
-                flagRes.flagOfAlternate?.map { it.resId(context) }?.let { secondaryNames ->
+                relatedRes.flagOfAlternate?.map { it.resId(context) }?.let { secondaryNames ->
                     primaryNames + secondaryNames
                 } ?: primaryNames
             },
+             */
             externalRelatedFlags = externalRelatedFlags,
             internalRelatedFlags = internalRelatedFlags,
             categories = flagRes.categories,

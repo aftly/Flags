@@ -9,23 +9,29 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.R
-import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.model.FlagCategory
-import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
+import dev.aftly.flags.model.FlagView
+import dev.aftly.flags.model.SearchFlow
 import dev.aftly.flags.ui.util.getFlagView
 import dev.aftly.flags.ui.util.getFlagsByCategory
 import dev.aftly.flags.ui.util.getFlagsFromCategories
 import dev.aftly.flags.ui.util.getSuperCategories
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
+import dev.aftly.flags.ui.util.normalizeLower
+import dev.aftly.flags.ui.util.normalizeString
 import dev.aftly.flags.ui.util.sortFlagsAlphabetically
 import dev.aftly.flags.ui.util.updateCategoriesFromSub
 import dev.aftly.flags.ui.util.updateCategoriesFromSuper
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -39,26 +45,80 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
     var searchQuery by mutableStateOf(value = "")
         private set
 
-    /* Holds flag of exact searchQuery match and it's related flags for list sorting */
-    private var firstItem by mutableStateOf<FlagResources?>(value = null)
-    private var relatedFlags by mutableStateOf<List<FlagResources>>(value = emptyList())
+    private val _firstItem = MutableStateFlow<FlagView?>(value = null)
+    private val firstItem = _firstItem.asStateFlow()
 
     /* Flows for combining in searchResults */
-    private val currentFlagsFlow = uiState.map { it.currentFlags }
-    private val savedFlagsFlow = uiState.map { it.savedFlags }
-    private val searchQueryFlow = snapshotFlow { searchQuery }
-    private var appResourcesFlow = snapshotFlow {
+    private val currentFlagsFlow = uiState.map { SearchFlow.CurrentFlags(it.currentFlags) }
+    private val savedFlagsFlow = uiState.map { SearchFlow.SavedFlags(it.savedFlags) }
+    private var isSavedFlagsFlow = uiState.map { SearchFlow.IsSavedFlags(it.isSavedFlags) }
+    private val searchQueryFlow = snapshotFlow { searchQuery }.map { SearchFlow.SearchQuery(it) }
+    private val appResourcesFlow = snapshotFlow {
         getApplication<Application>().applicationContext.resources
-    }
-    private var theStringFlow = snapshotFlow {
+    }.map { SearchFlow.AppResources(it) }
+    private val theStringFlow = snapshotFlow {
         getApplication<Application>().applicationContext.resources
-            .getString(R.string.string_the)
-    }
+            .getString(R.string.string_the_whitespace)
+    }.map { SearchFlow.TheString(it) }
+    private val firstItemFlow = firstItem.map { SearchFlow.FirstItem(it) }
 
-    // TODO UPDATE
-    val searchResults = MutableStateFlow(
-        value = listOf(flagViewMap.getValue("unitedKingdom"))
+    /* Use sealed interface SearchFlow for safe casting in combine() transform lambda */
+    val flows: List<Flow<SearchFlow>> = listOf(
+        searchQueryFlow,
+        currentFlagsFlow,
+        savedFlagsFlow,
+        isSavedFlagsFlow,
+        appResourcesFlow,
+        theStringFlow,
+        firstItemFlow
     )
+
+    val searchResults = combine(flows) { flowArray ->
+        val query = (flowArray[0] as SearchFlow.SearchQuery).value
+        val current = (flowArray[1] as SearchFlow.CurrentFlags).value
+        val saved = (flowArray[2] as SearchFlow.SavedFlags).value
+        val isSaved = (flowArray[3] as SearchFlow.IsSavedFlags).value
+        val res = (flowArray[4] as SearchFlow.AppResources).value
+        val the = (flowArray[5] as SearchFlow.TheString).value
+        val first = (flowArray[6] as SearchFlow.FirstItem).value
+
+        val flags = if (isSaved) saved else current
+        val search = query.lowercase().removePrefix(the).let {
+            normalizeString(it)
+        }
+
+        when {
+            query.isNotEmpty() -> flags.filter { flag ->
+                /* Handle searchQuery matching any flag string */
+                flag.allSearchStringResIds.any { resId ->
+                    normalizeLower(res.getString(resId)).contains(search)
+                }.let { isMatch ->
+                    /* If any is exact match set flag as firstItem in results list */
+                    if (isMatch) {
+                        flag.flagStringResIds.forEach { resId ->
+                            if (normalizeLower(res.getString(resId)) == search) {
+                                _firstItem.value = flag
+                            }
+                        }
+                    }
+                    return@let isMatch
+                }
+            }.sortedWith { p1, p2 ->
+                /* Sort list starting with firstItem */
+                when {
+                    p1 == first -> -1
+                    p2 == first -> 1
+                    else -> 0
+                }
+            }
+            else -> flags /* Show unfiltered list when searchQuery is clear */
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        initialValue = uiState.value.currentFlags,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+    )
+
     /*
     val searchResults = combine(
         flow = searchQueryFlow,
@@ -447,7 +507,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         _uiState.update {
             it.copy(isSearchQuery = newQuery != "")
         }
-        firstItem = null /* Reset exact match state with each change to searchQuery */
+        _firstItem.value = null /* Reset exact match state with each change to searchQuery */
     }
 
     fun toggleIsSearchBarInit(isSearchBarInit: Boolean) {

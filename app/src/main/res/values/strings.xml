@@ -290,6 +290,7 @@
     <string name="string_that_is">that is</string>
     <string name="string_the">the</string>
     <string name="string_the_capitalized">The</string>
+    <string name="string_the_whitespace">the\ </string>
     <string name="string_was_a">was a</string>
     <string name="string_which_was_a">which was a</string>
     <string name="string_whitespace">\ </string>

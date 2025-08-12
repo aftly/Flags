@@ -19,7 +19,8 @@ data class FlagView(
     val isFlagOfOfficialThe: Boolean,
     val associatedState: String?,
     val sovereignState: String?,
-    val searchStrings: List<Int>, /* All stringResIds of flag and related flags for search feature */
+    val flagStringResIds: List<Int>, /* All stringResIds of this flag for search exact match */
+    val allSearchStringResIds: List<Int>, /* All stringResIds of flag and related flags for search match */
     val externalRelatedFlags: List<String>, /* flagsMap keys search results and button/menu list */
     val internalRelatedFlags: List<String>, /* flagsMap keys for search results and button/menu list */
     val categories: List<FlagCategory>,
