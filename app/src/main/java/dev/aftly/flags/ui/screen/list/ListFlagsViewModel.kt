@@ -100,7 +100,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 }.let { flagStrings ->
                     /* If exact match with searchQuery, set firstItem */
                     for (name in flagStrings) {
-                        if (name == search) {
+                        if (name == search && !flag.isPreviousFlag) {
                             _firstItem.value = flag
                             break
                         }
@@ -115,7 +115,6 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                         application = application,
                         flags = getFlagsFromKeys(flag.externalRelatedFlagKeys)
                     )
-                    //getExternalRelatedFlagsSorted(flag, application)
                 } ?: emptyList()
 
                 return@let (related + results).distinct()
