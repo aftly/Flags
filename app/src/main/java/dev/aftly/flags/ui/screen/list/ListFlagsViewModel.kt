@@ -113,7 +113,9 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 _relatedFlags.value = first?.let { flag ->
                     sortFlagsAlphabetically(
                         application = application,
-                        flags = getFlagsFromKeys(flag.externalRelatedFlagKeys)
+                        flags = getFlagsFromKeys(
+                            flag.externalRelatedFlagKeys + flag.internalRelatedFlagKeys
+                        )
                     )
                 } ?: emptyList()
 
