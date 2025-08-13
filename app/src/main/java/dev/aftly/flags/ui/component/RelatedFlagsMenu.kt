@@ -47,7 +47,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
-import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Shapes

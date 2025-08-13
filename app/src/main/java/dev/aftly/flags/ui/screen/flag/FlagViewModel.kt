@@ -89,7 +89,7 @@ class FlagViewModel(
                     flagKey = flagKey,
                     externalRelatedFlags = sortFlagsAlphabetically(
                         application = application,
-                        flags = getFlagsFromKeys(flag.externalRelatedFlagKeys)
+                        flags = getFlagsFromKeys(flag.externalRelatedFlagKeys) + flag
                     ),
                     flagIdsFromList = flagIdsFromList ?: it.flagIdsFromList,
                     isExtRelatedFlagNavigation =
