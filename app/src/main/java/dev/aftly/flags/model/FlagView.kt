@@ -21,7 +21,8 @@ data class FlagView(
     val associatedStateKey: String?,
     val sovereignStateKey: String?,
     val flagStringResIds: List<Int>, /* All stringResIds of this flag for search exact match */
-    val externalRelatedFlagKeys: List<String>, /* flagsMap keys search results and button/menu list */
-    val internalRelatedFlagKeys: List<String>, /* flagsMap keys for search results and button/menu list */
+    val externalRelatedFlagKeys: List<String>, /* flagsMap keys search results and lists */
+    val internalRelatedFlagKeys: List<String>, /* flagsMap keys for search results and lists */
+    val previousAdminsOfSovereignKeys: List<String>, /* flagsMap keys for search and lists */
     val categories: List<FlagCategory>,
 )

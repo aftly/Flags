@@ -44,36 +44,36 @@ fun getFlagFromId(id: Int): FlagView = flagViewMapId.getValue(key = id)
 /* ---------- For flagViewMap ---------- */
 fun getInternalRelatedFlagKeys(
     flagKey: String,
-    flagResources: FlagResources,
+    flagRes: FlagResources,
 ): List<String> {
     val relatedKeys = mutableListOf<String>()
 
-    flagResources.previousFlagOf?.let { parentKey ->
-        flagResMap.values.filter { flagRes ->
-            flagRes.previousFlagOf == parentKey
-        }.map { flagRes ->
-            inverseFlagResMap.getValue(flagRes)
+    flagRes.previousFlagOf?.let { parentKey ->
+        flagResMap.values.filter { flag ->
+            flag.previousFlagOf == parentKey
+        }.map { flag ->
+            inverseFlagResMap.getValue(flag)
         }.let { siblingKeys ->
             relatedKeys.add(parentKey)
             relatedKeys.addAll(siblingKeys)
         }
     }
 
-    flagResources.latestEntity?.let { latestEntityKey ->
-        flagResMap.values.filter { flagRes ->
-            flagRes.latestEntity == latestEntityKey
-        }.map { flagRes ->
-            inverseFlagResMap.getValue(flagRes)
+    flagRes.latestEntity?.let { latestKey ->
+        flagResMap.values.filter { flag ->
+            flag.latestEntity == latestKey
+        }.map { flag ->
+            inverseFlagResMap.getValue(flag)
         }.let { siblingKeys ->
-            relatedKeys.add(latestEntityKey)
+            relatedKeys.add(latestKey)
             relatedKeys.addAll(siblingKeys)
         }
     }
 
-    flagResMap.values.filter { flagRes ->
-        flagRes.previousFlagOf == flagKey || flagRes.latestEntity == flagKey
-    }.map { flagRes ->
-        inverseFlagResMap.getValue(flagRes)
+    flagResMap.values.filter { flag ->
+        flag.previousFlagOf == flagKey || flag.latestEntity == flagKey
+    }.map { flag ->
+        inverseFlagResMap.getValue(flag)
     }.let { childKeys ->
         relatedKeys.addAll(childKeys)
     }
@@ -84,42 +84,57 @@ fun getInternalRelatedFlagKeys(
 
 fun getExternalRelatedFlagKeys(
     flagKey: String,
-    flagResources: FlagResources,
+    flagRes: FlagResources,
 ): List<String> {
     val relatedKeys = mutableListOf<String>()
 
-    flagResources.sovereignState?.let { sovereignStateKey ->
-        flagResMap.values.filter { flagRes ->
-            flagRes.sovereignState == sovereignStateKey
-        }.map { flagRes ->
-            inverseFlagResMap.getValue(flagRes)
+    flagRes.sovereignState?.let { sovereignKey ->
+        flagResMap.values.filter { flag ->
+            flag.sovereignState == sovereignKey
+        }.map { flag ->
+            inverseFlagResMap.getValue(flag)
         }.let { siblingKeys ->
-            relatedKeys.add(sovereignStateKey)
+            relatedKeys.add(sovereignKey)
             relatedKeys.addAll(siblingKeys)
         }
     }
 
-    flagResources.associatedState?.let { associatedStateKey ->
-        flagResMap.values.filter { flagRes ->
-            flagRes.associatedState == associatedStateKey
-        }.map { flagRes ->
-            inverseFlagResMap.getValue(flagRes)
+    flagRes.associatedState?.let { associatedKey ->
+        flagResMap.values.filter { flag ->
+            flag.associatedState == associatedKey
+        }.map { flag ->
+            inverseFlagResMap.getValue(flag)
         }.let { siblingKeys ->
-            relatedKeys.add(associatedStateKey)
+            relatedKeys.add(associatedKey)
             relatedKeys.addAll(siblingKeys)
         }
     }
 
-    flagResMap.values.filter { flagRes ->
-        flagRes.sovereignState == flagKey || flagRes.associatedState == flagKey
-    }.map { flagRes ->
-        inverseFlagResMap.getValue(flagRes)
+    flagResMap.values.filter { flag ->
+        flag.sovereignState == flagKey || flag.associatedState == flagKey
+    }.map { flag ->
+        inverseFlagResMap.getValue(flag)
     }.let { childKeys ->
         relatedKeys.addAll(childKeys)
     }
 
     relatedKeys.remove(flagKey)
     return relatedKeys.distinct()
+}
+
+fun getPreviousAdminsOfSovereignKeys(
+    flagKey: String,
+    flagRes: FlagResources,
+): List<String> {
+    return flagRes.sovereignState?.let { sovereignKey ->
+        flagResMap.values.filter { flag ->
+            flag.latestEntity == sovereignKey
+        }.map { flag ->
+            inverseFlagResMap.getValue(flag)
+        }.filterNot { key ->
+            key == flagKey
+        }
+    } ?: emptyList()
 }
 
 fun getFlagNameResIds(

@@ -10,6 +10,7 @@ import dev.aftly.flags.ui.util.getExternalRelatedFlagKeys
 import dev.aftly.flags.ui.util.getInternalRelatedFlagKeys
 import android.content.Context
 import dev.aftly.flags.ui.util.getFlagNameResIds
+import dev.aftly.flags.ui.util.getPreviousAdminsOfSovereignKeys
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
@@ -82,6 +83,7 @@ data object DataSource {
         flagStringResIds = emptyList(),
         externalRelatedFlagKeys = emptyList(),
         internalRelatedFlagKeys = emptyList(),
+        previousAdminsOfSovereignKeys = emptyList(),
         categories = emptyList(),
     )
 
@@ -202,6 +204,7 @@ data object DataSource {
             flagStringResIds = getFlagNameResIds(flagKey, flagRes, context),
             externalRelatedFlagKeys = getExternalRelatedFlagKeys(flagKey, flagRes),
             internalRelatedFlagKeys = getInternalRelatedFlagKeys(flagKey, flagRes),
+            previousAdminsOfSovereignKeys = getPreviousAdminsOfSovereignKeys(flagKey, flagRes),
             categories = flagRes.categories,
         )
     }
@@ -220,192 +223,4 @@ data object DataSource {
         map: Map<String, FlagView>
     ): List<FlagView> =
         map.values.toList()
-
-
-    //@Volatile var flagsMap: Map<String, FlagResources>? = null
-
-    /*
-    @OptIn(ExperimentalSerializationApi::class)
-    fun getFlagsMap(context: Context): Map<String, FlagResources> {
-        flagsMap?.let { return it }
-
-        val parsed = context.resources.openRawResource(R.raw.flags_map).use {
-            json.decodeFromStream<Map<String, FlagResources>>(it)
-        }
-        return parsed
-    }
-     */
-
-
-
-    // TODO rename flagResMap
-    //val flagsMap = mapOf()
-
-    /* TODO remove
-    val flagsMapIdOld = flagsMap.entries.groupBy(
-        keySelector = { it.value.id },
-        valueTransform = { it.value }
-    ).mapValues { entry ->
-        entry.value.first()
-    }
-     */
-
-    // TODO remove
-    /*
-    val flagsMapId = flagsMap.entries.associate { (key, flagRes) ->
-        flagRes.id to flagRes
-    }
-     */
-
-    /* TODO remove
-    val inverseFlagsMapOld = flagsMap.entries.groupBy(
-        keySelector = { it.value },
-        valueTransform = { it.key },
-    ).mapValues { entry ->
-        entry.value.first()
-    }
-     */
-
-    // TODO rename inverseFlagResMap
-    /*
-    val inverseFlagsMap = flagsMap.entries.associate { (key, value) ->
-        value to key
-    }
-     */
-
-    //val allFlagsList = flagsMap.values.toList() TODO remove
-
-    /* Derive needed values from parents and related flag keys for view and search to preserve
-     * SSOT in static flag data */
-    /*
-    val flagViewMap: Map<String, FlagView> = flagsMap.mapValues { (key, flagRes) ->
-        val externalRelatedFlags = getExternalRelatedFlagKeys(key, flagRes)
-        val internalRelatedFlags = getInternalRelatedFlagKeys(key, flagRes)
-
-        /* Transform expression */
-        FlagView(
-            id = flagRes.id,
-            wikipediaUrlPath = when (flagRes.wikipediaUrlPath) {
-                is StringResSource.Explicit -> flagRes.wikipediaUrlPath.resId
-                is StringResSource.Inherit -> flagRes.previousFlagOf?.let { parentKey ->
-                    flagsMap.getValue(parentKey).let { parentFlagRes ->
-                        when (parentFlagRes.wikipediaUrlPath) {
-                            is StringResSource.Explicit -> parentFlagRes.wikipediaUrlPath.resId
-                            is StringResSource.Inherit ->
-                                error("$key and $parentKey have no wikipedia url path")
-                        }
-                    }
-                } ?: error("$key has no previousFlagOf key")
-            },
-            image = flagRes.image,
-            imagePreview = flagRes.imagePreview,
-            fromYear = flagRes.fromYear,
-            toYear = flagRes.toYear,
-            flagOf = when (flagRes.flagOf) {
-                is StringResSource.Explicit -> flagRes.flagOf.resId
-                is StringResSource.Inherit -> flagRes.previousFlagOf?.let { parentKey ->
-                    flagsMap.getValue(parentKey).let { parentFlagRes ->
-                        when (parentFlagRes.flagOf) {
-                            is StringResSource.Explicit -> parentFlagRes.flagOf.resId
-                            is StringResSource.Inherit -> error("$key and $parentKey have no name")
-                        }
-                    }
-                } ?: error("$key has no previousFlagOf key")
-            },
-            flagOfOfficial = when (flagRes.flagOfOfficial) {
-                is StringResSource.Explicit -> flagRes.flagOfOfficial.resId
-                is StringResSource.Inherit -> flagRes.previousFlagOf?.let { parentKey ->
-                    flagsMap.getValue(parentKey).let { parentFlagRes ->
-                        when (parentFlagRes.flagOfOfficial) {
-                            is StringResSource.Explicit -> parentFlagRes.flagOfOfficial.resId
-                            is StringResSource.Inherit ->
-                                error("$key and $parentKey have no official name")
-                        }
-                    }
-                } ?: error("$key has no previousFlagOf key")
-            },
-            flagOfAlternate = flagRes.flagOfAlternate,
-            isFlagOfThe = when (flagRes.isFlagOfThe) {
-                is BooleanSource.Explicit -> flagRes.isFlagOfThe.bool
-                is BooleanSource.Inherit -> flagRes.previousFlagOf?.let { parentKey ->
-                    flagsMap.getValue(parentKey).let { parentFlagRes ->
-                        when (parentFlagRes.isFlagOfThe) {
-                            is BooleanSource.Explicit -> parentFlagRes.isFlagOfThe.bool
-                            is BooleanSource.Inherit ->
-                                error("$key and $parentKey have no isFlagOfThe")
-                        }
-                    }
-                } ?: error("$key has no previousFlagOf key")
-            },
-            isFlagOfOfficialThe = when (flagRes.isFlagOfOfficialThe) {
-                is BooleanSource.Explicit -> flagRes.isFlagOfOfficialThe.bool
-                is BooleanSource.Inherit -> flagRes.previousFlagOf?.let { parentKey ->
-                    flagsMap.getValue(parentKey).let { parentFlagRes ->
-                        when (parentFlagRes.isFlagOfOfficialThe) {
-                            is BooleanSource.Explicit -> parentFlagRes.isFlagOfOfficialThe.bool
-                            is BooleanSource.Inherit ->
-                                error("$key and $parentKey have no isFlagOfOfficialThe")
-                        }
-                    }
-                } ?: error("$key has no previousFlagOf key")
-            },
-            associatedState = flagRes.associatedState,
-            sovereignState = flagRes.sovereignState,
-            searchStrings = (externalRelatedFlags + internalRelatedFlags).distinct().flatMap {
-                relatedKey ->
-                val relatedRes = flagsMap.getValue(relatedKey)
-
-                val flagOf = when (relatedRes.flagOf) {
-                    is StringResSource.Explicit -> relatedRes.flagOf.resId
-                    is StringResSource.Inherit -> relatedRes.previousFlagOf?.let { parentKey ->
-                        flagsMap.getValue(parentKey).let { parentFlagRes ->
-                            when (parentFlagRes.flagOf) {
-                                is StringResSource.Explicit -> parentFlagRes.flagOf.resId
-                                is StringResSource.Inherit ->
-                                    error("$relatedKey and $parentKey have no name")
-                            }
-                        }
-                    } ?: error("$relatedKey has no previousFlagOf key")
-                }
-                val flagOfOfficial = when (relatedRes.flagOfOfficial) {
-                    is StringResSource.Explicit -> relatedRes.flagOfOfficial.resId
-                    is StringResSource.Inherit -> relatedRes.previousFlagOf?.let { parentKey ->
-                        flagsMap.getValue(parentKey).let { parentFlagRes ->
-                            when (parentFlagRes.flagOfOfficial) {
-                                is StringResSource.Explicit -> parentFlagRes.flagOfOfficial.resId
-                                is StringResSource.Inherit ->
-                                    error("$relatedKey and $parentKey have no official name")
-                            }
-                        }
-                    } ?: error("$relatedKey has no previousFlagOf key")
-                }
-
-                val primaryNames = listOf(flagOf, flagOfOfficial)
-
-                /* Transform expression */
-                flagRes.flagOfAlternate?.let { secondaryNames ->
-                    primaryNames + secondaryNames
-                } ?: primaryNames
-            },
-            externalRelatedFlags = externalRelatedFlags,
-            internalRelatedFlags = internalRelatedFlags,
-            categories = flagRes.categories,
-        )
-    }
-     */
-
-
-    /*
-    val inverseFlagViewMap = flagViewMap.entries.associate { (key, value) ->
-        value to key
-    }
-     */
-
-    /*
-    val flagViewMapId = flagViewMap.entries.associate { (key, flagRes) ->
-        flagRes.id to flagRes
-    }
-     */
-
-    //val allFlagsList = flagViewMap.values.toList()
 }

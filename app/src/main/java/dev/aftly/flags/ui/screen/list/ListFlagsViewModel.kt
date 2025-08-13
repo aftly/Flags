@@ -111,15 +111,16 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
             }.let { results ->
                 /* When there is an exact match (firstItem) append related flags to results */
                 _relatedFlags.value = first?.let { flag ->
+                    val relatedFlagKeys = flag.externalRelatedFlagKeys +
+                            flag.internalRelatedFlagKeys + flag.previousAdminsOfSovereignKeys
+
                     sortFlagsAlphabetically(
                         application = application,
-                        flags = getFlagsFromKeys(
-                            flag.externalRelatedFlagKeys + flag.internalRelatedFlagKeys
-                        )
+                        flags = getFlagsFromKeys(relatedFlagKeys)
                     )
                 } ?: emptyList()
 
-                return@let (related + results).distinct()
+                (related + results).distinct()
             }.sortedWith { p1, p2 ->
                 /* Sort list starting with firstItem, then elements in relatedFlags, then else */
                 when {
