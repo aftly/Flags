@@ -18,6 +18,7 @@ data class FlagView(
     val isFlagOfThe: Boolean,
     val isFlagOfOfficialThe: Boolean,
     val isPreviousFlag: Boolean,
+    val isLatestEntity: Boolean,
     val associatedStateKey: String?,
     val sovereignStateKey: String?,
     val flagStringResIds: List<Int>, /* All stringResIds of this flag for search exact match */

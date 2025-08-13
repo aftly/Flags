@@ -9,6 +9,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.R
+import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
@@ -48,8 +49,14 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val _firstItem = MutableStateFlow<FlagView?>(value = null)
     private val firstItem = _firstItem.asStateFlow()
-    private val _relatedFlags = MutableStateFlow<List<FlagView>>(value = emptyList())
-    private val relatedFlags = _relatedFlags.asStateFlow()
+    private val _sovereignFlag = MutableStateFlow<FlagView?>(value = null)
+    private val sovereignFlag = _sovereignFlag.asStateFlow()
+    private val _extRelatedFlags = MutableStateFlow<List<FlagView>>(value = emptyList())
+    private val extRelatedFlags = _extRelatedFlags.asStateFlow()
+    private val _intRelatedFlags = MutableStateFlow<List<FlagView>>(value = emptyList())
+    private val intRelatedFlags = _intRelatedFlags.asStateFlow()
+    private val _localeFlags = MutableStateFlow<List<FlagView>>(value = emptyList())
+    private val localeFlags = _localeFlags.asStateFlow()
 
     private val currentFlagsFlow = uiState.map { SearchFlow.CurrentFlags(it.currentFlags) }
     private val savedFlagsFlow = uiState.map { SearchFlow.SavedFlags(it.savedFlags) }
@@ -63,7 +70,10 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
             .getString(R.string.string_the_whitespace)
     }.map { SearchFlow.TheString(it) }
     private val firstItemFlow = firstItem.map { SearchFlow.FirstItem(it) }
-    private val relatedFlagsFlow = relatedFlags.map { SearchFlow.RelatedFlags(it) }
+    private val sovereignFlagFlow = sovereignFlag.map { SearchFlow.SovereignFlag(it) }
+    private val extRelatedFlagsFlow = extRelatedFlags.map { SearchFlow.ExtRelatedFlags(it) }
+    private val intRelatedFlagsFlow = intRelatedFlags.map { SearchFlow.IntRelatedFlags(it) }
+    private val localeFlagsFlow = localeFlags.map { SearchFlow.LocaleFlags(it) }
 
     /* Use sealed interface SearchFlow for safe casting in combine() transform lambda */
     val flows: List<Flow<SearchFlow>> = listOf(
@@ -74,7 +84,10 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         appResourcesFlow,
         theStringFlow,
         firstItemFlow,
-        relatedFlagsFlow
+        sovereignFlagFlow,
+        extRelatedFlagsFlow,
+        intRelatedFlagsFlow,
+        localeFlagsFlow
     )
 
     val searchResults = combine(flows) { flowArray ->
@@ -85,7 +98,10 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         val res = (flowArray[4] as SearchFlow.AppResources).value
         val the = (flowArray[5] as SearchFlow.TheString).value
         val first = (flowArray[6] as SearchFlow.FirstItem).value
-        val related = (flowArray[7] as SearchFlow.RelatedFlags).value
+        val sovereign = (flowArray[7] as SearchFlow.SovereignFlag).value
+        val extRelated = (flowArray[8] as SearchFlow.ExtRelatedFlags).value
+        val intRelated = (flowArray[9] as SearchFlow.IntRelatedFlags).value
+        val locale = (flowArray[10] as SearchFlow.LocaleFlags).value
 
         val flags = if (isSaved) saved else current
         val search = query.lowercase().removePrefix(the).let {
@@ -110,24 +126,46 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 }
             }.let { results ->
                 /* When there is an exact match (firstItem) append related flags to results */
-                _relatedFlags.value = first?.let { flag ->
-                    val relatedFlagKeys = flag.externalRelatedFlagKeys +
-                            flag.internalRelatedFlagKeys + flag.otherLocaleRelatedFlagKeys
+                _sovereignFlag.value = when (first?.sovereignStateKey) {
+                    null -> first
+                    else -> flagViewMap.getValue(first.sovereignStateKey)
+                }
 
+                _extRelatedFlags.value = first?.let { flag ->
                     sortFlagsAlphabetically(
                         application = application,
-                        flags = getFlagsFromKeys(relatedFlagKeys)
+                        flags = getFlagsFromKeys(flag.externalRelatedFlagKeys)
                     )
                 } ?: emptyList()
 
-                (related + results).distinct()
+                _intRelatedFlags.value = first?.let { flag ->
+                    sortFlagsAlphabetically(
+                        application = application,
+                        flags = getFlagsFromKeys(flag.internalRelatedFlagKeys)
+                    )
+                } ?: emptyList()
+
+                _localeFlags.value = first?.let { flag ->
+                    sortFlagsAlphabetically(
+                        application = application,
+                        flags = getFlagsFromKeys(flag.otherLocaleRelatedFlagKeys)
+                    )
+                } ?: emptyList()
+
+                (extRelated + intRelated + locale + results).distinct()
             }.sortedWith { p1, p2 ->
                 /* Sort list starting with firstItem, then elements in relatedFlags, then else */
                 when {
                     p1 == first -> -1
                     p2 == first -> 1
-                    p1 in related && p2 !in related -> -1
-                    p1 !in related && p2 in related -> 1
+                    p1 == sovereign -> -1
+                    p2 == sovereign -> 1
+                    p1 in extRelated && p2 !in extRelated -> -1
+                    p1 !in extRelated && p2 in extRelated -> 1
+                    p1 in intRelated && p2 !in intRelated -> -1
+                    p1 !in intRelated && p2 in intRelated -> 1
+                    p1 in locale && p2 !in locale -> -1
+                    p1 !in locale && p2 in locale -> 1
                     else -> 0
                 }
             }

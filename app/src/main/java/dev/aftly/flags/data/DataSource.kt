@@ -78,6 +78,7 @@ data object DataSource {
         isFlagOfThe = false,
         isFlagOfOfficialThe = false,
         isPreviousFlag = false,
+        isLatestEntity = false,
         associatedStateKey = null,
         sovereignStateKey = null,
         flagStringResIds = emptyList(),
@@ -199,6 +200,7 @@ data object DataSource {
                 } ?: error("$flagKey has no previousFlagOf key")
             },
             isPreviousFlag = flagRes.previousFlagOf != null,
+            isLatestEntity = flagRes.latestEntity == null,
             associatedStateKey = flagRes.associatedState,
             sovereignStateKey = flagRes.sovereignState,
             flagStringResIds = getFlagNameResIds(flagKey, flagRes, context),

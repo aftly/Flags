@@ -10,5 +10,8 @@ sealed interface SearchFlow {
     data class AppResources(val value: Resources) : SearchFlow
     data class TheString(val value: String) : SearchFlow
     data class FirstItem(val value: FlagView?) : SearchFlow
-    data class RelatedFlags(val value: List<FlagView>) : SearchFlow
+    data class SovereignFlag(val value: FlagView?) : SearchFlow
+    data class ExtRelatedFlags(val value: List<FlagView>) : SearchFlow
+    data class IntRelatedFlags(val value: List<FlagView>) : SearchFlow
+    data class LocaleFlags(val value: List<FlagView>) : SearchFlow
 }
