@@ -88,7 +88,6 @@ import androidx.navigation.NavBackStackEntry
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.model.FlagCategory
-import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.ui.component.CategoriesButtonMenu
@@ -114,8 +113,8 @@ fun ListFlagsScreen(
     val searchResults by viewModel.searchResults.collectAsStateWithLifecycle()
 
     /* Update (alphabetical) order of flag lists when language changes */
-    val configuration = LocalConfiguration.current
-    val locale = configuration.locales[0]
+    //val configuration = LocalConfiguration.current
+    //val locale = configuration.locales[0]
     /* LaunchedEffect(locale) {
         viewModel.sortFlagsAlphabetically()
         searchModel.sortFlagsAlphabetically()
@@ -131,6 +130,7 @@ fun ListFlagsScreen(
         onIsSearchBarInit = { viewModel.toggleIsSearchBarInit(it) },
         onIsSearchBarInitTopBar = { viewModel.toggleIsSearchBarInitTopBar(it) },
         onNavigationDrawer = onNavigationDrawer,
+        unToggleNavigateAway = { viewModel.toggleNavigateAwayFlag(false) },
         onCategorySelectSingle = { newSuperCategory, newSubCategory ->
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
         },
@@ -144,6 +144,7 @@ fun ListFlagsScreen(
                 else if (uiState.isSavedFlags) uiState.savedFlags
                 else uiState.currentFlags
 
+            viewModel.toggleNavigateAwayFlag(true)
             onNavigateToFlagScreen(flag, flags)
         },
     )
@@ -164,6 +165,7 @@ private fun ListFlagsScreen(
     onIsSearchBarInit: (Boolean) -> Unit,
     onIsSearchBarInitTopBar: (Boolean) -> Unit,
     onNavigationDrawer: () -> Unit,
+    unToggleNavigateAway: () -> Unit,
     onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onSavedFlagsSelect: (Boolean) -> Unit,
@@ -239,6 +241,11 @@ private fun ListFlagsScreen(
         }
     }
 
+    LaunchedEffect(key1 = searchResults) {
+        if (!uiState.isNavigatedAway)
+            coroutineScope.launch { listState.scrollToItem(index = 0) }
+    }
+
     /* Scroll to flag from flag screen in list (if valid and present) */
     LaunchedEffect(key1 = currentBackStackEntry) {
         currentBackStackEntry?.savedStateHandle?.get<Int>(key = "scrollToFlagId")?.let { flagId ->
@@ -252,15 +259,11 @@ private fun ListFlagsScreen(
                 /* If not returning to saved flags from a removed saved flag */
                 if (!(uiState.isSavedFlags && flag !in uiState.savedFlags)) {
                     val index = flags.indexOf(flag)
-                    coroutineScope.launch { listState.scrollToItem(index = index) } // TODO make isNavBackInit property?
+                    coroutineScope.launch { listState.scrollToItem(index = index) }
                 }
             }
         }
-    }
-
-    // TODO keep? address unintended launches
-    LaunchedEffect(key1 = searchResults) {
-        coroutineScope.launch { listState.scrollToItem(index = 0) }
+        unToggleNavigateAway()
     }
 
     /* For expandable/collapsable Scaffold TopBar */

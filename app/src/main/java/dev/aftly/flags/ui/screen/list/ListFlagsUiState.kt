@@ -15,4 +15,5 @@ data class ListFlagsUiState(
     val isSearchQuery: Boolean = false,
     val isSearchBarInit: Boolean = false, /* Hold initialised state for effects */
     val isSearchBarInitTopBar: Boolean = false, /* Hold initialised state for effects */
+    val isNavigatedAway: Boolean = false, /* Flag for when navigating back to screen */
 )

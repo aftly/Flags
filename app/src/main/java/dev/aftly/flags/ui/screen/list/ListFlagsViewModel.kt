@@ -300,9 +300,8 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun onSearchQueryChange(newQuery: String) {
         _firstItem.value = null /* Reset exact match state with each change to searchQuery */
-        //_relatedFlags.value = emptyList()
-        searchQuery = newQuery
 
+        searchQuery = newQuery
         _uiState.update {
             it.copy(isSearchQuery = newQuery != "")
         }
@@ -314,5 +313,9 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun toggleIsSearchBarInitTopBar(isSearchBarInit: Boolean) {
         _uiState.update { it.copy(isSearchBarInitTopBar = isSearchBarInit) }
+    }
+
+    fun toggleNavigateAwayFlag(isAway: Boolean) {
+        _uiState.update { it.copy(isNavigatedAway = isAway) }
     }
 }
