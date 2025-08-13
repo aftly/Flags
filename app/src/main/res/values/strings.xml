@@ -279,6 +279,9 @@
     <string name="settings_about_privacy_policy_description">This app doesn\'t collect or store any personal info</string>
     <string name="settings_about_app_version_title">App version</string>
     <string name="settings_about_app_version_description">%s</string>
+    <string name="string_open_bracket">(</string>
+    <string name="string_close_bracket">)</string>
+    <string name="string_dash">–</string>
     <string name="string_a">a</string>
     <string name="string_and">and</string>
     <string name="string_and_a">and a</string>
@@ -287,6 +290,7 @@
     <string name="string_is_a">is a</string>
     <string name="string_new_paragraph">\n\n</string>
     <string name="string_period">.</string>
+    <string name="string_present">present</string>
     <string name="string_that_is">that is</string>
     <string name="string_the">the</string>
     <string name="string_the_capitalized">The</string>

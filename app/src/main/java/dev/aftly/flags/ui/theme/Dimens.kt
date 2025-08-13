@@ -10,6 +10,7 @@ object Dimens {
     val extraSmall6: Dp = 6.dp
     val small8: Dp = 8.dp
     val small10: Dp = 10.dp
+    val medium12: Dp = 12.dp
     val medium16: Dp = 16.dp
     val large24: Dp = 24.dp
     val extraLarge32: Dp = 32.dp

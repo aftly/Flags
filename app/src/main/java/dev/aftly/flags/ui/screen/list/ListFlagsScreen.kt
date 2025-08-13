@@ -497,6 +497,18 @@ private fun ListItem(
     val configuration = LocalConfiguration.current
     val fontScale = configuration.fontScale
     val dynamicHeight = Dimens.defaultListItemHeight48 * fontScale
+    val fromToYear =
+        if (flag.fromYear != null && flag.toYear != null) {
+            val toYear =
+                if (flag.toYear == 0) stringResource(R.string.string_present)
+                else "${flag.toYear}"
+
+            stringResource(R.string.string_open_bracket) +
+                    "${flag.fromYear}" +
+                    stringResource(R.string.string_dash) +
+                    toYear +
+                    stringResource(R.string.string_close_bracket)
+        } else null
 
     Column(modifier = modifier) {
         FilledTonalButton(
@@ -519,15 +531,28 @@ private fun ListItem(
             ) {
                 /* weight() uses available space after space taken by non-weighted children */
                 Box(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(flag.flagOf),
+                    Row(
                         modifier = Modifier
-                            .fillMaxWidth()
                             /* Separate text from image */
-                            .padding(end = Dimens.small8),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    )
+                            .padding(end = Dimens.small8)
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.Bottom,
+                    ) {
+                        Text(
+                            text = stringResource(flag.flagOf),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        )
+                        fromToYear?.let {
+                            Text(
+                                text = it,
+                                modifier = Modifier.padding(start = Dimens.extraSmall4),
+                                fontWeight = FontWeight.Light,
+                                style = MaterialTheme.typography.titleSmall,
+                                color = Color.Gray,
+                            )
+                        }
+                    }
                 }
                 Image(
                     painter = painterResource(id = flag.imagePreview),

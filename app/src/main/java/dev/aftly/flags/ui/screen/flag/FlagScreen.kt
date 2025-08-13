@@ -44,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
@@ -53,7 +54,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -281,6 +281,19 @@ private fun FlagContent(
             }
         }
 
+        val fromToYearString =
+            if (flag.fromYear != null && flag.toYear != null) {
+                val toYear =
+                    if (flag.toYear == 0) stringResource(R.string.string_present)
+                    else "${flag.toYear}"
+
+                stringResource(R.string.string_open_bracket) +
+                        "${flag.fromYear}" +
+                        stringResource(R.string.string_dash) +
+                        toYear +
+                        stringResource(R.string.string_close_bracket)
+            } else null
+
         val wikiLink =
             stringResource(R.string.wikipedia_site_prefix) + stringResource(flag.wikipediaUrlPath)
 
@@ -296,14 +309,30 @@ private fun FlagContent(
             /* Flag official name */
             Text(
                 text = annotatedName,
+                modifier = Modifier.padding(bottom = Dimens.small8),
                 style = nameStyle,
                 textAlign = TextAlign.Center,
             )
 
+            fromToYearString?.let {
+                Text(
+                    text = it,
+                    modifier = Modifier.padding(top = Dimens.extraSmall4),
+                    color = Color.Gray,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Light,
+                    fontStyle = FontStyle.Italic,
+                    textAlign = TextAlign.Center
+                )
+            }
+
             /* Image and fullscreen button contents */
             Box(
                 modifier = Modifier
-                    .padding(vertical = Dimens.extraLarge32)
+                    .padding(
+                        top = Dimens.large24,
+                        bottom = Dimens.extraLarge32
+                    )
                     .combinedClickable(
                         onClick = { isFullScreenButton = !isFullScreenButton },
                         onDoubleClick = onFullscreen,
@@ -351,9 +380,9 @@ private fun FlagContent(
             Text(
                 text = annotatedDescription,
                 fontSize = 24.sp,
+                fontStyle = FontStyle.Italic,
                 textAlign = TextAlign.Center,
                 lineHeight = 28.sp,
-                style = TextStyle(fontStyle = FontStyle.Italic),
             )
 
             Spacer(modifier = Modifier.height(20.dp))
