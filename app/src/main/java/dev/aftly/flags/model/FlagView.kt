@@ -23,6 +23,6 @@ data class FlagView(
     val flagStringResIds: List<Int>, /* All stringResIds of this flag for search exact match */
     val externalRelatedFlagKeys: List<String>, /* flagsMap keys search results and lists */
     val internalRelatedFlagKeys: List<String>, /* flagsMap keys for search results and lists */
-    val previousAdminsOfSovereignKeys: List<String>, /* flagsMap keys for search and lists */
+    val otherLocaleRelatedFlagKeys: List<String>, /* flagsMap keys for search and lists */
     val categories: List<FlagCategory>,
 )

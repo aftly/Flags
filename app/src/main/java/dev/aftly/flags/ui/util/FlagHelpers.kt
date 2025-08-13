@@ -78,8 +78,7 @@ fun getInternalRelatedFlagKeys(
         relatedKeys.addAll(childKeys)
     }
 
-    relatedKeys.remove(flagKey)
-    return relatedKeys.distinct()
+    return relatedKeys.distinct().filterNot { it == flagKey }
 }
 
 fun getExternalRelatedFlagKeys(
@@ -118,23 +117,37 @@ fun getExternalRelatedFlagKeys(
         relatedKeys.addAll(childKeys)
     }
 
-    relatedKeys.remove(flagKey)
-    return relatedKeys.distinct()
+    return relatedKeys.distinct().filterNot { it == flagKey }
 }
 
 fun getPreviousAdminsOfSovereignKeys(
     flagKey: String,
     flagRes: FlagResources,
 ): List<String> {
-    return flagRes.sovereignState?.let { sovereignKey ->
+    val otherLocaleAdmins = mutableListOf<String>()
+
+    flagRes.sovereignState?.let { sovereignKey ->
         flagResMap.values.filter { flag ->
             flag.latestEntity == sovereignKey
         }.map { flag ->
             inverseFlagResMap.getValue(flag)
-        }.filterNot { key ->
-            key == flagKey
+        }.let { preAdminKeys ->
+            otherLocaleAdmins.addAll(preAdminKeys)
         }
-    } ?: emptyList()
+
+    }
+
+    flagRes.latestEntity?.let { latestKey ->
+        flagResMap.values.filter { flag ->
+            flag.sovereignState == latestKey
+        }.map { flag ->
+            inverseFlagResMap.getValue(flag)
+        }.let { postAdminKeys ->
+            otherLocaleAdmins.addAll(postAdminKeys)
+        }
+    }
+
+    return otherLocaleAdmins.distinct().filterNot { it == flagKey }
 }
 
 fun getFlagNameResIds(

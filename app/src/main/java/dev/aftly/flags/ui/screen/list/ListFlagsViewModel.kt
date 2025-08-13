@@ -112,7 +112,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 /* When there is an exact match (firstItem) append related flags to results */
                 _relatedFlags.value = first?.let { flag ->
                     val relatedFlagKeys = flag.externalRelatedFlagKeys +
-                            flag.internalRelatedFlagKeys + flag.previousAdminsOfSovereignKeys
+                            flag.internalRelatedFlagKeys + flag.otherLocaleRelatedFlagKeys
 
                     sortFlagsAlphabetically(
                         application = application,

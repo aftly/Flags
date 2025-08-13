@@ -83,7 +83,7 @@ data object DataSource {
         flagStringResIds = emptyList(),
         externalRelatedFlagKeys = emptyList(),
         internalRelatedFlagKeys = emptyList(),
-        previousAdminsOfSovereignKeys = emptyList(),
+        otherLocaleRelatedFlagKeys = emptyList(),
         categories = emptyList(),
     )
 
@@ -204,7 +204,7 @@ data object DataSource {
             flagStringResIds = getFlagNameResIds(flagKey, flagRes, context),
             externalRelatedFlagKeys = getExternalRelatedFlagKeys(flagKey, flagRes),
             internalRelatedFlagKeys = getInternalRelatedFlagKeys(flagKey, flagRes),
-            previousAdminsOfSovereignKeys = getPreviousAdminsOfSovereignKeys(flagKey, flagRes),
+            otherLocaleRelatedFlagKeys = getPreviousAdminsOfSovereignKeys(flagKey, flagRes),
             categories = flagRes.categories,
         )
     }
