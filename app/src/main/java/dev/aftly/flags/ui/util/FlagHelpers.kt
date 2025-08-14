@@ -3,11 +3,11 @@ package dev.aftly.flags.ui.util
 import android.app.Application
 import android.content.Context
 import dev.aftly.flags.data.DataSource.NAV_SEPARATOR
+import dev.aftly.flags.data.DataSource.flagResMap
 import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.data.DataSource.flagViewMapId
-import dev.aftly.flags.data.DataSource.flagResMap
-import dev.aftly.flags.data.DataSource.inverseFlagViewMap
 import dev.aftly.flags.data.DataSource.inverseFlagResMap
+import dev.aftly.flags.data.DataSource.inverseFlagViewMap
 import dev.aftly.flags.data.room.savedflags.SavedFlag
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagView
@@ -42,19 +42,19 @@ fun getFlagFromId(id: Int): FlagView = flagViewMapId.getValue(key = id)
 
 
 /* ---------- For flagViewMap ---------- */
-fun getInternalRelatedFlagKeys(
+fun getChronologicalRelatedFlagKeys(
     flagKey: String,
     flagRes: FlagResources,
 ): List<String> {
     val relatedKeys = mutableListOf<String>()
 
-    flagRes.previousFlagOf?.let { parentKey ->
+    flagRes.previousFlagOf?.let { flagOfKey ->
         flagResMap.values.filter { flag ->
-            flag.previousFlagOf == parentKey
+            flag.previousFlagOf == flagOfKey
         }.map { flag ->
             inverseFlagResMap.getValue(flag)
         }.let { siblingKeys ->
-            relatedKeys.add(parentKey)
+            relatedKeys.add(flagOfKey)
             relatedKeys.addAll(siblingKeys)
         }
     }
@@ -81,7 +81,7 @@ fun getInternalRelatedFlagKeys(
     return relatedKeys.distinct().filterNot { it == flagKey }
 }
 
-fun getExternalRelatedFlagKeys(
+fun getPoliticalRelatedFlagKeys(
     flagKey: String,
     flagRes: FlagResources,
 ): List<String> {
@@ -94,6 +94,17 @@ fun getExternalRelatedFlagKeys(
             inverseFlagResMap.getValue(flag)
         }.let { siblingKeys ->
             relatedKeys.add(sovereignKey)
+            relatedKeys.addAll(siblingKeys)
+        }
+    }
+
+    flagRes.previousFlagOf?.let { flagOfKey ->
+        flagResMap.values.filter { flag ->
+            flag.sovereignState == flagOfKey || flag.associatedState == flagOfKey
+        }.map { flag ->
+            inverseFlagResMap.getValue(flag)
+        }.let { siblingKeys ->
+            relatedKeys.add(flagOfKey)
             relatedKeys.addAll(siblingKeys)
         }
     }
@@ -120,12 +131,13 @@ fun getExternalRelatedFlagKeys(
     return relatedKeys.distinct().filterNot { it == flagKey }
 }
 
-fun getPreviousAdminsOfSovereignKeys(
+fun getChronologicalAdminsOfParentKeys(
     flagKey: String,
     flagRes: FlagResources,
 ): List<String> {
     val otherLocaleAdmins = mutableListOf<String>()
 
+    /* All (direct & primary) historical admin flags of the sovereign */
     flagRes.sovereignState?.let { sovereignKey ->
         flagResMap.values.filter { flag ->
             flag.latestEntity == sovereignKey
@@ -137,6 +149,7 @@ fun getPreviousAdminsOfSovereignKeys(
 
     }
 
+    /* All dependents of latest entity */
     flagRes.latestEntity?.let { latestKey ->
         flagResMap.values.filter { flag ->
             flag.sovereignState == latestKey
@@ -144,6 +157,30 @@ fun getPreviousAdminsOfSovereignKeys(
             inverseFlagResMap.getValue(flag)
         }.let { postAdminKeys ->
             otherLocaleAdmins.addAll(postAdminKeys)
+        }
+    }
+
+    /* Pre-admin keys of parent entity (eg. primary USA for previous USA flags) */
+    flagRes.previousFlagOf?.let { flagOfKey ->
+        flagResMap.values.filter { flag ->
+            flag.latestEntity == flagOfKey
+        }.map { flag ->
+            inverseFlagResMap.getValue(flag)
+        }.let { flagOfPreAdminKeys ->
+            otherLocaleAdmins.addAll(flagOfPreAdminKeys)
+        }
+    }
+
+    /* Post-admin keys of parent entity (eg. primary USA for previous USA flags) */
+    flagRes.previousFlagOf?.let { flagOfKey ->
+        flagResMap.getValue(flagOfKey).latestEntity?.let { flagOfLatest ->
+            flagResMap.values.filter { flag ->
+                flag.sovereignState == flagOfLatest
+            }.map { flag ->
+                inverseFlagResMap.getValue(flag)
+            }.let { flagOfPostAdminKeys ->
+                otherLocaleAdmins.addAll(flagOfPostAdminKeys)
+            }
         }
     }
 
