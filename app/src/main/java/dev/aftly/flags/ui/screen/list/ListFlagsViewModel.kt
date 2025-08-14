@@ -134,14 +134,14 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 _extRelatedFlags.value = first?.let { flag ->
                     sortFlagsAlphabetically(
                         application = application,
-                        flags = getFlagsFromKeys(flag.externalRelatedFlagKeys)
+                        flags = getFlagsFromKeys(flag.politicalRelatedFlagKeys)
                     )
                 } ?: emptyList()
 
                 _intRelatedFlags.value = first?.let { flag ->
                     sortFlagsAlphabetically(
                         application = application,
-                        flags = getFlagsFromKeys(flag.internalRelatedFlagKeys)
+                        flags = getFlagsFromKeys(flag.chronologicalRelatedFlagKeys)
                     )
                 } ?: emptyList()
 

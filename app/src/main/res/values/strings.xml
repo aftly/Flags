@@ -243,7 +243,10 @@
     <string name="game_history_none_description_2">(Requires at least 1 correct, skipped or shown flag)</string>
     <string name="list_title">View</string>
     <string name="list_description">Display lists of flags by category,\nor it\'s names (eg. \"United Kingdom\" or \"Britain\")</string>
-    <string name="menu_related_flags">Related Flags</string>
+    <string name="menu_related_flags_political">Politically Related</string>
+    <string name="menu_related_flags_political_short">Pol</string>
+    <string name="menu_related_flags_chronological">Chronologically Related</string>
+    <string name="menu_related_flags_chronological_short">Chron</string>
     <string name="menu_multiple_selection">Multiple Categories Selected</string>
     <string name="menu_icon_expand">expand menu</string>
     <string name="menu_icon_collapse">collapse menu</string>

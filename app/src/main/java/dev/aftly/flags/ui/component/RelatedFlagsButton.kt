@@ -4,12 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -31,12 +29,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.aftly.flags.R
+import dev.aftly.flags.model.RelatedFlagsMenus
 import dev.aftly.flags.ui.theme.Dimens
 
 
 @Composable
 fun RelatedFlagsButton(
     modifier: Modifier = Modifier,
+    relatedType: RelatedFlagsMenus,
+    isFullSize: Boolean,
     menuExpanded: Boolean,
     onMenuExpand: () -> Unit,
     containerColor: Color = MaterialTheme.colorScheme.secondary,
@@ -49,6 +50,7 @@ fun RelatedFlagsButton(
     val iconSize = Dimens.standardIconSize24 * fontScale
     val iconPadding = 2.dp * fontScale
     val iconSizePadding = iconSize + iconPadding
+    val titleStringRes = if (isFullSize) relatedType.title else relatedType.titleShort
 
     Box(
         modifier = modifier
@@ -69,12 +71,22 @@ fun RelatedFlagsButton(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                /*
                 Spacer(
                     modifier = Modifier.width(iconSizePadding)
                 )
+                 */
+                Icon(
+                    imageVector = relatedType.icon,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(iconSize)
+                        .padding(start = iconPadding),
+                    tint = buttonColors.contentColor,
+                )
 
                 Text(
-                    text = stringResource(R.string.menu_related_flags),
+                    text = stringResource(titleStringRes),
                     modifier = Modifier.weight(1f, fill = false),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleMedium,

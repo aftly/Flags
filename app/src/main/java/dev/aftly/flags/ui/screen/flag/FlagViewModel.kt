@@ -87,13 +87,18 @@ class FlagViewModel(
                 it.copy(
                     flag = flag,
                     flagKey = flagKey,
-                    externalRelatedFlags = sortFlagsAlphabetically(
+                    politicalRelatedFlags = sortFlagsAlphabetically(
                         application = application,
-                        flags = getFlagsFromKeys(flag.externalRelatedFlagKeys) + flag
+                        flags = getFlagsFromKeys(flag.politicalRelatedFlagKeys) + flag
+                    ),
+                    chronologicalRelatedFlags = sortFlagsAlphabetically(
+                        application = application,
+                        flags = getFlagsFromKeys(flag.chronologicalRelatedFlagKeys) +
+                                getFlagsFromKeys(flag.otherLocaleRelatedFlagKeys) + flag
                     ),
                     flagIdsFromList = flagIdsFromList ?: it.flagIdsFromList,
-                    isExtRelatedFlagNavigation =
-                        if (it.isExtRelatedFlagNavigation) flag != it.initExtRelatedFlag
+                    isPoliticalRelatedFlagNavigation =
+                        if (it.isPoliticalRelatedFlagNavigation) flag != it.initPoliticalRelatedFlag
                         else false,
                     savedFlag = it.savedFlags.find { savedFlag ->
                         savedFlag.flagKey == flagKey
@@ -109,13 +114,13 @@ class FlagViewModel(
         val state = uiState.value
 
         val initRelatedFlag =
-            if (!state.isExtRelatedFlagNavigation) state.flag
-            else state.initExtRelatedFlag
+            if (!state.isPoliticalRelatedFlagNavigation) state.flag
+            else state.initPoliticalRelatedFlag
 
         _uiState.update {
             it.copy(
-                initExtRelatedFlag = initRelatedFlag,
-                isExtRelatedFlagNavigation = flag != initRelatedFlag,
+                initPoliticalRelatedFlag = initRelatedFlag,
+                isPoliticalRelatedFlagNavigation = flag != initRelatedFlag,
             )
         }
         updateFlag(flagId = flag.id)
@@ -136,9 +141,9 @@ class FlagViewModel(
     }
 
 
-    fun getFlagIds(): List<Int> = when (uiState.value.isExtRelatedFlagNavigation) {
+    fun getFlagIds(): List<Int> = when (uiState.value.isPoliticalRelatedFlagNavigation) {
         false -> uiState.value.flagIdsFromList
-        true -> uiState.value.externalRelatedFlags.map { it.id }
+        true -> uiState.value.politicalRelatedFlags.map { it.id }
     }
 
 

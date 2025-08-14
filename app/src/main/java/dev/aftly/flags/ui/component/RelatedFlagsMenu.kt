@@ -97,6 +97,7 @@ fun RelatedFlagsMenu(
 
 
         /* Duplicate related flags button to cover scrim */
+        /* TODO
         AnimatedVisibility(
             visible = isExpanded,
             enter = EnterTransition.None,
@@ -117,6 +118,7 @@ fun RelatedFlagsMenu(
                 )
             }
         }
+         */
 
 
         /* Menu content */
