@@ -83,19 +83,23 @@ class FlagViewModel(
         if (flag != uiState.value.flag) {
             val flagKey = getFlagKey(flag)
 
+            val politicalRelatedFlags = sortFlagsAlphabetically(
+                application = application,
+                flags = getFlagsFromKeys(flag.politicalRelatedFlagKeys) + flag
+            )
+            val chronologicalRelatedFlags = sortFlagsAlphabetically(
+                application = application,
+                flags = getFlagsFromKeys(flag.chronologicalRelatedFlagKeys) +
+                        getFlagsFromKeys(flag.otherLocaleRelatedFlagKeys) + flag
+            )
+            // TODO flagHelpers function for creating RelatedFlagsContent()
+
             _uiState.update {
                 it.copy(
                     flag = flag,
                     flagKey = flagKey,
-                    politicalRelatedFlags = sortFlagsAlphabetically(
-                        application = application,
-                        flags = getFlagsFromKeys(flag.politicalRelatedFlagKeys) + flag
-                    ),
-                    chronologicalRelatedFlags = sortFlagsAlphabetically(
-                        application = application,
-                        flags = getFlagsFromKeys(flag.chronologicalRelatedFlagKeys) +
-                                getFlagsFromKeys(flag.otherLocaleRelatedFlagKeys) + flag
-                    ),
+                    //politicalRelatedFlags = politicalRelatedFlags,
+                    //chronologicalRelatedFlags = chronologicalRelatedFlags,
                     flagIdsFromList = flagIdsFromList ?: it.flagIdsFromList,
                     isPoliticalRelatedFlagNavigation =
                         if (it.isPoliticalRelatedFlagNavigation) flag != it.initPoliticalRelatedFlag

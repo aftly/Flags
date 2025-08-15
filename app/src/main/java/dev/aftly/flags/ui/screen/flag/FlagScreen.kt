@@ -67,7 +67,7 @@ import androidx.navigation.NavBackStackEntry
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.model.FlagView
-import dev.aftly.flags.model.RelatedFlagsMenus
+import dev.aftly.flags.model.RelatedFlagsMenuType
 import dev.aftly.flags.ui.component.FullscreenButton
 import dev.aftly.flags.ui.component.RelatedFlagsButton
 import dev.aftly.flags.ui.component.RelatedFlagsMenu
@@ -146,7 +146,7 @@ private fun FlagScreen(
 
     /* Controls FilterFlagsButton menu expansion amd tracks current button height
      * Also for FilterFlagsButton to access Scaffold() padding */
-    var expandRelatedMenu by rememberSaveable { mutableStateOf<RelatedFlagsMenus?>(value = null) }
+    var expandRelatedMenu by rememberSaveable { mutableStateOf<RelatedFlagsMenuType?>(value = null) }
     var scaffoldPaddingValues by remember { mutableStateOf(value = PaddingValues()) }
     var buttonOffset by remember { mutableStateOf(value = Offset(x = 0f, y = 0f)) }
     var buttonWidth by remember { mutableIntStateOf(value = 0) }
@@ -167,19 +167,19 @@ private fun FlagScreen(
                     onFlagSave = onFlagSave,
                     isPoliticalFlagsButton = isPoliticalFlagsButton,
                     isChronologicalFlagsButton = isChronologicalFlagsButton,
-                    isPoliticalButtonExpanded = expandRelatedMenu == RelatedFlagsMenus.POLITICAL,
+                    isPoliticalButtonExpanded = expandRelatedMenu == RelatedFlagsMenuType.POLITICAL,
                     isChronologicalButtonExpanded =
-                        expandRelatedMenu == RelatedFlagsMenus.CHRONOLOGICAL,
+                        expandRelatedMenu == RelatedFlagsMenuType.CHRONOLOGICAL,
                     onPoliticalButtonExpand = {
                         expandRelatedMenu = when (expandRelatedMenu) {
-                            RelatedFlagsMenus.POLITICAL -> null
-                            else -> RelatedFlagsMenus.POLITICAL
+                            RelatedFlagsMenuType.POLITICAL -> null
+                            else -> RelatedFlagsMenuType.POLITICAL
                         }
                     },
                     onChronologicalButtonExpand = {
                         expandRelatedMenu = when (expandRelatedMenu) {
-                            RelatedFlagsMenus.CHRONOLOGICAL -> null
-                            else -> RelatedFlagsMenus.CHRONOLOGICAL
+                            RelatedFlagsMenuType.CHRONOLOGICAL -> null
+                            else -> RelatedFlagsMenuType.CHRONOLOGICAL
                         }
                     },
                     onButtonPosition = { buttonOffset = it },
@@ -208,11 +208,11 @@ private fun FlagScreen(
                 scaffoldPadding = scaffoldPaddingValues,
                 menuButtonOffset = buttonOffset,
                 menuButtonWidth = buttonWidth,
-                isExpanded = expandRelatedMenu == RelatedFlagsMenus.POLITICAL,
+                isExpanded = expandRelatedMenu == RelatedFlagsMenuType.POLITICAL,
                 onExpand = {
                     expandRelatedMenu = when (expandRelatedMenu) {
-                        RelatedFlagsMenus.POLITICAL -> null
-                        else -> RelatedFlagsMenus.POLITICAL
+                        RelatedFlagsMenuType.POLITICAL -> null
+                        else -> RelatedFlagsMenuType.POLITICAL
                     }
                 },
                 currentFlag = uiState.flag,
@@ -232,11 +232,11 @@ private fun FlagScreen(
                 scaffoldPadding = scaffoldPaddingValues,
                 menuButtonOffset = buttonOffset,
                 menuButtonWidth = buttonWidth,
-                isExpanded = expandRelatedMenu  == RelatedFlagsMenus.CHRONOLOGICAL,
+                isExpanded = expandRelatedMenu  == RelatedFlagsMenuType.CHRONOLOGICAL,
                 onExpand = {
                     expandRelatedMenu = when (expandRelatedMenu) {
-                        RelatedFlagsMenus.CHRONOLOGICAL -> null
-                        else -> RelatedFlagsMenus.CHRONOLOGICAL
+                        RelatedFlagsMenuType.CHRONOLOGICAL -> null
+                        else -> RelatedFlagsMenuType.CHRONOLOGICAL
                     }
                 },
                 containerColor1 = MaterialTheme.colorScheme.tertiary,
@@ -503,7 +503,7 @@ private fun FlagTopBar(
                         horizontalArrangement = Arrangement.Center,
                     ) {
                         RelatedFlagsButton(
-                            relatedType = RelatedFlagsMenus.CHRONOLOGICAL,
+                            relatedType = RelatedFlagsMenuType.CHRONOLOGICAL,
                             isFullSize = !isBothButtons,
                             menuExpanded = isChronologicalButtonExpanded,
                             onMenuExpand = onChronologicalButtonExpand,
@@ -526,7 +526,7 @@ private fun FlagTopBar(
                         horizontalArrangement = Arrangement.Center,
                     ) {
                         RelatedFlagsButton(
-                            relatedType = RelatedFlagsMenus.POLITICAL,
+                            relatedType = RelatedFlagsMenuType.POLITICAL,
                             isFullSize = !isBothButtons,
                             menuExpanded = isPoliticalButtonExpanded,
                             onMenuExpand = onPoliticalButtonExpand,

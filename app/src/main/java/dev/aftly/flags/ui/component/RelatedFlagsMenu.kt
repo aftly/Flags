@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -48,6 +49,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import dev.aftly.flags.model.FlagView
+import dev.aftly.flags.model.LazyColumnItem
+import dev.aftly.flags.model.RelatedFlagGroup
+import dev.aftly.flags.model.RelatedFlagsContent
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Shapes
 import dev.aftly.flags.ui.theme.Timing
@@ -68,15 +72,30 @@ fun RelatedFlagsMenu(
     buttonColors1: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor1),
     buttonColors2: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor2),
     currentFlag: FlagView,
-    relatedFlags: List<FlagView>,
+    //relatedFlags: List<FlagView>, // TODO
+    relatedFlagContent: RelatedFlagsContent,
     onFlagSelect: (FlagView) -> Unit,
 ) {
     val listState = rememberLazyListState()
     val density = LocalDensity.current
-    LaunchedEffect(isExpanded) {
-        if (isExpanded) {
-            listState.scrollToItem(index = relatedFlags.indexOf(currentFlag))
+
+    val relatedFlagItems: List<LazyColumnItem> = relatedFlagContent.groups.filterNotNull()
+        .flatMap { group ->
+        buildList {
+            LazyColumnItem.Header(title = stringResource(group.category))
+            when (group) {
+                is RelatedFlagGroup.Single -> add(LazyColumnItem.Flag(group.flag))
+                is RelatedFlagGroup.Multiple -> group.flags.forEach { flag ->
+                    add(LazyColumnItem.Flag(flag))
+                }
+            }
         }
+    }
+
+    LaunchedEffect(isExpanded) {
+        //if (isExpanded) {
+        //listState.scrollToItem(index = relatedFlagItems.indexOf(currentFlag)) TODO
+        //}
     }
 
 
@@ -155,6 +174,24 @@ fun RelatedFlagsMenu(
                     ),
                 ) {
                     items(
+                        items = relatedFlagItems,
+                        key = { it.key },
+                        contentType = { it.type }
+                    ) { item ->
+                        when (item) {
+                            is LazyColumnItem.Header -> {} // TODO
+                            is LazyColumnItem.Flag -> RelatedItem(
+                                modifier = Modifier.fillMaxWidth(),
+                                flag = item.flag,
+                                currentFlag = currentFlag,
+                                buttonColors1 = buttonColors1,
+                                buttonColor2 = buttonColors2,
+                                onFlagSelect = onFlagSelect,
+                            )
+                        }
+                    }
+                    /*
+                    items(
                         count = relatedFlags.size,
                         key = { index -> relatedFlags[index].id }
                     ) { index ->
@@ -167,6 +204,7 @@ fun RelatedFlagsMenu(
                             onFlagSelect = onFlagSelect,
                         )
                     }
+                     */
                 }
             }
         }
