@@ -34,7 +34,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -79,7 +79,7 @@
         },
         "associatedState": null,
         "sovereignState": "georgia(Country)",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -119,7 +119,7 @@
         },
         "associatedState": null,
         "sovereignState": "italy",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -165,7 +165,7 @@
         },
         "associatedState": null,
         "sovereignState": "georgia(Country)",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -211,7 +211,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -256,7 +256,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -300,7 +300,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -347,7 +347,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -393,7 +393,7 @@
         },
         "associatedState": null,
         "sovereignState": "finland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -437,7 +437,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -481,7 +481,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "basqueCountry",
+        "parentUnit": "basqueCountry",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -520,7 +520,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "castilla-LaMancha",
+        "parentUnit": "castilla-LaMancha",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -566,7 +566,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -612,7 +612,7 @@
         },
         "associatedState": null,
         "sovereignState": "canada",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -654,7 +654,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -697,7 +697,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "valencianCommunity",
+        "parentUnit": "valencianCommunity",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -737,7 +737,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "andalusia",
+        "parentUnit": "andalusia",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -775,7 +775,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -813,7 +813,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -863,7 +863,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -902,7 +902,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -941,7 +941,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -984,7 +984,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1029,7 +1029,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1074,7 +1074,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1117,7 +1117,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1160,7 +1160,7 @@
         },
         "associatedState": null,
         "sovereignState": "italy",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1203,7 +1203,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1247,7 +1247,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1287,7 +1287,7 @@
         },
         "associatedState": null,
         "sovereignState": "italy",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1325,7 +1325,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1363,7 +1363,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1405,7 +1405,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1453,7 +1453,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1500,7 +1500,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1538,7 +1538,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1580,7 +1580,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1624,7 +1624,7 @@
         },
         "associatedState": null,
         "sovereignState": "azerbaijan",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1668,7 +1668,7 @@
         },
         "associatedState": null,
         "sovereignState": "netherlands",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1709,7 +1709,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1745,7 +1745,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1785,7 +1785,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1838,7 +1838,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1882,7 +1882,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1925,7 +1925,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "castileAndLeon",
+        "parentUnit": "castileAndLeon",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -1961,7 +1961,7 @@
         },
         "associatedState": null,
         "sovereignState": "mali",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2007,7 +2007,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2057,7 +2057,7 @@
         },
         "associatedState": null,
         "sovereignState": "portugal",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2094,7 +2094,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "extremadura",
+        "parentUnit": "extremadura",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2136,7 +2136,7 @@
         },
         "associatedState": null,
         "sovereignState": "germany",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2181,7 +2181,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2223,7 +2223,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2269,7 +2269,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2314,7 +2314,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2357,7 +2357,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "catalonia",
+        "parentUnit": "catalonia",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2405,7 +2405,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2451,7 +2451,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2492,7 +2492,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2531,7 +2531,7 @@
         },
         "associatedState": null,
         "sovereignState": "italy",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2577,7 +2577,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2621,7 +2621,7 @@
         },
         "associatedState": null,
         "sovereignState": "germany",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2671,7 +2671,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2717,7 +2717,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2757,7 +2757,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2795,7 +2795,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2841,7 +2841,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2885,7 +2885,7 @@
         },
         "associatedState": null,
         "sovereignState": "germany",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2944,7 +2944,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -2985,7 +2985,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3025,7 +3025,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3069,7 +3069,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "basqueCountry",
+        "parentUnit": "basqueCountry",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3112,7 +3112,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3154,7 +3154,7 @@
         },
         "associatedState": null,
         "sovereignState": "netherlands",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3200,7 +3200,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3245,7 +3245,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3291,7 +3291,7 @@
         },
         "associatedState": null,
         "sovereignState": "papuaNewGuinea",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3331,7 +3331,7 @@
         },
         "associatedState": null,
         "sovereignState": "germany",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3371,7 +3371,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3414,7 +3414,7 @@
         },
         "associatedState": null,
         "sovereignState": "germany",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3455,7 +3455,7 @@
         },
         "associatedState": null,
         "sovereignState": "canada",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3496,7 +3496,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3539,7 +3539,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3583,7 +3583,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3626,7 +3626,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3667,7 +3667,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3710,7 +3710,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "castileAndLeon",
+        "parentUnit": "castileAndLeon",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3750,7 +3750,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3794,7 +3794,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3838,7 +3838,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3880,7 +3880,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "extremadura",
+        "parentUnit": "extremadura",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3920,7 +3920,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "andalusia",
+        "parentUnit": "andalusia",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -3958,7 +3958,7 @@
         },
         "associatedState": null,
         "sovereignState": "italy",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4003,7 +4003,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4048,7 +4048,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4093,7 +4093,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4136,7 +4136,7 @@
         },
         "associatedState": null,
         "sovereignState": "italy",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4177,7 +4177,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4224,7 +4224,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4264,7 +4264,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4312,7 +4312,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4359,7 +4359,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "valencianCommunity",
+        "parentUnit": "valencianCommunity",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4399,7 +4399,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4442,7 +4442,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4489,7 +4489,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4532,7 +4532,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4575,7 +4575,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4617,7 +4617,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4661,7 +4661,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4705,7 +4705,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4743,7 +4743,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4782,7 +4782,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4821,7 +4821,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4859,7 +4859,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4901,7 +4901,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -4957,7 +4957,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5002,7 +5002,7 @@
         },
         "associatedState": null,
         "sovereignState": "australia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5040,7 +5040,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5081,7 +5081,7 @@
         },
         "associatedState": null,
         "sovereignState": "micronesia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5121,7 +5121,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5160,7 +5160,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "castilla-LaMancha",
+        "parentUnit": "castilla-LaMancha",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5201,7 +5201,7 @@
         },
         "associatedState": null,
         "sovereignState": "australia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5245,7 +5245,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5292,7 +5292,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5334,7 +5334,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5386,7 +5386,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5443,7 +5443,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5485,7 +5485,7 @@
         },
         "associatedState": "newZealand",
         "sovereignState": "newZealand",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5525,7 +5525,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "andalusia",
+        "parentUnit": "andalusia",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5563,7 +5563,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5606,7 +5606,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5658,7 +5658,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5701,7 +5701,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5745,7 +5745,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5788,7 +5788,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "castilla-LaMancha",
+        "parentUnit": "castilla-LaMancha",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5837,7 +5837,7 @@
         },
         "associatedState": null,
         "sovereignState": "netherlands",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5880,7 +5880,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5925,7 +5925,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -5967,7 +5967,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6012,7 +6012,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6063,7 +6063,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6113,7 +6113,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6159,7 +6159,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6204,7 +6204,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6250,7 +6250,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6299,7 +6299,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6343,7 +6343,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6383,7 +6383,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6424,7 +6424,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6469,7 +6469,7 @@
         },
         "associatedState": null,
         "sovereignState": "china",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6514,7 +6514,7 @@
         },
         "associatedState": null,
         "sovereignState": "chile",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6554,7 +6554,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6601,7 +6601,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6647,7 +6647,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6687,7 +6687,7 @@
         },
         "associatedState": null,
         "sovereignState": "italy",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6727,7 +6727,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6767,7 +6767,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6814,7 +6814,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6860,7 +6860,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6908,7 +6908,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6950,7 +6950,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -6994,7 +6994,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -7035,7 +7035,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -7080,7 +7080,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -7154,7 +7154,7 @@
         },
         "associatedState": null,
         "sovereignState": "denmark",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -7201,7 +7201,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -7251,7 +7251,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -7301,7 +7301,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -7341,7 +7341,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -7388,7 +7388,7 @@
         },
         "associatedState": null,
         "sovereignState": "france",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -7431,7 +7431,7 @@
         },
         "associatedState": null,
         "sovereignState": "france",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -7472,7 +7472,7 @@
         },
         "associatedState": null,
         "sovereignState": "france",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -7515,7 +7515,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -7555,7 +7555,7 @@
         },
         "associatedState": null,
         "sovereignState": "italy",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -7600,7 +7600,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -7642,7 +7642,7 @@
         },
         "associatedState": null,
         "sovereignState": "moldova",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -7684,7 +7684,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -7724,7 +7724,7 @@
         },
         "associatedState": null,
         "sovereignState": "somalia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -7767,7 +7767,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -7807,7 +7807,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -7855,7 +7855,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -7896,7 +7896,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -7940,7 +7940,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -7985,7 +7985,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -8025,7 +8025,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "catalonia",
+        "parentUnit": "catalonia",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -8065,7 +8065,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -8103,7 +8103,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "andalusia",
+        "parentUnit": "andalusia",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -8145,7 +8145,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": "unitedKingdom",
         "previousFlagOf": null,
         "categories": [
@@ -8194,7 +8194,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -8238,7 +8238,7 @@
         },
         "associatedState": null,
         "sovereignState": "denmark",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -8279,7 +8279,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -8329,7 +8329,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -8368,7 +8368,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "castilla-LaMancha",
+        "parentUnit": "castilla-LaMancha",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -8411,7 +8411,7 @@
         },
         "associatedState": null,
         "sovereignState": "france",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -8459,7 +8459,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -8500,7 +8500,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -8552,7 +8552,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -8594,7 +8594,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -8637,7 +8637,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -8684,7 +8684,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "basqueCountry",
+        "parentUnit": "basqueCountry",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -8725,7 +8725,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -8773,7 +8773,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -8816,7 +8816,7 @@
         },
         "associatedState": null,
         "sovereignState": "germany",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -8858,7 +8858,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -8901,7 +8901,7 @@
         },
         "associatedState": null,
         "sovereignState": "germany",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -8937,7 +8937,7 @@
         },
         "associatedState": null,
         "sovereignState": "somalia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -8979,7 +8979,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9026,7 +9026,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9078,7 +9078,7 @@
         },
         "associatedState": null,
         "sovereignState": "china",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9124,7 +9124,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9163,7 +9163,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "andalusia",
+        "parentUnit": "andalusia",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9201,7 +9201,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "aragon",
+        "parentUnit": "aragon",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9241,7 +9241,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9284,7 +9284,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9331,7 +9331,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9379,7 +9379,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9426,7 +9426,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9473,7 +9473,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9515,7 +9515,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9558,7 +9558,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9601,7 +9601,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9644,7 +9644,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9687,7 +9687,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9733,7 +9733,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9775,7 +9775,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9821,7 +9821,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9864,7 +9864,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9912,7 +9912,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9954,7 +9954,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -9993,7 +9993,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10044,7 +10044,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10088,7 +10088,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "andalusia",
+        "parentUnit": "andalusia",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10129,7 +10129,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10186,7 +10186,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10242,7 +10242,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10281,7 +10281,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10329,7 +10329,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10370,7 +10370,7 @@
         },
         "associatedState": null,
         "sovereignState": "somalia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10412,7 +10412,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10451,7 +10451,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10487,7 +10487,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10525,7 +10525,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10563,7 +10563,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10601,7 +10601,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10639,7 +10639,7 @@
         },
         "associatedState": null,
         "sovereignState": "france",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10683,7 +10683,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10725,7 +10725,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10769,7 +10769,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10811,7 +10811,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10855,7 +10855,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10898,7 +10898,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10939,7 +10939,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -10981,7 +10981,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11020,7 +11020,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11061,7 +11061,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11102,7 +11102,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11140,7 +11140,7 @@
         },
         "associatedState": null,
         "sovereignState": "somalia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11179,7 +11179,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11215,7 +11215,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11255,7 +11255,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11298,7 +11298,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11339,7 +11339,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11380,7 +11380,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11420,7 +11420,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11465,7 +11465,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11505,7 +11505,7 @@
         },
         "associatedState": null,
         "sovereignState": "micronesia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11541,7 +11541,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11579,7 +11579,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11625,7 +11625,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11666,7 +11666,7 @@
         },
         "associatedState": null,
         "sovereignState": "iraq",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11703,7 +11703,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11739,7 +11739,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11779,7 +11779,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11821,7 +11821,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11861,7 +11861,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11925,7 +11925,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11969,7 +11969,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "galicia(Spain)",
+        "parentUnit": "galicia(Spain)",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12008,7 +12008,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12052,7 +12052,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12095,7 +12095,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "canaryIslands",
+        "parentUnit": "canaryIslands",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12143,7 +12143,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12183,7 +12183,7 @@
         },
         "associatedState": null,
         "sovereignState": "italy",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12227,7 +12227,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12270,7 +12270,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12309,7 +12309,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "castileAndLeon",
+        "parentUnit": "castileAndLeon",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12347,7 +12347,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "catalonia",
+        "parentUnit": "catalonia",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12388,7 +12388,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12433,7 +12433,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12477,7 +12477,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12522,7 +12522,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12561,7 +12561,7 @@
         },
         "associatedState": null,
         "sovereignState": "italy",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12597,7 +12597,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12639,7 +12639,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12681,7 +12681,7 @@
         },
         "associatedState": null,
         "sovereignState": "italy",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12724,7 +12724,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12764,7 +12764,7 @@
         },
         "associatedState": null,
         "sovereignState": "germany",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12804,7 +12804,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12842,7 +12842,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "galicia(Spain)",
+        "parentUnit": "galicia(Spain)",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12884,7 +12884,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12926,7 +12926,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -12968,7 +12968,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13011,7 +13011,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13060,7 +13060,7 @@
         },
         "associatedState": null,
         "sovereignState": "china",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13103,7 +13103,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13147,7 +13147,7 @@
         },
         "associatedState": null,
         "sovereignState": "portugal",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13188,7 +13188,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13229,7 +13229,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13271,7 +13271,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13311,7 +13311,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "andalusia",
+        "parentUnit": "andalusia",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13351,7 +13351,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13397,7 +13397,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13442,7 +13442,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13487,7 +13487,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13530,7 +13530,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13577,7 +13577,7 @@
         },
         "associatedState": null,
         "sovereignState": "canada",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13616,7 +13616,7 @@
         },
         "associatedState": null,
         "sovereignState": "italy",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13655,7 +13655,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13695,7 +13695,7 @@
         },
         "associatedState": "unitedStates",
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13747,7 +13747,7 @@
         },
         "associatedState": null,
         "sovereignState": "france",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13790,7 +13790,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13842,7 +13842,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13889,7 +13889,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13936,7 +13936,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -13980,7 +13980,7 @@
         },
         "associatedState": null,
         "sovereignState": "france",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14019,7 +14019,7 @@
         },
         "associatedState": null,
         "sovereignState": "germany",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14057,7 +14057,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14104,7 +14104,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14152,7 +14152,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14195,7 +14195,7 @@
         },
         "associatedState": "unitedStates",
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14244,7 +14244,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14288,7 +14288,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14331,7 +14331,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14373,7 +14373,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14415,7 +14415,7 @@
         },
         "associatedState": null,
         "sovereignState": "italy",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14462,7 +14462,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14505,7 +14505,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14553,7 +14553,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14593,7 +14593,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14637,7 +14637,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14676,7 +14676,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14721,7 +14721,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14777,7 +14777,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14817,7 +14817,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14860,7 +14860,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14910,7 +14910,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14951,7 +14951,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -14994,7 +14994,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -15033,7 +15033,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -15074,7 +15074,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -15115,7 +15115,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -15160,7 +15160,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -15205,7 +15205,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -15250,7 +15250,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": "germany",
         "previousFlagOf": null,
         "categories": [
@@ -15298,7 +15298,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -15336,7 +15336,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -15407,7 +15407,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -15452,7 +15452,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -15498,7 +15498,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -15541,7 +15541,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -15583,7 +15583,7 @@
         },
         "associatedState": null,
         "sovereignState": "canada",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -15626,7 +15626,7 @@
         },
         "associatedState": null,
         "sovereignState": "france",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -15670,7 +15670,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -15718,7 +15718,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -15762,7 +15762,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -15809,7 +15809,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -15856,7 +15856,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -15905,7 +15905,7 @@
         },
         "associatedState": null,
         "sovereignState": "canada",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -15947,7 +15947,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -15993,7 +15993,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16035,7 +16035,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16081,7 +16081,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16124,7 +16124,7 @@
         },
         "associatedState": "newZealand",
         "sovereignState": "newZealand",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16165,7 +16165,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16206,7 +16206,7 @@
         },
         "associatedState": null,
         "sovereignState": "australia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16252,7 +16252,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16300,7 +16300,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16343,7 +16343,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16392,7 +16392,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16438,7 +16438,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16477,7 +16477,7 @@
         },
         "associatedState": null,
         "sovereignState": "germany",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16527,7 +16527,7 @@
         },
         "associatedState": null,
         "sovereignState": "cyprus",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16573,7 +16573,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16622,7 +16622,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16668,7 +16668,7 @@
         },
         "associatedState": null,
         "sovereignState": "canada",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16706,7 +16706,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16752,7 +16752,7 @@
         },
         "associatedState": null,
         "sovereignState": "canada",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16788,7 +16788,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16830,7 +16830,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16867,7 +16867,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16909,7 +16909,7 @@
         },
         "associatedState": null,
         "sovereignState": "canada",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16951,7 +16951,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -16993,7 +16993,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17035,7 +17035,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17078,7 +17078,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17120,7 +17120,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17161,7 +17161,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17205,7 +17205,7 @@
         },
         "associatedState": null,
         "sovereignState": "canada",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17246,7 +17246,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17290,7 +17290,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17329,7 +17329,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17369,7 +17369,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "galicia(Spain)",
+        "parentUnit": "galicia(Spain)",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17409,7 +17409,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17450,7 +17450,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17500,7 +17500,7 @@
         },
         "associatedState": "unitedStates",
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17544,7 +17544,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "castileAndLeon",
+        "parentUnit": "castileAndLeon",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17585,7 +17585,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17627,7 +17627,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17671,7 +17671,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17716,7 +17716,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17765,7 +17765,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17803,7 +17803,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17842,7 +17842,7 @@
         },
         "associatedState": null,
         "sovereignState": "france",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17880,7 +17880,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17922,7 +17922,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -17971,7 +17971,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18011,7 +18011,7 @@
         },
         "associatedState": null,
         "sovereignState": "italy",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18052,7 +18052,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18091,7 +18091,7 @@
         },
         "associatedState": null,
         "sovereignState": "micronesia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18129,7 +18129,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18171,7 +18171,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18209,7 +18209,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "galicia(Spain)",
+        "parentUnit": "galicia(Spain)",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18249,7 +18249,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18292,7 +18292,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18338,7 +18338,7 @@
         },
         "associatedState": null,
         "sovereignState": "canada",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18376,7 +18376,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18428,7 +18428,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18471,7 +18471,7 @@
         },
         "associatedState": null,
         "sovereignState": "somalia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18512,7 +18512,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18560,7 +18560,7 @@
         },
         "associatedState": null,
         "sovereignState": "canada",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18608,7 +18608,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18660,7 +18660,7 @@
         },
         "associatedState": null,
         "sovereignState": "france",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18701,7 +18701,7 @@
         },
         "associatedState": null,
         "sovereignState": "germany",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18760,7 +18760,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18801,7 +18801,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18843,7 +18843,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18887,7 +18887,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18931,7 +18931,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -18974,7 +18974,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19016,7 +19016,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19054,7 +19054,7 @@
         },
         "associatedState": null,
         "sovereignState": "germany",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19090,7 +19090,7 @@
         },
         "associatedState": null,
         "sovereignState": "netherlands",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19130,7 +19130,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19198,7 +19198,7 @@
         },
         "associatedState": null,
         "sovereignState": "france",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19240,7 +19240,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19286,7 +19286,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19333,7 +19333,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19380,7 +19380,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19432,7 +19432,7 @@
         },
         "associatedState": null,
         "sovereignState": "france",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19477,7 +19477,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19523,7 +19523,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19562,7 +19562,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19601,7 +19601,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "castileAndLeon",
+        "parentUnit": "castileAndLeon",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19637,7 +19637,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19678,7 +19678,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19722,7 +19722,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19764,7 +19764,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "canaryIslands",
+        "parentUnit": "canaryIslands",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19807,7 +19807,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19850,7 +19850,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19887,7 +19887,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19930,7 +19930,7 @@
         },
         "associatedState": null,
         "sovereignState": "italy",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -19975,7 +19975,7 @@
         },
         "associatedState": null,
         "sovereignState": "canada",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20021,7 +20021,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20067,7 +20067,7 @@
         },
         "associatedState": null,
         "sovereignState": "germany",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20107,7 +20107,7 @@
         },
         "associatedState": null,
         "sovereignState": "germany",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20147,7 +20147,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20187,7 +20187,7 @@
         },
         "associatedState": null,
         "sovereignState": "germany",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20228,7 +20228,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20273,7 +20273,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20313,7 +20313,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "castileAndLeon",
+        "parentUnit": "castileAndLeon",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20354,7 +20354,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20400,7 +20400,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20447,7 +20447,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20486,7 +20486,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "andalusia",
+        "parentUnit": "andalusia",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20527,7 +20527,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20569,7 +20569,7 @@
         },
         "associatedState": null,
         "sovereignState": "italy",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20611,7 +20611,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20661,7 +20661,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20706,7 +20706,7 @@
         },
         "associatedState": null,
         "sovereignState": "netherlands",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20752,7 +20752,7 @@
         },
         "associatedState": null,
         "sovereignState": "netherlands",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20793,7 +20793,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20841,7 +20841,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20885,7 +20885,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20924,7 +20924,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -20969,7 +20969,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -21007,7 +21007,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -21049,7 +21049,7 @@
         },
         "associatedState": null,
         "sovereignState": "somalia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -21090,7 +21090,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "castileAndLeon",
+        "parentUnit": "castileAndLeon",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -21133,7 +21133,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -21181,7 +21181,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -21228,7 +21228,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -21270,7 +21270,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -21322,7 +21322,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -21375,7 +21375,7 @@
         },
         "associatedState": null,
         "sovereignState": "georgia(Country)",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -21417,7 +21417,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -21460,7 +21460,7 @@
         },
         "associatedState": null,
         "sovereignState": "somalia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -21509,7 +21509,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": "russia",
         "previousFlagOf": null,
         "categories": [
@@ -21552,7 +21552,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -21607,7 +21607,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -21654,7 +21654,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -21690,7 +21690,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -21737,7 +21737,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -21779,7 +21779,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -21823,7 +21823,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -21863,7 +21863,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -21906,7 +21906,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -21950,7 +21950,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -21996,7 +21996,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -22056,7 +22056,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -22100,7 +22100,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -22140,7 +22140,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -22182,7 +22182,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -22225,7 +22225,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "catalonia",
+        "parentUnit": "catalonia",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -22265,7 +22265,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -22308,7 +22308,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -22348,7 +22348,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -22386,7 +22386,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "aragon",
+        "parentUnit": "aragon",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -22428,7 +22428,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -22471,7 +22471,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -22513,7 +22513,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -22560,7 +22560,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -22607,7 +22607,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -22655,7 +22655,7 @@
         },
         "associatedState": null,
         "sovereignState": "greatBritain",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": "unitedStates",
         "previousFlagOf": null,
         "categories": [
@@ -22697,7 +22697,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -22738,7 +22738,7 @@
         },
         "associatedState": null,
         "sovereignState": "germany",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -22785,7 +22785,7 @@
         },
         "associatedState": null,
         "sovereignState": "china",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -22826,7 +22826,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -22866,7 +22866,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -22910,7 +22910,7 @@
         },
         "associatedState": null,
         "sovereignState": "newZealand",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -22950,7 +22950,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "castilla-LaMancha",
+        "parentUnit": "castilla-LaMancha",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -22986,7 +22986,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23028,7 +23028,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23088,7 +23088,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23136,7 +23136,7 @@
         },
         "associatedState": null,
         "sovereignState": "moldova",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23179,7 +23179,7 @@
         },
         "associatedState": null,
         "sovereignState": "italy",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23223,7 +23223,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23268,7 +23268,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23307,7 +23307,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23348,7 +23348,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23395,7 +23395,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23439,7 +23439,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23484,7 +23484,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23523,7 +23523,7 @@
         },
         "associatedState": null,
         "sovereignState": "italy",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23563,7 +23563,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23603,7 +23603,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23645,7 +23645,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23681,7 +23681,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23720,7 +23720,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23763,7 +23763,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23810,7 +23810,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23852,7 +23852,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23888,7 +23888,7 @@
         },
         "associatedState": null,
         "sovereignState": "italy",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23934,7 +23934,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -23973,7 +23973,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": "unitedStates",
         "previousFlagOf": null,
         "categories": [
@@ -24027,7 +24027,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -24075,7 +24075,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -24138,7 +24138,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -24173,7 +24173,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24204,7 +24204,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24235,7 +24235,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24266,7 +24266,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24297,7 +24297,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24328,7 +24328,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24359,7 +24359,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24390,7 +24390,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24421,7 +24421,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24452,7 +24452,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24483,7 +24483,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24514,7 +24514,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24545,7 +24545,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24576,7 +24576,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24607,7 +24607,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24638,7 +24638,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24669,7 +24669,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24700,7 +24700,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24731,7 +24731,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24762,7 +24762,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24793,7 +24793,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24824,7 +24824,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24855,7 +24855,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24886,7 +24886,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24917,7 +24917,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24948,7 +24948,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -24979,7 +24979,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -25010,7 +25010,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -25041,7 +25041,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -25072,7 +25072,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -25103,7 +25103,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -25134,7 +25134,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -25165,7 +25165,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -25196,7 +25196,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -25227,7 +25227,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -25258,7 +25258,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -25289,7 +25289,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -25320,7 +25320,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -25351,7 +25351,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -25382,7 +25382,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -25413,7 +25413,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -25444,7 +25444,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -25475,7 +25475,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -25506,7 +25506,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": "unitedStates",
         "categories": [
@@ -25553,7 +25553,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -25597,7 +25597,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -25644,7 +25644,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -25685,7 +25685,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -25726,7 +25726,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -25772,7 +25772,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -25810,7 +25810,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -25854,7 +25854,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -25894,7 +25894,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "valencianCommunity",
+        "parentUnit": "valencianCommunity",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -25937,7 +25937,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -25978,7 +25978,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "castileAndLeon",
+        "parentUnit": "castileAndLeon",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26020,7 +26020,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26072,7 +26072,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26116,7 +26116,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26152,7 +26152,7 @@
         },
         "associatedState": null,
         "sovereignState": "italy",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26191,7 +26191,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26238,7 +26238,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26282,7 +26282,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26330,7 +26330,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26374,7 +26374,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26412,7 +26412,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26451,7 +26451,7 @@
         },
         "associatedState": null,
         "sovereignState": "serbia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26491,7 +26491,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26527,7 +26527,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26569,7 +26569,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26607,7 +26607,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26648,7 +26648,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26688,7 +26688,7 @@
         },
         "associatedState": null,
         "sovereignState": "france",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26732,7 +26732,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26773,7 +26773,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26818,7 +26818,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26861,7 +26861,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26907,7 +26907,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26947,7 +26947,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26986,7 +26986,7 @@
         },
         "associatedState": null,
         "sovereignState": "micronesia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -27022,7 +27022,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -27064,7 +27064,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -27106,7 +27106,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": "yugoslavia(Socialist)",
         "previousFlagOf": null,
         "categories": [
@@ -27151,7 +27151,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -27199,7 +27199,7 @@
         },
         "associatedState": null,
         "sovereignState": "canada",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -27235,7 +27235,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -27274,7 +27274,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -27315,7 +27315,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -27358,7 +27358,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "castileAndLeon",
+        "parentUnit": "castileAndLeon",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -27396,7 +27396,7 @@
         },
         "associatedState": null,
         "sovereignState": "tanzania",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -27435,7 +27435,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": "zanzibar",
         "previousFlagOf": null,
         "categories": [
@@ -27475,7 +27475,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -27514,7 +27514,7 @@
         },
         "associatedState": null,
         "sovereignState": "spain",
-        "parentEntity": "aragon",
+        "parentUnit": "aragon",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -27552,7 +27552,7 @@
         },
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -27594,7 +27594,7 @@
         },
         "associatedState": null,
         "sovereignState": null,
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -27637,7 +27637,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -27677,7 +27677,7 @@
         },
         "associatedState": null,
         "sovereignState": "switzerland",
-        "parentEntity": null,
+        "parentUnit": null,
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [

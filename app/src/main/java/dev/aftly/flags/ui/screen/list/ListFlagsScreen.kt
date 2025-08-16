@@ -498,7 +498,7 @@ private fun ListItem(
     val fontScale = configuration.fontScale
     val dynamicHeight = Dimens.defaultListItemHeight48 * fontScale
     val fromToYear =
-        if (flag.isPreviousFlag && flag.fromYear != null && flag.toYear != null) {
+        if (flag.previousFlagOfKey != null && flag.fromYear != null && flag.toYear != null) {
             val toYear =
                 if (flag.toYear == 0) stringResource(R.string.string_present)
                 else "${flag.toYear}"

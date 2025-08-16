@@ -51,8 +51,11 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
     private val firstItem = _firstItem.asStateFlow()
     private val _sovereignFlag = MutableStateFlow<FlagView?>(value = null)
     private val sovereignFlag = _sovereignFlag.asStateFlow()
-    private val _politicalRelatedFlags = MutableStateFlow<List<FlagView>>(value = emptyList())
-    private val politicalRelatedFlags = _politicalRelatedFlags.asStateFlow()
+    private val _politicalDirectRelatedFlags = MutableStateFlow<List<FlagView>>(value = emptyList())
+    private val politicalDirectRelatedFlags = _politicalDirectRelatedFlags.asStateFlow()
+    private val _politicalAssociatedRelatedFlags =
+        MutableStateFlow<List<FlagView>>(value = emptyList())
+    private val politicalAssociatedRelatedFlags = _politicalAssociatedRelatedFlags.asStateFlow()
     private val _chronologicalRelatedFlags = MutableStateFlow<List<FlagView>>(value = emptyList())
     private val chronologicalRelatedFlags = _chronologicalRelatedFlags.asStateFlow()
     private val _otherLocaleFlags = MutableStateFlow<List<FlagView>>(value = emptyList())
@@ -61,7 +64,8 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
     private val currentFlagsFlow = uiState.map { SearchFlow.CurrentFlags(it.currentFlags) }
     private val savedFlagsFlow = uiState.map { SearchFlow.SavedFlags(it.savedFlags) }
     private var isSavedFlagsFlow = uiState.map { SearchFlow.IsSavedFlags(it.isSavedFlags) }
-    private val searchQueryFlow = snapshotFlow { searchQuery }.map { SearchFlow.SearchQuery(it) }
+    private val searchQueryFlow = snapshotFlow { searchQuery }
+        .map { SearchFlow.SearchQuery(it) }
     private val appResourcesFlow = snapshotFlow {
         getApplication<Application>().applicationContext.resources
     }.map { SearchFlow.AppResources(it) }
@@ -71,8 +75,12 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
     }.map { SearchFlow.TheString(it) }
     private val firstItemFlow = firstItem.map { SearchFlow.FirstItem(it) }
     private val sovereignFlagFlow = sovereignFlag.map { SearchFlow.SovereignFlag(it) }
-    private val polRelatedFlagsFlow = politicalRelatedFlags.map { SearchFlow.PoliticalFlags(it) }
-    private val chronRelatedFlagsFlow = chronologicalRelatedFlags.map { SearchFlow.ChronologicalFlags(it) }
+    private val polDirRelatedFlagsFlow = politicalDirectRelatedFlags
+        .map { SearchFlow.PoliticalDirectFlags(it) }
+    private val polAssRelatedFlagsFlow = politicalAssociatedRelatedFlags
+        .map { SearchFlow.PoliticalAssociatedFlags(it) }
+    private val chronRelatedFlagsFlow = chronologicalRelatedFlags
+        .map { SearchFlow.ChronologicalFlags(it) }
     private val localeFlagsFlow = otherLocaleFlags.map { SearchFlow.LocaleFlags(it) }
 
     /* Use sealed interface SearchFlow for safe casting in combine() transform lambda */
@@ -85,7 +93,8 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         theStringFlow,
         firstItemFlow,
         sovereignFlagFlow,
-        polRelatedFlagsFlow,
+        polDirRelatedFlagsFlow,
+        polAssRelatedFlagsFlow,
         chronRelatedFlagsFlow,
         localeFlagsFlow
     )
@@ -99,9 +108,10 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         val the = (flowArray[5] as SearchFlow.TheString).value
         val first = (flowArray[6] as SearchFlow.FirstItem).value
         val sovereign = (flowArray[7] as SearchFlow.SovereignFlag).value
-        val political = (flowArray[8] as SearchFlow.PoliticalFlags).value
-        val chronological = (flowArray[9] as SearchFlow.ChronologicalFlags).value
-        val locale = (flowArray[10] as SearchFlow.LocaleFlags).value
+        val politicalDirect = (flowArray[8] as SearchFlow.PoliticalDirectFlags).value
+        val politicalAssociated = (flowArray[9] as SearchFlow.PoliticalAssociatedFlags).value
+        val chronological = (flowArray[10] as SearchFlow.ChronologicalFlags).value
+        val locale = (flowArray[11] as SearchFlow.LocaleFlags).value
 
         val flags = if (isSaved) saved else current
         val search = query.lowercase().removePrefix(the).let {
@@ -116,7 +126,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 }.let { flagStrings ->
                     /* If exact match with searchQuery, set firstItem */
                     for (name in flagStrings) {
-                        if (name == search && !flag.isPreviousFlag) {
+                        if (name == search && flag.previousFlagOfKey == null) {
                             _firstItem.value = flag
                             break
                         }
@@ -131,10 +141,17 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                     else -> flagViewMap.getValue(first.sovereignStateKey)
                 }
 
-                _politicalRelatedFlags.value = first?.let { flag ->
+                _politicalDirectRelatedFlags.value = first?.let { flag ->
                     sortFlagsAlphabetically(
                         application = application,
-                        flags = getFlagsFromKeys(flag.politicalRelatedFlagKeys)
+                        flags = getFlagsFromKeys(flag.politicalDirectRelatedFlagKeys)
+                    )
+                } ?: emptyList()
+
+                _politicalAssociatedRelatedFlags.value = first?.let { flag ->
+                    sortFlagsAlphabetically(
+                        application = application,
+                        flags = getFlagsFromKeys(flag.politicalAssociatedRelatedFlagKeys)
                     )
                 } ?: emptyList()
 
@@ -152,7 +169,8 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                     )
                 } ?: emptyList()
 
-                (political + chronological + locale + results).distinct()
+                (politicalDirect + politicalAssociated + chronological + locale + results)
+                    .distinct()
             }.sortedWith { p1, p2 ->
                 /* Sort list starting with firstItem, then elements in relatedFlags, then else */
                 when {
@@ -160,8 +178,10 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                     p2 == first -> 1
                     p1 == sovereign -> -1
                     p2 == sovereign -> 1
-                    p1 in political && p2 !in political -> -1
-                    p1 !in political && p2 in political -> 1
+                    p1 in politicalDirect && p2 !in politicalDirect -> -1
+                    p1 !in politicalDirect && p2 in politicalDirect -> 1
+                    p1 in politicalAssociated && p2 !in politicalAssociated -> -1
+                    p1 !in politicalAssociated && p2 in politicalAssociated -> 1
                     p1 in chronological && p2 !in chronological -> -1
                     p1 !in chronological && p2 in chronological -> 1
                     p1 in locale && p2 !in locale -> -1

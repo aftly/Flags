@@ -36,6 +36,7 @@ import dev.aftly.flags.ui.util.getFlagFromId
 import dev.aftly.flags.ui.util.getFlagIdsFromString
 import dev.aftly.flags.ui.util.getFlagKey
 import dev.aftly.flags.ui.util.getFlagsFromKeys
+import dev.aftly.flags.ui.util.getPoliticalRelatedFlagsContent
 import dev.aftly.flags.ui.util.sortFlagsAlphabetically
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -83,21 +84,11 @@ class FlagViewModel(
         if (flag != uiState.value.flag) {
             val flagKey = getFlagKey(flag)
 
-            val politicalRelatedFlags = sortFlagsAlphabetically(
-                application = application,
-                flags = getFlagsFromKeys(flag.politicalRelatedFlagKeys) + flag
-            )
-            val chronologicalRelatedFlags = sortFlagsAlphabetically(
-                application = application,
-                flags = getFlagsFromKeys(flag.chronologicalRelatedFlagKeys) +
-                        getFlagsFromKeys(flag.otherLocaleRelatedFlagKeys) + flag
-            )
-            // TODO flagHelpers function for creating RelatedFlagsContent()
-
             _uiState.update {
                 it.copy(
                     flag = flag,
                     flagKey = flagKey,
+                    politicalRelatedFlagContent = getPoliticalRelatedFlagsContent(flag, application),
                     //politicalRelatedFlags = politicalRelatedFlags,
                     //chronologicalRelatedFlags = chronologicalRelatedFlags,
                     flagIdsFromList = flagIdsFromList ?: it.flagIdsFromList,

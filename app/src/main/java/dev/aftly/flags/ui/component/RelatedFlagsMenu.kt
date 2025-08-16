@@ -82,7 +82,7 @@ fun RelatedFlagsMenu(
     val relatedFlagItems: List<LazyColumnItem> = relatedFlagContent.groups.filterNotNull()
         .flatMap { group ->
         buildList {
-            LazyColumnItem.Header(title = stringResource(group.category))
+            add(LazyColumnItem.Header(stringResource(group.category)))
             when (group) {
                 is RelatedFlagGroup.Single -> add(LazyColumnItem.Flag(group.flag))
                 is RelatedFlagGroup.Multiple -> group.flags.forEach { flag ->

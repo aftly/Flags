@@ -6,11 +6,12 @@ import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.StringResSource
-import dev.aftly.flags.ui.util.getPoliticalRelatedFlagKeys
+import dev.aftly.flags.ui.util.getPoliticalDirectRelatedFlagKeys
 import dev.aftly.flags.ui.util.getChronologicalRelatedFlagKeys
 import android.content.Context
 import dev.aftly.flags.ui.util.getFlagNameResIds
 import dev.aftly.flags.ui.util.getChronologicalAdminsOfParentKeys
+import dev.aftly.flags.ui.util.getPoliticalAssociatedRelatedFlagKeys
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
@@ -77,12 +78,14 @@ data object DataSource {
         flagOfAlternate = null,
         isFlagOfThe = false,
         isFlagOfOfficialThe = false,
-        isPreviousFlag = false,
         isLatestEntity = false,
         associatedStateKey = null,
         sovereignStateKey = null,
+        parentUnitKey = null,
+        previousFlagOfKey = null,
         flagStringResIds = emptyList(),
-        politicalRelatedFlagKeys = emptyList(),
+        politicalDirectRelatedFlagKeys = emptyList(),
+        politicalAssociatedRelatedFlagKeys = emptyList(),
         chronologicalRelatedFlagKeys = emptyList(),
         otherLocaleRelatedFlagKeys = emptyList(),
         categories = emptyList(),
@@ -199,12 +202,15 @@ data object DataSource {
                     }
                 } ?: error("$flagKey has no previousFlagOf key")
             },
-            isPreviousFlag = flagRes.previousFlagOf != null,
             isLatestEntity = flagRes.latestEntity == null,
             associatedStateKey = flagRes.associatedState,
             sovereignStateKey = flagRes.sovereignState,
+            parentUnitKey = flagRes.parentUnit,
+            previousFlagOfKey = flagRes.previousFlagOf,
             flagStringResIds = getFlagNameResIds(flagKey, flagRes, context),
-            politicalRelatedFlagKeys = getPoliticalRelatedFlagKeys(flagKey, flagRes),
+            politicalDirectRelatedFlagKeys = getPoliticalDirectRelatedFlagKeys(flagKey, flagRes),
+            politicalAssociatedRelatedFlagKeys =
+                getPoliticalAssociatedRelatedFlagKeys(flagKey, flagRes),
             chronologicalRelatedFlagKeys = getChronologicalRelatedFlagKeys(flagKey, flagRes),
             otherLocaleRelatedFlagKeys = getChronologicalAdminsOfParentKeys(flagKey, flagRes),
             categories = flagRes.categories,

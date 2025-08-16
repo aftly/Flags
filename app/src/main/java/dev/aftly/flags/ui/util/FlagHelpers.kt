@@ -9,8 +9,10 @@ import dev.aftly.flags.data.DataSource.flagViewMapId
 import dev.aftly.flags.data.DataSource.inverseFlagResMap
 import dev.aftly.flags.data.DataSource.inverseFlagViewMap
 import dev.aftly.flags.data.room.savedflags.SavedFlag
+import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagView
+import dev.aftly.flags.model.RelatedFlagsContent
 import dev.aftly.flags.model.StringResSource
 
 
@@ -46,145 +48,89 @@ fun getChronologicalRelatedFlagKeys(
     flagKey: String,
     flagRes: FlagResources,
 ): List<String> {
-    val relatedKeys = mutableListOf<String>()
-
-    flagRes.previousFlagOf?.let { flagOfKey ->
-        flagResMap.values.filter { flag ->
-            flag.previousFlagOf == flagOfKey
-        }.map { flag ->
-            inverseFlagResMap.getValue(flag)
-        }.let { siblingKeys ->
-            relatedKeys.add(flagOfKey)
-            relatedKeys.addAll(siblingKeys)
-        }
+    val previousFilterValues = buildList {
+        add(flagKey)
+        flagRes.previousFlagOf?.let { add(it) }
+    }
+    val latestFilterValues = buildList {
+        add(flagKey)
+        flagRes.latestEntity?.let { add(it) }
     }
 
-    flagRes.latestEntity?.let { latestKey ->
-        flagResMap.values.filter { flag ->
-            flag.latestEntity == latestKey
-        }.map { flag ->
-            inverseFlagResMap.getValue(flag)
-        }.let { siblingKeys ->
-            relatedKeys.add(latestKey)
-            relatedKeys.addAll(siblingKeys)
-        }
-    }
-
-    flagResMap.values.filter { flag ->
-        flag.previousFlagOf == flagKey || flag.latestEntity == flagKey
+    return flagResMap.values.filter { flag ->
+        flag.previousFlagOf in previousFilterValues || flag.latestEntity in latestFilterValues
     }.map { flag ->
         inverseFlagResMap.getValue(flag)
-    }.let { childKeys ->
-        relatedKeys.addAll(childKeys)
+    }.distinct().filterNot { key ->
+        key == flagKey
     }
-
-    return relatedKeys.distinct().filterNot { it == flagKey }
 }
 
-fun getPoliticalRelatedFlagKeys(
+fun getPoliticalDirectRelatedFlagKeys(
     flagKey: String,
     flagRes: FlagResources,
 ): List<String> {
-    val relatedKeys = mutableListOf<String>()
-
-    flagRes.sovereignState?.let { sovereignKey ->
-        flagResMap.values.filter { flag ->
-            flag.sovereignState == sovereignKey
-        }.map { flag ->
-            inverseFlagResMap.getValue(flag)
-        }.let { siblingKeys ->
-            relatedKeys.add(sovereignKey)
-            relatedKeys.addAll(siblingKeys)
-        }
+    val filterValues = buildList {
+        add(flagKey)
+        flagRes.sovereignState?.let { add(it) }
+        flagRes.previousFlagOf?.let { add(it) }
     }
 
-    flagRes.previousFlagOf?.let { flagOfKey ->
-        flagResMap.values.filter { flag ->
-            flag.sovereignState == flagOfKey || flag.associatedState == flagOfKey
-        }.map { flag ->
-            inverseFlagResMap.getValue(flag)
-        }.let { siblingKeys ->
-            relatedKeys.add(flagOfKey)
-            relatedKeys.addAll(siblingKeys)
-        }
-    }
-
-    flagRes.associatedState?.let { associatedKey ->
-        flagResMap.values.filter { flag ->
-            flag.associatedState == associatedKey
-        }.map { flag ->
-            inverseFlagResMap.getValue(flag)
-        }.let { siblingKeys ->
-            relatedKeys.add(associatedKey)
-            relatedKeys.addAll(siblingKeys)
-        }
-    }
-
-    flagResMap.values.filter { flag ->
-        flag.sovereignState == flagKey || flag.associatedState == flagKey
+    return flagResMap.values.filter { flag ->
+        flag.sovereignState in filterValues
     }.map { flag ->
         inverseFlagResMap.getValue(flag)
-    }.let { childKeys ->
-        relatedKeys.addAll(childKeys)
+    }.distinct().filterNot { key ->
+        key == flagKey
     }
+}
 
-    return relatedKeys.distinct().filterNot { it == flagKey }
+fun getPoliticalAssociatedRelatedFlagKeys(
+    flagKey: String,
+    flagRes: FlagResources,
+): List<String> {
+    return buildList {
+        flagRes.associatedState?.let { add(it) }
+
+        addAll(elements =
+            flagResMap.values.filter { flag ->
+                flag.associatedState == flagKey
+            }.map { flag ->
+                inverseFlagResMap.getValue(flag)
+            }
+        )
+    }
 }
 
 fun getChronologicalAdminsOfParentKeys(
     flagKey: String,
     flagRes: FlagResources,
 ): List<String> {
-    val otherLocaleAdmins = mutableListOf<String>()
-
-    /* All (direct & primary) historical admin flags of the sovereign */
-    flagRes.sovereignState?.let { sovereignKey ->
-        flagResMap.values.filter { flag ->
-            flag.latestEntity == sovereignKey
-        }.map { flag ->
-            inverseFlagResMap.getValue(flag)
-        }.let { preAdminKeys ->
-            otherLocaleAdmins.addAll(preAdminKeys)
-        }
-
+    val latestFilterValues = buildList {
+        /* For all (direct & primary) historical admin flags of the sovereign */
+        flagRes.sovereignState?.let { add(it) }
+        /* For pre-admin keys of parent entity (eg. primary USA for previous USA flags) */
+        flagRes.previousFlagOf?.let { add(it) }
     }
 
-    /* All dependents of latest entity */
-    flagRes.latestEntity?.let { latestKey ->
-        flagResMap.values.filter { flag ->
-            flag.sovereignState == latestKey
-        }.map { flag ->
-            inverseFlagResMap.getValue(flag)
-        }.let { postAdminKeys ->
-            otherLocaleAdmins.addAll(postAdminKeys)
-        }
-    }
-
-    /* Pre-admin keys of parent entity (eg. primary USA for previous USA flags) */
-    flagRes.previousFlagOf?.let { flagOfKey ->
-        flagResMap.values.filter { flag ->
-            flag.latestEntity == flagOfKey
-        }.map { flag ->
-            inverseFlagResMap.getValue(flag)
-        }.let { flagOfPreAdminKeys ->
-            otherLocaleAdmins.addAll(flagOfPreAdminKeys)
-        }
-    }
-
-    /* Post-admin keys of parent entity (eg. primary USA for previous USA flags) */
-    flagRes.previousFlagOf?.let { flagOfKey ->
-        flagResMap.getValue(flagOfKey).latestEntity?.let { flagOfLatest ->
-            flagResMap.values.filter { flag ->
-                flag.sovereignState == flagOfLatest
-            }.map { flag ->
-                inverseFlagResMap.getValue(flag)
-            }.let { flagOfPostAdminKeys ->
-                otherLocaleAdmins.addAll(flagOfPostAdminKeys)
+    val sovereignFilterValues = buildList {
+        /* For all dependents of latest entity */
+        flagRes.latestEntity?.let { add(it) }
+        /* For post-admin keys of parent entity (eg. primary USA for previous USA flags) */
+        flagRes.previousFlagOf?.let {
+            flagResMap.getValue(it).latestEntity?.let { flagOfLatestEntity ->
+                add(flagOfLatestEntity)
             }
         }
     }
 
-    return otherLocaleAdmins.distinct().filterNot { it == flagKey }
+    return flagResMap.values.filter { flag ->
+        flag.latestEntity in latestFilterValues || flag.sovereignState in sovereignFilterValues
+    }.map { flag ->
+        inverseFlagResMap.getValue(flag)
+    }.distinct().filterNot { key ->
+        key == flagKey
+    }
 }
 
 fun getFlagNameResIds(
@@ -229,6 +175,66 @@ fun getFlagNameResIds(
 
 
 /* ------------------------------------- */
+
+fun getPoliticalRelatedFlagsContent(
+    flag: FlagView,
+    application: Application,
+): RelatedFlagsContent.Political {
+    val flagKey = inverseFlagViewMap.getValue(flag)
+    val politicalDirectRelatedFlags = sortFlagsAlphabetically(
+        application = application,
+        flags = getFlagsFromKeys(flag.politicalDirectRelatedFlagKeys)
+    )
+
+    val sov = politicalDirectRelatedFlags.filter { relatedFlag ->
+        relatedFlag.categories.contains(FlagCategory.SOVEREIGN_STATE)
+    }
+
+    val firstLevel = politicalDirectRelatedFlags.filter { relatedFlag ->
+        !relatedFlag.categories.contains(FlagCategory.SOVEREIGN_STATE)
+    }
+
+    val associated = sortFlagsAlphabetically(
+        application = application,
+        flags = getFlagsFromKeys(flag.politicalAssociatedRelatedFlagKeys)
+    )
+
+    val sovereign =
+        if (flag.categories.contains(FlagCategory.SOVEREIGN_STATE)) flag
+        else if (flag.previousFlagOfKey != null) flagViewMap.getValue(flag.previousFlagOfKey)
+        else if (flag.sovereignStateKey != null) flagViewMap.getValue(flag.sovereignStateKey)
+        else null
+
+    val firstLevelAdminUnits =
+        if (flag.categories.contains(FlagCategory.SOVEREIGN_STATE)) {
+            /* If flag is sovereign, filter it's immediate children */
+            politicalDirectRelatedFlags.filter { relatedFlag ->
+                relatedFlag.sovereignStateKey == flagKey && relatedFlag.parentUnitKey == null
+            }
+        } else if (flag.previousFlagOfKey != null) {
+            /* When flag is a previous flag, if sovereign filter it's immediate children, else
+            * filter it's first level siblings/cousins */
+            val previousFlagOf = flagViewMap.getValue(flag.previousFlagOfKey)
+
+            if (previousFlagOf.categories.contains(FlagCategory.SOVEREIGN_STATE)) {
+                politicalDirectRelatedFlags.filter { relatedFlag ->
+                    relatedFlag.sovereignStateKey == flag.previousFlagOfKey && relatedFlag
+                        .parentUnitKey == null
+                }
+            } else {
+                politicalDirectRelatedFlags.filter { relatedFlag ->
+                    relatedFlag.sovereignStateKey == previousFlagOf.sovereignStateKey && relatedFlag
+                        .parentUnitKey == null
+                }
+            }
+        } else {
+            /* Filter flags' first level siblings/cousins */
+            politicalDirectRelatedFlags.filter { relatedFlag ->
+                relatedFlag.sovereignStateKey == flag.sovereignStateKey && relatedFlag
+                    .parentUnitKey == null
+            }
+        }
+}
 
 fun sortFlagsAlphabetically(
     application: Application,

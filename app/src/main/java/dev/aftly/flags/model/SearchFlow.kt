@@ -11,7 +11,8 @@ sealed interface SearchFlow {
     data class TheString(val value: String) : SearchFlow
     data class FirstItem(val value: FlagView?) : SearchFlow
     data class SovereignFlag(val value: FlagView?) : SearchFlow
-    data class PoliticalFlags(val value: List<FlagView>) : SearchFlow
+    data class PoliticalDirectFlags(val value: List<FlagView>) : SearchFlow
+    data class PoliticalAssociatedFlags(val value: List<FlagView>) : SearchFlow
     data class ChronologicalFlags(val value: List<FlagView>) : SearchFlow
     data class LocaleFlags(val value: List<FlagView>) : SearchFlow
 }

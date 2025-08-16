@@ -17,7 +17,7 @@ data class FlagResources(
     val isFlagOfOfficialThe: BooleanSource,
     val associatedState: String?, // Like below but for states in a Compact of Free Association
     val sovereignState: String?, // If applicable, flagsMap key string of it's sovereign entity
-    val parentEntity: String?, // For relate sub-units with a parent (eg. US county -> US state)
+    val parentUnit: String?, // For relate sub-units with a parent (eg. US county -> US state)
     val latestEntity: String?, // To relate unique historical entities with latest proceeding entity
     val previousFlagOf: String?, // To relate non-unique historical entities with it's latest entity
     val categories: List<FlagCategory>,
