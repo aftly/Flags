@@ -5,20 +5,24 @@ sealed interface RelatedFlagsContent {
 
     data class Political(
         val sovereign: RelatedFlagGroup.Single?,
-        val firstLevelAdminUnits: RelatedFlagGroup.Multiple?,
-        val autonomousTerritories: RelatedFlagGroup.Multiple?,
+        val firstLevelAdminUnits: List<RelatedFlagGroup.Multiple>?,
+        val externalTerritories: RelatedFlagGroup.Multiple?,
         val associatedStates: RelatedFlagGroup.Multiple?,
         val internationalOrgs: RelatedFlagGroup.Multiple?,
-        val secondLevelAdminUnits: RelatedFlagGroup.Multiple?,
+        val secondLevelAdminUnits: List<RelatedFlagGroup.Multiple>?,
     ) : RelatedFlagsContent {
-        override val groups = listOf(
-            sovereign,
-            firstLevelAdminUnits,
-            autonomousTerritories,
-            associatedStates,
-            internationalOrgs,
-            secondLevelAdminUnits
-        )
+        override val groups = buildList {
+            sovereign?.let { add(it) }
+            firstLevelAdminUnits?.let {
+                it.forEach { group -> add(group) }
+            }
+            externalTerritories?.let { add(it) }
+            associatedStates?.let { add(it) }
+            internationalOrgs?.let { add(it) }
+            secondLevelAdminUnits?.let {
+                it.forEach { group -> add(group) }
+            }
+        }
     }
 
     data class Chronological(
@@ -26,6 +30,10 @@ sealed interface RelatedFlagsContent {
         val previousEntities: RelatedFlagGroup.Multiple?,
         val dependentsOfLatest: RelatedFlagGroup.Multiple?,
     ) : RelatedFlagsContent {
-        override val groups = listOf(latestEntity, previousEntities, dependentsOfLatest)
+        override val groups = buildList {
+            latestEntity?.let { add(it) }
+            previousEntities?.let { add(it) }
+            dependentsOfLatest?.let { add(it) }
+        }
     }
 }

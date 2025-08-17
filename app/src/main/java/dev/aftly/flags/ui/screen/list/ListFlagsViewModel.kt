@@ -51,11 +51,11 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
     private val firstItem = _firstItem.asStateFlow()
     private val _sovereignFlag = MutableStateFlow<FlagView?>(value = null)
     private val sovereignFlag = _sovereignFlag.asStateFlow()
-    private val _politicalDirectRelatedFlags = MutableStateFlow<List<FlagView>>(value = emptyList())
-    private val politicalDirectRelatedFlags = _politicalDirectRelatedFlags.asStateFlow()
-    private val _politicalAssociatedRelatedFlags =
+    private val _politicalInternalRelatedFlags = MutableStateFlow<List<FlagView>>(value = emptyList())
+    private val politicalInternalRelatedFlags = _politicalInternalRelatedFlags.asStateFlow()
+    private val _politicalExternalRelatedFlags =
         MutableStateFlow<List<FlagView>>(value = emptyList())
-    private val politicalAssociatedRelatedFlags = _politicalAssociatedRelatedFlags.asStateFlow()
+    private val politicalExternalRelatedFlags = _politicalExternalRelatedFlags.asStateFlow()
     private val _chronologicalRelatedFlags = MutableStateFlow<List<FlagView>>(value = emptyList())
     private val chronologicalRelatedFlags = _chronologicalRelatedFlags.asStateFlow()
     private val _otherLocaleFlags = MutableStateFlow<List<FlagView>>(value = emptyList())
@@ -75,11 +75,11 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
     }.map { SearchFlow.TheString(it) }
     private val firstItemFlow = firstItem.map { SearchFlow.FirstItem(it) }
     private val sovereignFlagFlow = sovereignFlag.map { SearchFlow.SovereignFlag(it) }
-    private val polDirRelatedFlagsFlow = politicalDirectRelatedFlags
-        .map { SearchFlow.PoliticalDirectFlags(it) }
-    private val polAssRelatedFlagsFlow = politicalAssociatedRelatedFlags
-        .map { SearchFlow.PoliticalAssociatedFlags(it) }
-    private val chronRelatedFlagsFlow = chronologicalRelatedFlags
+    private val politicalInternalRelatedFlagsFlow = politicalInternalRelatedFlags
+        .map { SearchFlow.PoliticalInternalFlags(it) }
+    private val politicalExternalRelatedFlagsFlow = politicalExternalRelatedFlags
+        .map { SearchFlow.PoliticalExternalFlags(it) }
+    private val chronologicalRelatedFlagsFlow = chronologicalRelatedFlags
         .map { SearchFlow.ChronologicalFlags(it) }
     private val localeFlagsFlow = otherLocaleFlags.map { SearchFlow.LocaleFlags(it) }
 
@@ -93,9 +93,9 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         theStringFlow,
         firstItemFlow,
         sovereignFlagFlow,
-        polDirRelatedFlagsFlow,
-        polAssRelatedFlagsFlow,
-        chronRelatedFlagsFlow,
+        politicalInternalRelatedFlagsFlow,
+        politicalExternalRelatedFlagsFlow,
+        chronologicalRelatedFlagsFlow,
         localeFlagsFlow
     )
 
@@ -108,8 +108,8 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         val the = (flowArray[5] as SearchFlow.TheString).value
         val first = (flowArray[6] as SearchFlow.FirstItem).value
         val sovereign = (flowArray[7] as SearchFlow.SovereignFlag).value
-        val politicalDirect = (flowArray[8] as SearchFlow.PoliticalDirectFlags).value
-        val politicalAssociated = (flowArray[9] as SearchFlow.PoliticalAssociatedFlags).value
+        val politicalInternal = (flowArray[8] as SearchFlow.PoliticalInternalFlags).value
+        val politicalExternal = (flowArray[9] as SearchFlow.PoliticalExternalFlags).value
         val chronological = (flowArray[10] as SearchFlow.ChronologicalFlags).value
         val locale = (flowArray[11] as SearchFlow.LocaleFlags).value
 
@@ -141,17 +141,17 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                     else -> flagViewMap.getValue(first.sovereignStateKey)
                 }
 
-                _politicalDirectRelatedFlags.value = first?.let { flag ->
+                _politicalInternalRelatedFlags.value = first?.let { flag ->
                     sortFlagsAlphabetically(
                         application = application,
-                        flags = getFlagsFromKeys(flag.politicalDirectRelatedFlagKeys)
+                        flags = getFlagsFromKeys(flag.politicalInternalRelatedFlagKeys)
                     )
                 } ?: emptyList()
 
-                _politicalAssociatedRelatedFlags.value = first?.let { flag ->
+                _politicalExternalRelatedFlags.value = first?.let { flag ->
                     sortFlagsAlphabetically(
                         application = application,
-                        flags = getFlagsFromKeys(flag.politicalAssociatedRelatedFlagKeys)
+                        flags = getFlagsFromKeys(flag.politicalExternalRelatedFlagKeys)
                     )
                 } ?: emptyList()
 
@@ -169,7 +169,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                     )
                 } ?: emptyList()
 
-                (politicalDirect + politicalAssociated + chronological + locale + results)
+                (politicalInternal + politicalExternal + chronological + locale + results)
                     .distinct()
             }.sortedWith { p1, p2 ->
                 /* Sort list starting with firstItem, then elements in relatedFlags, then else */
@@ -178,10 +178,10 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                     p2 == first -> 1
                     p1 == sovereign -> -1
                     p2 == sovereign -> 1
-                    p1 in politicalDirect && p2 !in politicalDirect -> -1
-                    p1 !in politicalDirect && p2 in politicalDirect -> 1
-                    p1 in politicalAssociated && p2 !in politicalAssociated -> -1
-                    p1 !in politicalAssociated && p2 in politicalAssociated -> 1
+                    p1 in politicalInternal && p2 !in politicalInternal -> -1
+                    p1 !in politicalInternal && p2 in politicalInternal -> 1
+                    p1 in politicalExternal && p2 !in politicalExternal -> -1
+                    p1 !in politicalExternal && p2 in politicalExternal -> 1
                     p1 in chronological && p2 !in chronological -> -1
                     p1 !in chronological && p2 in chronological -> 1
                     p1 in locale && p2 !in locale -> -1

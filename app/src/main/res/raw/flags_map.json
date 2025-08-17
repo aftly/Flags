@@ -5563,7 +5563,7 @@
         },
         "associatedState": null,
         "sovereignState": "unitedKingdom",
-        "parentUnit": null,
+        "parentUnit": "england",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -11061,7 +11061,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentUnit": null,
+        "parentUnit": "tyumen(Oblast)",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -15336,7 +15336,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentUnit": null,
+        "parentUnit": "arkhangelsk(Oblast)",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [
@@ -26947,7 +26947,7 @@
         },
         "associatedState": null,
         "sovereignState": "russia",
-        "parentUnit": null,
+        "parentUnit": "tyumen(Oblast)",
         "latestEntity": null,
         "previousFlagOf": null,
         "categories": [

@@ -23,8 +23,8 @@ data class FlagView(
     val parentUnitKey: String?,
     val previousFlagOfKey: String?,
     val flagStringResIds: List<Int>, /* All stringResIds of this flag for search exact match */
-    val politicalDirectRelatedFlagKeys: List<String>, /* flagsMap keys search results and lists */
-    val politicalAssociatedRelatedFlagKeys: List<String>, /* flagsMap keys search results and lists */
+    val politicalInternalRelatedFlagKeys: List<String>, /* flagsMap keys search results and lists */
+    val politicalExternalRelatedFlagKeys: List<String>, /* flagsMap keys search results and lists */
     val chronologicalRelatedFlagKeys: List<String>, /* flagsMap keys for search results and lists */
     val otherLocaleRelatedFlagKeys: List<String>, /* flagsMap keys for search and lists */
     val categories: List<FlagCategory>,

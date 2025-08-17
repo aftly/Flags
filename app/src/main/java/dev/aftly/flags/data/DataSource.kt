@@ -6,12 +6,12 @@ import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.StringResSource
-import dev.aftly.flags.ui.util.getPoliticalDirectRelatedFlagKeys
+import dev.aftly.flags.ui.util.getPoliticalInternalRelatedFlagKeys
 import dev.aftly.flags.ui.util.getChronologicalRelatedFlagKeys
 import android.content.Context
 import dev.aftly.flags.ui.util.getFlagNameResIds
 import dev.aftly.flags.ui.util.getChronologicalAdminsOfParentKeys
-import dev.aftly.flags.ui.util.getPoliticalAssociatedRelatedFlagKeys
+import dev.aftly.flags.ui.util.getPoliticalExternalRelatedFlagKeys
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
@@ -84,8 +84,8 @@ data object DataSource {
         parentUnitKey = null,
         previousFlagOfKey = null,
         flagStringResIds = emptyList(),
-        politicalDirectRelatedFlagKeys = emptyList(),
-        politicalAssociatedRelatedFlagKeys = emptyList(),
+        politicalInternalRelatedFlagKeys = emptyList(),
+        politicalExternalRelatedFlagKeys = emptyList(),
         chronologicalRelatedFlagKeys = emptyList(),
         otherLocaleRelatedFlagKeys = emptyList(),
         categories = emptyList(),
@@ -208,9 +208,8 @@ data object DataSource {
             parentUnitKey = flagRes.parentUnit,
             previousFlagOfKey = flagRes.previousFlagOf,
             flagStringResIds = getFlagNameResIds(flagKey, flagRes, context),
-            politicalDirectRelatedFlagKeys = getPoliticalDirectRelatedFlagKeys(flagKey, flagRes),
-            politicalAssociatedRelatedFlagKeys =
-                getPoliticalAssociatedRelatedFlagKeys(flagKey, flagRes),
+            politicalInternalRelatedFlagKeys = getPoliticalInternalRelatedFlagKeys(flagKey, flagRes),
+            politicalExternalRelatedFlagKeys = getPoliticalExternalRelatedFlagKeys(flagKey, flagRes),
             chronologicalRelatedFlagKeys = getChronologicalRelatedFlagKeys(flagKey, flagRes),
             otherLocaleRelatedFlagKeys = getChronologicalAdminsOfParentKeys(flagKey, flagRes),
             categories = flagRes.categories,
