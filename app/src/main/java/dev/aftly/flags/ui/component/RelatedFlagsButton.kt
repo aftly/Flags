@@ -29,14 +29,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.aftly.flags.R
-import dev.aftly.flags.model.RelatedFlagsMenuType
+import dev.aftly.flags.model.RelatedFlagsMenu
 import dev.aftly.flags.ui.theme.Dimens
 
 
 @Composable
 fun RelatedFlagsButton(
     modifier: Modifier = Modifier,
-    relatedType: RelatedFlagsMenuType,
+    relatedType: RelatedFlagsMenu,
     isFullSize: Boolean,
     menuExpanded: Boolean,
     onMenuExpand: () -> Unit,

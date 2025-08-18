@@ -51,15 +51,18 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
     private val firstItem = _firstItem.asStateFlow()
     private val _sovereignFlag = MutableStateFlow<FlagView?>(value = null)
     private val sovereignFlag = _sovereignFlag.asStateFlow()
-    private val _politicalInternalRelatedFlags = MutableStateFlow<List<FlagView>>(value = emptyList())
+    private val _politicalInternalRelatedFlags =
+        MutableStateFlow<List<FlagView>>(value = emptyList())
     private val politicalInternalRelatedFlags = _politicalInternalRelatedFlags.asStateFlow()
     private val _politicalExternalRelatedFlags =
         MutableStateFlow<List<FlagView>>(value = emptyList())
     private val politicalExternalRelatedFlags = _politicalExternalRelatedFlags.asStateFlow()
-    private val _chronologicalRelatedFlags = MutableStateFlow<List<FlagView>>(value = emptyList())
-    private val chronologicalRelatedFlags = _chronologicalRelatedFlags.asStateFlow()
-    private val _otherLocaleFlags = MutableStateFlow<List<FlagView>>(value = emptyList())
-    private val otherLocaleFlags = _otherLocaleFlags.asStateFlow()
+    private val _chronologicalDirectRelatedFlags =
+        MutableStateFlow<List<FlagView>>(value = emptyList())
+    private val chronologicalDirectRelatedFlags = _chronologicalDirectRelatedFlags.asStateFlow()
+    private val _chronologicalIndirectRelatedFlags =
+        MutableStateFlow<List<FlagView>>(value = emptyList())
+    private val chronologicalIndirectRelatedFlags = _chronologicalIndirectRelatedFlags.asStateFlow()
 
     private val currentFlagsFlow = uiState.map { SearchFlow.CurrentFlags(it.currentFlags) }
     private val savedFlagsFlow = uiState.map { SearchFlow.SavedFlags(it.savedFlags) }
@@ -79,9 +82,10 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         .map { SearchFlow.PoliticalInternalFlags(it) }
     private val politicalExternalRelatedFlagsFlow = politicalExternalRelatedFlags
         .map { SearchFlow.PoliticalExternalFlags(it) }
-    private val chronologicalRelatedFlagsFlow = chronologicalRelatedFlags
-        .map { SearchFlow.ChronologicalFlags(it) }
-    private val localeFlagsFlow = otherLocaleFlags.map { SearchFlow.LocaleFlags(it) }
+    private val chronologicalDirectRelatedFlagsFlow = chronologicalDirectRelatedFlags
+        .map { SearchFlow.ChronologicalDirectFlags(it) }
+    private val chronologicalIndirectRelatedFlagsFlow = chronologicalIndirectRelatedFlags
+        .map { SearchFlow.ChronologicalIndirectFlags(it) }
 
     /* Use sealed interface SearchFlow for safe casting in combine() transform lambda */
     val flows: List<Flow<SearchFlow>> = listOf(
@@ -95,8 +99,8 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         sovereignFlagFlow,
         politicalInternalRelatedFlagsFlow,
         politicalExternalRelatedFlagsFlow,
-        chronologicalRelatedFlagsFlow,
-        localeFlagsFlow
+        chronologicalDirectRelatedFlagsFlow,
+        chronologicalIndirectRelatedFlagsFlow
     )
 
     val searchResults = combine(flows) { flowArray ->
@@ -110,8 +114,8 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         val sovereign = (flowArray[7] as SearchFlow.SovereignFlag).value
         val politicalInternal = (flowArray[8] as SearchFlow.PoliticalInternalFlags).value
         val politicalExternal = (flowArray[9] as SearchFlow.PoliticalExternalFlags).value
-        val chronological = (flowArray[10] as SearchFlow.ChronologicalFlags).value
-        val locale = (flowArray[11] as SearchFlow.LocaleFlags).value
+        val chronologicalDirect = (flowArray[10] as SearchFlow.ChronologicalDirectFlags).value
+        val chronologicalIndirect = (flowArray[11] as SearchFlow.ChronologicalIndirectFlags).value
 
         val flags = if (isSaved) saved else current
         val search = query.lowercase().removePrefix(the).let {
@@ -155,22 +159,22 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                     )
                 } ?: emptyList()
 
-                _chronologicalRelatedFlags.value = first?.let { flag ->
+                _chronologicalDirectRelatedFlags.value = first?.let { flag ->
                     sortFlagsAlphabetically(
                         application = application,
-                        flags = getFlagsFromKeys(flag.chronologicalRelatedFlagKeys)
+                        flags = getFlagsFromKeys(flag.chronologicalDirectRelatedFlagKeys)
                     )
                 } ?: emptyList()
 
-                _otherLocaleFlags.value = first?.let { flag ->
+                _chronologicalIndirectRelatedFlags.value = first?.let { flag ->
                     sortFlagsAlphabetically(
                         application = application,
-                        flags = getFlagsFromKeys(flag.otherLocaleRelatedFlagKeys)
+                        flags = getFlagsFromKeys(flag.chronologicalIndirectRelatedFlagKeys)
                     )
                 } ?: emptyList()
 
-                (politicalInternal + politicalExternal + chronological + locale + results)
-                    .distinct()
+                (politicalInternal + politicalExternal + chronologicalDirect +
+                        chronologicalIndirect + results).distinct()
             }.sortedWith { p1, p2 ->
                 /* Sort list starting with firstItem, then elements in relatedFlags, then else */
                 when {
@@ -182,10 +186,10 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                     p1 !in politicalInternal && p2 in politicalInternal -> 1
                     p1 in politicalExternal && p2 !in politicalExternal -> -1
                     p1 !in politicalExternal && p2 in politicalExternal -> 1
-                    p1 in chronological && p2 !in chronological -> -1
-                    p1 !in chronological && p2 in chronological -> 1
-                    p1 in locale && p2 !in locale -> -1
-                    p1 !in locale && p2 in locale -> 1
+                    p1 in chronologicalDirect && p2 !in chronologicalDirect -> -1
+                    p1 !in chronologicalDirect && p2 in chronologicalDirect -> 1
+                    p1 in chronologicalIndirect && p2 !in chronologicalIndirect -> -1
+                    p1 !in chronologicalIndirect && p2 in chronologicalIndirect -> 1
                     else -> 0
                 }
             }

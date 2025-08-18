@@ -17,15 +17,17 @@ data class FlagView(
     val flagOfAlternate: List<Int>?,
     val isFlagOfThe: Boolean,
     val isFlagOfOfficialThe: Boolean,
-    val isLatestEntity: Boolean,
     val associatedStateKey: String?,
     val sovereignStateKey: String?,
     val parentUnitKey: String?,
+    val latestEntityKey: String?,
     val previousFlagOfKey: String?,
     val flagStringResIds: List<Int>, /* All stringResIds of this flag for search exact match */
     val politicalInternalRelatedFlagKeys: List<String>, /* flagsMap keys search results and lists */
     val politicalExternalRelatedFlagKeys: List<String>, /* flagsMap keys search results and lists */
-    val chronologicalRelatedFlagKeys: List<String>, /* flagsMap keys for search results and lists */
-    val otherLocaleRelatedFlagKeys: List<String>, /* flagsMap keys for search and lists */
+    val chronologicalDirectRelatedFlagKeys: List<String>, /* flagsMap keys for search results and lists */
+    val chronologicalIndirectRelatedFlagKeys: List<String>, /* flagsMap keys for search and lists */
+    val isPoliticalRelatedFlags: Boolean, /* flag has */
+    val isChronologicalRelatedFlags: Boolean, /* flag has */
     val categories: List<FlagCategory>,
 )

@@ -7,10 +7,10 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.StringResSource
 import dev.aftly.flags.ui.util.getPoliticalInternalRelatedFlagKeys
-import dev.aftly.flags.ui.util.getChronologicalRelatedFlagKeys
+import dev.aftly.flags.ui.util.getChronologicalDirectRelatedFlagKeys
 import android.content.Context
 import dev.aftly.flags.ui.util.getFlagNameResIds
-import dev.aftly.flags.ui.util.getChronologicalAdminsOfParentKeys
+import dev.aftly.flags.ui.util.getChronologicalIndirectRelatedFlagKeys
 import dev.aftly.flags.ui.util.getPoliticalExternalRelatedFlagKeys
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
@@ -78,16 +78,18 @@ data object DataSource {
         flagOfAlternate = null,
         isFlagOfThe = false,
         isFlagOfOfficialThe = false,
-        isLatestEntity = false,
         associatedStateKey = null,
         sovereignStateKey = null,
         parentUnitKey = null,
+        latestEntityKey = null,
         previousFlagOfKey = null,
         flagStringResIds = emptyList(),
         politicalInternalRelatedFlagKeys = emptyList(),
         politicalExternalRelatedFlagKeys = emptyList(),
-        chronologicalRelatedFlagKeys = emptyList(),
-        otherLocaleRelatedFlagKeys = emptyList(),
+        chronologicalDirectRelatedFlagKeys = emptyList(),
+        chronologicalIndirectRelatedFlagKeys = emptyList(),
+        isPoliticalRelatedFlags = false,
+        isChronologicalRelatedFlags = false,
         categories = emptyList(),
     )
 
@@ -131,6 +133,12 @@ data object DataSource {
         map: Map<String, FlagResources>,
         context: Context,
     ): Map<String, FlagView> = map.mapValues { (flagKey, flagRes) ->
+        val polIntRelFlagKeys = getPoliticalInternalRelatedFlagKeys(flagKey, flagRes)
+        val polExtRelFlagKeys = getPoliticalExternalRelatedFlagKeys(flagKey, flagRes)
+
+        val chronDirRelFlagKeys = getChronologicalDirectRelatedFlagKeys(flagKey, flagRes)
+        val chronIndirRelFlagKeys = getChronologicalIndirectRelatedFlagKeys(flagRes)
+
         /* Transform expression */
         FlagView(
             id = flagRes.id,
@@ -202,16 +210,19 @@ data object DataSource {
                     }
                 } ?: error("$flagKey has no previousFlagOf key")
             },
-            isLatestEntity = flagRes.latestEntity == null,
             associatedStateKey = flagRes.associatedState,
             sovereignStateKey = flagRes.sovereignState,
             parentUnitKey = flagRes.parentUnit,
+            latestEntityKey = flagRes.latestEntity,
             previousFlagOfKey = flagRes.previousFlagOf,
             flagStringResIds = getFlagNameResIds(flagKey, flagRes, context),
-            politicalInternalRelatedFlagKeys = getPoliticalInternalRelatedFlagKeys(flagKey, flagRes),
-            politicalExternalRelatedFlagKeys = getPoliticalExternalRelatedFlagKeys(flagKey, flagRes),
-            chronologicalRelatedFlagKeys = getChronologicalRelatedFlagKeys(flagKey, flagRes),
-            otherLocaleRelatedFlagKeys = getChronologicalAdminsOfParentKeys(flagKey, flagRes),
+            politicalInternalRelatedFlagKeys = polIntRelFlagKeys,
+            politicalExternalRelatedFlagKeys = polExtRelFlagKeys,
+            chronologicalDirectRelatedFlagKeys = chronDirRelFlagKeys,
+            chronologicalIndirectRelatedFlagKeys = chronIndirRelFlagKeys,
+            isPoliticalRelatedFlags = (polIntRelFlagKeys + polExtRelFlagKeys).any { it != flagKey },
+            isChronologicalRelatedFlags =
+                (chronDirRelFlagKeys + chronIndirRelFlagKeys).any { it != flagKey },
             categories = flagRes.categories,
         )
     }

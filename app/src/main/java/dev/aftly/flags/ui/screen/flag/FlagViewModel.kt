@@ -32,12 +32,12 @@ import dev.aftly.flags.model.FlagCategory.SUPRANATIONAL_UNION
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagView
+import dev.aftly.flags.model.RelatedFlagsMenu
+import dev.aftly.flags.ui.util.getChronologicalRelatedFlagsContentOrNull
 import dev.aftly.flags.ui.util.getFlagFromId
 import dev.aftly.flags.ui.util.getFlagIdsFromString
 import dev.aftly.flags.ui.util.getFlagKey
-import dev.aftly.flags.ui.util.getFlagsFromKeys
-import dev.aftly.flags.ui.util.getPoliticalRelatedFlagsContent
-import dev.aftly.flags.ui.util.sortFlagsAlphabetically
+import dev.aftly.flags.ui.util.getPoliticalRelatedFlagsContentOrNull
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -88,13 +88,15 @@ class FlagViewModel(
                 it.copy(
                     flag = flag,
                     flagKey = flagKey,
-                    politicalRelatedFlagContent = getPoliticalRelatedFlagsContent(flag, application),
-                    //politicalRelatedFlags = politicalRelatedFlags,
-                    //chronologicalRelatedFlags = chronologicalRelatedFlags,
+                    politicalRelatedFlagsContent =
+                        getPoliticalRelatedFlagsContentOrNull(flag, application),
+                    chronologicalRelatedFlagsContent =
+                        getChronologicalRelatedFlagsContentOrNull(flag, application),
                     flagIdsFromList = flagIdsFromList ?: it.flagIdsFromList,
-                    isPoliticalRelatedFlagNavigation =
-                        if (it.isPoliticalRelatedFlagNavigation) flag != it.initPoliticalRelatedFlag
-                        else false,
+                    isRelatedFlagNav = when (flag) {
+                        it.initRelatedFlag -> null
+                        else -> it.isRelatedFlagNav
+                    },
                     savedFlag = it.savedFlags.find { savedFlag ->
                         savedFlag.flagKey == flagKey
                     }
@@ -105,17 +107,18 @@ class FlagViewModel(
     }
 
 
-    fun updateFlagRelated(flag: FlagView) {
-        val state = uiState.value
-
-        val initRelatedFlag =
-            if (!state.isPoliticalRelatedFlagNavigation) state.flag
-            else state.initPoliticalRelatedFlag
-
+    fun updateFlagRelated(
+        flag: FlagView,
+        relatedMenu: RelatedFlagsMenu,
+    ) {
         _uiState.update {
+            val initRelatedFlag =
+                if (relatedMenu == it.isRelatedFlagNav) it.initRelatedFlag
+                else it.flag
+
             it.copy(
-                initPoliticalRelatedFlag = initRelatedFlag,
-                isPoliticalRelatedFlagNavigation = flag != initRelatedFlag,
+                isRelatedFlagNav = if (flag != initRelatedFlag) relatedMenu else null,
+                initRelatedFlag = initRelatedFlag,
             )
         }
         updateFlag(flagId = flag.id)
@@ -136,9 +139,12 @@ class FlagViewModel(
     }
 
 
-    fun getFlagIds(): List<Int> = when (uiState.value.isPoliticalRelatedFlagNavigation) {
-        false -> uiState.value.flagIdsFromList
-        true -> uiState.value.politicalRelatedFlags.map { it.id }
+    fun getFlagIds(): List<Int> = when (uiState.value.isRelatedFlagNav) {
+        null -> uiState.value.flagIdsFromList
+        RelatedFlagsMenu.POLITICAL ->
+            uiState.value.politicalRelatedFlagsContent?.getIds() ?: emptyList()
+        RelatedFlagsMenu.CHRONOLOGICAL ->
+            uiState.value.chronologicalRelatedFlagsContent?.getIds() ?: emptyList()
     }
 
 

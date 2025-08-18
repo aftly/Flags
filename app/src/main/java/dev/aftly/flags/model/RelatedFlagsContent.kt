@@ -1,7 +1,14 @@
 package dev.aftly.flags.model
 
 sealed interface RelatedFlagsContent {
-    val groups: List<RelatedFlagGroup?>
+    val groups: List<RelatedFlagGroup>
+
+    fun getIds(): List<Int> = groups.flatMap { group ->
+        when (group) {
+            is RelatedFlagGroup.Single -> listOf(group.flag.id)
+            is RelatedFlagGroup.Multiple -> group.flags.map { it.id }
+        }
+    }.distinct()
 
     data class Political(
         val sovereign: RelatedFlagGroup.Single?,
@@ -28,11 +35,13 @@ sealed interface RelatedFlagsContent {
     data class Chronological(
         val latestEntity: RelatedFlagGroup.Single?,
         val previousEntities: RelatedFlagGroup.Multiple?,
+        val previousEntitiesOfSovereign: RelatedFlagGroup.Multiple?,
         val dependentsOfLatest: RelatedFlagGroup.Multiple?,
     ) : RelatedFlagsContent {
         override val groups = buildList {
             latestEntity?.let { add(it) }
             previousEntities?.let { add(it) }
+            previousEntitiesOfSovereign?.let { add(it) }
             dependentsOfLatest?.let { add(it) }
         }
     }
