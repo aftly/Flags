@@ -378,6 +378,8 @@ fun getChronologicalRelatedFlagsContentOrNull(
 
         val historicalFlags = chronologicalDirectRelatedFlags.filter { directFlag ->
             directFlag.previousFlagOfKey != null
+        }.sortedBy { flag ->
+            flag.id
         }
 
         val dependentsOfLatest = chronologicalIndirectRelatedFlags.filter { indirectFlag ->
