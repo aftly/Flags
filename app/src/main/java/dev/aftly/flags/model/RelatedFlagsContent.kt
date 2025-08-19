@@ -1,6 +1,7 @@
 package dev.aftly.flags.model
 
 sealed interface RelatedFlagsContent {
+    val menu: RelatedFlagsMenu
     val groups: List<RelatedFlagGroup>
 
     fun getIds(): List<Int> = groups.flatMap { group ->
@@ -18,6 +19,8 @@ sealed interface RelatedFlagsContent {
         val internationalOrgs: RelatedFlagGroup.Multiple?,
         val secondLevelAdminUnits: List<RelatedFlagGroup.Multiple>?,
     ) : RelatedFlagsContent {
+        override val menu = RelatedFlagsMenu.POLITICAL
+
         override val groups = buildList {
             sovereign?.let { add(it) }
             firstLevelAdminUnits?.let {
@@ -35,12 +38,16 @@ sealed interface RelatedFlagsContent {
     data class Chronological(
         val latestEntity: RelatedFlagGroup.Single?,
         val previousEntities: RelatedFlagGroup.Multiple?,
+        val historicalFlags: RelatedFlagGroup.Multiple?,
         val previousEntitiesOfSovereign: RelatedFlagGroup.Multiple?,
         val dependentsOfLatest: RelatedFlagGroup.Multiple?,
     ) : RelatedFlagsContent {
+        override val menu = RelatedFlagsMenu.CHRONOLOGICAL
+
         override val groups = buildList {
             latestEntity?.let { add(it) }
             previousEntities?.let { add(it) }
+            historicalFlags?.let { add(it) }
             previousEntitiesOfSovereign?.let { add(it) }
             dependentsOfLatest?.let { add(it) }
         }

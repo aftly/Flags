@@ -1,5 +1,6 @@
 package dev.aftly.flags.ui.component
 
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -12,11 +13,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -28,23 +31,35 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
+import dev.aftly.flags.R
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.LazyColumnItem
 import dev.aftly.flags.model.RelatedFlagGroup
@@ -69,31 +84,51 @@ fun RelatedFlagsMenuCard(
     buttonColors1: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor1),
     buttonColors2: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor2),
     currentFlag: FlagView,
-    //relatedFlags: List<FlagView>, // TODO
     relatedFlagContent: RelatedFlagsContent,
     onFlagSelect: (FlagView) -> Unit,
 ) {
     val listState = rememberLazyListState()
     val density = LocalDensity.current
 
-    val relatedFlagItems: List<LazyColumnItem> = relatedFlagContent.groups.filterNotNull()
-        .flatMap { group ->
+    val relatedFlagItems: List<LazyColumnItem> = relatedFlagContent.groups.flatMap { group ->
         buildList {
-            add(LazyColumnItem.Header(stringResource(group.category)))
+            add(
+                LazyColumnItem.Header(
+                    title = group.category,
+                    keyTag = group.categoryKey,
+                )
+            )
             when (group) {
-                is RelatedFlagGroup.Single -> add(LazyColumnItem.Flag(group.flag))
+                is RelatedFlagGroup.Single -> add(
+                    LazyColumnItem.Flag(
+                        flag = group.flag,
+                        keyTag = group.categoryKey,
+                    )
+                )
                 is RelatedFlagGroup.Multiple -> group.flags.forEach { flag ->
-                    add(LazyColumnItem.Flag(flag))
+                    add(
+                        LazyColumnItem.Flag(
+                            flag = flag,
+                            keyTag = group.categoryKey,
+                        )
+                    )
                 }
             }
         }
     }
-
-    LaunchedEffect(isExpanded) {
-        //if (isExpanded) {
-        //listState.scrollToItem(index = relatedFlagItems.indexOf(currentFlag)) TODO
-        //}
+    /*
+    val relatedFlagItemsView: List<Any> = relatedFlagItems.map { lazyColumnItem ->
+        when (lazyColumnItem) {
+            is LazyColumnItem.Header -> lazyColumnItem.key
+            is LazyColumnItem.Flag -> lazyColumnItem.flag
+        }
     }
+    LaunchedEffect(isExpanded) {
+        if (isExpanded) {
+            listState.scrollToItem(index = relatedFlagItemsView.indexOf(currentFlag))
+        }
+    }
+     */
 
 
     /* Box for containing menu, background scrim, and button replicant (to overlay the scrim) */
@@ -176,7 +211,10 @@ fun RelatedFlagsMenuCard(
                         contentType = { it.type }
                     ) { item ->
                         when (item) {
-                            is LazyColumnItem.Header -> {} // TODO
+                            is LazyColumnItem.Header -> RelatedHeader(
+                                modifier = Modifier.fillMaxWidth(),
+                                title = item.title,
+                            )
                             is LazyColumnItem.Flag -> RelatedItem(
                                 modifier = Modifier.fillMaxWidth(),
                                 flag = item.flag,
@@ -187,24 +225,34 @@ fun RelatedFlagsMenuCard(
                             )
                         }
                     }
-                    /*
-                    items(
-                        count = relatedFlags.size,
-                        key = { index -> relatedFlags[index].id }
-                    ) { index ->
-                        RelatedItem(
-                            modifier = Modifier.fillMaxWidth(),
-                            flag = relatedFlags[index],
-                            currentFlag = currentFlag,
-                            buttonColors1 = buttonColors1,
-                            buttonColor2 = buttonColors2,
-                            onFlagSelect = onFlagSelect,
-                        )
-                    }
-                     */
                 }
             }
         }
+    }
+}
+
+
+@Composable
+private fun RelatedHeader(
+    modifier: Modifier = Modifier,
+    @StringRes title: Int,
+) {
+    Spacer(modifier = Modifier.height(Dimens.small8))
+    HorizontalDivider(modifier = Modifier.padding(horizontal = Dimens.medium12))
+
+    Row(
+        modifier = modifier.fillMaxWidth()
+            .padding(
+                top = Dimens.extraSmall4,
+                start = Dimens.medium12,
+                end = Dimens.medium12,
+            ),
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            text = stringResource(title),
+            style = MaterialTheme.typography.labelMedium,
+        )
     }
 }
 
@@ -222,6 +270,18 @@ private fun RelatedItem(
     val fontScale = configuration.fontScale
     val verticalPadding = Dimens.small8
     val dynamicHeight = Dimens.defaultListItemHeight48 * fontScale
+    val fromToYear =
+        if (flag.previousFlagOfKey != null && flag.fromYear != null && flag.toYear != null) {
+            val toYear =
+                if (flag.toYear == 0) stringResource(R.string.string_present)
+                else "${flag.toYear}"
+
+            stringResource(R.string.string_open_bracket) +
+                    "${flag.fromYear}" +
+                    stringResource(R.string.string_dash) +
+                    toYear +
+                    stringResource(R.string.string_close_bracket)
+        } else null
 
     TextButton(
         onClick = { onFlagSelect(flag) },
@@ -238,10 +298,25 @@ private fun RelatedItem(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(flag.flagOf),
-                    modifier = Modifier.padding(end = Dimens.small8)
-                )
+                Row(
+                    modifier = Modifier
+                        /* Separate text from image */
+                        .padding(end = Dimens.small8)
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.Bottom,
+                ) {
+                    Text(text = stringResource(flag.flagOf))
+
+                    fromToYear?.let {
+                        Text(
+                            text = it,
+                            modifier = Modifier.padding(start = Dimens.extraSmall4),
+                            fontWeight = FontWeight.Light,
+                            style = MaterialTheme.typography.titleSmall,
+                            color = Color.Gray,
+                        )
+                    }
+                }
             }
             Box(contentAlignment = Alignment.Center) {
                 Image(

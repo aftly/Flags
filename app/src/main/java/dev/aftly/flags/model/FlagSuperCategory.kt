@@ -122,6 +122,22 @@ sealed class FlagSuperCategory(
     )
 
     @Serializable
+    @SerialName("cultural")
+    data object Cultural : FlagSuperCategory(
+        title = R.string.category_super_cultural,
+        categoriesMenuButton = R.string.category_super_cultural_menu_button,
+        gameScoreCategoryPreview = R.string.category_super_cultural_score_preview,
+        gameScoreCategoryDetailed = R.string.category_super_cultural_score_detailed,
+        subCategories = listOf(
+            FlagCategoryWrapper(enum = FlagCategory.ETHNIC),
+            FlagCategoryWrapper(enum = FlagCategory.SOCIAL),
+            FlagCategoryWrapper(enum = FlagCategory.POLITICAL),
+            FlagCategoryWrapper(enum = FlagCategory.RELIGIOUS),
+            FlagCategoryWrapper(enum = FlagCategory.REGIONAL)
+        ),
+    )
+
+    @Serializable
     @SerialName("political")
     data object Political : FlagSuperCategory(
         title = R.string.category_super_political,
@@ -138,21 +154,6 @@ sealed class FlagSuperCategory(
         ),
     )
 
-    @Serializable
-    @SerialName("cultural")
-    data object Cultural : FlagSuperCategory(
-        title = R.string.category_super_cultural,
-        categoriesMenuButton = R.string.category_super_cultural_menu_button,
-        gameScoreCategoryPreview = R.string.category_super_cultural_score_preview,
-        gameScoreCategoryDetailed = R.string.category_super_cultural_score_detailed,
-        subCategories = listOf(
-            FlagCategoryWrapper(enum = FlagCategory.ETHNIC),
-            FlagCategoryWrapper(enum = FlagCategory.SOCIAL),
-            FlagCategoryWrapper(enum = FlagCategory.POLITICAL),
-            FlagCategoryWrapper(enum = FlagCategory.RELIGIOUS),
-            FlagCategoryWrapper(enum = FlagCategory.REGIONAL)
-        ),
-    )
 
     /* Below FlagSuperCategory-s for use as subCategories for above FlagSuperCategory-s */
 

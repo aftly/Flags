@@ -109,4 +109,6 @@ enum class FlagCategory(
 
     /* For entities that don't exist anymore */
     HISTORICAL (title = R.string.category_historical_title, string = R.string.category_historical_string),
+
+
 }

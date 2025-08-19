@@ -15,7 +15,7 @@ data class FlagUiState(
     val descriptionIdsWhitespaceExceptions: List<Int> = emptyList(),
     val description: List<String> = emptyList(),
     val descriptionBoldWordIndexes: List<Int> = emptyList(),
-    val initRelatedFlag: FlagView = nullFlag,
+    val initRelatedFlag: FlagView? = null,
     val isRelatedFlagNav: RelatedFlagsMenu? = null,
     val savedFlags: List<SavedFlag> = emptyList(),
     val savedFlag: SavedFlag? = null,

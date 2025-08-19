@@ -16,7 +16,7 @@ import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.RelatedFlagGroup
 import dev.aftly.flags.model.RelatedFlagsContent
 import dev.aftly.flags.model.StringResSource
-import dev.aftly.flags.R
+import dev.aftly.flags.model.RelatedFlagsCategory
 
 fun getFlagKey(flag: FlagView): String = inverseFlagViewMap.getValue(key = flag)
 
@@ -61,48 +61,53 @@ fun getChronologicalDirectRelatedFlagKeys(
     flagKey: String,
     flagRes: FlagResources,
 ): List<String> {
-    val previousFilterValues = buildList {
+    val previousParentKeys = buildList {
         add(flagKey)
         flagRes.previousFlagOf?.let { add(it) }
     }
-    val latestFilterValues = buildList {
+
+    val latestParentKeys = buildList {
         add(flagKey)
         flagRes.previousFlagOf?.let { add(it) }
         flagRes.latestEntity?.let { add(it) }
     }
 
-    return flagResMap.values.filter { flag ->
-        flag.previousFlagOf in previousFilterValues || flag.latestEntity in latestFilterValues
+    val childKeys = flagResMap.values.filter { flag ->
+        flag.previousFlagOf in previousParentKeys || flag.latestEntity in latestParentKeys
     }.map { flag ->
         inverseFlagResMap.getValue(flag)
+    }
+
+    return buildList {
+        addAll(previousParentKeys)
+        addAll(latestParentKeys)
+        addAll(childKeys)
     }.distinct()
 }
 
 fun getChronologicalIndirectRelatedFlagKeys(
     flagRes: FlagResources,
 ): List<String> {
-    val latestFilterValues = buildList {
+    val latestFilterKeys = buildList {
         /* For all (direct & primary) historical admin flags of the sovereign */
         flagRes.sovereignState?.let { add(it) }
         /* For pre-admin keys of parent's sovereign (eg. USA for historical flag of a state) */
         flagRes.previousFlagOf?.let { flagOfKey ->
-            flagResMap.getValue(flagOfKey)
-                .sovereignState?.let { add(it) }
+            flagResMap.getValue(flagOfKey).sovereignState?.let { add(it) }
         }
     }
 
-    val sovereignFilterValues = buildList {
+    val sovereignFilterKeys = buildList {
         /* For all dependents of latest entity */
         flagRes.latestEntity?.let { add(it) }
         /* For post-admin keys of parent entity (eg. primary USA for historical USA flags) */
         flagRes.previousFlagOf?.let { flagOfKey ->
-            flagResMap.getValue(flagOfKey)
-                .latestEntity?.let { add(it) }
+            flagResMap.getValue(flagOfKey).latestEntity?.let { add(it) }
         }
     }
 
     return flagResMap.values.filter { flag ->
-        flag.latestEntity in latestFilterValues || flag.sovereignState in sovereignFilterValues
+        flag.latestEntity in latestFilterKeys || flag.sovereignState in sovereignFilterKeys
     }.map { flag ->
         inverseFlagResMap.getValue(flag)
     }.distinct()
@@ -119,18 +124,23 @@ fun getPoliticalInternalRelatedFlagKeys(
     flagKey: String,
     flagRes: FlagResources,
 ): List<String> {
-    val filterValues = buildList {
+    val parentKeys = buildList {
         add(flagKey)
         flagRes.sovereignState?.let { add(it) }
         flagRes.previousFlagOf?.let { add(it) }
     }
 
-    return flagResMap.values.filter { flag ->
-        flag.sovereignState in filterValues
+    val childKeys = flagResMap.values.filter { flag ->
+        flag.sovereignState in parentKeys
     }.filterNot { flag ->
         externalCategories.any { it in flag.categories } && flag.sovereignState !in extCatExceptions
     }.map { flag ->
         inverseFlagResMap.getValue(flag)
+    }
+
+    return buildList {
+        addAll(parentKeys)
+        addAll(childKeys)
     }.distinct()
 }
 
@@ -138,18 +148,34 @@ fun getPoliticalExternalRelatedFlagKeys(
     flagKey: String,
     flagRes: FlagResources,
 ): List<String> {
+    val associatedKeys = buildList {
+        add(flagKey)
+        flagRes.previousFlagOf?.let { add(it) }
+    }
+
+    val sovereignKeys = buildList {
+        add(flagKey)
+        flagRes.sovereignState?.let { add(it) }
+        flagRes.previousFlagOf?.let { add(it) }
+    }
+
+    val childKeys = flagResMap.values.filter { flag ->
+        flag.associatedState in associatedKeys || (flag.sovereignState in sovereignKeys &&
+                externalCategories.any { it in flag.categories } &&
+                flag.sovereignState !in extCatExceptions)
+    }.map { flag ->
+        inverseFlagResMap.getValue(flag)
+    }
+
     return buildList {
         flagRes.associatedState?.let { add(it) }
-
-        addAll(elements =
-            flagResMap.values.filter { flag ->
-                flag.associatedState == flagKey || (externalCategories.any {
-                    it in flag.categories } && flag.sovereignState !in extCatExceptions)
-            }.map { flag ->
-                inverseFlagResMap.getValue(flag)
+        flagRes.previousFlagOf?.let { flagOfKey ->
+            flagResMap.getValue(flagOfKey).associatedState?.let {
+                add(it)
             }
-        )
-    }
+        }
+        addAll(childKeys)
+    }.distinct()
 }
 
 fun getFlagNameResIds(
@@ -203,7 +229,10 @@ fun getPoliticalRelatedFlagsContentOrNull(
     return if (!flag.isPoliticalRelatedFlags) {
         null
     } else {
-        val flagKey = inverseFlagViewMap.getValue(flag)
+        val flagKey = when (flag.previousFlagOfKey) {
+            null -> inverseFlagViewMap.getValue(flag)
+            else -> flag.previousFlagOfKey
+        }
         val politicalInternalRelatedFlags = sortFlagsAlphabetically(
             application = application,
             flags = getFlagsFromKeys(flag.politicalInternalRelatedFlagKeys)
@@ -215,14 +244,6 @@ fun getPoliticalRelatedFlagsContentOrNull(
 
         val sovereign = politicalInternalRelatedFlags.firstOrNull { internalFlag ->
             internalFlag.categories.contains(FlagCategory.SOVEREIGN_STATE)
-        }
-
-        val firstLevelAdminUnits = politicalInternalRelatedFlags.filter { relatedFlag ->
-            relatedFlag.sovereignStateKey != null && relatedFlag.parentUnitKey == null
-        }
-
-        val secondLevelAdminUnits = politicalInternalRelatedFlags.filter { relatedFlag ->
-            relatedFlag.sovereignStateKey != null && relatedFlag.parentUnitKey != null
         }
 
         val associatedStates = politicalExternalRelatedFlags.filter { relatedFlag ->
@@ -242,11 +263,20 @@ fun getPoliticalRelatedFlagsContentOrNull(
             }
         }
 
+        val firstLevelAdminUnits = politicalInternalRelatedFlags.filter { relatedFlag ->
+            relatedFlag.sovereignStateKey != null && relatedFlag.parentUnitKey == null
+        }.filterNot { it in externalTerritories }
+
+        val secondLevelAdminUnits = politicalInternalRelatedFlags.filter { relatedFlag ->
+            relatedFlag.sovereignStateKey != null && relatedFlag.parentUnitKey != null
+        }
+
         RelatedFlagsContent.Political(
             sovereign = sovereign?.let { sovereign ->
                 RelatedFlagGroup.Single(
                     flag = sovereign,
-                    category = FlagCategory.SOVEREIGN_STATE.title
+                    category = FlagCategory.SOVEREIGN_STATE.title,
+                    categoryKey = FlagCategory.SOVEREIGN_STATE.name,
                 )
             },
             firstLevelAdminUnits = when (firstLevelAdminUnits.isEmpty()) {
@@ -263,6 +293,7 @@ fun getPoliticalRelatedFlagsContentOrNull(
                             RelatedFlagGroup.Multiple(
                                 flags = divisionUnits,
                                 category = division.title,
+                                categoryKey = division.name,
                             )
                         )
                     }
@@ -270,17 +301,23 @@ fun getPoliticalRelatedFlagsContentOrNull(
             },
             externalTerritories = when (externalTerritories.isEmpty()) {
                 true -> null
-                false -> RelatedFlagGroup.Multiple(
-                    flags = externalTerritories,
-                    category = externalTerritories.first().categories
-                        .first { it in FlagSuperCategory.Regional.enums() }.title,
-                )
+                false -> {
+                    val category = externalTerritories.first().categories
+                        .first { it in FlagSuperCategory.Regional.enums() }
+
+                    RelatedFlagGroup.Multiple(
+                        flags = externalTerritories,
+                        category = category.title,
+                        categoryKey = category.name,
+                    )
+                }
             },
             associatedStates = when (associatedStates.isEmpty()) {
                 true -> null
                 false -> RelatedFlagGroup.Multiple(
                     flags = associatedStates,
-                    category = FlagCategory.FREE_ASSOCIATION.title
+                    category = FlagCategory.FREE_ASSOCIATION.title,
+                    categoryKey = FlagCategory.FREE_ASSOCIATION.name,
                 )
             },
             internationalOrgs = null,
@@ -298,6 +335,7 @@ fun getPoliticalRelatedFlagsContentOrNull(
                             RelatedFlagGroup.Multiple(
                                 flags = divisionUnits,
                                 category = division.title,
+                                categoryKey = division.name,
                             )
                         )
                     }
@@ -331,6 +369,10 @@ fun getChronologicalRelatedFlagsContentOrNull(
             directFlag.latestEntityKey != null
         }
 
+        val historicalFlags = chronologicalDirectRelatedFlags.filter { directFlag ->
+            directFlag.previousFlagOfKey != null
+        }
+
         val dependentsOfLatest = chronologicalIndirectRelatedFlags.filter { indirectFlag ->
             latestEntity?.let {
                 indirectFlag.sovereignStateKey == inverseFlagViewMap.getValue(it)
@@ -345,28 +387,40 @@ fun getChronologicalRelatedFlagsContentOrNull(
             latestEntity = latestEntity?.let { latest ->
                 RelatedFlagGroup.Single(
                     flag = latest,
-                    category = R.string.menu_related_flags_chronological_latest,
+                    category = RelatedFlagsCategory.LATEST_ENTITY.title,
+                    categoryKey = RelatedFlagsCategory.LATEST_ENTITY.name,
                 )
             },
             previousEntities = when (previousEntities.isEmpty()) {
                 true -> null
                 false -> RelatedFlagGroup.Multiple(
                     flags = previousEntities,
-                    category = R.string.menu_related_flags_chronological_previous,
+                    category = RelatedFlagsCategory.PREVIOUS_ENTITIES.title,
+                    categoryKey = RelatedFlagsCategory.PREVIOUS_ENTITIES.name,
+                )
+            },
+            historicalFlags = when (historicalFlags.isEmpty()) {
+                true -> null
+                false -> RelatedFlagGroup.Multiple(
+                    flags = historicalFlags,
+                    category = RelatedFlagsCategory.HISTORICAL_FLAGS.title,
+                    categoryKey = RelatedFlagsCategory.HISTORICAL_FLAGS.name
                 )
             },
             previousEntitiesOfSovereign = when (previousEntitiesOfSovereign.isEmpty()) {
                 true -> null
                 false -> RelatedFlagGroup.Multiple(
                     flags = previousEntitiesOfSovereign,
-                    category = R.string.menu_related_flags_chronological_previous_of_sovereign,
+                    category = RelatedFlagsCategory.PREVIOUS_ENTITIES_OF_SOVEREIGN.title,
+                    categoryKey = RelatedFlagsCategory.PREVIOUS_ENTITIES_OF_SOVEREIGN.name,
                 )
             },
             dependentsOfLatest = when (dependentsOfLatest.isEmpty()) {
                 true -> null
                 false -> RelatedFlagGroup.Multiple(
                     flags = dependentsOfLatest,
-                    category = R.string.menu_related_flags_chronological_dependents_of_latest,
+                    category = RelatedFlagsCategory.DEPENDENTS_OF_LATEST_ENTITY.title,
+                    categoryKey = RelatedFlagsCategory.DEPENDENTS_OF_LATEST_ENTITY.name,
                 )
             },
         )

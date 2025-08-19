@@ -249,6 +249,7 @@
     <string name="menu_related_flags_chronological_short">Chron</string>
     <string name="menu_related_flags_chronological_latest">Latest Administration</string>
     <string name="menu_related_flags_chronological_previous">Previous Administrations</string>
+    <string name="menu_related_flags_chronological_historical">Historical Flags</string>
     <string name="menu_related_flags_chronological_previous_of_sovereign">Previous Admins of Sovereign</string>
     <string name="menu_related_flags_chronological_dependents_of_latest">Dependents of Latest Admin</string>
     <string name="menu_multiple_selection">Multiple Categories Selected</string>
