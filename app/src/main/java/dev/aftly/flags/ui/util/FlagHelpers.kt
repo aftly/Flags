@@ -118,7 +118,8 @@ enum class ExternalCategoryExceptions(val key: String) {
     ITALY (key = "italy")
 }
 val extCatExceptions = ExternalCategoryExceptions.entries.map { it.key }
-val externalCategories = listOf(FlagCategory.TERRITORY, FlagCategory.REGION)
+val externalCategories = listOf(FlagCategory.TERRITORY, FlagCategory.REGION, FlagCategory.COLONY)
+val internalCategories = FlagSuperCategory.Regional.enums().filterNot { it in externalCategories }
 
 fun getPoliticalInternalRelatedFlagKeys(
     flagKey: String,
@@ -139,7 +140,13 @@ fun getPoliticalInternalRelatedFlagKeys(
     }
 
     return buildList {
-        addAll(parentKeys)
+        addAll(
+            parentKeys.filterNot { key ->
+                /* Exclude non-internal regional flags (some flags are both int and ext) */
+                key == flagKey && flagRes.sovereignState != null && flagRes
+                    .previousFlagOf == null && flagRes.categories.none { it in internalCategories }
+            }
+        )
         addAll(childKeys)
     }.distinct()
 }
@@ -265,7 +272,7 @@ fun getPoliticalRelatedFlagsContentOrNull(
 
         val firstLevelAdminUnits = politicalInternalRelatedFlags.filter { relatedFlag ->
             relatedFlag.sovereignStateKey != null && relatedFlag.parentUnitKey == null
-        }.filterNot { it in externalTerritories }
+        }
 
         val secondLevelAdminUnits = politicalInternalRelatedFlags.filter { relatedFlag ->
             relatedFlag.sovereignStateKey != null && relatedFlag.parentUnitKey != null
@@ -283,7 +290,7 @@ fun getPoliticalRelatedFlagsContentOrNull(
                 true -> null
                 false -> buildList {
                     val firstLevelDivisions = firstLevelAdminUnits.flatMap { it.categories }
-                        .filter { it in FlagSuperCategory.Regional.enums() }
+                        .filter { it in internalCategories }
                         .distinct()
                     firstLevelDivisions.forEach { division ->
                         val divisionUnits = firstLevelAdminUnits.filter { flag ->
@@ -303,7 +310,7 @@ fun getPoliticalRelatedFlagsContentOrNull(
                 true -> null
                 false -> {
                     val category = externalTerritories.first().categories
-                        .first { it in FlagSuperCategory.Regional.enums() }
+                        .first { it in externalCategories }
 
                     RelatedFlagGroup.Multiple(
                         flags = externalTerritories,
