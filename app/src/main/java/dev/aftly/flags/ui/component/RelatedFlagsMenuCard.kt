@@ -104,6 +104,14 @@ fun RelatedFlagsMenuCard(
                         )
                     )
                 }
+                is RelatedFlagGroup.AdminUnits -> group.flags.forEach { flag ->
+                    add(
+                        LazyColumnItem.Flag(
+                            flag = flag,
+                            keyTag = group.categoryKey,
+                        )
+                    )
+                }
             }
         }
     }
