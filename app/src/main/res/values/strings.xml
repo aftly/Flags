@@ -1521,6 +1521,10 @@
     <string name="england_alt_1">ENG</string>
     <string name="england_alt_2">England, United Kingdom</string>
     <string name="england_alt_3">England, UK</string>
+    <string name="england_kingdom">England (kingdom)</string>
+    <string name="england_kingdom_official">Kingdom of England</string>
+    <string name="england_kingdom_wikipedia_url_path">Kingdom_of_England</string>
+    <string name="england_kingdom_alt">England</string>
     <string name="equatorial_guinea">Equatorial Guinea</string>
     <string name="equatorial_guinea_official">Republic of Equatorial Guinea</string>
     <string name="equatorial_guinea_wikipedia_url_path">Equatorial_Guinea</string>
