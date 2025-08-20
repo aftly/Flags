@@ -9,14 +9,33 @@ import dev.aftly.flags.data.DataSource.flagViewMapId
 import dev.aftly.flags.data.DataSource.inverseFlagResMap
 import dev.aftly.flags.data.DataSource.inverseFlagViewMap
 import dev.aftly.flags.data.room.savedflags.SavedFlag
-import dev.aftly.flags.model.FlagCategory
+import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
+import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
+import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
+import dev.aftly.flags.model.FlagCategory.OBLAST
+import dev.aftly.flags.model.FlagCategory.CANTON
+import dev.aftly.flags.model.FlagCategory.COLLECTIVITY
+import dev.aftly.flags.model.FlagCategory.COLONY
+import dev.aftly.flags.model.FlagCategory.COMMUNITY
+import dev.aftly.flags.model.FlagCategory.COUNTRY
+import dev.aftly.flags.model.FlagCategory.COUNTY
+import dev.aftly.flags.model.FlagCategory.CITY
+import dev.aftly.flags.model.FlagCategory.DISTRICT
+import dev.aftly.flags.model.FlagCategory.KRAI
+import dev.aftly.flags.model.FlagCategory.MUNICIPALITY
+import dev.aftly.flags.model.FlagCategory.OKRUG
+import dev.aftly.flags.model.FlagCategory.PROVINCE
+import dev.aftly.flags.model.FlagCategory.REGION
+import dev.aftly.flags.model.FlagCategory.REPUBLIC_UNIT
+import dev.aftly.flags.model.FlagCategory.STATE
+import dev.aftly.flags.model.FlagCategory.TERRITORY
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.RelatedFlagGroup
+import dev.aftly.flags.model.RelatedFlagsCategory
 import dev.aftly.flags.model.RelatedFlagsContent
 import dev.aftly.flags.model.StringResSource
-import dev.aftly.flags.model.RelatedFlagsCategory
 
 fun getFlagKey(flag: FlagView): String = inverseFlagViewMap.getValue(key = flag)
 
@@ -115,10 +134,11 @@ fun getChronologicalIndirectRelatedFlagKeys(
 
 enum class ExternalCategoryExceptions(val key: String) {
     /* For flags with any externalCategories as internal units */
-    ITALY (key = "italy")
+    ITALY (key = "italy"),
+    FRANCE (key = "france")
 }
 val extCatExceptions = ExternalCategoryExceptions.entries.map { it.key }
-val externalCategories = listOf(FlagCategory.TERRITORY, FlagCategory.REGION, FlagCategory.COLONY)
+val externalCategories = listOf(TERRITORY, REGION, COLONY)
 val internalCategories =
     (FlagSuperCategory.Regional.enums() + FlagSuperCategory.SovereignCountry.enums())
         .filterNot { it in externalCategories }
@@ -230,6 +250,30 @@ fun getFlagNameResIds(
 
 
 /* ---------- For RelatedFlagsMenu ---------- */
+val perLevelAdminDivisionOrder = listOf(
+    STATE,
+    REGION,
+    COUNTRY,
+    COLLECTIVITY,
+    COMMUNITY,
+    PROVINCE,
+    TERRITORY,
+    CANTON,
+    DISTRICT,
+    OBLAST,
+    KRAI,
+    CITY,
+    OKRUG,
+    REPUBLIC_UNIT,
+    COUNTY,
+    MUNICIPALITY,
+    COLONY
+    //EMIRATE,
+    //ENTITY,
+    //GOVERNORATE,
+    //ISLAND,
+    //MEMBER_STATE,
+)
 fun getPoliticalRelatedFlagsContentOrNull(
     flag: FlagView,
     application: Application,
@@ -251,7 +295,7 @@ fun getPoliticalRelatedFlagsContentOrNull(
         )
 
         val sovereign = politicalInternalRelatedFlags.firstOrNull { internalFlag ->
-            internalFlag.categories.contains(FlagCategory.SOVEREIGN_STATE)
+            internalFlag.categories.contains(SOVEREIGN_STATE)
         }
 
         val associatedStates = politicalExternalRelatedFlags.filter { relatedFlag ->
@@ -263,10 +307,8 @@ fun getPoliticalRelatedFlagsContentOrNull(
             relatedFlag in associatedStates
         }.sortedWith { p1, p2 ->
             when {
-                FlagCategory.AUTONOMOUS_REGION in p1.categories && FlagCategory
-                    .AUTONOMOUS_REGION !in p2.categories -> -1
-                FlagCategory.AUTONOMOUS_REGION !in p1.categories && FlagCategory
-                    .AUTONOMOUS_REGION in p2.categories -> 1
+                AUTONOMOUS_REGION in p1.categories && AUTONOMOUS_REGION !in p2.categories -> -1
+                AUTONOMOUS_REGION !in p1.categories && AUTONOMOUS_REGION in p2.categories -> 1
                 else -> 0
             }
         }
@@ -284,8 +326,8 @@ fun getPoliticalRelatedFlagsContentOrNull(
             sovereign = sovereign?.let { sovereign ->
                 RelatedFlagGroup.Single(
                     flag = sovereign,
-                    category = FlagCategory.SOVEREIGN_STATE.title,
-                    categoryKey = FlagCategory.SOVEREIGN_STATE.name,
+                    category = SOVEREIGN_STATE.title,
+                    categoryKey = SOVEREIGN_STATE.name,
                 )
             },
             adminUnits = when (adminUnits.isEmpty()) {
@@ -319,12 +361,13 @@ fun getPoliticalRelatedFlagsContentOrNull(
                             RelatedFlagGroup.AdminUnits(
                                 flags = divisionUnits,
                                 unitLevel = divisionUnitLevel,
+                                unitCategory = division,
                                 category = division.title,
                                 categoryKey = division.name,
                             )
                         )
                     }
-                }
+                }.sortedBy { perLevelAdminDivisionOrder.indexOf(it.unitCategory) }
             },
             externalTerritories = when (externalTerritories.isEmpty()) {
                 true -> null
@@ -343,8 +386,8 @@ fun getPoliticalRelatedFlagsContentOrNull(
                 true -> null
                 false -> RelatedFlagGroup.Multiple(
                     flags = associatedStates,
-                    category = FlagCategory.FREE_ASSOCIATION.title,
-                    categoryKey = FlagCategory.FREE_ASSOCIATION.name,
+                    category = FREE_ASSOCIATION.title,
+                    categoryKey = FREE_ASSOCIATION.name,
                 )
             },
             internationalOrgs = null,

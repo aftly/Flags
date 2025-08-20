@@ -21,6 +21,7 @@ sealed interface RelatedFlagGroup {
     data class AdminUnits(
         val flags: List<FlagView>,
         val unitLevel: Int,
+        val unitCategory: FlagCategory,
         @param:StringRes override val category: Int,
         override val categoryKey: String,
     ) : RelatedFlagGroup

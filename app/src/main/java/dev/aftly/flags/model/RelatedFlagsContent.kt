@@ -29,6 +29,18 @@ sealed interface RelatedFlagsContent {
             externalTerritories?.let { add(it) }
             associatedStates?.let { add(it) }
             internationalOrgs?.let { add(it) }
+        }.sortedWith { p1, p2 ->
+            when {
+                p1 is RelatedFlagGroup.AdminUnits && p2 !is RelatedFlagGroup
+                    .AdminUnits && p1.unitLevel > 1 -> 1
+                p2 is RelatedFlagGroup.AdminUnits && p1 !is RelatedFlagGroup
+                    .AdminUnits && p2.unitLevel > 1 -> -1
+                p1 is RelatedFlagGroup.AdminUnits && p2 is RelatedFlagGroup
+                    .AdminUnits && p1.unitLevel > p2.unitLevel -> 1
+                p2 is RelatedFlagGroup.AdminUnits && p1 is RelatedFlagGroup
+                    .AdminUnits && p2.unitLevel > p1.unitLevel -> -1
+                else -> 0
+            }
         }
     }
 
