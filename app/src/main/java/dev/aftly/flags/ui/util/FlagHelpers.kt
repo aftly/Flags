@@ -417,7 +417,7 @@ fun getChronologicalRelatedFlagsContentOrNull(
 
         val previousEntities = chronologicalDirectRelatedFlags.filter { directFlag ->
             directFlag.latestEntityKey != null
-        }
+        }.sortedByDescending { it.fromYear }
 
         val historicalFlags = chronologicalDirectRelatedFlags.filter { directFlag ->
             directFlag.previousFlagOfKey != null
