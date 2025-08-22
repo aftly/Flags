@@ -13,14 +13,16 @@ data class FlagView(
     val fromYear: Int?,
     val toYear: Int?,
     @param:StringRes val flagOf: Int,
+    @param:StringRes val flagOfLiteral: Int, // flagOf without descriptors
     @param:StringRes val flagOfOfficial: Int,
     val flagOfAlternate: List<Int>?,
     val isFlagOfThe: Boolean,
     val isFlagOfOfficialThe: Boolean,
+    val internationalOrganisationKeys: List<String>,
     val associatedStateKey: String?,
     val sovereignStateKey: String?,
     val parentUnitKey: String?,
-    val latestEntityKey: String?,
+    val latestEntityKeys: List<String>,
     val previousFlagOfKey: String?,
     val flagStringResIds: List<Int>, /* All stringResIds of this flag for search exact match */
     val politicalInternalRelatedFlagKeys: List<String>, /* flagsMap keys search results and lists */
