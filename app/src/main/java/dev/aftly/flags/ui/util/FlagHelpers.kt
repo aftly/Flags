@@ -13,6 +13,8 @@ import dev.aftly.flags.model.BooleanSource
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
 import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
+import dev.aftly.flags.model.FlagCategory.INTERNATIONAL_ORGANIZATION
+import dev.aftly.flags.model.FlagCategory.MEMBER_STATE
 import dev.aftly.flags.model.FlagCategory.OBLAST
 import dev.aftly.flags.model.FlagCategory.CANTON
 import dev.aftly.flags.model.FlagCategory.COLLECTIVITY
@@ -157,7 +159,7 @@ fun getPoliticalInternalRelatedFlagKeys(
     }
 
     val childKeys = flagResMap.values.filter { flag ->
-        flag.sovereignState in parentKeys
+        flag.sovereignState in parentKeys || flagKey in flag.internationalOrganisations
     }.filterNot { flag ->
         flag.categories.none { it in internalCategories } && flag.sovereignState !in extCatExceptions
     }.map { flag ->
@@ -190,6 +192,10 @@ fun getPoliticalExternalRelatedFlagKeys(
         flagRes.previousFlagOf?.let { add(it) }
     }
 
+    val internationalOrgKeys = buildList {
+        addAll(flagRes.internationalOrganisations)
+    }
+
     val childKeys = flagResMap.values.filter { flag ->
         flag.associatedState in associatedKeys || (flag.sovereignState in sovereignKeys &&
                 externalCategories.any { it in flag.categories } &&
@@ -205,6 +211,7 @@ fun getPoliticalExternalRelatedFlagKeys(
                 add(it)
             }
         }
+        addAll(internationalOrgKeys)
         addAll(childKeys)
     }.distinct()
 }
@@ -317,8 +324,39 @@ fun getPoliticalRelatedFlagsContentOrNull(
     flag: FlagView,
     application: Application,
 ): RelatedFlagsContent.Political? {
-    return if (!flag.isPoliticalRelatedFlags) {
-        null
+    if (!flag.isPoliticalRelatedFlags) return null
+
+    val isFlagInternationalOrg = flag.categories.any {
+        it in FlagSuperCategory.International.enums()
+    }
+
+    return if (isFlagInternationalOrg) {
+        val politicalInternalRelatedFlags = sortFlagsAlphabetically(
+            application = application,
+            flags = getFlagsFromKeys(flag.politicalInternalRelatedFlagKeys)
+        )
+
+        val internationalOrgMembers = politicalInternalRelatedFlags.filterNot { it == flag }
+
+        RelatedFlagsContent.Political(
+            sovereign = null,
+            adminUnits = null,
+            externalTerritories = null,
+            associatedStates = null,
+            internationalOrgs = RelatedFlagGroup.Multiple(
+                flags = listOf(flag),
+                category = INTERNATIONAL_ORGANIZATION.title,
+                categoryKey = INTERNATIONAL_ORGANIZATION.name,
+            ),
+            internationalOrgMembers = when (internationalOrgMembers.isEmpty()) {
+                true -> null
+                false -> RelatedFlagGroup.Multiple(
+                    flags = internationalOrgMembers,
+                    category = MEMBER_STATE.title,
+                    categoryKey = MEMBER_STATE.name,
+                )
+            },
+        )
     } else {
         val flagKey = when (flag.previousFlagOfKey) {
             null -> inverseFlagViewMap.getValue(flag)
@@ -342,8 +380,12 @@ fun getPoliticalRelatedFlagsContentOrNull(
                     relatedFlag.associatedStateKey == flagKey
         }
 
+        val internationalOrgs = politicalExternalRelatedFlags.filter { relatedFlag ->
+            relatedFlag.categories.any { it in FlagSuperCategory.International.enums() }
+        }
+
         val externalTerritories = politicalExternalRelatedFlags.filterNot { relatedFlag ->
-            relatedFlag in associatedStates
+            relatedFlag in associatedStates || relatedFlag in internationalOrgs
         }.sortedWith { p1, p2 ->
             when {
                 AUTONOMOUS_REGION in p1.categories && AUTONOMOUS_REGION !in p2.categories -> -1
@@ -429,7 +471,15 @@ fun getPoliticalRelatedFlagsContentOrNull(
                     categoryKey = FREE_ASSOCIATION.name,
                 )
             },
-            internationalOrgs = null,
+            internationalOrgs = when (internationalOrgs.isEmpty()) {
+                true -> null
+                false -> RelatedFlagGroup.Multiple(
+                    flags = internationalOrgs,
+                    category = INTERNATIONAL_ORGANIZATION.title,
+                    categoryKey = INTERNATIONAL_ORGANIZATION.name,
+                )
+            },
+            internationalOrgMembers = null,
         )
     }
 }

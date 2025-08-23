@@ -18,6 +18,7 @@ sealed interface RelatedFlagsContent {
         val externalTerritories: RelatedFlagGroup.Multiple?,
         val associatedStates: RelatedFlagGroup.Multiple?,
         val internationalOrgs: RelatedFlagGroup.Multiple?,
+        val internationalOrgMembers: RelatedFlagGroup.Multiple?,
     ) : RelatedFlagsContent {
         override val menu = RelatedFlagsMenu.POLITICAL
 
@@ -29,6 +30,7 @@ sealed interface RelatedFlagsContent {
             externalTerritories?.let { add(it) }
             associatedStates?.let { add(it) }
             internationalOrgs?.let { add(it) }
+            internationalOrgMembers?.let { add(it) }
         }.sortedWith { p1, p2 ->
             when {
                 p1 is RelatedFlagGroup.AdminUnits && p2 !is RelatedFlagGroup
