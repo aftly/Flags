@@ -450,7 +450,7 @@ fun getChronologicalRelatedFlagsContentOrNull(
             flags = getFlagsFromKeys(flag.chronologicalIndirectRelatedFlagKeys)
         )
 
-        val latestEntity = chronologicalDirectRelatedFlags.firstOrNull { directFlag ->
+        val latestEntities = chronologicalDirectRelatedFlags.filter { directFlag ->
             directFlag.latestEntityKeys.isEmpty() && directFlag.previousFlagOfKey == null
         }
 
@@ -463,9 +463,9 @@ fun getChronologicalRelatedFlagsContentOrNull(
         }.sortedBy { it.id }
 
         val dependentsOfLatest = chronologicalIndirectRelatedFlags.filter { indirectFlag ->
-            latestEntity?.let {
+            latestEntities.any {
                 indirectFlag.sovereignStateKey == inverseFlagViewMap.getValue(it)
-            } ?: false
+            }
         }
 
         val previousEntitiesOfSovereign = chronologicalIndirectRelatedFlags.filterNot {
@@ -473,11 +473,12 @@ fun getChronologicalRelatedFlagsContentOrNull(
         }
 
         RelatedFlagsContent.Chronological(
-            latestEntity = latestEntity?.let { latest ->
-                RelatedFlagGroup.Single(
-                    flag = latest,
-                    category = RelatedFlagsCategory.LATEST_ENTITY.title,
-                    categoryKey = RelatedFlagsCategory.LATEST_ENTITY.name,
+            latestEntities = when (latestEntities.isEmpty()) {
+                true -> null
+                false -> RelatedFlagGroup.Multiple(
+                    flags = latestEntities,
+                    category = RelatedFlagsCategory.LATEST_ENTITIES.title,
+                    categoryKey = RelatedFlagsCategory.LATEST_ENTITIES.name,
                 )
             },
             previousEntities = when (previousEntities.isEmpty()) {

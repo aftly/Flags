@@ -45,7 +45,7 @@ sealed interface RelatedFlagsContent {
     }
 
     data class Chronological(
-        val latestEntity: RelatedFlagGroup.Single?,
+        val latestEntities: RelatedFlagGroup.Multiple?,
         val previousEntities: RelatedFlagGroup.Multiple?,
         val historicalFlags: RelatedFlagGroup.Multiple?,
         val previousEntitiesOfSovereign: RelatedFlagGroup.Multiple?,
@@ -54,7 +54,7 @@ sealed interface RelatedFlagsContent {
         override val menu = RelatedFlagsMenu.CHRONOLOGICAL
 
         override val groups = buildList {
-            latestEntity?.let { add(it) }
+            latestEntities?.let { add(it) }
             previousEntities?.let { add(it) }
             historicalFlags?.let { add(it) }
             previousEntitiesOfSovereign?.let { add(it) }
