@@ -1,17 +1,17 @@
 package dev.aftly.flags.data
 
+import android.content.Context
 import dev.aftly.flags.R
-import dev.aftly.flags.model.BooleanSource
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagView
-import dev.aftly.flags.model.StringResSource
-import dev.aftly.flags.ui.util.getPoliticalInternalRelatedFlagKeys
+import dev.aftly.flags.ui.util.getBooleanExplicitOrInherit
 import dev.aftly.flags.ui.util.getChronologicalDirectRelatedFlagKeys
-import android.content.Context
-import dev.aftly.flags.ui.util.getFlagNameResIds
 import dev.aftly.flags.ui.util.getChronologicalIndirectRelatedFlagKeys
+import dev.aftly.flags.ui.util.getFlagOfAlternativeResIds
 import dev.aftly.flags.ui.util.getPoliticalExternalRelatedFlagKeys
+import dev.aftly.flags.ui.util.getPoliticalInternalRelatedFlagKeys
+import dev.aftly.flags.ui.util.getStringResExplicitOrInherit
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
@@ -68,22 +68,24 @@ data object DataSource {
 
     val nullFlag = FlagView(
         id = 0,
-        wikipediaUrlPath = 0,
-        image = 0,
-        imagePreview = 0,
+        wikipediaUrlPath = R.string.error,
+        image = R.drawable.flags_icon_circle,
+        imagePreview = R.drawable.flags_icon_circle,
         fromYear = null,
         toYear = null,
-        flagOf = 0,
-        flagOfOfficial = 0,
-        flagOfAlternate = null,
+        flagOf = R.string.error,
+        flagOfLiteral = R.string.error,
+        flagOfOfficial = R.string.error,
+        flagOfAlternate = emptyList(),
         isFlagOfThe = false,
         isFlagOfOfficialThe = false,
+        internationalOrganisationKeys = emptyList(),
         associatedStateKey = null,
         sovereignStateKey = null,
         parentUnitKey = null,
-        latestEntityKey = null,
+        latestEntityKeys = emptyList(),
         previousFlagOfKey = null,
-        flagStringResIds = emptyList(),
+        flagStringResIds = listOf(R.string.error),
         politicalInternalRelatedFlagKeys = emptyList(),
         politicalExternalRelatedFlagKeys = emptyList(),
         chronologicalDirectRelatedFlagKeys = emptyList(),
@@ -139,83 +141,65 @@ data object DataSource {
         val chronDirRelFlagKeys = getChronologicalDirectRelatedFlagKeys(flagKey, flagRes)
         val chronIndirRelFlagKeys = getChronologicalIndirectRelatedFlagKeys(flagRes)
 
+        val flagOfResId = getStringResExplicitOrInherit(
+            flagKey = flagKey,
+            flagRes = flagRes,
+            prop = FlagResources::flagOf,
+            propName = "name",
+            context = context,
+        )
+        val flagOfOfficialResId = getStringResExplicitOrInherit(
+            flagKey = flagKey,
+            flagRes = flagRes,
+            prop = FlagResources::flagOfOfficial,
+            propName = "official name",
+            context = context,
+        )
+        val flagOfAlternativeResIds = getFlagOfAlternativeResIds(flagKey, flagRes, context)
+
         /* Transform expression */
         FlagView(
             id = flagRes.id,
-            wikipediaUrlPath = when (flagRes.wikipediaUrlPath) {
-                is StringResSource.Explicit -> flagRes.wikipediaUrlPath.resName.resId(context)
-                is StringResSource.Inherit -> flagRes.previousFlagOf?.let { parentKey ->
-                    flagResMap.getValue(parentKey).let { parentFlagRes ->
-                        when (parentFlagRes.wikipediaUrlPath) {
-                            is StringResSource.Explicit ->
-                                parentFlagRes.wikipediaUrlPath.resName.resId(context)
-                            is StringResSource.Inherit ->
-                                error("$flagKey and $parentKey have no wikipedia url path")
-                        }
-                    }
-                } ?: error("$flagKey has no previousFlagOf key")
-            },
+            wikipediaUrlPath = getStringResExplicitOrInherit(
+                flagKey = flagKey,
+                flagRes = flagRes,
+                prop = FlagResources::wikipediaUrlPath,
+                propName = "wikipedia url path",
+                context = context,
+            ),
             image = flagRes.image.resId(context),
             imagePreview = flagRes.imagePreview.resId(context),
             fromYear = flagRes.fromYear,
             toYear = flagRes.toYear,
-            flagOf = when (flagRes.flagOf) {
-                is StringResSource.Explicit -> flagRes.flagOf.resName.resId(context)
-                is StringResSource.Inherit -> flagRes.previousFlagOf?.let { parentKey ->
-                    flagResMap.getValue(parentKey).let { parentFlagRes ->
-                        when (parentFlagRes.flagOf) {
-                            is StringResSource.Explicit ->
-                                parentFlagRes.flagOf.resName.resId(context)
-                            is StringResSource.Inherit ->
-                                error("$flagKey and $parentKey have no name")
-                        }
-                    }
-                } ?: error("$flagKey has no previousFlagOf key")
-            },
-            flagOfOfficial = when (flagRes.flagOfOfficial) {
-                is StringResSource.Explicit -> flagRes.flagOfOfficial.resName.resId(context)
-                is StringResSource.Inherit -> flagRes.previousFlagOf?.let { parentKey ->
-                    flagResMap.getValue(parentKey).let { parentFlagRes ->
-                        when (parentFlagRes.flagOfOfficial) {
-                            is StringResSource.Explicit ->
-                                parentFlagRes.flagOfOfficial.resName.resId(context)
-                            is StringResSource.Inherit ->
-                                error("$flagKey and $parentKey have no official name")
-                        }
-                    }
-                } ?: error("$flagKey has no previousFlagOf key")
-            },
-            flagOfAlternate = flagRes.flagOfAlternate?.map { it.resId(context) },
-            isFlagOfThe = when (flagRes.isFlagOfThe) {
-                is BooleanSource.Explicit -> flagRes.isFlagOfThe.bool
-                is BooleanSource.Inherit -> flagRes.previousFlagOf?.let { parentKey ->
-                    flagResMap.getValue(parentKey).let { parentFlagRes ->
-                        when (parentFlagRes.isFlagOfThe) {
-                            is BooleanSource.Explicit -> parentFlagRes.isFlagOfThe.bool
-                            is BooleanSource.Inherit ->
-                                error("$flagKey and $parentKey have no isFlagOfThe")
-                        }
-                    }
-                } ?: error("$flagKey has no previousFlagOf key")
-            },
-            isFlagOfOfficialThe = when (flagRes.isFlagOfOfficialThe) {
-                is BooleanSource.Explicit -> flagRes.isFlagOfOfficialThe.bool
-                is BooleanSource.Inherit -> flagRes.previousFlagOf?.let { parentKey ->
-                    flagResMap.getValue(parentKey).let { parentFlagRes ->
-                        when (parentFlagRes.isFlagOfOfficialThe) {
-                            is BooleanSource.Explicit -> parentFlagRes.isFlagOfOfficialThe.bool
-                            is BooleanSource.Inherit ->
-                                error("$flagKey and $parentKey have no isFlagOfOfficialThe")
-                        }
-                    }
-                } ?: error("$flagKey has no previousFlagOf key")
-            },
+            flagOf = flagOfResId,
+            flagOfLiteral = getStringResExplicitOrInherit(
+                flagKey = flagKey,
+                flagRes = flagRes,
+                prop = FlagResources::flagOfLiteral,
+                propName = "name (literal)",
+                context = context,
+            ),
+            flagOfOfficial = flagOfOfficialResId,
+            flagOfAlternate = flagOfAlternativeResIds,
+            isFlagOfThe = getBooleanExplicitOrInherit(
+                flagKey = flagKey,
+                flagRes = flagRes,
+                prop = FlagResources::isFlagOfThe,
+                propName = "isFlagOfThe value",
+            ),
+            isFlagOfOfficialThe = getBooleanExplicitOrInherit(
+                flagKey = flagKey,
+                flagRes = flagRes,
+                prop = FlagResources::isFlagOfOfficialThe,
+                propName = "isFlagOfOfficialThe value",
+            ),
+            internationalOrganisationKeys = flagRes.internationalOrganisations,
             associatedStateKey = flagRes.associatedState,
             sovereignStateKey = flagRes.sovereignState,
             parentUnitKey = flagRes.parentUnit,
-            latestEntityKey = flagRes.latestEntity,
+            latestEntityKeys = flagRes.latestEntities,
             previousFlagOfKey = flagRes.previousFlagOf,
-            flagStringResIds = getFlagNameResIds(flagKey, flagRes, context),
+            flagStringResIds = flagOfAlternativeResIds + flagOfResId + flagOfOfficialResId,
             politicalInternalRelatedFlagKeys = polIntRelFlagKeys,
             politicalExternalRelatedFlagKeys = polExtRelFlagKeys,
             chronologicalDirectRelatedFlagKeys = chronDirRelFlagKeys,

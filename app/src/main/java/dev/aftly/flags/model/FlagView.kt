@@ -15,7 +15,7 @@ data class FlagView(
     @param:StringRes val flagOf: Int,
     @param:StringRes val flagOfLiteral: Int, // flagOf without descriptors
     @param:StringRes val flagOfOfficial: Int,
-    val flagOfAlternate: List<Int>?,
+    val flagOfAlternate: List<Int>,
     val isFlagOfThe: Boolean,
     val isFlagOfOfficialThe: Boolean,
     val internationalOrganisationKeys: List<String>,

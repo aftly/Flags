@@ -9,6 +9,7 @@ import dev.aftly.flags.data.DataSource.flagViewMapId
 import dev.aftly.flags.data.DataSource.inverseFlagResMap
 import dev.aftly.flags.data.DataSource.inverseFlagViewMap
 import dev.aftly.flags.data.room.savedflags.SavedFlag
+import dev.aftly.flags.model.BooleanSource
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
 import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
@@ -80,26 +81,27 @@ fun getChronologicalDirectRelatedFlagKeys(
     flagKey: String,
     flagRes: FlagResources,
 ): List<String> {
+    val latestParentKeys = buildList {
+        add(flagKey)
+        flagRes.previousFlagOf?.let { add(it) }
+        addAll(flagRes.latestEntities)
+    }
+
     val previousParentKeys = buildList {
         add(flagKey)
         flagRes.previousFlagOf?.let { add(it) }
     }
 
-    val latestParentKeys = buildList {
-        add(flagKey)
-        flagRes.previousFlagOf?.let { add(it) }
-        flagRes.latestEntity?.let { add(it) }
-    }
-
     val childKeys = flagResMap.values.filter { flag ->
-        flag.previousFlagOf in previousParentKeys || flag.latestEntity in latestParentKeys
+         flag.latestEntities.any { it in latestParentKeys } || flag
+             .previousFlagOf in previousParentKeys
     }.map { flag ->
         inverseFlagResMap.getValue(flag)
     }
 
     return buildList {
-        addAll(previousParentKeys)
         addAll(latestParentKeys)
+        addAll(previousParentKeys)
         addAll(childKeys)
     }.distinct()
 }
@@ -118,15 +120,16 @@ fun getChronologicalIndirectRelatedFlagKeys(
 
     val sovereignFilterKeys = buildList {
         /* For all dependents of latest entity */
-        flagRes.latestEntity?.let { add(it) }
+        addAll(flagRes.latestEntities)
         /* For post-admin keys of parent entity (eg. primary USA for historical USA flags) */
         flagRes.previousFlagOf?.let { flagOfKey ->
-            flagResMap.getValue(flagOfKey).latestEntity?.let { add(it) }
+            addAll(flagResMap.getValue(flagOfKey).latestEntities)
         }
     }
 
     return flagResMap.values.filter { flag ->
-        flag.latestEntity in latestFilterKeys || flag.sovereignState in sovereignFilterKeys
+        flag.latestEntities.any { it in latestFilterKeys } || flag
+            .sovereignState in sovereignFilterKeys
     }.map { flag ->
         inverseFlagResMap.getValue(flag)
     }.distinct()
@@ -206,44 +209,80 @@ fun getPoliticalExternalRelatedFlagKeys(
     }.distinct()
 }
 
-fun getFlagNameResIds(
+fun <T> getBooleanExplicitOrInherit(
+    flagKey: String,
+    flagRes: FlagResources,
+    prop: (FlagResources) -> T,
+    propName: String,
+): Boolean {
+    val boolSrc = prop(flagRes)
+
+    return when (boolSrc) {
+        is BooleanSource.Explicit -> boolSrc.bool
+        is BooleanSource.Inherit ->
+            flagRes.previousFlagOf?.let { parentKey ->
+                flagResMap.getValue(parentKey).let { parentFlagRes ->
+                    val parentBoolSrc = prop(parentFlagRes)
+
+                    when (parentBoolSrc) {
+                        is BooleanSource.Explicit -> parentBoolSrc.bool
+                        is BooleanSource.Inherit -> error("$flagKey & $parentKey: No $propName")
+                        else -> error("flagResProp not StringResSource type")
+                    }
+                }
+            } ?: error("$flagKey has no previousFlagOf key")
+        else -> error("flagResProp not BooleanSource type")
+    }
+}
+
+fun <T> getStringResExplicitOrInherit(
+    flagKey: String,
+    flagRes: FlagResources,
+    prop: (FlagResources) -> T,
+    propName: String,
+    context: Context,
+): Int {
+    val strResSrc = prop(flagRes)
+
+    return when (strResSrc) {
+        is StringResSource.Explicit -> strResSrc.resName.resId(context)
+        is StringResSource.Inherit ->
+            flagRes.previousFlagOf?.let { parentKey ->
+                flagResMap.getValue(parentKey).let { parentFlagRes ->
+                    val parentStrResSrc = prop(parentFlagRes)
+
+                    when (parentStrResSrc) {
+                        is StringResSource.Explicit -> parentStrResSrc.resName.resId(context)
+                        is StringResSource.Inherit -> error("$flagKey & $parentKey: No $propName")
+                        else -> error("flagResProp not StringResSource type")
+                    }
+                }
+            } ?: error("$flagKey has no previousFlagOf key")
+        else -> error("flagResProp not StringResSource type")
+    }
+}
+
+fun getFlagOfAlternativeResIds(
     flagKey: String,
     flagRes: FlagResources,
     context: Context,
-): List<Int> {
-    val flagOf = when (flagRes.flagOf) {
-        is StringResSource.Explicit -> flagRes.flagOf.resName.resId(context)
-        is StringResSource.Inherit -> flagRes.previousFlagOf?.let { parentKey ->
-            flagResMap.getValue(parentKey).let { parentFlagRes ->
-                when (parentFlagRes.flagOf) {
-                    is StringResSource.Explicit ->
-                        parentFlagRes.flagOf.resName.resId(context)
-                    is StringResSource.Inherit ->
-                        error("$flagKey and $parentKey have no name")
+): List<Int> = buildList {
+    val explicitList = flagRes.flagOfAlternate.filterIsInstance<StringResSource.Explicit>()
+        .map { it.resName.resId(context) }
+
+    val inheritList = when (StringResSource.Inherit) {
+        in flagRes.flagOfAlternate ->
+            flagRes.previousFlagOf?.let { parentKey ->
+                flagResMap.getValue(parentKey).let { parentFlagRes ->
+                    parentFlagRes.flagOfAlternate.filterIsInstance<StringResSource.Explicit>()
+                        .map { it.resName.resId(context) }
                 }
-            }
-        } ?: error("$flagKey has no previousFlagOf key")
-    }
-    val flagOfOfficial = when (flagRes.flagOfOfficial) {
-        is StringResSource.Explicit -> flagRes.flagOfOfficial.resName.resId(context)
-        is StringResSource.Inherit -> flagRes.previousFlagOf?.let { parentKey ->
-            flagResMap.getValue(parentKey).let { parentFlagRes ->
-                when (parentFlagRes.flagOfOfficial) {
-                    is StringResSource.Explicit ->
-                        parentFlagRes.flagOfOfficial.resName.resId(context)
-                    is StringResSource.Inherit ->
-                        error("$flagKey and $parentKey have no official name")
-                }
-            }
-        } ?: error("$flagKey has no previousFlagOf key")
+            } ?: error("$flagKey has no previousFlagOf key")
+        else -> emptyList()
     }
 
-    val primaryNames = listOf(flagOf, flagOfOfficial)
-
-    /* Transform expression */
-    return flagRes.flagOfAlternate?.map { it.resId(context) }?.let { secondaryNames ->
-        primaryNames + secondaryNames
-    } ?: primaryNames
+    addAll(explicitList)
+    addAll(inheritList)
 }
 
 /* ------------------------------------------ */
@@ -412,11 +451,11 @@ fun getChronologicalRelatedFlagsContentOrNull(
         )
 
         val latestEntity = chronologicalDirectRelatedFlags.firstOrNull { directFlag ->
-            directFlag.latestEntityKey == null && directFlag.previousFlagOfKey == null
+            directFlag.latestEntityKeys.isEmpty() && directFlag.previousFlagOfKey == null
         }
 
         val previousEntities = chronologicalDirectRelatedFlags.filter { directFlag ->
-            directFlag.latestEntityKey != null
+            directFlag.latestEntityKeys.isNotEmpty()
         }.sortedByDescending { it.fromYear }
 
         val historicalFlags = chronologicalDirectRelatedFlags.filter { directFlag ->
