@@ -156,7 +156,7 @@ class FlagViewModel(
         val whitespaceExceptions = uiState.value.descriptionIdsWhitespaceExceptions
         val strings = mutableListOf<String>()
         val flagOfIndexes = mutableListOf<Int>()
-        val allFlagOfIds = allFlagsList.map { it.flagOf }
+        val allFlagOfIds = allFlagsList.map { it.flagOfLiteral }
 
         /* Loop through stringResIds and add their corresponding strings to stringList
          * (and with whitespace when appropriate) */
@@ -207,7 +207,7 @@ class FlagViewModel(
         if (isNonCulturalCategoriesInFlag) {
             /* Start with flag name */
             if (flag.isFlagOfThe) stringIds.add(element = R.string.string_the_capitalized)
-            stringIds.add(element = flag.flagOf)
+            stringIds.add(element = flag.flagOfLiteral)
 
             /* If flag is historical "was a", else "is a" */
             if (HISTORICAL in categories) {
@@ -231,7 +231,7 @@ class FlagViewModel(
 
                 stringIds.add(element = R.string.category_free_association_in_description)
                 if (associatedState.isFlagOfThe) stringIds.add(element = R.string.string_the)
-                stringIds.add(element = associatedState.flagOf)
+                stringIds.add(element = associatedState.flagOfLiteral)
             }
 
             /* If relevant add strings about the sovereign state */
@@ -243,7 +243,7 @@ class FlagViewModel(
                 if (flag.associatedStateKey == null) {
                     stringIds.add(element = R.string.string_within)
                     if (sovereign.isFlagOfThe) stringIds.add(element = R.string.string_the)
-                    stringIds.add(element = sovereign.flagOf)
+                    stringIds.add(element = sovereign.flagOfLiteral)
                 }
                 stringIds.add(element = R.string.string_comma)
                 whitespaceExceptionIndexes.add(element = stringIds.lastIndex)
@@ -282,7 +282,7 @@ class FlagViewModel(
             if (isNonCulturalCategoriesInFlag) {
                 whitespaceExceptionIndexes.add(element = stringIds.lastIndex)
             }
-            stringIds.add(element = flag.flagOf)
+            stringIds.add(element = flag.flagOfLiteral)
 
             /* If flag is historical or non-cultural description precedes, strings differ */
             if (isNonCulturalCategoriesInFlag && HISTORICAL in categories) {
