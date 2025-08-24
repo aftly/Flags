@@ -101,7 +101,7 @@ class FlagViewModel(
                     }
                 )
             }
-            updateDescriptionString(flag = flag)
+            updateDescriptionIds(flagView = flag)
         }
     }
 
@@ -147,71 +147,37 @@ class FlagViewModel(
     }
 
 
-    /* Convert the @StringRes list into a legible string
-     * Also for execution upon locale/language configuration changes */
-    fun updateDescriptionString(flag: FlagView) {
-        val appResources = getApplication<Application>().applicationContext.resources
-        val stringIds = getDescriptionIds(flag = flag)
-        val whitespaceExceptions = uiState.value.descriptionIdsWhitespaceExceptions
-        val strings = mutableListOf<String>()
+    /* Update state with relevant description string resources for resolution in UI layer */
+    private fun updateDescriptionIds(flagView: FlagView) {
+        /* ---------- Initialise properties for getting description strings ---------- */
+        val resIds = mutableListOf<Int>()
+        val whitespaceExceptionIndexes = mutableListOf(0)
         val clickableIndexes = mutableListOf<Int>()
         val flagNameIndexes = mutableListOf<Int>()
         val descriptorIndexes = mutableListOf<Int>()
 
-        val clickableNameResIds = buildList {
-            flag.sovereignStateKey?.let { sovKey ->
-                val sov = flagViewMap.getValue(sovKey)
-                addAll(elements = listOf(sov.flagOf, sov.flagOfLiteral, sov.flagOfOfficial))
+        /* Resources */
+        val flag = flagView.previousFlagOfKey?.let { flagViewMap.getValue(it) } ?: flagView
+        val categories = flag.categories
+        val associatedState = flagViewMap[flag.associatedStateKey]
+        val sovereignState = flagViewMap[flag.sovereignStateKey]
+
+        val clickableResIds = buildList {
+            associatedState?.let {
+                addAll(elements = listOf(it.flagOf, it.flagOfLiteral, it.flagOfOfficial))
             }
-            flag.associatedStateKey?.let {
-                val ass = flagViewMap.getValue(it)
-                addAll(elements = listOf(ass.flagOf, ass.flagOfLiteral, ass.flagOfOfficial))
+            sovereignState?.let {
+                addAll(elements = listOf(it.flagOf, it.flagOfLiteral, it.flagOfOfficial))
             }
         }
-        val flagNameResIds = buildList {
-            addAll(elements = listOf(flag.flagOf, flag.flagOfLiteral, flag.flagOfOfficial))
-        }
+        val flagNameResIds = listOf(flag.flagOf, flag.flagOfLiteral, flag.flagOfOfficial)
         val descriptorResIds = listOf(
             R.string.category_nominal_extra_constitutional_in_description,
             R.string.string_defunct
         )
 
-        /* Loop through stringResIds and add their corresponding strings to stringList
-         * (and with whitespace when appropriate) */
-        for ((index, stringId) in stringIds.withIndex()) {
-            if (index !in whitespaceExceptions) {
-                strings.add(appResources.getString(R.string.string_whitespace))
-            }
-            strings.add(appResources.getString(stringId))
-
-            /* Add index of word in stringList to flagOfPositions if it is a flag name */
-            when (stringId) {
-                in clickableNameResIds -> clickableIndexes.add(strings.lastIndex)
-                in flagNameResIds -> flagNameIndexes.add(strings.lastIndex)
-                in descriptorResIds -> descriptorIndexes.add(strings.lastIndex)
-            }
-        }
-
-        _uiState.update {
-            it.copy(
-                descriptionClickableWordIndexes = clickableIndexes.toList(),
-                descriptionBoldWordIndexes = flagNameIndexes.toList(),
-                descriptionLightWordIndexes = descriptorIndexes.toList(),
-                description = strings.toList(),
-            )
-        }
-    }
-
-
-    /* Return appropriate @StringRes list from flag info to make a legible entity description
-     * Also, update state with whitespace exceptions for @StringRes list */
-    private fun getDescriptionIds(flag: FlagView): List<Int> {
-        val categories = flag.categories
-        val stringIds = mutableListOf<Int>()
-        val whitespaceExceptionIndexes = mutableListOf(0)
-
         val allCulturalCategories = FlagSuperCategory.Cultural.enums().filterNot { cultural ->
-            flag.sovereignStateKey?.let { cultural == REGIONAL } == true
+            sovereignState?.let { cultural == REGIONAL } == true
         }
         val categoriesNonCultural = categories.filterNot { category ->
             category == HISTORICAL || category in allCulturalCategories
@@ -224,107 +190,123 @@ class FlagViewModel(
         val isCulturalCategoriesInFlag = categoriesCultural.isNotEmpty()
 
 
-        /* Add non-cultural description @StringRes ids to list */
+        /* ---------- Add non-cultural description @StringRes Ids to list ---------- */
         if (isNonCulturalCategoriesInFlag) {
             /* Start with flag name, details vary if historical */
             if (HISTORICAL in categories) {
-                if (flag.isFlagOfOfficialThe) stringIds.add(R.string.string_the_capitalized)
-                stringIds.add(flag.flagOfOfficial)
-                stringIds.add(R.string.string_is_a)
-                stringIds.add(R.string.string_defunct)
+                if (flag.isFlagOfOfficialThe) resIds.add(R.string.string_the_capitalized)
+                resIds.add(flag.flagOfOfficial) /* FLAG NAME */
+                resIds.add(R.string.string_is_a)
+                resIds.add(R.string.string_defunct) /* DESCRIPTOR */
             } else {
-                if (flag.isFlagOfThe) stringIds.add(R.string.string_the_capitalized)
-                stringIds.add(flag.flagOfLiteral)
-                stringIds.add(R.string.string_is_a)
+                if (flag.isFlagOfThe) resIds.add(R.string.string_the_capitalized)
+                resIds.add(flag.flagOfLiteral) /* FLAG NAME */
+                resIds.add(R.string.string_is_a)
             }
 
             /* Loop through categories and add it's string or alternate strings depending on
              * legibility */
             iterateOverNonCulturalCategories(
                 categories = categoriesNonCultural,
-                stringIds = stringIds,
+                stringIds = resIds,
                 whitespaceExceptions = whitespaceExceptionIndexes,
                 isConstitutional = isConstitutional,
             )
 
             /* If relevant add strings about the associated state */
-            if (flag.associatedStateKey != null) {
-                val associatedState = flagViewMap.getValue(flag.associatedStateKey)
-
+            if (associatedState != null) {
                 if (SOVEREIGN_STATE in categories) {
-                    stringIds.add(R.string.string_comma)
-                    whitespaceExceptionIndexes.add(stringIds.lastIndex)
+                    resIds.add(R.string.string_comma)
+                    whitespaceExceptionIndexes.add(resIds.lastIndex)
                 }
-                stringIds.add(R.string.category_free_association_in_description)
+                resIds.add(R.string.category_free_association_in_description)
 
                 if (HISTORICAL in associatedState.categories) {
-                    if (associatedState.isFlagOfOfficialThe) stringIds.add(R.string.string_the)
-                    stringIds.add(associatedState.flagOfOfficial)
+                    if (associatedState.isFlagOfOfficialThe) resIds.add(R.string.string_the)
+                    resIds.add(associatedState.flagOfOfficial) /* FLAG NAME */
                 } else {
-                    if (associatedState.isFlagOfThe) stringIds.add(R.string.string_the)
-                    stringIds.add(associatedState.flagOfLiteral)
+                    if (associatedState.isFlagOfThe) resIds.add(R.string.string_the)
+                    resIds.add(associatedState.flagOfLiteral) /* FLAG NAME */
                 }
+
             }
 
             /* If relevant add strings about the sovereign state */
-            if (flag.sovereignStateKey != null && flag.associatedStateKey == null) {
-                val sovereign = flagViewMap.getValue(flag.sovereignStateKey)
-
+            if (sovereignState != null && associatedState == null) {
                 when (REGIONAL) {
-                    in categories -> stringIds.add(R.string.string_in)
-                    else -> stringIds.add(R.string.string_of)
+                    in categories -> resIds.add(R.string.string_in)
+                    else -> resIds.add(R.string.string_of)
                 }
 
-                if (HISTORICAL in sovereign.categories) {
-                    if (sovereign.isFlagOfOfficialThe) stringIds.add(R.string.string_the)
-                    stringIds.add(R.string.string_defunct)
-                    stringIds.add(sovereign.flagOfOfficial)
+                if (HISTORICAL in sovereignState.categories) {
+                    if (sovereignState.isFlagOfOfficialThe) resIds.add(R.string.string_the)
+                    resIds.add(R.string.string_defunct) /* DESCRIPTOR */
+                    resIds.add(sovereignState.flagOfOfficial) /* FLAG NAME */
                 } else {
-                    if (sovereign.isFlagOfThe) stringIds.add(R.string.string_the)
-                    stringIds.add(sovereign.flagOfLiteral)
+                    if (sovereignState.isFlagOfThe) resIds.add(R.string.string_the)
+                    resIds.add(sovereignState.flagOfLiteral) /* FLAG NAME */
                 }
             }
 
             if (DEVOLVED_GOVERNMENT in categories) {
-                stringIds.add(R.string.string_comma)
-                whitespaceExceptionIndexes.add(stringIds.lastIndex)
+                resIds.add(R.string.string_comma)
+                whitespaceExceptionIndexes.add(resIds.lastIndex)
 
-                stringIds.add(R.string.category_devolved_government_in_description)
+                resIds.add(R.string.category_devolved_government_in_description)
             }
         }
 
 
-        /* Add cultural description @StringRes ids to list */
+        /* ---------- Add cultural description @StringRes Ids to list ---------- */
         if (isCulturalCategoriesInFlag && !isNonCulturalCategoriesInFlag) {
-            stringIds.add(R.string.string_the_capitalized)
+            resIds.add(R.string.string_the_capitalized)
 
             if (HISTORICAL in categories) {
-                stringIds.add(flag.flagOfOfficial)
-                stringIds.add(R.string.category_super_cultural_in_description_historical)
+                resIds.add(flag.flagOfOfficial) /* FLAG NAME */
+                resIds.add(R.string.category_super_cultural_in_description_historical)
             } else {
-                stringIds.add(flag.flagOfLiteral)
-                stringIds.add(R.string.category_super_cultural_in_description)
+                resIds.add(flag.flagOfLiteral) /* FLAG NAME */
+                resIds.add(R.string.category_super_cultural_in_description)
             }
 
             /* Loop through categories and add appropriate @StringRes ids to list */
             iterateOverCulturalCategories(
                 categories = categoriesCultural,
-                stringIds = stringIds,
+                stringIds = resIds,
                 whitespaceExceptions = whitespaceExceptionIndexes,
             )
         }
 
-        /* End of description */
-        stringIds.add(R.string.string_period)
-        whitespaceExceptionIndexes.add(stringIds.lastIndex)
 
-        /* Update state with whitespaceExceptionIndexes */
-        _uiState.update { currentState ->
-            currentState.copy(
-                descriptionIdsWhitespaceExceptions = whitespaceExceptionIndexes.toList()
+        /* ---------- Description END ---------- */
+        resIds.add(R.string.string_period)
+        whitespaceExceptionIndexes.add(resIds.lastIndex)
+        /* ---------------------------------------- */
+
+
+        /* ---------- Update state with whitespace resIds inserted ---------- */
+        val resIdsComplete = resIds.flatMapIndexed { index, resId ->
+            when (index) {
+                in whitespaceExceptionIndexes -> listOf(resId)
+                else -> listOf(R.string.string_whitespace, resId)
+            }
+        }
+        resIdsComplete.forEachIndexed { index, resId ->
+            /* Add index of resId to index lists when also in respective lists */
+            when (resId) {
+                in clickableResIds -> clickableIndexes.add(index)
+                in flagNameResIds -> flagNameIndexes.add(index)
+                in descriptorResIds -> descriptorIndexes.add(index)
+            }
+        }
+        _uiState.update {
+            it.copy(
+                descriptionResIds = resIdsComplete,
+                descriptionClickableWordIndexes = clickableIndexes,
+                descriptionBoldWordIndexes = flagNameIndexes,
+                descriptionLightWordIndexes = descriptorIndexes,
             )
         }
-        return stringIds.toList()
     }
 
 
@@ -336,9 +318,11 @@ class FlagViewModel(
         whitespaceExceptions: MutableList<Int>,
         isConstitutional: Boolean,
     ) {
-        val skipCategories = listOf(SOVEREIGN_STATE, FREE_ASSOCIATION, HISTORICAL)
-        val regionCategories =
-            categories.filter { it in FlagSuperCategory.Regional.enums() }.toMutableList()
+        val skipCategories =
+            listOf(SOVEREIGN_STATE, FREE_ASSOCIATION, HISTORICAL, DEVOLVED_GOVERNMENT)
+
+        val regionCategories = categories.filter { it in FlagSuperCategory.Regional.enums() }
+            .toMutableList()
         regionCategories.removeFirstOrNull()
 
         for (category in categories) {
@@ -357,10 +341,6 @@ class FlagViewModel(
                 stringIds.add(R.string.string_and)
                 stringIds.add(category.string)
                 regionCategories.remove(category)
-
-            } else if (category == DEVOLVED_GOVERNMENT) {
-                continue
-                //stringIds.add(element = R.string.category_devolved_government_in_description)
 
             } else if (category == INTERNATIONAL_ORGANIZATION) {
                 if (categories.any { it in FlagSuperCategory.ExecutiveStructure.enums() } &&

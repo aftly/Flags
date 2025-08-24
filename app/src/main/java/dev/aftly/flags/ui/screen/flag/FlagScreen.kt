@@ -196,7 +196,7 @@ private fun FlagScreen(
             FlagContent(
                 modifier = Modifier.padding(scaffoldPadding),
                 flag = uiState.flag,
-                description = uiState.description,
+                description = uiState.descriptionResIds,
                 clickableWordPositions = uiState.descriptionClickableWordIndexes,
                 boldWordPositions = uiState.descriptionBoldWordIndexes,
                 lightWordPositions = uiState.descriptionLightWordIndexes,
@@ -265,7 +265,7 @@ private fun FlagScreen(
 private fun FlagContent(
     modifier: Modifier = Modifier,
     flag: FlagView,
-    description: List<String>,
+    description: List<Int>,
     clickableWordPositions: List<Int>,
     boldWordPositions: List<Int>,
     lightWordPositions: List<Int>,
@@ -329,7 +329,7 @@ private fun FlagContent(
 
         /* Build annotated string from description string list, making flag names bold */
         val annotatedDescription = buildAnnotatedString {
-            for ((index, string) in description.withIndex()) {
+            description.forEachIndexed { index, resId ->
                 when (index) {
                     in clickableWordPositions ->
                         withLink(
@@ -345,19 +345,19 @@ private fun FlagContent(
                                 onNavigate()
                             }
                         ) {
-                            append(text = string)
+                            append(text = stringResource(resId))
                         }
                     in boldWordPositions ->
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(text = string)
+                            append(text = stringResource(resId))
                         }
                     in lightWordPositions ->
                         withStyle(
                             style = SpanStyle(fontWeight = FontWeight.Light, color = Color.Gray)
                         ) {
-                            append(text = string)
+                            append(text = stringResource(resId))
                         }
-                    else -> append(text = string)
+                    else -> append(text = stringResource(resId))
                 }
             }
         }
