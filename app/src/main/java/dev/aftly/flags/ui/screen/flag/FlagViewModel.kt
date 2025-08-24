@@ -171,8 +171,7 @@ class FlagViewModel(
 
         val descriptorResIds = listOf(
             R.string.category_nominal_extra_constitutional_in_description,
-            R.string.string_defunct,
-            R.string.string_defunct_bracketed
+            R.string.string_defunct
         )
 
         /* Loop through stringResIds and add their corresponding strings to stringList
