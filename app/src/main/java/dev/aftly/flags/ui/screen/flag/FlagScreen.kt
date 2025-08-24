@@ -54,11 +54,14 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -194,9 +197,11 @@ private fun FlagScreen(
                 modifier = Modifier.padding(scaffoldPadding),
                 flag = uiState.flag,
                 description = uiState.description,
+                clickableWordPositions = uiState.descriptionClickableWordIndexes,
                 boldWordPositions = uiState.descriptionBoldWordIndexes,
                 lightWordPositions = uiState.descriptionLightWordIndexes,
                 onImageWide = { isFlagWide = it },
+                onNavigate = { onFullscreen(isFlagWide) }, // TODO
                 onFullscreen = { onFullscreen(isFlagWide) },
             )
         }
@@ -261,9 +266,11 @@ private fun FlagContent(
     modifier: Modifier = Modifier,
     flag: FlagView,
     description: List<String>,
+    clickableWordPositions: List<Int>,
     boldWordPositions: List<Int>,
     lightWordPositions: List<Int>,
     onImageWide: (Boolean) -> Unit,
+    onNavigate: () -> Unit,
     onFullscreen: () -> Unit,
 ) {
     /* Properties for if image height greater than column height, eg. in landscape orientation,
@@ -324,6 +331,22 @@ private fun FlagContent(
         val annotatedDescription = buildAnnotatedString {
             for ((index, string) in description.withIndex()) {
                 when (index) {
+                    in clickableWordPositions ->
+                        withLink(
+                            link = LinkAnnotation.Clickable(
+                                tag = "nav",
+                                styles = TextLinkStyles(style =
+                                    SpanStyle(
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                )
+                            ) {
+                                onNavigate()
+                            }
+                        ) {
+                            append(text = string)
+                        }
                     in boldWordPositions ->
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                             append(text = string)

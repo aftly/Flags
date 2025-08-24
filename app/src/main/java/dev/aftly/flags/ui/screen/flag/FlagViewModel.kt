@@ -154,11 +154,11 @@ class FlagViewModel(
         val stringIds = getDescriptionIds(flag = flag)
         val whitespaceExceptions = uiState.value.descriptionIdsWhitespaceExceptions
         val strings = mutableListOf<String>()
+        val clickableIndexes = mutableListOf<Int>()
         val flagNameIndexes = mutableListOf<Int>()
         val descriptorIndexes = mutableListOf<Int>()
-        val flagNameResIds = buildList {
-            addAll(elements = listOf(flag.flagOf, flag.flagOfLiteral, flag.flagOfOfficial))
 
+        val clickableNameResIds = buildList {
             flag.sovereignStateKey?.let { sovKey ->
                 val sov = flagViewMap.getValue(sovKey)
                 addAll(elements = listOf(sov.flagOf, sov.flagOfLiteral, sov.flagOfOfficial))
@@ -168,7 +168,9 @@ class FlagViewModel(
                 addAll(elements = listOf(ass.flagOf, ass.flagOfLiteral, ass.flagOfOfficial))
             }
         }
-
+        val flagNameResIds = buildList {
+            addAll(elements = listOf(flag.flagOf, flag.flagOfLiteral, flag.flagOfOfficial))
+        }
         val descriptorResIds = listOf(
             R.string.category_nominal_extra_constitutional_in_description,
             R.string.string_defunct
@@ -183,16 +185,16 @@ class FlagViewModel(
             strings.add(appResources.getString(stringId))
 
             /* Add index of word in stringList to flagOfPositions if it is a flag name */
-            if (stringId in flagNameResIds) {
-                flagNameIndexes.add(strings.lastIndex)
-            }
-            if (stringId in descriptorResIds) {
-                descriptorIndexes.add(strings.lastIndex)
+            when (stringId) {
+                in clickableNameResIds -> clickableIndexes.add(strings.lastIndex)
+                in flagNameResIds -> flagNameIndexes.add(strings.lastIndex)
+                in descriptorResIds -> descriptorIndexes.add(strings.lastIndex)
             }
         }
 
         _uiState.update {
             it.copy(
+                descriptionClickableWordIndexes = clickableIndexes.toList(),
                 descriptionBoldWordIndexes = flagNameIndexes.toList(),
                 descriptionLightWordIndexes = descriptorIndexes.toList(),
                 description = strings.toList(),
