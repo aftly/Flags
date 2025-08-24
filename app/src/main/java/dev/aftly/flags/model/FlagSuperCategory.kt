@@ -129,11 +129,11 @@ sealed class FlagSuperCategory(
         gameScoreCategoryPreview = R.string.category_super_cultural_score_preview,
         gameScoreCategoryDetailed = R.string.category_super_cultural_score_detailed,
         subCategories = listOf(
-            FlagCategoryWrapper(enum = FlagCategory.ETHNIC),
+            FlagCategoryWrapper(enum = FlagCategory.REGIONAL),
             FlagCategoryWrapper(enum = FlagCategory.SOCIAL),
             FlagCategoryWrapper(enum = FlagCategory.POLITICAL),
             FlagCategoryWrapper(enum = FlagCategory.RELIGIOUS),
-            FlagCategoryWrapper(enum = FlagCategory.REGIONAL)
+            FlagCategoryWrapper(enum = FlagCategory.ETHNIC),
         ),
     )
 

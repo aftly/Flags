@@ -100,11 +100,11 @@ enum class FlagCategory(
 
 
     /* NON-ADMINISTRATIVE ENTITIES */
-    ETHNIC (title = R.string.category_ethnic_title, string = R.string.category_ethnic_string),
+    REGIONAL (title = R.string.category_regional_title, string = R.string.category_regional_string),
     SOCIAL (title = R.string.category_social_title, string = R.string.category_social_string),
     POLITICAL (title = R.string.category_political_title, string = R.string.category_political_string),
     RELIGIOUS (title = R.string.category_religious_title, string = R.string.category_religious_string),
-    REGIONAL (title = R.string.category_regional_title, string = R.string.category_regional_string),
+    ETHNIC (title = R.string.category_ethnic_title, string = R.string.category_ethnic_string),
 
 
     /* For entities that don't exist anymore */

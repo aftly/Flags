@@ -168,7 +168,8 @@
     <string name="category_fascist_string">fascist</string>
     <string name="category_ethnic_title">Ethnic</string>
     <string name="category_ethnic_string">ethnic</string>
-    <string name="category_ethnic_in_description">n ethnicity</string>
+    <string name="category_ethnic_in_description_1">ethnicity</string>
+    <string name="category_ethnic_in_description_2">n ethnicity</string>
     <string name="category_social_title">Social</string>
     <string name="category_social_string">social</string>
     <string name="category_social_in_description">social movement</string>
@@ -293,10 +294,15 @@
     <string name="string_a">a</string>
     <string name="string_and">and</string>
     <string name="string_and_a">and a</string>
+    <string name="string_and_the_flag_of">and the flag of a</string>
     <string name="string_comma">,</string>
     <string name="string_comma_whitespace">,\ </string>
+    <string name="string_defunct">(defunct)</string>
+    <string name="string_in">in</string>
     <string name="string_is_a">is a</string>
+    <string name="string_is_a_defunct">is a defunct</string>
     <string name="string_new_paragraph">\n\n</string>
+    <string name="string_of">of</string>
     <string name="string_period">.</string>
     <string name="string_present">present</string>
     <string name="string_that_is">that is</string>
@@ -304,10 +310,8 @@
     <string name="string_the_capitalized">The</string>
     <string name="string_the_whitespace">the\ </string>
     <string name="string_was_a">was a</string>
-    <string name="string_which_was_a">which was a</string>
     <string name="string_whitespace">\ </string>
     <string name="string_with_a">with a</string>
-    <string name="string_within">within</string>
     <string name="time_mode_standard">Standard</string>
     <string name="time_mode_time_trial">Time Trial</string>
     <string name="wikipedia_button">Open in Wikipedia</string>

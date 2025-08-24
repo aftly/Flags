@@ -7,7 +7,6 @@ import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.R
-import dev.aftly.flags.data.DataSource.allFlagsList
 import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.data.room.savedflags.SavedFlag
 import dev.aftly.flags.model.FlagCategory
@@ -156,7 +155,18 @@ class FlagViewModel(
         val whitespaceExceptions = uiState.value.descriptionIdsWhitespaceExceptions
         val strings = mutableListOf<String>()
         val flagOfIndexes = mutableListOf<Int>()
-        val allFlagOfIds = allFlagsList.map { it.flagOfLiteral }
+        val flagNameResIds = buildList {
+            addAll(elements = listOf(flag.flagOf, flag.flagOfLiteral, flag.flagOfOfficial))
+
+            flag.sovereignStateKey?.let { sovKey ->
+                val sov = flagViewMap.getValue(sovKey)
+                addAll(elements = listOf(sov.flagOf, sov.flagOfLiteral, sov.flagOfOfficial))
+            }
+            flag.associatedStateKey?.let {
+                val ass = flagViewMap.getValue(it)
+                addAll(elements = listOf(ass.flagOf, ass.flagOfLiteral, ass.flagOfOfficial))
+            }
+        }
 
         /* Loop through stringResIds and add their corresponding strings to stringList
          * (and with whitespace when appropriate) */
@@ -167,7 +177,7 @@ class FlagViewModel(
             strings.add(appResources.getString(stringId))
 
             /* Add index of word in stringList to flagOfPositions if it is a flag name */
-            if (stringId in allFlagOfIds) {
+            if (stringId in flagNameResIds) {
                 flagOfIndexes.add(element = strings.lastIndex)
             }
         }
@@ -191,35 +201,37 @@ class FlagViewModel(
         val stringIds = mutableListOf<Int>()
         val whitespaceExceptionIndexes = mutableListOf(0)
 
-        val allCulturalCategories = FlagSuperCategory.Cultural.enums()
-        val allNonCulturalCategories = FlagSuperCategory.All.enums().filterNot {
-            it in allCulturalCategories
+        val allCulturalCategories = FlagSuperCategory.Cultural.enums().filterNot { cultural ->
+            flag.sovereignStateKey?.let { cultural == REGIONAL } == true
         }
+        val categoriesNonCultural = categories.filterNot { category ->
+            category == HISTORICAL || category in allCulturalCategories
+        }
+        val categoriesCultural = categories.filter { it in allCulturalCategories }
 
         /* Description varies based on the following conditions */
         val isConstitutional = CONSTITUTIONAL in categories
-        val isNonCulturalCategoriesInFlag = categories.filterNot { it == HISTORICAL }
-            .any { it in allNonCulturalCategories }
-        val isCulturalCategoriesInFlag = categories.any { it in allCulturalCategories }
+        val isNonCulturalCategoriesInFlag = categoriesNonCultural.isNotEmpty()
+        val isCulturalCategoriesInFlag = categoriesCultural.isNotEmpty()
 
 
         /* Add non-cultural description @StringRes ids to list */
         if (isNonCulturalCategoriesInFlag) {
-            /* Start with flag name */
-            if (flag.isFlagOfThe) stringIds.add(element = R.string.string_the_capitalized)
-            stringIds.add(element = flag.flagOfLiteral)
-
-            /* If flag is historical "was a", else "is a" */
+            /* Start with flag name, details vary if historical */
             if (HISTORICAL in categories) {
-                stringIds.add(element = R.string.string_was_a)
+                if (flag.isFlagOfOfficialThe) stringIds.add(element = R.string.string_the_capitalized)
+                stringIds.add(element = flag.flagOfOfficial)
+                stringIds.add(element = R.string.string_is_a_defunct)
             } else {
+                if (flag.isFlagOfThe) stringIds.add(element = R.string.string_the_capitalized)
+                stringIds.add(element = flag.flagOfLiteral)
                 stringIds.add(element = R.string.string_is_a)
             }
 
             /* Loop through categories and add it's string or alternate strings depending on
              * legibility */
             iterateOverNonCulturalCategories(
-                categories = categories.filterNot { it in allCulturalCategories },
+                categories = categoriesNonCultural,
                 stringIds = stringIds,
                 whitespaceExceptions = whitespaceExceptionIndexes,
                 isConstitutional = isConstitutional,
@@ -229,69 +241,58 @@ class FlagViewModel(
             if (flag.associatedStateKey != null) {
                 val associatedState = flagViewMap.getValue(flag.associatedStateKey)
 
+                if (SOVEREIGN_STATE in categories) {
+                    stringIds.add(element = R.string.string_comma)
+                    whitespaceExceptionIndexes.add(element = stringIds.lastIndex)
+                }
                 stringIds.add(element = R.string.category_free_association_in_description)
-                if (associatedState.isFlagOfThe) stringIds.add(element = R.string.string_the)
-                stringIds.add(element = associatedState.flagOfLiteral)
+
+                if (HISTORICAL in associatedState.categories) {
+                    if (associatedState.isFlagOfOfficialThe) stringIds.add(element = R.string.string_the)
+                    stringIds.add(element = associatedState.flagOfOfficial)
+                } else {
+                    if (associatedState.isFlagOfThe) stringIds.add(element = R.string.string_the)
+                    stringIds.add(element = associatedState.flagOfLiteral)
+                }
             }
 
             /* If relevant add strings about the sovereign state */
-            if (flag.sovereignStateKey != null) {
+            if (flag.sovereignStateKey != null && flag.associatedStateKey == null) {
                 val sovereign = flagViewMap.getValue(flag.sovereignStateKey)
-                val isSovereignConstitutional = CONSTITUTIONAL in sovereign.categories
 
-                /* If sovereign state isn't the associated state add it's name info */
-                if (flag.associatedStateKey == null) {
-                    stringIds.add(element = R.string.string_within)
+                when (REGIONAL) {
+                    in categories -> stringIds.add(element = R.string.string_in)
+                    else -> stringIds.add(element = R.string.string_of)
+                }
+
+                if (HISTORICAL in sovereign.categories) {
+                    if (sovereign.isFlagOfOfficialThe) stringIds.add(element = R.string.string_the)
+                    stringIds.add(element = sovereign.flagOfOfficial)
+                    stringIds.add(element = R.string.string_defunct)
+                } else {
                     if (sovereign.isFlagOfThe) stringIds.add(element = R.string.string_the)
                     stringIds.add(element = sovereign.flagOfLiteral)
                 }
+            }
+
+            if (DEVOLVED_GOVERNMENT in categories) {
                 stringIds.add(element = R.string.string_comma)
                 whitespaceExceptionIndexes.add(element = stringIds.lastIndex)
 
-                if (HISTORICAL in sovereign.categories) {
-                    stringIds.add(element = R.string.string_which_was_a)
-                } else {
-                    stringIds.add(element = R.string.string_a)
-                }
-
-                iterateOverNonCulturalCategories(
-                    categories = sovereign.categories.filterNot { it in allCulturalCategories },
-                    stringIds = stringIds,
-                    whitespaceExceptions = whitespaceExceptionIndexes,
-                    isConstitutional = isSovereignConstitutional,
-                )
+                stringIds.add(element = R.string.category_devolved_government_in_description)
             }
-            /* End of description */
-            stringIds.add(element = R.string.string_period)
-            whitespaceExceptionIndexes.add(element = stringIds.lastIndex)
         }
 
 
         /* Add cultural description @StringRes ids to list */
-        if (isCulturalCategoriesInFlag) {
-            val categoriesCultural = categories.filter { it in allCulturalCategories }
-
-            /* Make new paragraph if non-culture description precedes */
-            if (isNonCulturalCategoriesInFlag) {
-                stringIds.add(element = R.string.string_new_paragraph)
-                whitespaceExceptionIndexes.add(element = stringIds.lastIndex)
-            }
-
-            /* Start with flag name */
+        if (isCulturalCategoriesInFlag && !isNonCulturalCategoriesInFlag) {
             stringIds.add(element = R.string.string_the_capitalized)
-            if (isNonCulturalCategoriesInFlag) {
-                whitespaceExceptionIndexes.add(element = stringIds.lastIndex)
-            }
-            stringIds.add(element = flag.flagOfLiteral)
 
-            /* If flag is historical or non-cultural description precedes, strings differ */
-            if (isNonCulturalCategoriesInFlag && HISTORICAL in categories) {
-                stringIds.add(element = R.string.category_super_cultural_in_description_historical_also)
-            } else if (HISTORICAL in categories) {
+            if (HISTORICAL in categories) {
+                stringIds.add(element = flag.flagOfOfficial)
                 stringIds.add(element = R.string.category_super_cultural_in_description_historical)
-            } else if (isNonCulturalCategoriesInFlag) {
-                stringIds.add(element = R.string.category_super_cultural_in_description_also)
             } else {
+                stringIds.add(element = flag.flagOfLiteral)
                 stringIds.add(element = R.string.category_super_cultural_in_description)
             }
 
@@ -302,6 +303,10 @@ class FlagViewModel(
                 whitespaceExceptions = whitespaceExceptionIndexes,
             )
         }
+
+        /* End of description */
+        stringIds.add(element = R.string.string_period)
+        whitespaceExceptionIndexes.add(element = stringIds.lastIndex)
 
         /* Update state with whitespaceExceptionIndexes */
         _uiState.update { currentState ->
@@ -322,6 +327,9 @@ class FlagViewModel(
         isConstitutional: Boolean,
     ) {
         val skipCategories = listOf(SOVEREIGN_STATE, FREE_ASSOCIATION, HISTORICAL)
+        val regionCategories =
+            categories.filter { it in FlagSuperCategory.Regional.enums() }.toMutableList()
+        regionCategories.removeFirstOrNull()
 
         for (category in categories) {
             if (category in skipCategories) {
@@ -331,16 +339,18 @@ class FlagViewModel(
                 stringIds.add(element = R.string.category_autonomous_region_in_description_an)
                 whitespaceExceptions.add(element = stringIds.lastIndex)
 
-            } else if (category == OBLAST) {
-                if (AUTONOMOUS_REGION !in categories) {
-                    stringIds.add(element = R.string.category_oblast_string_in_description_an)
-                    whitespaceExceptions.add(element = stringIds.lastIndex)
-                } else {
-                    stringIds.add(element = category.string)
-                }
+            } else if (category == OBLAST && AUTONOMOUS_REGION !in categories) {
+                stringIds.add(element = R.string.category_oblast_string_in_description_an)
+                whitespaceExceptions.add(element = stringIds.lastIndex)
+
+            } else if (category in regionCategories) {
+                stringIds.add(element = R.string.string_and)
+                stringIds.add(element = category.string)
+                regionCategories.remove(category)
 
             } else if (category == DEVOLVED_GOVERNMENT) {
-                stringIds.add(element = R.string.category_devolved_government_in_description)
+                continue
+                //stringIds.add(element = R.string.category_devolved_government_in_description)
 
             } else if (category == INTERNATIONAL_ORGANIZATION) {
                 if (categories.any { it in FlagSuperCategory.ExecutiveStructure.enums() } &&
@@ -422,26 +432,28 @@ class FlagViewModel(
         val lastCategory = categories[size - 1]
 
         for (category in categories) {
-            if (category == ETHNIC) {
-                stringIds.add(element = R.string.category_ethnic_in_description)
-                whitespaceExceptions.add(element = stringIds.lastIndex)
+            when (category) {
+                REGIONAL -> stringIds.add(element = R.string.category_regional_string)
+                SOCIAL -> stringIds.add(element = R.string.category_social_in_description)
+                POLITICAL -> stringIds.add(element = R.string.category_political_in_description)
+                RELIGIOUS -> stringIds.add(element = R.string.category_religious_in_description)
+                ETHNIC -> when (firstCategory) {
+                    ETHNIC -> {
+                        stringIds.add(element = R.string.category_ethnic_in_description_2)
+                        whitespaceExceptions.add(element = stringIds.lastIndex)
+                    }
+                    else -> stringIds.add(element = R.string.category_ethnic_in_description_1)
+                }
+                else -> continue
             }
-            if (category == SOCIAL) stringIds.add(element = R.string.category_social_in_description)
-            if (category == POLITICAL) stringIds.add(element = R.string.category_political_in_description)
-            if (category == RELIGIOUS) stringIds.add(element = R.string.category_religious_in_description)
-            if (category == REGIONAL) stringIds.add(element = R.string.category_regional_string)
 
             if (size > 2 && category !in listOf(penultimateCategory, lastCategory)) {
                 stringIds.add(element = R.string.string_comma)
-                stringIds.add(element = R.string.string_a)
                 whitespaceExceptions.add(element = stringIds.lastIndex)
+                stringIds.add(element = R.string.string_a)
 
             } else if (category != lastCategory) {
-                stringIds.add(element = R.string.string_and_a)
-
-            } else { // End of loop condition
-                stringIds.add(element = R.string.string_period)
-                whitespaceExceptions.add(element = stringIds.lastIndex)
+                stringIds.add(element = R.string.string_and)
             }
         }
     }

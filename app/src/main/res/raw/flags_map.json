@@ -333,8 +333,8 @@
         "latestEntities": [],
         "previousFlagOf": null,
         "categories": [
-            "ETHNIC",
-            "REPUBLIC_UNIT"
+            "REPUBLIC_UNIT",
+            "ETHNIC"
         ]
     },
     "afghanistan": {
@@ -8122,8 +8122,8 @@
         "latestEntities": [],
         "previousFlagOf": null,
         "categories": [
-            "ETHNIC",
-            "COUNTY"
+            "COUNTY",
+            "ETHNIC"
         ]
     },
     "costaRica": {
@@ -9514,9 +9514,9 @@
         "latestEntities": [],
         "previousFlagOf": null,
         "categories": [
-            "ETHNIC",
+            "REGIONAL",
             "POLITICAL",
-            "REGION"
+            "ETHNIC"
         ]
     },
     "easterIsland": {
@@ -11371,10 +11371,10 @@
         "latestEntities": [],
         "previousFlagOf": null,
         "categories": [
-            "ETHNIC",
             "AUTONOMOUS_REGION",
             "TERRITORY",
-            "DEVOLVED_GOVERNMENT"
+            "DEVOLVED_GOVERNMENT",
+            "ETHNIC"
         ]
     },
     "galicia(Spain)": {
@@ -28938,8 +28938,8 @@
         "latestEntities": [],
         "previousFlagOf": null,
         "categories": [
-            "ETHNIC",
-            "REPUBLIC_UNIT"
+            "REPUBLIC_UNIT",
+            "ETHNIC"
         ]
     },
     "sakhalin(Oblast)": {
@@ -29369,8 +29369,8 @@
         "latestEntities": [],
         "previousFlagOf": null,
         "categories": [
-            "ETHNIC",
-            "REGIONAL"
+            "REGIONAL",
+            "ETHNIC"
         ]
     },
     "saratov(Oblast)": {
@@ -33763,8 +33763,8 @@
         "latestEntities": [],
         "previousFlagOf": null,
         "categories": [
-            "ETHNIC",
-            "REGION"
+            "REGION",
+            "ETHNIC"
         ]
     },
     "ticino": {
