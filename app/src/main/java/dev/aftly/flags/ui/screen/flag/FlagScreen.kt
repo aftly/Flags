@@ -112,11 +112,6 @@ fun FlagScreen(
         }
     }
 
-    /* Update flag description string when language configuration changes */
-    val configuration = LocalConfiguration.current
-    val locale = configuration.locales[0]
-    //LaunchedEffect(locale) { viewModel.updateDescriptionString(flag = uiState.currentFlag) }
-
 
     FlagScreen(
         uiState = uiState,
