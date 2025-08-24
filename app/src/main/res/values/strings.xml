@@ -297,10 +297,9 @@
     <string name="string_and_the_flag_of">and the flag of a</string>
     <string name="string_comma">,</string>
     <string name="string_comma_whitespace">,\ </string>
-    <string name="string_defunct">(defunct)</string>
+    <string name="string_defunct">defunct</string>
     <string name="string_in">in</string>
     <string name="string_is_a">is a</string>
-    <string name="string_is_a_defunct">is a defunct</string>
     <string name="string_new_paragraph">\n\n</string>
     <string name="string_of">of</string>
     <string name="string_period">.</string>

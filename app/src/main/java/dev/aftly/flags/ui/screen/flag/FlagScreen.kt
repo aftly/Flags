@@ -195,6 +195,7 @@ private fun FlagScreen(
                 flag = uiState.flag,
                 description = uiState.description,
                 boldWordPositions = uiState.descriptionBoldWordIndexes,
+                lightWordPositions = uiState.descriptionLightWordIndexes,
                 onImageWide = { isFlagWide = it },
                 onFullscreen = { onFullscreen(isFlagWide) },
             )
@@ -261,6 +262,7 @@ private fun FlagContent(
     flag: FlagView,
     description: List<String>,
     boldWordPositions: List<Int>,
+    lightWordPositions: List<Int>,
     onImageWide: (Boolean) -> Unit,
     onFullscreen: () -> Unit,
 ) {
@@ -321,11 +323,19 @@ private fun FlagContent(
         /* Build annotated string from description string list, making flag names bold */
         val annotatedDescription = buildAnnotatedString {
             for ((index, string) in description.withIndex()) {
-                if (index in boldWordPositions) {
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(text = string)
-                    }
-                } else append(text = string)
+                when (index) {
+                    in boldWordPositions ->
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(text = string)
+                        }
+                    in lightWordPositions ->
+                        withStyle(
+                            style = SpanStyle(fontWeight = FontWeight.Light, color = Color.Gray)
+                        ) {
+                            append(text = string)
+                        }
+                    else -> append(text = string)
+                }
             }
         }
 
