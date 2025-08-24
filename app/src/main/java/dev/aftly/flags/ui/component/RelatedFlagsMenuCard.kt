@@ -36,6 +36,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -115,19 +117,25 @@ fun RelatedFlagsMenuCard(
             }
         }
     }
-    /*
-    val relatedFlagItemsView: List<Any> = relatedFlagItems.map { lazyColumnItem ->
-        when (lazyColumnItem) {
-            is LazyColumnItem.Header -> lazyColumnItem.key
-            is LazyColumnItem.Flag -> lazyColumnItem.flag
-        }
-    }
+
+    /* On menu expand scroll to current item, or to it's header if immediately proceeding */
     LaunchedEffect(isExpanded) {
         if (isExpanded) {
-            listState.scrollToItem(index = relatedFlagItemsView.indexOf(currentFlag))
+            listState.scrollToItem(
+                index = relatedFlagItems.indexOfFirst { lazyColumnItem ->
+                    when (lazyColumnItem) {
+                        is LazyColumnItem.Flag -> lazyColumnItem.flag.id == currentFlag.id
+                        else -> false
+                    }
+                }.let { index ->
+                    when (relatedFlagItems[index.dec()]) {
+                        is LazyColumnItem.Header -> index.dec()
+                        else -> index
+                    }
+                }
+            )
         }
     }
-     */
 
 
     /* Box for containing menu, background scrim, and button replicant (to overlay the scrim) */
