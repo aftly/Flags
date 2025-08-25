@@ -61,7 +61,11 @@ class FlagViewModel(
         if (flagIdArg != null && flagIdsArg != null) {
             val flagIdsFromList = getFlagIdsFromString(string = flagIdsArg)
 
-            updateFlag(flagIdArg, flagIdsFromList)
+            updateFlag(
+                flagId = flagIdArg,
+                flagIdsFromList = flagIdsFromList,
+                isAnimated = false,
+            )
         }
 
         viewModelScope.launch {
@@ -78,6 +82,7 @@ class FlagViewModel(
     fun updateFlag(
         flagId: Int,
         flagIdsFromList: List<Int>? = null,
+        isAnimated: Boolean = true,
     ) {
         val flag = getFlagFromId(flagId)
 
@@ -101,7 +106,7 @@ class FlagViewModel(
                     }
                 )
             }
-            updateFlagScreenContent(flagView = flag)
+            updateFlagScreenContent(flagView = flag, isAnimated = isAnimated)
         }
     }
 
@@ -148,7 +153,10 @@ class FlagViewModel(
 
 
     /* Update state with relevant description string resources for resolution in UI layer */
-    private fun updateFlagScreenContent(flagView: FlagView) {
+    private fun updateFlagScreenContent(
+        flagView: FlagView,
+        isAnimated: Boolean,
+    ) {
         /* ---------- Initialise properties for getting description strings ---------- */
         val resIds = mutableListOf<Int>()
         val whitespaceExceptionIndexes = mutableListOf(0)
@@ -311,6 +319,7 @@ class FlagViewModel(
                     descriptionClickableWordIndexes = clickableIndexes,
                     descriptionBoldWordIndexes = flagNameIndexes,
                     descriptionLightWordIndexes = descriptorIndexes,
+                    isAnimated = isAnimated,
                 )
             )
         }

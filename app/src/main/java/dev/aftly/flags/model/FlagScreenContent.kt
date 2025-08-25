@@ -7,4 +7,5 @@ data class FlagScreenContent(
     val descriptionClickableWordIndexes: List<Int>,
     val descriptionBoldWordIndexes: List<Int>,
     val descriptionLightWordIndexes: List<Int>,
+    val isAnimated: Boolean,
 )

@@ -80,7 +80,6 @@ import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.SystemUiController
-import dev.aftly.flags.ui.util.getFlagFromId
 
 
 @Composable
@@ -111,7 +110,9 @@ fun FlagScreen(
 
     LaunchedEffect(key1 = currentBackStackEntry) {
         currentBackStackEntry?.savedStateHandle?.get<Int>("flagId")?.let { flagId ->
-            viewModel.updateFlag(flagId)
+            if (uiState.flag.id != flagId) {
+                viewModel.updateFlag(flagId = flagId, isAnimated = false)
+            }
         }
     }
 
@@ -276,7 +277,12 @@ private fun FlagContent(
     /* Upon new FlagScreenContent state crossfade animate content to new content */
     Crossfade(
         targetState = flagScreenContent,
-        animationSpec = tween(durationMillis = Timing.MENU_COLLAPSE)
+        animationSpec = tween(
+            durationMillis = when (flagScreenContent.isAnimated) {
+                true -> Timing.MENU_COLLAPSE
+                false -> 0
+            }
+        ),
     ) { content ->
         val flag = content.flag
         val description = content.descriptionResIds
