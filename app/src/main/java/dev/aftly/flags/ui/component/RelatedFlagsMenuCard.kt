@@ -51,6 +51,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import dev.aftly.flags.R
+import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.data.DataSource.inverseFlagViewMap
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.LazyColumnItem
@@ -121,10 +122,15 @@ fun RelatedFlagsMenuCard(
     /* On menu expand scroll to current item or immediately preceding header */
     LaunchedEffect(isExpanded) {
         if (isExpanded) {
+            val flag = when (currentFlag.previousFlagOfKey) {
+                null -> currentFlag
+                else -> flagViewMap.getValue(currentFlag.previousFlagOfKey)
+            }
+
             listState.scrollToItem(
                 index = relatedFlagItems.indexOfFirst { lazyColumnItem ->
                     when (lazyColumnItem) {
-                        is LazyColumnItem.Flag -> lazyColumnItem.flag.id == currentFlag.id
+                        is LazyColumnItem.Flag -> lazyColumnItem.flag.id == flag.id
                         else -> false
                     }
                 }.let { index ->
