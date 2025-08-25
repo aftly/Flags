@@ -180,9 +180,9 @@ fun AppNavHost(
 
                 FlagScreen(
                     currentBackStackEntry = currentBackStackEntry,
-                    onNavigateBack = { flag ->
+                    onNavigateBack = { flagId ->
                         navController.previousBackStackEntry
-                            ?.savedStateHandle?.set(key = "scrollToFlagId", value = flag.id)
+                            ?.savedStateHandle?.set(key = "scrollToFlagId", value = flagId)
                         navController.navigateUp()
                     },
                     onFullscreen = { flag, flagIds, isLandscape ->

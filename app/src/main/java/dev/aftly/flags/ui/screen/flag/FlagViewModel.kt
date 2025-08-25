@@ -85,6 +85,8 @@ class FlagViewModel(
             val flagKey = getFlagKey(flag)
 
             _uiState.update {
+                val listFlagIds = flagIdsFromList ?: it.flagIdsFromList
+
                 it.copy(
                     flag = flag,
                     flagKey = flagKey,
@@ -92,11 +94,8 @@ class FlagViewModel(
                         getPoliticalRelatedFlagsContentOrNull(flag, application),
                     chronologicalRelatedFlagsContent =
                         getChronologicalRelatedFlagsContentOrNull(flag, application),
-                    flagIdsFromList = flagIdsFromList ?: it.flagIdsFromList,
-                    isRelatedFlagNav = when (flag) {
-                        it.initRelatedFlag -> null
-                        else -> it.isRelatedFlagNav
-                    },
+                    flagIdsFromList = listFlagIds,
+                    navBackScrollToId = if (flagId in listFlagIds) flagId else it.navBackScrollToId,
                     savedFlag = it.savedFlags.find { savedFlag ->
                         savedFlag.flagKey == flagKey
                     }
@@ -112,14 +111,7 @@ class FlagViewModel(
         relatedMenu: RelatedFlagsMenu,
     ) {
         _uiState.update {
-            val initRelatedFlag =
-                if (relatedMenu == it.isRelatedFlagNav) it.initRelatedFlag
-                else it.flag
-
-            it.copy(
-                isRelatedFlagNav = if (flag != initRelatedFlag) relatedMenu else null,
-                initRelatedFlag = initRelatedFlag,
-            )
+            it.copy(latestMenuInteraction = relatedMenu)
         }
         updateFlag(flagId = flag.id)
     }
@@ -138,13 +130,20 @@ class FlagViewModel(
         }
     }
 
+    fun getFlagIds(): List<Int> {
+        val latest = uiState.value.latestMenuInteraction
+        val flag = uiState.value.flag
+        val flagIds = uiState.value.flagIdsFromList
+        val polRelated = uiState.value.politicalRelatedFlagsContent
+        val chronRelated = uiState.value.chronologicalRelatedFlagsContent
 
-    fun getFlagIds(): List<Int> = when (uiState.value.isRelatedFlagNav) {
-        null -> uiState.value.flagIdsFromList
-        RelatedFlagsMenu.POLITICAL ->
-            uiState.value.politicalRelatedFlagsContent?.getIds() ?: emptyList()
-        RelatedFlagsMenu.CHRONOLOGICAL ->
-            uiState.value.chronologicalRelatedFlagsContent?.getIds() ?: emptyList()
+        return if (latest == RelatedFlagsMenu.POLITICAL && flag.id !in flagIds) {
+            polRelated?.getIds() ?: emptyList()
+        } else if (latest == RelatedFlagsMenu.CHRONOLOGICAL && flag.id !in flagIds) {
+            chronRelated?.getIds() ?: emptyList()
+        } else {
+            flagIds
+        }
     }
 
 
@@ -158,22 +157,21 @@ class FlagViewModel(
         val descriptorIndexes = mutableListOf<Int>()
 
         /* Resources */
-        val flag = flagView.previousFlagOfKey?.let { flagViewMap.getValue(it) } ?: flagView
+        val previousFlagOf = flagViewMap[flagView.previousFlagOfKey]
+        val flag = previousFlagOf ?: flagView
         val categories = flag.categories
         val associatedState = flagViewMap[flag.associatedStateKey]
         val sovereignState = flagViewMap[flag.sovereignStateKey]
+        val parentUnit = flagViewMap[flag.parentUnitKey]
 
         val clickableFlags = buildList {
+            previousFlagOf?.let { add(it) }
             associatedState?.let { add(it) }
             sovereignState?.let { add(it) }
+            parentUnit?.let { add(it) }
         }
-        val clickableResIds = buildList {
-            associatedState?.let {
-                addAll(elements = listOf(it.flagOf, it.flagOfLiteral, it.flagOfOfficial))
-            }
-            sovereignState?.let {
-                addAll(elements = listOf(it.flagOf, it.flagOfLiteral, it.flagOfOfficial))
-            }
+        val clickableResIds = clickableFlags.flatMap {
+            listOf(it.flagOf, it.flagOfLiteral, it.flagOfOfficial)
         }
         val flagNameResIds = listOf(flag.flagOf, flag.flagOfLiteral, flag.flagOfOfficial)
         val descriptorResIds = listOf(
@@ -314,13 +312,6 @@ class FlagViewModel(
                     descriptionBoldWordIndexes = flagNameIndexes,
                     descriptionLightWordIndexes = descriptorIndexes,
                 )
-                /*
-                descriptionResIds = resIdsComplete,
-                descriptionClickableFlags = clickableFlags,
-                descriptionClickableWordIndexes = clickableIndexes,
-                descriptionBoldWordIndexes = flagNameIndexes,
-                descriptionLightWordIndexes = descriptorIndexes,
-                 */
             )
         }
     }

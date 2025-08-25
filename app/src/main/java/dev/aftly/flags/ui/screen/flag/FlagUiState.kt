@@ -14,8 +14,8 @@ data class FlagUiState(
     val chronologicalRelatedFlagsContent: RelatedFlagsContent.Chronological? = null,
     val flagIdsFromList: List<Int> = emptyList(),
     val flagScreenContent: FlagScreenContent? = null,
-    val initRelatedFlag: FlagView? = null,
-    val isRelatedFlagNav: RelatedFlagsMenu? = null,
+    val navBackScrollToId: Int = 0,
+    val latestMenuInteraction: RelatedFlagsMenu? = null,
     val savedFlags: List<SavedFlag> = emptyList(),
     val savedFlag: SavedFlag? = null,
 )

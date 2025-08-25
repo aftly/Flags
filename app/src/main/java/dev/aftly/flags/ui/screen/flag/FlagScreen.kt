@@ -51,7 +51,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -81,13 +80,14 @@ import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.SystemUiController
+import dev.aftly.flags.ui.util.getFlagFromId
 
 
 @Composable
 fun FlagScreen(
     viewModel: FlagViewModel = viewModel(),
     currentBackStackEntry: NavBackStackEntry?,
-    onNavigateBack: (FlagView) -> Unit,
+    onNavigateBack: (Int) -> Unit,
     onFullscreen: (FlagView, List<Int>, Boolean) -> Unit,
     onNavigateError: () -> Unit,
 ) {
@@ -127,10 +127,7 @@ fun FlagScreen(
             onFullscreen(uiState.flag, flagIds, isLandscape)
         },
         onNavigateBack = {
-            val flag =
-                if (uiState.isRelatedFlagNav != null) uiState.initRelatedFlag ?: uiState.flag
-                else uiState.flag
-            onNavigateBack(flag)
+            onNavigateBack(uiState.navBackScrollToId)
         },
     )
 }
