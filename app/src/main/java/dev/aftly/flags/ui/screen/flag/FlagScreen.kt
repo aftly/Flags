@@ -48,7 +48,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -192,11 +191,12 @@ private fun FlagScreen(
                 modifier = Modifier.padding(scaffoldPadding),
                 flag = uiState.flag,
                 description = uiState.descriptionResIds,
+                clickableFlags = uiState.descriptionClickableFlags,
                 clickableWordPositions = uiState.descriptionClickableWordIndexes,
                 boldWordPositions = uiState.descriptionBoldWordIndexes,
                 lightWordPositions = uiState.descriptionLightWordIndexes,
                 onImageWide = { isFlagWide = it },
-                onNavigate = { onFullscreen(isFlagWide) }, // TODO
+                onRelatedFlag = onRelatedFlag,
                 onFullscreen = { onFullscreen(isFlagWide) },
             )
         }
@@ -261,11 +261,12 @@ private fun FlagContent(
     modifier: Modifier = Modifier,
     flag: FlagView,
     description: List<Int>,
+    clickableFlags: List<FlagView>,
     clickableWordPositions: List<Int>,
     boldWordPositions: List<Int>,
     lightWordPositions: List<Int>,
     onImageWide: (Boolean) -> Unit,
-    onNavigate: () -> Unit,
+    onRelatedFlag: (FlagView, RelatedFlagsMenu) -> Unit,
     onFullscreen: () -> Unit,
 ) {
     /* Properties for if image height greater than column height, eg. in landscape orientation,
@@ -337,7 +338,12 @@ private fun FlagContent(
                                     )
                                 )
                             ) {
-                                onNavigate()
+                                val flagToNavigate = clickableFlags.find {
+                                    listOf(it.flagOf, it.flagOfLiteral, it.flagOfOfficial).any {
+                                        name -> name == resId
+                                    }
+                                }
+                                flagToNavigate?.let { onRelatedFlag(it, RelatedFlagsMenu.POLITICAL) }
                             }
                         ) {
                             append(text = stringResource(resId))

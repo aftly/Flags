@@ -146,6 +146,9 @@ class FlagViewModel(
             uiState.value.chronologicalRelatedFlagsContent?.getIds() ?: emptyList()
     }
 
+    fun getFlagIdsPolitical(): List<Int> =
+        uiState.value.politicalRelatedFlagsContent?.getIds() ?: emptyList()
+
 
     /* Update state with relevant description string resources for resolution in UI layer */
     private fun updateDescriptionIds(flagView: FlagView) {
@@ -162,6 +165,10 @@ class FlagViewModel(
         val associatedState = flagViewMap[flag.associatedStateKey]
         val sovereignState = flagViewMap[flag.sovereignStateKey]
 
+        val clickableFlags = buildList {
+            associatedState?.let { add(it) }
+            sovereignState?.let { add(it) }
+        }
         val clickableResIds = buildList {
             associatedState?.let {
                 addAll(elements = listOf(it.flagOf, it.flagOfLiteral, it.flagOfOfficial))
@@ -302,6 +309,7 @@ class FlagViewModel(
         _uiState.update {
             it.copy(
                 descriptionResIds = resIdsComplete,
+                descriptionClickableFlags = clickableFlags,
                 descriptionClickableWordIndexes = clickableIndexes,
                 descriptionBoldWordIndexes = flagNameIndexes,
                 descriptionLightWordIndexes = descriptorIndexes,

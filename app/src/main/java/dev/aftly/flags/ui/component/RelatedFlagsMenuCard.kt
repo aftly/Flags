@@ -118,7 +118,7 @@ fun RelatedFlagsMenuCard(
         }
     }
 
-    /* On menu expand scroll to current item, or to it's header if immediately proceeding */
+    /* On menu expand scroll to current item or immediately preceding header */
     LaunchedEffect(isExpanded) {
         if (isExpanded) {
             listState.scrollToItem(

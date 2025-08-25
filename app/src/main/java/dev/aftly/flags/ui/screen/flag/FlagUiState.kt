@@ -13,6 +13,7 @@ data class FlagUiState(
     val chronologicalRelatedFlagsContent: RelatedFlagsContent.Chronological? = null,
     val flagIdsFromList: List<Int> = emptyList(),
     val descriptionResIds: List<Int> = emptyList(),
+    val descriptionClickableFlags: List<FlagView> = emptyList(),
     val descriptionClickableWordIndexes: List<Int> = emptyList(),
     val descriptionBoldWordIndexes: List<Int> = emptyList(),
     val descriptionLightWordIndexes: List<Int> = emptyList(),
