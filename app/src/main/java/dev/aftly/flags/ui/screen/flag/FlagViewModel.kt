@@ -29,6 +29,7 @@ import dev.aftly.flags.model.FlagCategory.SOCIAL
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.SUPRANATIONAL_UNION
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
+import dev.aftly.flags.model.FlagScreenContent
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.RelatedFlagsMenu
@@ -101,7 +102,7 @@ class FlagViewModel(
                     }
                 )
             }
-            updateDescriptionIds(flagView = flag)
+            updateFlagScreenContent(flagView = flag)
         }
     }
 
@@ -146,12 +147,9 @@ class FlagViewModel(
             uiState.value.chronologicalRelatedFlagsContent?.getIds() ?: emptyList()
     }
 
-    fun getFlagIdsPolitical(): List<Int> =
-        uiState.value.politicalRelatedFlagsContent?.getIds() ?: emptyList()
-
 
     /* Update state with relevant description string resources for resolution in UI layer */
-    private fun updateDescriptionIds(flagView: FlagView) {
+    private fun updateFlagScreenContent(flagView: FlagView) {
         /* ---------- Initialise properties for getting description strings ---------- */
         val resIds = mutableListOf<Int>()
         val whitespaceExceptionIndexes = mutableListOf(0)
@@ -308,11 +306,21 @@ class FlagViewModel(
         }
         _uiState.update {
             it.copy(
+                flagScreenContent = FlagScreenContent(
+                    flag = flagView,
+                    descriptionResIds = resIdsComplete,
+                    descriptionClickableFlags = clickableFlags,
+                    descriptionClickableWordIndexes = clickableIndexes,
+                    descriptionBoldWordIndexes = flagNameIndexes,
+                    descriptionLightWordIndexes = descriptorIndexes,
+                )
+                /*
                 descriptionResIds = resIdsComplete,
                 descriptionClickableFlags = clickableFlags,
                 descriptionClickableWordIndexes = clickableIndexes,
                 descriptionBoldWordIndexes = flagNameIndexes,
                 descriptionLightWordIndexes = descriptorIndexes,
+                 */
             )
         }
     }

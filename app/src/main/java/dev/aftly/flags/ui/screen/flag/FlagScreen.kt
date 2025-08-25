@@ -2,6 +2,8 @@ package dev.aftly.flags.ui.screen.flag
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -68,6 +70,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource
+import dev.aftly.flags.model.FlagScreenContent
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.RelatedFlagsMenu
 import dev.aftly.flags.ui.component.FullscreenButton
@@ -75,6 +78,7 @@ import dev.aftly.flags.ui.component.RelatedFlagsButton
 import dev.aftly.flags.ui.component.RelatedFlagsMenuCard
 import dev.aftly.flags.ui.component.openWebLink
 import dev.aftly.flags.ui.theme.Dimens
+import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.SystemUiController
 
@@ -187,18 +191,15 @@ private fun FlagScreen(
         ) { scaffoldPadding ->
             scaffoldPaddingValues = scaffoldPadding
 
-            FlagContent(
-                modifier = Modifier.padding(scaffoldPadding),
-                flag = uiState.flag,
-                description = uiState.descriptionResIds,
-                clickableFlags = uiState.descriptionClickableFlags,
-                clickableWordPositions = uiState.descriptionClickableWordIndexes,
-                boldWordPositions = uiState.descriptionBoldWordIndexes,
-                lightWordPositions = uiState.descriptionLightWordIndexes,
-                onImageWide = { isFlagWide = it },
-                onRelatedFlag = onRelatedFlag,
-                onFullscreen = { onFullscreen(isFlagWide) },
-            )
+            uiState.flagScreenContent?.let { flagScreenContent ->
+                FlagContent(
+                    modifier = Modifier.padding(scaffoldPadding),
+                    flagScreenContent = flagScreenContent,
+                    onImageWide = { isFlagWide = it },
+                    onRelatedFlag = onRelatedFlag,
+                    onFullscreen = { onFullscreen(isFlagWide) },
+                )
+            }
         }
         /* ------------------- END OF SCAFFOLD ------------------- */
 
@@ -259,222 +260,236 @@ private fun FlagScreen(
 @Composable
 private fun FlagContent(
     modifier: Modifier = Modifier,
-    flag: FlagView,
-    description: List<Int>,
-    clickableFlags: List<FlagView>,
-    clickableWordPositions: List<Int>,
-    boldWordPositions: List<Int>,
-    lightWordPositions: List<Int>,
+    flagScreenContent: FlagScreenContent,
     onImageWide: (Boolean) -> Unit,
     onRelatedFlag: (FlagView, RelatedFlagsMenu) -> Unit,
     onFullscreen: () -> Unit,
 ) {
     /* Properties for if image height greater than column height, eg. in landscape orientation,
      * make image height modifier value of column height, else value of image height */
+    /*
     var columnHeight by remember { mutableIntStateOf(value = 0) }
     var imageHeight by remember { mutableIntStateOf(value = 0) }
     var imageHeightModifier by remember { mutableStateOf<Modifier>(value = Modifier) }
     val density = LocalDensity.current.density
+     */
 
     var isFullScreenButton by rememberSaveable { mutableStateOf(value = false) }
 
+    /* Upon new FlagScreenContent state crossfade animate content to new content */
+    Crossfade(
+        targetState = flagScreenContent,
+        animationSpec = tween(durationMillis = Timing.MENU_COLLAPSE)
+    ) { content ->
+        val flag = content.flag
+        val description = content.descriptionResIds
+        val clickableFlags = content.descriptionClickableFlags
+        val clickableWordPositions = content.descriptionClickableWordIndexes
+        val boldWordPositions = content.descriptionBoldWordIndexes
+        val lightWordPositions = content.descriptionLightWordIndexes
 
-    /* Flag Content */
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(
-                start = Dimens.marginHorizontal16,
-                end = Dimens.marginHorizontal16
-            )
-            .onSizeChanged { size ->
-                columnHeight = size.height
-
-                /* Set image height modifier */
-                imageHeightModifier = if (columnHeight < imageHeight) {
-                    Modifier.height(height = (columnHeight / density).dp)
-                } else {
-                    Modifier.height(height = (imageHeight / density).dp)
-                }
-            }
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        /* Determine name title properties */
-        val prefix = when (flag.isFlagOfOfficialThe) {
-            true -> stringResource(R.string.string_the_capitalized) +
-                    stringResource(R.string.string_whitespace)
-            false -> null
-        }
-        val name = stringResource(flag.flagOfOfficial)
-        val nameLength = prefix?.let { it.length + name.length } ?: name.length
-
-        val nameStyle = if (nameLength < 36) {
-            if (nameLength <= 12) MaterialTheme.typography.displayLarge
-            else MaterialTheme.typography.displayMedium
-        } else {
-            MaterialTheme.typography.displaySmall
-        }
-
-        /* Build annotated string from name properties, making name bold */
-        val annotatedName = buildAnnotatedString {
-            if (prefix != null) append(text = prefix)
-            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) { append(text = name) }
-        }
-
-        /* Build annotated string from description string list, making flag names bold */
-        val annotatedDescription = buildAnnotatedString {
-            description.forEachIndexed { index, resId ->
-                when (index) {
-                    in clickableWordPositions ->
-                        withLink(
-                            link = LinkAnnotation.Clickable(
-                                tag = "nav",
-                                styles = TextLinkStyles(style =
-                                    SpanStyle(
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                )
-                            ) {
-                                val flagToNavigate = clickableFlags.find {
-                                    listOf(it.flagOf, it.flagOfLiteral, it.flagOfOfficial).any {
-                                        name -> name == resId
-                                    }
-                                }
-                                flagToNavigate?.let { onRelatedFlag(it, RelatedFlagsMenu.POLITICAL) }
-                            }
-                        ) {
-                            append(text = stringResource(resId))
-                        }
-                    in boldWordPositions ->
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(text = stringResource(resId))
-                        }
-                    in lightWordPositions ->
-                        withStyle(
-                            style = SpanStyle(fontWeight = FontWeight.Light, color = Color.Gray)
-                        ) {
-                            append(text = stringResource(resId))
-                        }
-                    else -> append(text = stringResource(resId))
-                }
-            }
-        }
-
-        val fromToYearString =
-            if (flag.fromYear != null && flag.toYear != null) {
-                val toYear =
-                    if (flag.toYear == 0) stringResource(R.string.string_present)
-                    else "${flag.toYear}"
-
-                stringResource(R.string.string_open_bracket) +
-                        "${flag.fromYear}" +
-                        stringResource(R.string.string_dash) +
-                        toYear +
-                        stringResource(R.string.string_close_bracket)
-            } else null
-
-        val wikiLink =
-            stringResource(R.string.wikipedia_site_prefix) + stringResource(flag.wikipediaUrlPath)
-
-
-        /* Ui content */
-        Spacer(modifier = Modifier.height(0.dp))
-
-
+        /* Content */
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = modifier
+                .fillMaxSize()
+                .padding(
+                    start = Dimens.marginHorizontal16,
+                    end = Dimens.marginHorizontal16
+                )
+                /*
+                .onSizeChanged { size ->
+                    columnHeight = size.height
+
+                    /* Set image height modifier */
+                    imageHeightModifier = if (columnHeight < imageHeight) {
+                        Modifier.height(height = (columnHeight / density).dp)
+                    } else {
+                        Modifier.height(height = (imageHeight / density).dp)
+                    }
+                }
+                 */
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            /* Flag official name */
-            Text(
-                text = annotatedName,
-                modifier = Modifier.padding(bottom = Dimens.small8),
-                style = nameStyle,
-                textAlign = TextAlign.Center,
-            )
+            /* Determine name title properties */
+            val prefix = when (flag.isFlagOfOfficialThe) {
+                true -> stringResource(R.string.string_the_capitalized) +
+                        stringResource(R.string.string_whitespace)
+                false -> null
+            }
+            val name = stringResource(flag.flagOfOfficial)
+            val nameLength = prefix?.let { it.length + name.length } ?: name.length
 
-            fromToYearString?.let {
-                Text(
-                    text = it,
-                    modifier = Modifier.padding(top = Dimens.extraSmall4),
-                    color = Color.Gray,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Light,
-                    fontStyle = FontStyle.Italic,
-                    textAlign = TextAlign.Center
-                )
+            val nameStyle = if (nameLength < 36) {
+                if (nameLength <= 12) MaterialTheme.typography.displayLarge
+                else MaterialTheme.typography.displayMedium
+            } else {
+                MaterialTheme.typography.displaySmall
             }
 
-            /* Image and fullscreen button contents */
-            Box(
-                modifier = Modifier
-                    .padding(
-                        top = Dimens.large24,
-                        bottom = Dimens.extraLarge32
-                    )
-                    .combinedClickable(
-                        onClick = { isFullScreenButton = !isFullScreenButton },
-                        onDoubleClick = onFullscreen,
-                    ),
-                contentAlignment = Alignment.BottomEnd
-            ) {
-                Surface(
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .shadow(Dimens.extraSmall4),
-                ) {
-                    Image(
-                        painter = painterResource(flag.image),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .onSizeChanged { size ->
-                                /* For fullscreen orientation */
-                                onImageWide(size.width > size.height)
+            /* Build annotated string from name properties, making name bold */
+            val annotatedName = buildAnnotatedString {
+                if (prefix != null) append(text = prefix)
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) { append(text = name) }
+            }
 
-                                /*
-                                imageHeight = size.height
-
-                                /* Set image height modifier */
-                                imageHeightModifier = if (columnHeight < imageHeight) {
-                                    Modifier.height(height = (columnHeight / density).dp)
-                                } else {
-                                    Modifier.height(height = (imageHeight / density).dp)
+            /* Build annotated string from description string list, making flag names bold */
+            val annotatedDescription = buildAnnotatedString {
+                description.forEachIndexed { index, resId ->
+                    when (index) {
+                        in clickableWordPositions ->
+                            withLink(
+                                link = LinkAnnotation.Clickable(
+                                    tag = "nav",
+                                    styles = TextLinkStyles(style =
+                                        SpanStyle(
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                    )
+                                ) {
+                                    val flagToNavigate = clickableFlags.find {
+                                        listOf(it.flagOf, it.flagOfLiteral, it.flagOfOfficial).any {
+                                            name -> name == resId
+                                        }
+                                    }
+                                    flagToNavigate?.let {
+                                        onRelatedFlag(it, RelatedFlagsMenu.POLITICAL)
+                                    }
                                 }
-                                 */
-                            },
-                        //.then(imageHeightModifier) /* concatenate height mod after onSizeChanged */
-                        contentDescription = null,
-                        contentScale = ContentScale.FillWidth,
+                            ) {
+                                append(text = stringResource(resId))
+                            }
+                        in boldWordPositions ->
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(text = stringResource(resId))
+                            }
+                        in lightWordPositions ->
+                            withStyle(
+                                style = SpanStyle(fontWeight = FontWeight.Light, color = Color.Gray)
+                            ) {
+                                append(text = stringResource(resId))
+                            }
+                        else -> append(text = stringResource(resId))
+                    }
+                }
+            }
+
+            val fromToYearString =
+                if (flag.fromYear != null && flag.toYear != null) {
+                    val toYear =
+                        if (flag.toYear == 0) stringResource(R.string.string_present)
+                        else "${flag.toYear}"
+
+                    stringResource(R.string.string_open_bracket) +
+                            "${flag.fromYear}" +
+                            stringResource(R.string.string_dash) +
+                            toYear +
+                            stringResource(R.string.string_close_bracket)
+                } else null
+
+            val wikiLink =
+                stringResource(R.string.wikipedia_site_prefix) +
+                        stringResource(flag.wikipediaUrlPath)
+
+
+            /* Ui content */
+            Spacer(modifier = Modifier.height(0.dp))
+
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                /* Flag official name */
+                Text(
+                    text = annotatedName,
+                    modifier = Modifier.padding(bottom = Dimens.small8),
+                    style = nameStyle,
+                    textAlign = TextAlign.Center,
+                )
+
+                fromToYearString?.let {
+                    Text(
+                        text = it,
+                        modifier = Modifier.padding(top = Dimens.extraSmall4),
+                        color = Color.Gray,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Light,
+                        fontStyle = FontStyle.Italic,
+                        textAlign = TextAlign.Center
                     )
                 }
 
-                FullscreenButton(
-                    visible = isFullScreenButton,
-                    onInvisible = { isFullScreenButton = false },
-                    onFullScreen = onFullscreen,
+                /* Image and fullscreen button contents */
+                Box(
+                    modifier = Modifier
+                        .padding(
+                            top = Dimens.large24,
+                            bottom = Dimens.extraLarge32
+                        )
+                        .combinedClickable(
+                            onClick = { isFullScreenButton = !isFullScreenButton },
+                            onDoubleClick = onFullscreen,
+                        ),
+                    contentAlignment = Alignment.BottomEnd
+                ) {
+                    Surface(
+                        modifier = Modifier
+                            .wrapContentSize()
+                            .shadow(Dimens.extraSmall4),
+                    ) {
+                        Image(
+                            painter = painterResource(flag.image),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .onSizeChanged { size ->
+                                    /* For fullscreen orientation */
+                                    onImageWide(size.width > size.height)
+
+                                    /*
+                                    imageHeight = size.height
+
+                                    /* Set image height modifier */
+                                    imageHeightModifier = if (columnHeight < imageHeight) {
+                                        Modifier.height(height = (columnHeight / density).dp)
+                                    } else {
+                                        Modifier.height(height = (imageHeight / density).dp)
+                                    }
+                                     */
+                                },
+                            //.then(imageHeightModifier) /* concatenate height mod (after oSC) */
+                            contentDescription = null,
+                            contentScale = ContentScale.FillWidth,
+                        )
+                    }
+
+                    FullscreenButton(
+                        visible = isFullScreenButton,
+                        onInvisible = { isFullScreenButton = false },
+                        onFullScreen = onFullscreen,
+                    )
+                }
+
+                /* Natural language description of flag entity from it's categories */
+                Text(
+                    text = annotatedDescription,
+                    fontSize = 24.sp,
+                    fontStyle = FontStyle.Italic,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 28.sp,
                 )
+
+                Spacer(modifier = Modifier.height(20.dp))
             }
 
-            /* Natural language description of flag entity from it's categories */
-            Text(
-                text = annotatedDescription,
-                fontSize = 24.sp,
-                fontStyle = FontStyle.Italic,
-                textAlign = TextAlign.Center,
-                lineHeight = 28.sp,
+
+            WikipediaButton(
+                modifier = Modifier.fillMaxWidth(),
+                wikiLink = wikiLink,
             )
-
-            Spacer(modifier = Modifier.height(20.dp))
         }
-
-
-        WikipediaButton(
-            modifier = Modifier.fillMaxWidth(),
-            wikiLink = wikiLink,
-        )
     }
 }
 
