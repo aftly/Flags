@@ -68,6 +68,10 @@ import androidx.compose.ui.unit.sp
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.menuSuperCategoryList
 import dev.aftly.flags.model.FlagCategory
+import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
+import dev.aftly.flags.model.FlagCategory.CONFEDERATION
+import dev.aftly.flags.model.FlagCategory.ONE_PARTY
+import dev.aftly.flags.model.FlagCategory.PROVISIONAL_GOVERNMENT
 import dev.aftly.flags.model.FlagCategoryWrapper
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
@@ -104,8 +108,8 @@ fun CategoriesButtonMenu(
     buttonColors1: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor1),
     buttonColors2: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor2),
     isSavedFlagsNotEmpty: Boolean,
-    currentSuperCategories: List<FlagSuperCategory>,
-    currentSubCategories: List<FlagCategory>,
+    currentSupers: List<FlagSuperCategory>,
+    currentSubs: List<FlagCategory>,
     onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onSavedFlagsSelect: () -> Unit,
@@ -136,43 +140,45 @@ fun CategoriesButtonMenu(
     }
 
     /* Manage button title & exceptions */
-    val buttonTitle = if (currentSuperCategories.size > 1 || currentSubCategories.size > 1 ||
-        currentSuperCategories.isNotEmpty() && currentSubCategories.isNotEmpty()) {
-        getCategoriesStringResources(
-            superCategories = currentSuperCategories,
-            subCategories = currentSubCategories,
-        ).let { stringResources ->
-            var title = ""
-            stringResources.forEach { title += stringResource(it) }
-            return@let title
+    val buttonTitle = when (currentSupers.isNotEmpty() to currentSubs.isNotEmpty()) {
+        true to true -> buildString {
+            val stringResIds = getCategoriesStringResources(
+                superCategories = currentSupers,
+                subCategories = currentSubs,
+            )
+            stringResIds.forEach { append(stringResource(it)) }
         }
-    } else {
-        if (currentSubCategories.isNotEmpty()) {
-            currentSubCategories.first().let { subCategory ->
-                /* If subCategory belongs to Political superCategory, except for exceptions,
-                 * append "State" after subCategory */
-                val isStateTitle = Political.subCategories.filterIsInstance<FlagSuperCategory>()
-                    .filterNot { it == PowerDerivation }.any {
-                        subCategory in it.enums()
-                    } || subCategory in
-                        listOf(FlagCategory.ONE_PARTY, FlagCategory.PROVISIONAL_GOVERNMENT)
-
-                return@let if (isStateTitle) {
-                    stringResource(subCategory.title) +
-                            stringResource(R.string.button_title_state_flags)
-                } else {
-                    stringResource(subCategory.title) +
-                            stringResource(R.string.button_title_flags)
+        false to true -> buildString {
+            /* If subCategory belongs to Political superCategory, except for exceptions,
+             * append "State" after subCategory */
+            val subCategory = currentSubs.first()
+            val politicalStateCategories = Political.subCategories
+                .filterIsInstance<FlagSuperCategory>().flatMap { politicalSuper ->
+                when (politicalSuper) {
+                    is PowerDerivation -> politicalSuper.enums().filter {
+                        it in listOf(ONE_PARTY, PROVISIONAL_GOVERNMENT)
+                    }
+                    else -> politicalSuper.enums().filterNot { it == CONFEDERATION }
                 }
             }
-        } else if (currentSuperCategories.isNotEmpty()) {
-            currentSuperCategories.first().categoriesMenuButton?.let { superCategoryMenuTitle ->
-                stringResource(superCategoryMenuTitle) + stringResource(R.string.button_title_flags)
-            } ?: ""
-        } else {
-            /* Saved flags title */
-            stringResource(R.string.saved_flags) +
-                    stringResource(R.string.button_title_flags)
+
+            if (subCategory in politicalStateCategories) {
+                append(stringResource(subCategory.title))
+                append(stringResource(R.string.button_title_state_flags))
+            } else {
+                append(stringResource(subCategory.title))
+                append(stringResource(R.string.button_title_flags))
+            }
+        }
+        true to false -> buildString {
+            currentSupers.first().categoriesMenuButton?.let {
+                append(stringResource(it))
+            }
+            append(stringResource(R.string.button_title_flags))
+        }
+        else -> buildString {
+            append(stringResource(R.string.saved_flags))
+            append(stringResource(R.string.button_title_flags))
         }
     }
 
@@ -360,8 +366,8 @@ fun CategoriesButtonMenu(
                                     haptics = haptics,
                                     textButtonStyle = textButtonStyle,
                                     buttonColors =
-                                        if (currentSuperCategories.isEmpty() &&
-                                            currentSubCategories.isEmpty()) {
+                                        if (currentSupers.isEmpty() &&
+                                            currentSubs.isEmpty()) {
                                             buttonColors2
                                         } else {
                                             buttonColors1
@@ -378,10 +384,10 @@ fun CategoriesButtonMenu(
 
                         /* Flag category items */
                         items(items = menuSuperCategoryList) { superCategory ->
-                            val buttonColors = if (superCategory in currentSuperCategories) {
+                            val buttonColors = if (superCategory in currentSupers) {
                                 buttonColors2
                             } else if (superCategory != All &&
-                                superCategory.enums().any { it in currentSubCategories }) {
+                                superCategory.enums().any { it in currentSubs }) {
                                 buttonColors3
                             } else {
                                 buttonColors1
@@ -418,7 +424,7 @@ fun CategoriesButtonMenu(
                                     isCategoriesMenuExpanded = isMenuExpanded,
                                     isSuperCategorySelectable = true,
                                     itemSuperCategory = superCategory,
-                                    selectedSubCategories = currentSubCategories,
+                                    selectedSubCategories = currentSubs,
                                     isMenuExpandedParentState = superCategory == expandSubMenu,
                                     onSuperItemSelect = { expandSubMenu = it },
                                     onCategorySelectSingle = { newSuperCategory, newSubCategory ->
@@ -438,7 +444,7 @@ fun CategoriesButtonMenu(
                                     cardColors2 = cardColors2,
                                     isCategoriesMenuExpanded = isMenuExpanded,
                                     itemSuperCategory = superCategory,
-                                    selectedSubCategories = currentSubCategories,
+                                    selectedSubCategories = currentSubs,
                                     isMenuExpandedParentState = expandSubMenu,
                                     onSuperItemSelect = { expandSubMenu = it },
                                     onCategorySelectSingle = { newSuperCategory, newSubCategory ->
@@ -1078,8 +1084,8 @@ private fun getCategoriesStringResources(
             superCategoriesFiltered.all { it == SovereignCountry } &&
             remainingCategories.isEmpty() &&
             politicalCategories.none { it in PowerDerivation.enums().filterNot { enum ->
-                enum in listOf(FlagCategory.ONE_PARTY, FlagCategory.PROVISIONAL_GOVERNMENT)
-            } }) {
+                enum in listOf(ONE_PARTY, PROVISIONAL_GOVERNMENT)
+            } || it == CONFEDERATION }) {
             strings.add(R.string.category_state_title)
         }
     }
@@ -1100,9 +1106,9 @@ private fun getCategoriesStringResources(
         superCategoriesFiltered.remove(AutonomousRegion)
         strings.add(R.string.categories_autonomous_title)
         strings.add(R.string.string_whitespace)
-    } else if (remainingCategories.contains(FlagCategory.AUTONOMOUS_REGION) &&
+    } else if (remainingCategories.contains(AUTONOMOUS_REGION) &&
         remainingCategories.any { it in Regional.enums() }) {
-        remainingCategories.remove(FlagCategory.AUTONOMOUS_REGION)
+        remainingCategories.remove(AUTONOMOUS_REGION)
         strings.add(R.string.categories_autonomous_title)
         strings.add(R.string.string_whitespace)
     }

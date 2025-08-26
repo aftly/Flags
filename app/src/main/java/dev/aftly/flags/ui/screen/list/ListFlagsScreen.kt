@@ -369,8 +369,8 @@ private fun ListFlagsScreen(
             containerColor1 = containerColor1,
             containerColor2 = containerColor2,
             isSavedFlagsNotEmpty = uiState.savedFlags.isNotEmpty(),
-            currentSuperCategories = uiState.currentSuperCategories,
-            currentSubCategories = uiState.currentSubCategories,
+            currentSupers = uiState.currentSuperCategories,
+            currentSubs = uiState.currentSubCategories,
             onCategorySelectSingle = { flagSuperCategory, flagSubCategory ->
                 onCategorySelectSingle(flagSuperCategory, flagSubCategory)
                 coroutineScope.launch { listState.animateScrollToItem(index = 0) }

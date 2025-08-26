@@ -29,6 +29,7 @@ import dev.aftly.flags.model.FlagCategory.SOCIAL
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.SUPRANATIONAL_UNION
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
+import dev.aftly.flags.model.FlagCategory.CONFEDERATION
 import dev.aftly.flags.model.FlagScreenContent
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagView
@@ -179,14 +180,12 @@ class FlagViewModel(
         val associatedState = flagViewMap[flag.associatedStateKey]
         val sovereignState = flagViewMap[flag.sovereignStateKey]
         val parentUnit = flagViewMap[flag.parentUnitKey]
-        val latestEntities = flag.latestEntityKeys.map { key -> flagViewMap.getValue(key) }
 
         val clickableFlags = buildList {
             previousFlagOf?.let { add(it) }
             associatedState?.let { add(it) }
             sovereignState?.let { add(it) }
             parentUnit?.let { add(it) }
-            latestEntities.forEach { add(it) }
         }
         val clickableResIds = clickableFlags.flatMap {
             listOf(it.flagOf, it.flagOfLiteral, it.flagOfOfficial)
@@ -446,6 +445,9 @@ class FlagViewModel(
 
             } else if (category == PROVISIONAL_GOVERNMENT) {
                 stringIds.add(R.string.category_provisional_government_in_description)
+
+            } else if (category == CONFEDERATION && INTERNATIONAL_ORGANIZATION !in categories) {
+                stringIds.add(R.string.category_confederal_string)
 
             } else {
                 stringIds.add(category.string)
