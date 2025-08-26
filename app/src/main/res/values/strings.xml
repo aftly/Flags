@@ -184,7 +184,8 @@
     <string name="category_historical_title">Historical</string>
     <string name="category_historical_string">historical</string>
     <string name="categories_associated_country">Associated Country</string>
-    <string name="categories_autonomous">Autonomous</string>
+    <string name="categories_autonomous_title">Autonomous</string>
+    <string name="categories_autonomous_string">autonomous</string>
     <string name="categories_autonomous_regional">Autonomous or (Non-Sovereign) Associated Region</string>
     <string name="categories_and">\ &amp;\ </string>
     <string name="dialog_ok">OK</string>
@@ -299,6 +300,7 @@
     <string name="string_comma_whitespace">,\ </string>
     <string name="string_defunct">defunct</string>
     <string name="string_in">in</string>
+    <string name="string_in_the">in the</string>
     <string name="string_is_a">is a</string>
     <string name="string_new_paragraph">\n\n</string>
     <string name="string_of">of</string>

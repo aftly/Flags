@@ -1098,12 +1098,12 @@ private fun getCategoriesStringResources(
         strings.add(R.string.string_comma_whitespace)
     } else if (isAutonomousRegionalSub) {
         superCategoriesFiltered.remove(AutonomousRegion)
-        strings.add(R.string.categories_autonomous)
+        strings.add(R.string.categories_autonomous_title)
         strings.add(R.string.string_whitespace)
     } else if (remainingCategories.contains(FlagCategory.AUTONOMOUS_REGION) &&
         remainingCategories.any { it in Regional.enums() }) {
         remainingCategories.remove(FlagCategory.AUTONOMOUS_REGION)
-        strings.add(R.string.categories_autonomous)
+        strings.add(R.string.categories_autonomous_title)
         strings.add(R.string.string_whitespace)
     }
 

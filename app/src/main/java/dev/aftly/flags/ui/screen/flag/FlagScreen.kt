@@ -128,13 +128,15 @@ fun FlagScreen(
             onFullscreen(uiState.flag, flagIds, isLandscape)
         },
         onNavigateBack = {
-            uiState.annotatedLinkFrom?.let {
+            if (uiState.annotatedLinkFrom.isNotEmpty()) {
                 viewModel.updateFlagRelated(
-                    flag = it,
+                    flag = uiState.annotatedLinkFrom.last(),
                     relatedMenu = uiState.latestMenuInteraction,
                     isLink = false,
                 )
-            } ?: onNavigateBack(uiState.navBackScrollToId)
+            } else {
+                onNavigateBack(uiState.navBackScrollToId)
+            }
         },
     )
 }

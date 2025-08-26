@@ -102,7 +102,12 @@ class FlagViewModel(
                         getChronologicalRelatedFlagsContentOrNull(flag, application),
                     flagIdsFromList = listFlagIds,
                     navBackScrollToId = if (flagId in listFlagIds) flagId else it.navBackScrollToId,
-                    annotatedLinkFrom = if (isLink) it.flag else null,
+                    annotatedLinkFrom = when (isLink) {
+                        true -> it.annotatedLinkFrom + it.flag
+                        false -> it.annotatedLinkFrom.filterNot { flag ->
+                            flag == it.annotatedLinkFrom.lastOrNull()
+                        }
+                    },
                     savedFlag = it.savedFlags.find { savedFlag ->
                         savedFlag.flagKey == flagKey
                     }
@@ -267,6 +272,25 @@ class FlagViewModel(
                 whitespaceExceptionIndexes.add(resIds.lastIndex)
 
                 resIds.add(R.string.category_devolved_government_in_description)
+            }
+
+            if (parentUnit != null) {
+                val regionalCat =
+                    parentUnit.categories.firstOrNull { it in FlagSuperCategory.Regional.enums() }
+
+                regionalCat?.let {
+                    resIds.add(R.string.string_comma)
+                    whitespaceExceptionIndexes.add(resIds.lastIndex)
+
+                    resIds.add(R.string.string_in_the)
+
+                    if (AUTONOMOUS_REGION in parentUnit.categories)
+                        resIds.add(R.string.categories_autonomous_string)
+
+                    resIds.add(regionalCat.string)
+                    resIds.add(R.string.string_of)
+                    resIds.add(parentUnit.flagOfLiteral)
+                }
             }
         }
 
