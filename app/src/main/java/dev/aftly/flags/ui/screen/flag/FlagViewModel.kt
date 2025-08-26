@@ -104,8 +104,8 @@ class FlagViewModel(
                     navBackScrollToId = if (flagId in listFlagIds) flagId else it.navBackScrollToId,
                     annotatedLinkFrom = when (isLink) {
                         true -> it.annotatedLinkFrom + it.flag
-                        false -> it.annotatedLinkFrom.filterNot { flag ->
-                            flag == it.annotatedLinkFrom.lastOrNull()
+                        false -> it.annotatedLinkFrom.filterIndexed { index, flag ->
+                            index != it.annotatedLinkFrom.lastIndex
                         }
                     },
                     savedFlag = it.savedFlags.find { savedFlag ->
@@ -179,12 +179,14 @@ class FlagViewModel(
         val associatedState = flagViewMap[flag.associatedStateKey]
         val sovereignState = flagViewMap[flag.sovereignStateKey]
         val parentUnit = flagViewMap[flag.parentUnitKey]
+        val latestEntities = flag.latestEntityKeys.map { key -> flagViewMap.getValue(key) }
 
         val clickableFlags = buildList {
             previousFlagOf?.let { add(it) }
             associatedState?.let { add(it) }
             sovereignState?.let { add(it) }
             parentUnit?.let { add(it) }
+            latestEntities.forEach { add(it) }
         }
         val clickableResIds = clickableFlags.flatMap {
             listOf(it.flagOf, it.flagOfLiteral, it.flagOfOfficial)

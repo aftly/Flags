@@ -193,7 +193,7 @@
     <string name="error">Error</string>
     <string name="flag">flag</string>
     <string name="flags">flags</string>
-    <string name="flags_of_the_world">"Flags of the World"</string>
+    <string name="flags_of_the_world">Flags of the World</string>
     <string name="game_title">Game</string>
     <string name="game_description">Guess names of flags from their pictures</string>
     <string name="game_button_submit">Submit</string>
