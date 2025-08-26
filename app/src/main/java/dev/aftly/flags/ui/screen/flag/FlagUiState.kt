@@ -15,6 +15,7 @@ data class FlagUiState(
     val flagIdsFromList: List<Int> = emptyList(),
     val flagScreenContent: FlagScreenContent? = null,
     val navBackScrollToId: Int = 0,
+    val annotatedLinkFrom: FlagView? = null,
     val latestMenuInteraction: RelatedFlagsMenu? = null,
     val savedFlags: List<SavedFlag> = emptyList(),
     val savedFlag: SavedFlag? = null,

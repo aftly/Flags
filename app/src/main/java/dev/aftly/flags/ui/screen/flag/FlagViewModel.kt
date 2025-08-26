@@ -83,6 +83,7 @@ class FlagViewModel(
         flagId: Int,
         flagIdsFromList: List<Int>? = null,
         isAnimated: Boolean = true,
+        isLink: Boolean = false,
     ) {
         val flag = getFlagFromId(flagId)
 
@@ -101,6 +102,7 @@ class FlagViewModel(
                         getChronologicalRelatedFlagsContentOrNull(flag, application),
                     flagIdsFromList = listFlagIds,
                     navBackScrollToId = if (flagId in listFlagIds) flagId else it.navBackScrollToId,
+                    annotatedLinkFrom = if (isLink) it.flag else null,
                     savedFlag = it.savedFlags.find { savedFlag ->
                         savedFlag.flagKey == flagKey
                     }
@@ -113,12 +115,13 @@ class FlagViewModel(
 
     fun updateFlagRelated(
         flag: FlagView,
-        relatedMenu: RelatedFlagsMenu,
+        relatedMenu: RelatedFlagsMenu?,
+        isLink: Boolean,
     ) {
         _uiState.update {
             it.copy(latestMenuInteraction = relatedMenu)
         }
-        updateFlag(flagId = flag.id)
+        updateFlag(flagId = flag.id, isLink = isLink)
     }
 
 

@@ -120,15 +120,21 @@ fun FlagScreen(
     FlagScreen(
         uiState = uiState,
         onFlagSave = { viewModel.updateSavedFlag() },
-        onRelatedFlag = { flag, relatedMenu ->
-            viewModel.updateFlagRelated(flag, relatedMenu)
+        onRelatedFlag = { flag, relatedMenu, isLink ->
+            viewModel.updateFlagRelated(flag, relatedMenu, isLink)
         },
         onFullscreen = { isLandscape ->
             val flagIds = viewModel.getFlagIds()
             onFullscreen(uiState.flag, flagIds, isLandscape)
         },
         onNavigateBack = {
-            onNavigateBack(uiState.navBackScrollToId)
+            uiState.annotatedLinkFrom?.let {
+                viewModel.updateFlagRelated(
+                    flag = it,
+                    relatedMenu = uiState.latestMenuInteraction,
+                    isLink = false,
+                )
+            } ?: onNavigateBack(uiState.navBackScrollToId)
         },
     )
 }
@@ -139,7 +145,7 @@ private fun FlagScreen(
     modifier: Modifier = Modifier,
     uiState: FlagUiState,
     onFlagSave: () -> Unit,
-    onRelatedFlag: (FlagView, RelatedFlagsMenu) -> Unit,
+    onRelatedFlag: (FlagView, RelatedFlagsMenu?, Boolean) -> Unit,
     onFullscreen: (Boolean) -> Unit,
     onNavigateBack: () -> Unit,
 ) {
@@ -152,8 +158,10 @@ private fun FlagScreen(
 
     var isFlagWide by rememberSaveable { mutableStateOf(value = true) }
 
-    /* To ensure same custom back behaviour as in-app back functionality */
-    BackHandler { onNavigateBack() }
+    /* Ensure same custom back behaviour as in-app back functionality */
+    BackHandler {
+        onNavigateBack()
+    }
 
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -220,7 +228,7 @@ private fun FlagScreen(
                 onFlagSelect = { newFlag ->
                     if (newFlag != uiState.flag) {
                         expandRelatedMenu = null
-                        onRelatedFlag(newFlag, relatedFlags.menu)
+                        onRelatedFlag(newFlag, relatedFlags.menu, false)
                     }
                 },
             )
@@ -246,7 +254,7 @@ private fun FlagScreen(
                 onFlagSelect = { newFlag ->
                     if (newFlag != uiState.flag) {
                         expandRelatedMenu = null
-                        onRelatedFlag(newFlag, relatedFlags.menu)
+                        onRelatedFlag(newFlag, relatedFlags.menu, false)
                     }
                 },
             )
@@ -260,7 +268,7 @@ private fun FlagContent(
     modifier: Modifier = Modifier,
     flagScreenContent: FlagScreenContent,
     onImageWide: (Boolean) -> Unit,
-    onRelatedFlag: (FlagView, RelatedFlagsMenu) -> Unit,
+    onRelatedFlag: (FlagView, RelatedFlagsMenu, Boolean) -> Unit,
     onFullscreen: () -> Unit,
 ) {
     /* Properties for if image height greater than column height, eg. in landscape orientation,
@@ -358,7 +366,7 @@ private fun FlagContent(
                                         }
                                     }
                                     flagToNavigate?.let {
-                                        onRelatedFlag(it, RelatedFlagsMenu.POLITICAL)
+                                        onRelatedFlag(it, RelatedFlagsMenu.POLITICAL, true)
                                     }
                                 }
                             ) {
