@@ -30,6 +30,9 @@ import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.SUPRANATIONAL_UNION
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
 import dev.aftly.flags.model.FlagCategory.CONFEDERATION
+import dev.aftly.flags.model.FlagCategory.THEOCRATIC
+import dev.aftly.flags.model.FlagCategory.SOCIALIST
+import dev.aftly.flags.model.FlagCategory.FASCIST
 import dev.aftly.flags.model.FlagScreenContent
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagView
@@ -200,13 +203,14 @@ class FlagViewModel(
             sovereignState?.let { cultural == REGIONAL } == true
         }
         val categoriesNonCultural = categories.filterNot { category ->
-            category == HISTORICAL || category in allCulturalCategories
+            category in allCulturalCategories
         }
         val categoriesCultural = categories.filter { it in allCulturalCategories }
 
         /* Description varies based on the following conditions */
         val isConstitutional = CONSTITUTIONAL in categories
-        val isNonCulturalCategoriesInFlag = categoriesNonCultural.isNotEmpty()
+        val isNonCulturalCategoriesInFlag =
+            categoriesNonCultural.filterNot { it == HISTORICAL }.isNotEmpty()
         val isCulturalCategoriesInFlag = categoriesCultural.isNotEmpty()
 
 
@@ -268,13 +272,23 @@ class FlagViewModel(
                 }
             }
 
+            /* Append devolved government information */
             if (DEVOLVED_GOVERNMENT in categories) {
                 resIds.add(R.string.string_comma)
                 whitespaceExceptionIndexes.add(resIds.lastIndex)
 
-                resIds.add(R.string.category_devolved_government_in_description)
+                if (THEOCRATIC in categories) {
+                    resIds.add(R.string.category_devolved_government_in_description_theocratic)
+                } else if (SOCIALIST in categories) {
+                    resIds.add(R.string.category_devolved_government_in_description_socialist)
+                } else if (FASCIST in categories) {
+                    resIds.add(R.string.category_devolved_government_in_description_fascist)
+                } else {
+                    resIds.add(R.string.category_devolved_government_in_description)
+                }
             }
 
+            /* Append info about the parent unit */
             if (parentUnit != null) {
                 val regionalCat =
                     parentUnit.categories.firstOrNull { it in FlagSuperCategory.Regional.enums() }
@@ -291,6 +305,50 @@ class FlagViewModel(
                     resIds.add(regionalCat.string)
                     resIds.add(R.string.string_of)
                     resIds.add(parentUnit.flagOfLiteral)
+                }
+            }
+
+            /* Append non-state irregular power information */
+            val irregularPowers = listOf(ONE_PARTY, MILITARY_JUNTA, PROVISIONAL_GOVERNMENT)
+
+            if (AUTONOMOUS_REGION in categories && categories.any { it in irregularPowers }) {
+                val power = categories.first { it in irregularPowers }
+
+                resIds.add(R.string.string_comma)
+                whitespaceExceptionIndexes.add(resIds.lastIndex)
+
+                when (power) {
+                    ONE_PARTY ->
+                        if (THEOCRATIC in categories) {
+                            resIds.add(R.string.category_one_party_in_description_non_state_theocratic)
+                        } else if (SOCIALIST in categories) {
+                            resIds.add(R.string.category_one_party_in_description_non_state_socialist)
+                        } else if (FASCIST in categories) {
+                            resIds.add(R.string.category_one_party_in_description_non_state_fascist)
+                        } else {
+                            resIds.add(R.string.category_one_party_in_description_non_state)
+                        }
+                    MILITARY_JUNTA ->
+                        if (THEOCRATIC in categories) {
+                            resIds.add(R.string.category_military_junta_in_description_non_state_theocratic)
+                        } else if (SOCIALIST in categories) {
+                            resIds.add(R.string.category_military_junta_in_description_non_state_socialist)
+                        } else if (FASCIST in categories) {
+                            resIds.add(R.string.category_military_junta_in_description_non_state_fascist)
+                        } else {
+                            resIds.add(R.string.category_military_junta_in_description_non_state)
+                        }
+                    PROVISIONAL_GOVERNMENT ->
+                        if (THEOCRATIC in categories) {
+                            resIds.add(R.string.category_provisional_government_in_description_non_state_theocratic)
+                        } else if (SOCIALIST in categories) {
+                            resIds.add(R.string.category_provisional_government_in_description_non_state_socialist)
+                        } else if (FASCIST in categories) {
+                            resIds.add(R.string.category_provisional_government_in_description_non_state_fascist)
+                        } else {
+                            resIds.add(R.string.category_provisional_government_in_description_non_state)
+                        }
+                    else -> {}
                 }
             }
         }
@@ -369,13 +427,29 @@ class FlagViewModel(
             .toMutableList()
         regionCategories.removeFirstOrNull()
 
+        /* Exception properties */
+        val isIrregularPower =
+            categories.any { it in listOf(ONE_PARTY, MILITARY_JUNTA, PROVISIONAL_GOVERNMENT) }
+        val ideologies = FlagSuperCategory.IdeologicalOrientation.enums()
+        val ideology = categories.firstOrNull { it in ideologies }
+
+
+        /* ----- ITERATIONS ----- */
         for (category in categories) {
             if (category in skipCategories) {
                 continue
 
             } else if (category == AUTONOMOUS_REGION) {
-                stringIds.add(R.string.category_autonomous_region_in_description_an)
-                whitespaceExceptions.add(stringIds.lastIndex)
+                val ideologyRegularPower = if (isIrregularPower) null else ideology
+
+                if (HISTORICAL !in categories && ideologyRegularPower == null) {
+                    stringIds.add(R.string.category_autonomous_region_in_description_an)
+                    whitespaceExceptions.add(stringIds.lastIndex)
+                }
+                else {
+                    ideologyRegularPower?.let { stringIds.add(it.string) }
+                    stringIds.add(R.string.category_autonomous_region_in_description)
+                }
 
             } else if (category == OBLAST && AUTONOMOUS_REGION !in categories) {
                 stringIds.add(R.string.category_oblast_string_in_description_an)
@@ -413,16 +487,11 @@ class FlagViewModel(
                     stringIds.add(category.string)
                 }
 
-            } else if (category in FlagSuperCategory.IdeologicalOrientation.enums() &&
-                AUTONOMOUS_REGION in categories) {
-                if (DEVOLVED_GOVERNMENT in categories) {
-                    stringIds.add(R.string.string_that_is)
-                } else if (ONE_PARTY in categories) {
-                    stringIds.add(R.string.string_and)
-                } else {
-                    stringIds.add(R.string.string_with_a)
-                }
-                stringIds.add(category.string)
+            } else if (category == CONFEDERATION && INTERNATIONAL_ORGANIZATION !in categories) {
+                stringIds.add(R.string.category_confederal_string)
+
+            } else if (category in ideologies && AUTONOMOUS_REGION in categories) {
+                continue
 
             } else if (category in FlagSuperCategory.ExecutiveStructure.enums() &&
                 !categories.any { it in FlagSuperCategory.International.enums() } &&
@@ -433,21 +502,21 @@ class FlagViewModel(
             } else if (category == CONSTITUTIONAL && MONARCHY !in categories) {
                 continue
 
-            } else if (category == ONE_PARTY) {
-                stringIds.add(R.string.category_one_party_in_description)
-
             } else if (category == THEOCRACY && MONARCHY in categories) {
                 stringIds.add(R.string.string_and)
                 stringIds.add(category.string)
 
+            } else if (category == ONE_PARTY) {
+                if (AUTONOMOUS_REGION !in categories)
+                    stringIds.add(R.string.category_one_party_in_description)
+
             } else if (category == MILITARY_JUNTA) {
-                stringIds.add(R.string.category_military_junta_in_description)
+                if (AUTONOMOUS_REGION !in categories)
+                    stringIds.add(R.string.category_military_junta_in_description)
 
             } else if (category == PROVISIONAL_GOVERNMENT) {
-                stringIds.add(R.string.category_provisional_government_in_description)
-
-            } else if (category == CONFEDERATION && INTERNATIONAL_ORGANIZATION !in categories) {
-                stringIds.add(R.string.category_confederal_string)
+                if (AUTONOMOUS_REGION !in categories)
+                    stringIds.add(R.string.category_provisional_government_in_description)
 
             } else {
                 stringIds.add(category.string)
