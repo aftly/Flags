@@ -59,6 +59,7 @@ import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.formatTimestamp
 import dev.aftly.flags.ui.util.getSingleCategoryPreviewTitleOrNull
 import dev.aftly.flags.ui.util.isCategoriesEmpty
+import dev.aftly.flags.ui.util.superCategories
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -199,7 +200,7 @@ private fun HistoryItem(
     @StringRes val categoryTitle =
         if (item.isCategoriesEmpty()) R.string.saved_flags_score_preview
         else getSingleCategoryPreviewTitleOrNull(
-            superCategories = item.gameSuperCategories.filterIsInstance<FlagSuperCategory>(),
+            superCategories = item.superCategories(),
             subCategories = item.gameSubCategories,
         ) ?: R.string.game_history_category_multiple
 

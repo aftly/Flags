@@ -86,7 +86,7 @@ fun getChronologicalDirectRelatedFlagKeys(
     val latestParentKeys = buildList {
         add(flagKey)
         flagRes.previousFlagOf?.let { add(it) }
-        addAll(flagRes.latestEntities)
+        addAll(elements = flagRes.latestEntities)
     }
 
     val previousParentKeys = buildList {
@@ -102,9 +102,9 @@ fun getChronologicalDirectRelatedFlagKeys(
     }
 
     return buildList {
-        addAll(latestParentKeys)
-        addAll(previousParentKeys)
-        addAll(childKeys)
+        addAll(elements = latestParentKeys)
+        addAll(elements = previousParentKeys)
+        addAll(elements = childKeys)
     }.distinct()
 }
 
@@ -122,10 +122,10 @@ fun getChronologicalIndirectRelatedFlagKeys(
 
     val sovereignFilterKeys = buildList {
         /* For all dependents of latest entity */
-        addAll(flagRes.latestEntities)
+        addAll(elements = flagRes.latestEntities)
         /* For post-admin keys of parent entity (eg. primary USA for historical USA flags) */
         flagRes.previousFlagOf?.let { flagOfKey ->
-            addAll(flagResMap.getValue(flagOfKey).latestEntities)
+            addAll(elements = flagResMap.getValue(flagOfKey).latestEntities)
         }
     }
 
@@ -168,12 +168,12 @@ fun getPoliticalInternalRelatedFlagKeys(
 
     return buildList {
         addAll(
-            parentKeys.filterNot { key ->
+            elements = parentKeys.filterNot { key ->
                 /* Exclude non-internal regional flags (some flags are both int and ext) */
                 key == flagKey && flagRes.categories.none { it in internalCategories }
             }
         )
-        addAll(childKeys)
+        addAll(elements = childKeys)
     }.distinct()
 }
 
@@ -207,9 +207,7 @@ fun getPoliticalExternalRelatedFlagKeys(
     return buildList {
         flagRes.associatedState?.let { add(it) }
         flagRes.previousFlagOf?.let { flagOfKey ->
-            flagResMap.getValue(flagOfKey).associatedState?.let {
-                add(it)
-            }
+            flagResMap.getValue(flagOfKey).associatedState?.let { add(it) }
         }
         addAll(internationalOrgKeys)
         addAll(childKeys)

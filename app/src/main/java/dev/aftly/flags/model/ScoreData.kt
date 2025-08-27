@@ -5,6 +5,7 @@ import dev.aftly.flags.R
 import dev.aftly.flags.data.room.scorehistory.ScoreItem
 import dev.aftly.flags.ui.util.getFlagKeys
 import dev.aftly.flags.ui.util.getFlagsFromKeys
+import dev.aftly.flags.ui.util.superCategories
 import kotlinx.serialization.Serializable
 
 
@@ -115,7 +116,7 @@ fun ScoreItem.toScoreData(
     timeMode = timeMode,
     timerStart = timerStart,
     timerEnd = timerEnd,
-    gameSuperCategories = gameSuperCategories.filterIsInstance<FlagSuperCategory>(),
+    gameSuperCategories = superCategories(),
     gameSubCategories = gameSubCategories,
     flagsAll = getFlagsFromKeys(flagKeys = flagsAll),
     flagsGuessed = getFlagsFromKeys(flagKeys = flagsGuessed),

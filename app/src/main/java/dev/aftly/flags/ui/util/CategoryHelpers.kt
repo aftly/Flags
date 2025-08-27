@@ -14,7 +14,6 @@ import dev.aftly.flags.model.FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
 import dev.aftly.flags.model.FlagCategory.THEOCRATIC
-import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagSuperCategory.AutonomousRegion
@@ -46,8 +45,10 @@ fun getSingleCategoryPreviewTitleOrNull(
 }
 
 fun ScoreItem.isCategoriesEmpty(): Boolean =
-    this.gameSuperCategories.isEmpty() && this.gameSubCategories.isEmpty()
+    gameSuperCategories.isEmpty() && gameSubCategories.isEmpty()
 
+fun ScoreItem.superCategories(): List<FlagSuperCategory> =
+    gameSuperCategories.filterIsInstance<FlagSuperCategory>()
 
 
 /* ------ For updateCurrentCategory() in ViewModels ------ */
@@ -72,10 +73,9 @@ fun getFlagsByCategory(
     }
 
     /* Exclude flags if they don't have any categories in this list */
-    val categoriesHasAny = when (Political.subCategories.filterIsInstance<FlagSuperCategory>()
-        .any { subCategory in it.enums() }) {
-        true -> listOf(SOVEREIGN_STATE, INTERNATIONAL_ORGANIZATION)
-        false -> null
+    val categoriesHasAny = when (subCategory) {
+        in Political.supersEnums() -> listOf(SOVEREIGN_STATE, INTERNATIONAL_ORGANIZATION)
+        else -> null
     }
 
     /* Generate list of categories to iterate over (for flags list) from nullable values */
@@ -123,10 +123,7 @@ fun getSuperCategories(
     subCategory: FlagCategory?,
     flags: List<FlagView>,
 ): List<FlagSuperCategory> {
-    val isPoliticalSubCategory = subCategory?.let {
-        Political.subCategories.filterIsInstance<FlagSuperCategory>()
-            .any { subCategory in it.enums() }
-    } ?: false
+    val isPoliticalSubCategory = subCategory in Political.supersEnums()
 
     return if (superCategory != null) {
         listOf(superCategory)
@@ -147,9 +144,8 @@ fun getParentSuperCategory(
     /* If subCategory not null get it's superCategory, else if superCategory not null return it,
     * else return exception superCategory  */
     return if (subCategory != null) {
-        menuSuperCategoryList.filterNot { it in listOf(All, Political) }.find { superCat ->
-            subCategory in superCat.enums()
-        } ?: Political
+        menuSuperCategoryList.filterNot { it in listOf(All, Political) }
+            .find { subCategory in it.enums() } ?: Political
     } else {
         superCategory ?: exceptionCategory
     }
@@ -166,6 +162,7 @@ fun isSuperCategoryExit(
 ): Boolean {
     val exclusive1 = mutuallyExclusiveSuperCategories1
     val exclusive2 = mutuallyExclusiveSuperCategories2
+    val subExitSupers = listOf(SovereignCountry, International)
 
     /* TODO: Make hardcoded solutions (#2 & #4) dynamic */
     /* After first, next 2 conditionals regard exclusive1, subsequent 2 regard exclusive2 */
@@ -178,15 +175,14 @@ fun isSuperCategoryExit(
 
     } else if (subCategories.any { subCategory ->
         subCategory in AutonomousRegion.enums() || subCategory in Regional.enums() } &&
-        (superCategory == SovereignCountry || superCategory == International)) {
+        superCategory in subExitSupers) {
         true
 
     } else if (superCategory !in superCategories &&
         exclusive2.contains(superCategory) && exclusive2.any { it in superCategories }) {
         true
 
-    } else if (subCategories.any { it in Cultural.enums() } &&
-        (superCategory == SovereignCountry || superCategory == International)) {
+    } else if (subCategories.any { it in Cultural.enums() } && superCategory in subExitSupers) {
         true
 
     } else {
@@ -300,7 +296,7 @@ fun getFlagsFromCategories(
         currentFlags
     }.let { flags ->
         when (subCategories.isNotEmpty()) {
-            true -> flags.filter { it.categories.containsAll(subCategories) }
+            true -> flags.filter { it.categories.containsAll(elements = subCategories) }
             false -> flags
         }
     }.let { flags ->

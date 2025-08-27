@@ -15,15 +15,16 @@ sealed class FlagSuperCategory(
     @param:StringRes val gameScoreCategoryDetailed: Int? = R.string.string_whitespace,
     @Polymorphic val subCategories: List<FlagCategoryBase>,
 ) : FlagCategoryBase() {
-    fun enums(): List<FlagCategory> {
-        return subCategories.filterIsInstance<FlagCategoryWrapper>().map { it.enum }
-    }
+    fun supers(): List<FlagSuperCategory> = subCategories.filterIsInstance<FlagSuperCategory>()
 
-    fun firstCategoryEnumOrNull(): FlagCategory? {
-        return when (val firstCategory = subCategories.first()) {
-            is FlagCategoryWrapper -> firstCategory.enum
-            else -> null
-        }
+    fun enums(): List<FlagCategory> =
+        subCategories.filterIsInstance<FlagCategoryWrapper>().map { it.enum }
+
+    fun supersEnums(): List<FlagCategory> = supers().flatMap { it.enums() }
+
+    fun firstCategoryEnumOrNull(): FlagCategory? = when (val first = subCategories.first()) {
+        is FlagCategoryWrapper -> first.enum
+        else -> null
     }
 
     @Serializable

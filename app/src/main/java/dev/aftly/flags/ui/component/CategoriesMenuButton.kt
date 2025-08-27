@@ -72,7 +72,6 @@ import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
 import dev.aftly.flags.model.FlagCategory.CONFEDERATION
 import dev.aftly.flags.model.FlagCategory.ONE_PARTY
 import dev.aftly.flags.model.FlagCategory.PROVISIONAL_GOVERNMENT
-import dev.aftly.flags.model.FlagCategoryWrapper
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagSuperCategory.AutonomousRegion
@@ -153,13 +152,12 @@ fun CategoriesButtonMenu(
             /* If subCategory belongs to Political superCategory, except for exceptions,
              * append "State" after subCategory */
             val subCategory = currentSubs.first()
-            val politicalStateCategories = Political.subCategories
-                .filterIsInstance<FlagSuperCategory>().flatMap { politicalSuper ->
-                when (politicalSuper) {
-                    is PowerDerivation -> politicalSuper.enums().filter {
-                        it in listOf(ONE_PARTY, PROVISIONAL_GOVERNMENT)
-                    }
-                    else -> politicalSuper.enums().filterNot { it == CONFEDERATION }
+            val politicalStateCategories = Political.supersEnums().filterNot { polSub ->
+                polSub in buildList {
+                    add(CONFEDERATION)
+                    addAll(elements = PowerDerivation.enums()
+                        .filterNot { it in listOf(ONE_PARTY, PROVISIONAL_GOVERNMENT) }
+                    )
                 }
             }
 
@@ -205,7 +203,7 @@ fun CategoriesButtonMenu(
         containerColor = lerp(
             start = buttonColors1.containerColor,
             stop = containerColor3,
-            fraction = if (isDarkTheme) 0.25f else 0.165f
+            fraction = if (isDarkTheme) 0.25f else 0.165f,
         )
     )
 
@@ -279,7 +277,7 @@ fun CategoriesButtonMenu(
                                         .background(buttonColors2.contentColor)
                                         .padding(
                                             vertical = 2.dp * fontScale,
-                                            horizontal = 6.dp * fontScale
+                                            horizontal = 6.dp * fontScale,
                                         ),
                                     textAlign = TextAlign.Center,
                                     color = buttonColors2.containerColor,
@@ -288,9 +286,8 @@ fun CategoriesButtonMenu(
                             }
                         } ?: Spacer(
                             modifier = Modifier.width(width =
-                                if (textWidth + iconsTotalSize < buttonWidth) {
-                                    iconSizePadding
-                                } else 0.dp
+                                if (textWidth + iconsTotalSize < buttonWidth) iconSizePadding
+                                else 0.dp
                             )
                         )
 
@@ -322,14 +319,12 @@ fun CategoriesButtonMenu(
                             contentAlignment = Alignment.CenterEnd,
                         ) {
                             Icon(
-                                imageVector = when (isMenuExpanded) {
-                                    false -> Icons.Default.KeyboardArrowDown
-                                    true -> Icons.Default.KeyboardArrowUp
-                                },
-                                contentDescription = when (isMenuExpanded) {
-                                    false -> stringResource(R.string.menu_icon_expand)
-                                    true -> stringResource(R.string.menu_icon_collapse)
-                                },
+                                imageVector =
+                                    if (isMenuExpanded) Icons.Default.KeyboardArrowUp
+                                    else Icons.Default.KeyboardArrowDown,
+                                contentDescription =
+                                    if (isMenuExpanded) stringResource(R.string.menu_icon_collapse)
+                                    else stringResource(R.string.menu_icon_expand),
                                 modifier = Modifier.size(iconSize),
                                 tint = buttonColors1.contentColor,
                             )
@@ -367,8 +362,7 @@ fun CategoriesButtonMenu(
                                     haptics = haptics,
                                     textButtonStyle = textButtonStyle,
                                     buttonColors =
-                                        if (currentSupers.isEmpty() &&
-                                            currentSubs.isEmpty()) {
+                                        if (currentSupers.isEmpty() && currentSubs.isEmpty()) {
                                             buttonColors2
                                         } else {
                                             buttonColors1
@@ -413,8 +407,7 @@ fun CategoriesButtonMenu(
                                         onCategorySelectMultiple(selectSuperCategory, null)
                                     },
                                 )
-                            } else if (superCategory.subCategories
-                                .filterIsInstance<FlagCategoryWrapper>().isNotEmpty()) {
+                            } else if (superCategory.enums().isNotEmpty()) {
                                 /* If superCategory has any FlagCategories (ie. sub-categories)
                                  * use 2 tier expandable menu */
                                 MenuItemExpandable(
@@ -553,12 +546,8 @@ private fun MenuItemExpandable(
         key2 = isCategoriesMenuExpanded,
     ) {
         if (isCategoriesMenuExpanded) {
-            isMenuExpandedLocalState = when (selectedSubCategories.any { subCategory ->
-                subCategory in itemSuperCategory.enums()
-            }) {
-                true -> true
-                false -> null
-            }
+            isMenuExpandedLocalState =
+                if (selectedSubCategories.any { it in itemSuperCategory.enums() }) true else null
         }
     }
 
@@ -589,11 +578,7 @@ private fun MenuItemExpandable(
 
     /* Bottom padding when last item is expandable and expanded */
     val lastItemPadding = if (itemSuperCategory == Political.subCategories.last() &&
-        (isMenuExpandedParentState || isMenuExpandedLocalState == true)) {
-        9.dp
-    } else {
-        0.dp
-    }
+        (isMenuExpandedParentState || isMenuExpandedLocalState == true)) 9.dp else 0.dp
 
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
@@ -628,14 +613,13 @@ private fun MenuItemExpandable(
                              * it's category */
                             onSuperItemSelect(itemSuperCategory)
 
-                        } else if (menuSuperCategoryList.any {
-                                itemSuperCategory in it.subCategories
-                            }) {
+                        } else if (menuSuperCategoryList
+                            .any { itemSuperCategory in it.subCategories }) {
                             /* If item's category is in a menu superCategory, update parent expand
                              * menu state with the super (keeps super open upon item collapse) */
-                            onSuperItemSelect(menuSuperCategoryList.find {
-                                itemSuperCategory in it.subCategories
-                            })
+                            onSuperItemSelect(
+                                menuSuperCategoryList.find { itemSuperCategory in it.subCategories }
+                            )
                         } else {
                             /* Else, make expandMenu state null */
                             onSuperItemSelect(null)
@@ -669,9 +653,8 @@ private fun MenuItemExpandable(
                 if (!isSuperCategorySelectable) {
                     Spacer(
                         modifier = Modifier.width(width =
-                            if (textWidth + iconsTotalSize < buttonWidth) {
-                                iconSizePadding
-                            } else 0.dp
+                            if (textWidth + iconsTotalSize < buttonWidth) iconSizePadding
+                            else 0.dp
                         )
                     )
                 }
@@ -725,55 +708,54 @@ private fun MenuItemExpandable(
                         .fillMaxWidth()
                         .padding(vertical = Dimens.extraSmall4),
                 ) {
-                    itemSuperCategory.subCategories.filterIsInstance<FlagCategoryWrapper>()
-                        .forEach { subWrapper ->
-                            Box(
+                    itemSuperCategory.enums().forEach { subCategory ->
+                        Box(
+                            modifier = Modifier
+                                .padding(
+                                    top = Dimens.textButtonVertPad,
+                                    bottom = Dimens.textButtonVertPad,
+                                )
+                                .combinedClickable(
+                                    onClick = { onCategorySelectSingle(null, subCategory) },
+                                    onLongClick = {
+                                        haptics.performHapticFeedback(
+                                            HapticFeedbackType.LongPress
+                                        )
+                                        onCategorySelectMultiple(null, subCategory)
+                                    }
+                                )
+                        ) {
+                            Row(
                                 modifier = Modifier
-                                    .padding(
-                                        top = Dimens.textButtonVertPad,
-                                        bottom = Dimens.textButtonVertPad,
-                                    )
-                                    .combinedClickable(
-                                        onClick = { onCategorySelectSingle(null, subWrapper.enum) },
-                                        onLongClick = {
-                                            haptics.performHapticFeedback(
-                                                HapticFeedbackType.LongPress
-                                            )
-                                            onCategorySelectMultiple(null, subWrapper.enum)
-                                        }
-                                    )
+                                    .fillMaxWidth()
+                                    .background(color = buttonColors2.containerColor),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .background(color = buttonColors2.containerColor),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Box(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            text = stringResource(subWrapper.enum.title),
-                                            modifier = Modifier
-                                                .padding(ButtonDefaults.TextButtonContentPadding),
-                                            color = buttonColors2.contentColor,
-                                            fontWeight = FontWeight.Normal,
-                                            style = textButtonStyle,
-                                        )
-                                    }
+                                Box(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = stringResource(subCategory.title),
+                                        modifier = Modifier
+                                            .padding(ButtonDefaults.TextButtonContentPadding),
+                                        color = buttonColors2.contentColor,
+                                        fontWeight = FontWeight.Normal,
+                                        style = textButtonStyle,
+                                    )
+                                }
 
-                                    if (subWrapper.enum in selectedSubCategories) {
-                                        Icon(
-                                            imageVector = Icons.Default.Check,
-                                            contentDescription = "selected",
-                                            modifier = Modifier
-                                                .padding(end = Dimens.textButtonHorizPad)
-                                                .size(Dimens.standardIconSize24 * fontScale * 0.9f),
-                                            tint = buttonColors2.contentColor,
-                                        )
-                                    }
+                                if (subCategory in selectedSubCategories) {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = "selected",
+                                        modifier = Modifier
+                                            .padding(end = Dimens.textButtonHorizPad)
+                                            .size(Dimens.standardIconSize24 * fontScale * 0.9f),
+                                        tint = buttonColors2.contentColor,
+                                    )
                                 }
                             }
                         }
+                    }
                 }
             }
         }
@@ -800,8 +782,7 @@ private fun MenuItemOfSupers(
 ) {
     /* If parent expand menu state is the super or a subcategory of the super -> true */
     val isSuperItemExpanded = itemSuperCategory == isMenuExpandedParentState || itemSuperCategory
-        .subCategories.filterIsInstance<FlagSuperCategory>()
-        .contains(element = isMenuExpandedParentState)
+        .supers().contains(element = isMenuExpandedParentState)
 
     /* Per-item boolean for holding menu expansion state, eg. when any of it's subs are selected */
     var isMenuExpandedLocalState: Boolean? by remember { mutableStateOf(value = null) }
@@ -813,14 +794,9 @@ private fun MenuItemOfSupers(
         key2 = isCategoriesMenuExpanded,
     ) {
         if (isCategoriesMenuExpanded) {
-            isMenuExpandedLocalState = when (selectedSubCategories.any { subCategory ->
-                itemSuperCategory.subCategories.filterIsInstance<FlagSuperCategory>().any {
-                    superCategory -> subCategory in superCategory.enums()
-                }
-            }) {
-                true -> true
-                false -> null
-            }
+            isMenuExpandedLocalState =
+                if (selectedSubCategories.any { subCat -> itemSuperCategory.supers().any {
+                    superCat -> subCat in superCat.enums() } }) true else null
         }
     }
 
@@ -849,8 +825,7 @@ private fun MenuItemOfSupers(
 
                     /* Manage parent expansion state */
                     when (isMenuExpandedParentState) {
-                        in itemSuperCategory.subCategories.filterIsInstance<FlagSuperCategory>() ->
-                            onSuperItemSelect(null)
+                        in itemSuperCategory.supers() -> onSuperItemSelect(null)
                         itemSuperCategory -> onSuperItemSelect(null)
                         else -> onSuperItemSelect(itemSuperCategory)
                     }
@@ -894,15 +869,16 @@ private fun MenuItemOfSupers(
                         )
 
                         Icon(
-                            imageVector = when (isMenuExpandedLocalState ?: isSuperItemExpanded) {
-                                true -> Icons.Default.KeyboardArrowUp
-                                false -> Icons.Default.KeyboardArrowDown
-                            },
-                            contentDescription = when (isMenuExpandedLocalState
-                                ?: isSuperItemExpanded) {
-                                true -> stringResource(R.string.menu_sub_icon_collapse)
-                                false -> stringResource(R.string.menu_sub_icon_expand)
-                            },
+                            imageVector =
+                                if (isMenuExpandedLocalState ?: isSuperItemExpanded)
+                                    Icons.Default.KeyboardArrowUp
+                                else
+                                    Icons.Default.KeyboardArrowDown,
+                            contentDescription =
+                                if (isMenuExpandedLocalState ?: isSuperItemExpanded)
+                                    stringResource(R.string.menu_sub_icon_collapse)
+                                else
+                                    stringResource(R.string.menu_sub_icon_expand),
                             modifier = Modifier
                                 .size(iconSize)
                                 .padding(start = iconPadding),
@@ -929,8 +905,7 @@ private fun MenuItemOfSupers(
                     colors = cardColors2,
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
-                        itemSuperCategory.subCategories.filterIsInstance<FlagSuperCategory>()
-                            .forEach { superCategory ->
+                        itemSuperCategory.supers().forEach { superCategory ->
 
                             MenuItemExpandable(
                                 haptics = haptics,
@@ -965,14 +940,14 @@ private fun MenuItemExpandableArrowIcon(
     tint: Color = Color.Unspecified,
 ) {
     Icon(
-        imageVector = when (isExpanded) {
-            true -> Icons.Default.KeyboardArrowUp
-            false -> Icons.Default.KeyboardArrowDown
-        },
-        contentDescription = when (isExpanded) {
-            true -> stringResource(R.string.menu_sub_icon_collapse)
-            false -> stringResource(R.string.menu_sub_icon_expand)
-        },
+        imageVector =
+            if (isExpanded) Icons.Default.KeyboardArrowUp
+            else Icons.Default.KeyboardArrowDown,
+        contentDescription =
+            if (isExpanded)
+                stringResource(R.string.menu_sub_icon_collapse)
+            else
+                stringResource(R.string.menu_sub_icon_expand),
         modifier = modifier
             .padding(end = Dimens.textButtonHorizPad)
             .size(iconSize),
@@ -986,14 +961,12 @@ private fun filterSuperCategories(
     superCategories: List<FlagSuperCategory>,
     subCategories: List<FlagCategory>,
 ): List<FlagSuperCategory> {
-    return superCategories.filterNot { superCategory ->
+    val superCategoriesNew = superCategories.filterNot { superCategory ->
         superCategory.enums().any { it in subCategories }
-
-    }.let { superCategoriesNew ->
-        when (superCategoriesNew.size to subCategories.isEmpty()) {
-            0 to true -> superCategoriesNew
-            else -> superCategoriesNew.filterNot { it == All }
-        }
+    }
+    return when (superCategoriesNew.size to subCategories.isEmpty()) {
+        0 to true -> superCategoriesNew
+        else -> superCategoriesNew.filterNot { it == All }
     }
 }
 
@@ -1038,13 +1011,8 @@ private fun getCategoriesStringResources(
 
     /* Subcategories belonging to Political SuperCategory sans NonAdministrative,
      * sorted semantically, according to sortPoliticalCategoriesBy */
-    val politicalCategories = subCategories.filter { subCategory ->
-        Political.subCategories.filterIsInstance<FlagSuperCategory>().any {
-            subCategory in it.enums()
-        }
-    }.sortedBy {
-        politicalCategoriesSortOrder.indexOf(it)
-    }
+    val politicalCategories = subCategories.filter { it in Political.supersEnums() }
+        .sortedBy { politicalCategoriesSortOrder.indexOf(it) }
 
     /* Subcategories not in other list derivatives, minus duplicates */
     val remainingCategories = subCategories.filterNot { it in culturalCategories }
@@ -1085,9 +1053,10 @@ private fun getCategoriesStringResources(
         if (politicalCategory == politicalCategories.last() &&
             superCategoriesFiltered.all { it == SovereignCountry } &&
             remainingCategories.isEmpty() &&
-            politicalCategories.none { it in PowerDerivation.enums().filterNot { enum ->
-                enum in listOf(ONE_PARTY, PROVISIONAL_GOVERNMENT)
-            } || it == CONFEDERATION }) {
+            politicalCategories.none { polSub ->
+                polSub in PowerDerivation.enums()
+                    .filterNot { it in listOf(ONE_PARTY, PROVISIONAL_GOVERNMENT) } + CONFEDERATION
+            }) {
             strings.add(R.string.category_state_title)
         }
     }
