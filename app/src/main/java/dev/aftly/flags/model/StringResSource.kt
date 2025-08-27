@@ -7,10 +7,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed interface StringResSource {
     @Serializable
-    @SerialName("StringResSource.Explicit")
+    @SerialName(value = "StringResSource.Explicit")
     data class Explicit(val resName: StringResName) : StringResSource
 
     @Serializable
-    @SerialName("StringResSource.Inherit")
+    @SerialName(value = "StringResSource.Inherit")
     object Inherit : StringResSource
 }

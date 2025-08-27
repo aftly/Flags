@@ -27,7 +27,7 @@ sealed class FlagSuperCategory(
     }
 
     @Serializable
-    @SerialName("all")
+    @SerialName(value = "all")
     data object All : FlagSuperCategory(
         title = R.string.category_super_all,
         categoriesMenuButton = R.string.category_super_all_menu_button,
@@ -37,7 +37,7 @@ sealed class FlagSuperCategory(
     )
 
     @Serializable
-    @SerialName("sovereign_country")
+    @SerialName(value = "sovereign_country")
     data object SovereignCountry : FlagSuperCategory(
         title = R.string.category_super_sovereign_country,
         categoriesMenuButton = R.string.category_super_sovereign_country_menu_button,
@@ -49,7 +49,7 @@ sealed class FlagSuperCategory(
     )
 
     @Serializable
-    @SerialName("autonomous_region")
+    @SerialName(value = "autonomous_region")
     data object AutonomousRegion : FlagSuperCategory(
         title = R.string.category_super_autonomous_region,
         categoriesMenuButton = R.string.category_super_autonomous_region_menu_button,
@@ -64,7 +64,7 @@ sealed class FlagSuperCategory(
     )
 
     @Serializable
-    @SerialName("regional")
+    @SerialName(value = "regional")
     data object Regional : FlagSuperCategory(
         title = R.string.category_super_regional,
         categoriesMenuButton = R.string.category_super_regional_menu_button,
@@ -97,7 +97,7 @@ sealed class FlagSuperCategory(
     )
 
     @Serializable
-    @SerialName("international")
+    @SerialName(value = "international")
     data object International : FlagSuperCategory(
         title = R.string.category_super_international,
         categoriesMenuButton = R.string.category_super_international_menu_button,
@@ -110,7 +110,22 @@ sealed class FlagSuperCategory(
     )
 
     @Serializable
-    @SerialName("historical")
+    @SerialName(value = "institution")
+    data object Institution : FlagSuperCategory(
+        title = R.string.category_super_institution,
+        categoriesMenuButton = R.string.category_super_institution_menu_button,
+        gameScoreCategoryPreview = R.string.category_super_institution_score_preview,
+        gameScoreCategoryDetailed = R.string.category_super_institution_score_detailed,
+        subCategories = listOf(
+            FlagCategoryWrapper(enum = FlagCategory.LOWER_HOUSE),
+            FlagCategoryWrapper(enum = FlagCategory.UPPER_HOUSE),
+            FlagCategoryWrapper(enum = FlagCategory.PARLIAMENT),
+            FlagCategoryWrapper(enum = FlagCategory.CONGRESS)
+        ),
+    )
+
+    @Serializable
+    @SerialName(value = "historical")
     data object Historical : FlagSuperCategory(
         title = R.string.category_super_historical,
         categoriesMenuButton = R.string.category_super_historical_menu_button,
@@ -122,14 +137,13 @@ sealed class FlagSuperCategory(
     )
 
     @Serializable
-    @SerialName("cultural")
+    @SerialName(value = "cultural")
     data object Cultural : FlagSuperCategory(
         title = R.string.category_super_cultural,
         categoriesMenuButton = R.string.category_super_cultural_menu_button,
         gameScoreCategoryPreview = R.string.category_super_cultural_score_preview,
         gameScoreCategoryDetailed = R.string.category_super_cultural_score_detailed,
         subCategories = listOf(
-            FlagCategoryWrapper(enum = FlagCategory.REGIONAL),
             FlagCategoryWrapper(enum = FlagCategory.SOCIAL),
             FlagCategoryWrapper(enum = FlagCategory.POLITICAL),
             FlagCategoryWrapper(enum = FlagCategory.RELIGIOUS),
@@ -138,7 +152,7 @@ sealed class FlagSuperCategory(
     )
 
     @Serializable
-    @SerialName("political")
+    @SerialName(value = "political")
     data object Political : FlagSuperCategory(
         title = R.string.category_super_political,
         categoriesMenuButton = null,
@@ -158,7 +172,7 @@ sealed class FlagSuperCategory(
     /* Below FlagSuperCategory-s for use as subCategories for above FlagSuperCategory-s */
 
     @Serializable
-    @SerialName("territorial_authority_distribution")
+    @SerialName(value = "territorial_authority_distribution")
     data object TerritorialDistributionOfAuthority : FlagSuperCategory(
         title = R.string.category_sub_territorial_power_distribution,
         categoriesMenuButton = null,
@@ -172,7 +186,7 @@ sealed class FlagSuperCategory(
     )
 
     @Serializable
-    @SerialName("executive_structure")
+    @SerialName(value = "executive_structure")
     data object ExecutiveStructure : FlagSuperCategory(
         title = R.string.category_sub_executive_structure,
         categoriesMenuButton = null,
@@ -188,7 +202,7 @@ sealed class FlagSuperCategory(
     )
 
     @Serializable
-    @SerialName("legal_constraint")
+    @SerialName(value = "legal_constraint")
     data object LegalConstraint : FlagSuperCategory(
         title = R.string.category_sub_legal_constraint,
         categoriesMenuButton = null,
@@ -201,7 +215,7 @@ sealed class FlagSuperCategory(
     )
 
     @Serializable
-    @SerialName("power_derivation")
+    @SerialName(value = "power_derivation")
     data object PowerDerivation : FlagSuperCategory(
         title = R.string.category_sub_power_derivation,
         categoriesMenuButton = null,
@@ -218,7 +232,7 @@ sealed class FlagSuperCategory(
     )
 
     @Serializable
-    @SerialName("regime_type")
+    @SerialName(value = "regime_type")
     data object RegimeType : FlagSuperCategory(
         title = R.string.category_sub_regime_type,
         categoriesMenuButton = null,
@@ -233,7 +247,7 @@ sealed class FlagSuperCategory(
     )
 
     @Serializable
-    @SerialName("ideological_orientation")
+    @SerialName(value = "ideological_orientation")
     data object IdeologicalOrientation : FlagSuperCategory(
         title = R.string.category_sub_ideological_orientation,
         categoriesMenuButton = null,

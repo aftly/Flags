@@ -22,6 +22,10 @@
     <string name="category_super_international_menu_button">International Organization</string>
     <string name="category_super_international_score_preview">International</string>
     <string name="category_super_international_score_detailed">International Organization</string>
+    <string name="category_super_institution">Institution</string>
+    <string name="category_super_institution_menu_button">Institution</string>
+    <string name="category_super_institution_score_preview">Institution</string>
+    <string name="category_super_institution_score_detailed">Institution</string>
     <string name="category_super_cultural">Cultural</string>
     <string name="category_super_cultural_menu_button">Cultural</string>
     <string name="category_super_cultural_score_preview">Cultural</string>
@@ -319,8 +323,10 @@
     <string name="string_in">in</string>
     <string name="string_in_the">in the</string>
     <string name="string_is_a">is a</string>
+    <string name="string_is_the">is the</string>
     <string name="string_new_paragraph">\n\n</string>
     <string name="string_of">of</string>
+    <string name="string_of_the">of the</string>
     <string name="string_period">.</string>
     <string name="string_present">present</string>
     <string name="string_that_is">that is</string>

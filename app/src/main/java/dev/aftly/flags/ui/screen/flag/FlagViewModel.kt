@@ -35,6 +35,13 @@ import dev.aftly.flags.model.FlagCategory.SOCIALIST
 import dev.aftly.flags.model.FlagCategory.FASCIST
 import dev.aftly.flags.model.FlagScreenContent
 import dev.aftly.flags.model.FlagSuperCategory
+import dev.aftly.flags.model.FlagSuperCategory.Regional
+import dev.aftly.flags.model.FlagSuperCategory.International
+import dev.aftly.flags.model.FlagSuperCategory.Institution
+import dev.aftly.flags.model.FlagSuperCategory.Cultural
+import dev.aftly.flags.model.FlagSuperCategory.ExecutiveStructure
+import dev.aftly.flags.model.FlagSuperCategory.TerritorialDistributionOfAuthority
+import dev.aftly.flags.model.FlagSuperCategory.IdeologicalOrientation
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.RelatedFlagsMenu
 import dev.aftly.flags.ui.util.getChronologicalRelatedFlagsContentOrNull
@@ -199,45 +206,40 @@ class FlagViewModel(
             R.string.string_defunct
         )
 
-        val allCulturalCategories = FlagSuperCategory.Cultural.enums().filterNot { cultural ->
-            sovereignState?.let { cultural == REGIONAL } == true
+        val categoriesHistorical = categories.filter { it == HISTORICAL }
+        val categoriesInstitutional = categories.filter { it in Institution.enums() }
+        val categoriesCultural = categories.filter { it in Cultural.enums() }
+        val categoriesPolitical = categories.filterNot {
+            it in categoriesHistorical || it in categoriesInstitutional || it in categoriesCultural
         }
-        val categoriesNonCultural = categories.filterNot { category ->
-            category in allCulturalCategories
+
+        val isPolitical = categoriesPolitical.isNotEmpty()
+        val isInstitutional = categoriesInstitutional.isNotEmpty()
+        val isCultural = categoriesCultural.isNotEmpty()
+
+        /* ----------------------- Description START ----------------------- */
+        if (HISTORICAL in categories) {
+            if (flag.isFlagOfOfficialThe) resIds.add(R.string.string_the_capitalized)
+            resIds.add(flag.flagOfOfficial) /* FLAG NAME */
+            resIds.add(R.string.string_is_a)
+            resIds.add(R.string.string_defunct) /* DESCRIPTOR */
+        } else {
+            if (flag.isFlagOfThe) resIds.add(R.string.string_the_capitalized)
+            resIds.add(flag.flagOfLiteral) /* FLAG NAME */
+
+            if (isInstitutional) resIds.add(R.string.string_is_the)
+            else resIds.add(R.string.string_is_a)
         }
-        val categoriesCultural = categories.filter { it in allCulturalCategories }
 
-        /* Description varies based on the following conditions */
-        val isConstitutional = CONSTITUTIONAL in categories
-        val isNonCulturalCategoriesInFlag =
-            categoriesNonCultural.filterNot { it == HISTORICAL }.isNotEmpty()
-        val isCulturalCategoriesInFlag = categoriesCultural.isNotEmpty()
-
-
-        /* ---------- Add non-cultural description @StringRes Ids to list ---------- */
-        if (isNonCulturalCategoriesInFlag) {
-            /* Start with flag name, details vary if historical */
-            if (HISTORICAL in categories) {
-                if (flag.isFlagOfOfficialThe) resIds.add(R.string.string_the_capitalized)
-                resIds.add(flag.flagOfOfficial) /* FLAG NAME */
-                resIds.add(R.string.string_is_a)
-                resIds.add(R.string.string_defunct) /* DESCRIPTOR */
-            } else {
-                if (flag.isFlagOfThe) resIds.add(R.string.string_the_capitalized)
-                resIds.add(flag.flagOfLiteral) /* FLAG NAME */
-                resIds.add(R.string.string_is_a)
-            }
-
-            /* Loop through categories and add it's string or alternate strings depending on
-             * legibility */
-            iterateOverNonCulturalCategories(
-                categories = categoriesNonCultural,
+        if (isPolitical) {
+            iterateOverPoliticalCategories(
+                categories = categoriesHistorical + categoriesPolitical,
                 stringIds = resIds,
                 whitespaceExceptions = whitespaceExceptionIndexes,
-                isConstitutional = isConstitutional,
+                isConstitutional = CONSTITUTIONAL in categories,
             )
 
-            /* If relevant add strings about the associated state */
+            /* If relevant add strings about the associated or sovereign state */
             if (associatedState != null) {
                 if (SOVEREIGN_STATE in categories) {
                     resIds.add(R.string.string_comma)
@@ -253,10 +255,7 @@ class FlagViewModel(
                     resIds.add(associatedState.flagOfLiteral) /* FLAG NAME */
                 }
 
-            }
-
-            /* If relevant add strings about the sovereign state */
-            if (sovereignState != null && associatedState == null) {
+            } else if (sovereignState != null) {
                 when (REGIONAL) {
                     in categories -> resIds.add(R.string.string_in)
                     else -> resIds.add(R.string.string_of)
@@ -351,22 +350,27 @@ class FlagViewModel(
                     else -> {}
                 }
             }
-        }
 
-
-        /* ---------- Add cultural description @StringRes Ids to list ---------- */
-        if (isCulturalCategoriesInFlag && !isNonCulturalCategoriesInFlag) {
-            resIds.add(R.string.string_the_capitalized)
-
-            if (HISTORICAL in categories) {
-                resIds.add(flag.flagOfOfficial) /* FLAG NAME */
-                resIds.add(R.string.category_super_cultural_in_description_historical)
-            } else {
-                resIds.add(flag.flagOfLiteral) /* FLAG NAME */
-                resIds.add(R.string.category_super_cultural_in_description)
+        } else if (isInstitutional) {
+            categoriesInstitutional.forEachIndexed { index, category ->
+                if (index == 1) resIds.add(R.string.string_of_the)
+                resIds.add(category.string)
             }
 
-            /* Loop through categories and add appropriate @StringRes ids to list */
+            if (sovereignState != null) {
+                resIds.add(R.string.string_of)
+
+                if (HISTORICAL in sovereignState.categories) {
+                    if (sovereignState.isFlagOfOfficialThe) resIds.add(R.string.string_the)
+                    resIds.add(R.string.string_defunct) /* DESCRIPTOR */
+                    resIds.add(sovereignState.flagOfOfficial) /* FLAG NAME */
+                } else {
+                    if (sovereignState.isFlagOfThe) resIds.add(R.string.string_the)
+                    resIds.add(sovereignState.flagOfLiteral) /* FLAG NAME */
+                }
+            }
+
+        } else if (isCultural) {
             iterateOverCulturalCategories(
                 categories = categoriesCultural,
                 stringIds = resIds,
@@ -374,11 +378,9 @@ class FlagViewModel(
             )
         }
 
-
-        /* ---------- Description END ---------- */
         resIds.add(R.string.string_period)
         whitespaceExceptionIndexes.add(resIds.lastIndex)
-        /* ---------------------------------------- */
+        /* ------------------------------- Description END ------------------------------- */
 
 
         /* ---------- Update state with whitespace resIds inserted ---------- */
@@ -414,7 +416,7 @@ class FlagViewModel(
 
     /* Loop over non-cultural categories and add it's string or alternate strings depending on
      * legibility to resIds list */
-    private fun iterateOverNonCulturalCategories(
+    private fun iterateOverPoliticalCategories(
         categories: List<FlagCategory>,
         stringIds: MutableList<Int>,
         whitespaceExceptions: MutableList<Int>,
@@ -423,14 +425,14 @@ class FlagViewModel(
         val skipCategories =
             listOf(SOVEREIGN_STATE, FREE_ASSOCIATION, HISTORICAL, DEVOLVED_GOVERNMENT)
 
-        val regionCategories = categories.filter { it in FlagSuperCategory.Regional.enums() }
+        val regionCategories = categories.filter { it in Regional.enums() }
             .toMutableList()
         regionCategories.removeFirstOrNull()
 
         /* Exception properties */
         val isIrregularPower =
             categories.any { it in listOf(ONE_PARTY, MILITARY_JUNTA, PROVISIONAL_GOVERNMENT) }
-        val ideologies = FlagSuperCategory.IdeologicalOrientation.enums()
+        val ideologies = IdeologicalOrientation.enums()
         val ideology = categories.firstOrNull { it in ideologies }
 
 
@@ -461,9 +463,9 @@ class FlagViewModel(
                 regionCategories.remove(category)
 
             } else if (category == INTERNATIONAL_ORGANIZATION) {
-                if (categories.any { it in FlagSuperCategory.ExecutiveStructure.enums() } &&
+                if (categories.any { it in ExecutiveStructure.enums() } &&
                     !categories.any {
-                        it in FlagSuperCategory.TerritorialDistributionOfAuthority.enums()
+                        it in TerritorialDistributionOfAuthority.enums()
                     }) {
                     if (SUPRANATIONAL_UNION in categories) {
                         stringIds.add(R.string.string_and)
@@ -475,8 +477,7 @@ class FlagViewModel(
                     whitespaceExceptions.add(stringIds.lastIndex)
                     stringIds.add(R.string.string_and)
 
-                } else if (categories.any {
-                    it in FlagSuperCategory.TerritorialDistributionOfAuthority.enums() }) {
+                } else if (categories.any { it in TerritorialDistributionOfAuthority.enums() }) {
                     stringIds.add(R.string.string_comma)
                     whitespaceExceptions.add(stringIds.lastIndex)
                     stringIds.add(category.string)
@@ -493,8 +494,8 @@ class FlagViewModel(
             } else if (category in ideologies && AUTONOMOUS_REGION in categories) {
                 continue
 
-            } else if (category in FlagSuperCategory.ExecutiveStructure.enums() &&
-                !categories.any { it in FlagSuperCategory.International.enums() } &&
+            } else if (category in ExecutiveStructure.enums() &&
+                !categories.any { it in International.enums() } &&
                 !isConstitutional) {
                 stringIds.add(R.string.category_nominal_extra_constitutional_in_description)
                 stringIds.add(category.string)

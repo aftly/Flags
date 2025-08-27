@@ -48,11 +48,14 @@ enum class FlagCategory(
     STATE (title = R.string.category_state_title, string = R.string.category_state_string),
     TERRITORY (title = R.string.category_territory_title, string = R.string.category_territory_string),
 
+    /* Non-administrative/geographical region */
+    REGIONAL (title = R.string.category_regional_title, string = R.string.category_regional_string),
+
     /* Supranational & international polities */
     SUPRANATIONAL_UNION (title = R.string.category_supranational_union_title, string = R.string.category_supranational_union_string),
     INTERNATIONAL_ORGANIZATION (title = R.string.category_international_organization_title, string = R.string.category_international_organization_string),
 
-    /* Institutions */
+    /* Institutional */
     LOWER_HOUSE(title = R.string.category_lower_house_title, string = R.string.category_lower_house_string),
     UPPER_HOUSE(title = R.string.category_upper_house_title, string = R.string.category_upper_house_string),
     PARLIAMENT(title = R.string.category_parliament_title, string = R.string.category_parliament_string),
@@ -99,8 +102,7 @@ enum class FlagCategory(
     FASCIST (title = R.string.category_fascist_title, string = R.string.category_fascist_string),
 
 
-    /* NON-ADMINISTRATIVE ENTITIES */
-    REGIONAL (title = R.string.category_regional_title, string = R.string.category_regional_string),
+    /* CULTURAL ENTITIES */
     SOCIAL (title = R.string.category_social_title, string = R.string.category_social_string),
     POLITICAL (title = R.string.category_political_title, string = R.string.category_political_string),
     RELIGIOUS (title = R.string.category_religious_title, string = R.string.category_religious_string),
