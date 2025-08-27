@@ -80,6 +80,7 @@ import dev.aftly.flags.model.FlagSuperCategory.Cultural
 import dev.aftly.flags.model.FlagSuperCategory.ExecutiveStructure
 import dev.aftly.flags.model.FlagSuperCategory.Historical
 import dev.aftly.flags.model.FlagSuperCategory.IdeologicalOrientation
+import dev.aftly.flags.model.FlagSuperCategory.Institution
 import dev.aftly.flags.model.FlagSuperCategory.LegalConstraint
 import dev.aftly.flags.model.FlagSuperCategory.Political
 import dev.aftly.flags.model.FlagSuperCategory.PowerDerivation
@@ -394,7 +395,8 @@ fun CategoriesButtonMenu(
                             }
 
 
-                            if (superCategory.subCategories.size == 1 || superCategory == All) {
+                            if (superCategory.subCategories.size == 1 ||
+                                superCategory in listOf(All, Institution)) {
                                 /* If superCategory has 1 sub category use 1 tier (static) menu item
                                  * (where superCategory is meant to represent a sub/FlagCategory) */
                                 MenuItemStatic(
@@ -412,7 +414,7 @@ fun CategoriesButtonMenu(
                                     },
                                 )
                             } else if (superCategory.subCategories
-                                    .filterIsInstance<FlagCategoryWrapper>().isNotEmpty()) {
+                                .filterIsInstance<FlagCategoryWrapper>().isNotEmpty()) {
                                 /* If superCategory has any FlagCategories (ie. sub-categories)
                                  * use 2 tier expandable menu */
                                 MenuItemExpandable(

@@ -28,6 +28,7 @@ data object DataSource {
         FlagSuperCategory.AutonomousRegion,
         FlagSuperCategory.Regional,
         FlagSuperCategory.International,
+        FlagSuperCategory.Institution,
         FlagSuperCategory.Cultural,
         FlagSuperCategory.Historical,
         FlagSuperCategory.Political
