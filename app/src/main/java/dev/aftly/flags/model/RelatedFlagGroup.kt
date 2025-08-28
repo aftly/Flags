@@ -6,6 +6,12 @@ sealed interface RelatedFlagGroup {
     val category: Int
     val categoryKey: String
 
+    fun ifEmptyNull(): RelatedFlagGroup? = when (this) {
+        is Multiple -> if (flags.isNotEmpty()) this else null
+        is AdminUnits -> if (flags.isNotEmpty()) this else null
+        is Single -> this
+    }
+
     data class Single(
         val flag: FlagView,
         @param:StringRes override val category: Int,
