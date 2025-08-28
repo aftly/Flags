@@ -155,8 +155,10 @@ private fun FlagScreen(
      * Also for FilterFlagsButton to access Scaffold() padding */
     var expandRelatedMenu by rememberSaveable { mutableStateOf<RelatedFlagsMenu?>(value = null) }
     var scaffoldPaddingValues by remember { mutableStateOf(value = PaddingValues()) }
-    var buttonOffset by remember { mutableStateOf(value = Offset(x = 0f, y = 0f)) }
-    var buttonWidth by remember { mutableIntStateOf(value = 0) }
+    var buttonChronologicalOffset by remember { mutableStateOf(value = Offset(x = 0f, y = 0f)) }
+    var buttonChronologicalWidth by remember { mutableIntStateOf(value = 0) }
+    var buttonPoliticalOffset by remember { mutableStateOf(value = Offset(x = 0f, y = 0f)) }
+    var buttonPoliticalWidth by remember { mutableIntStateOf(value = 0) }
 
     var isFlagWide by rememberSaveable { mutableStateOf(value = true) }
 
@@ -191,8 +193,10 @@ private fun FlagScreen(
                             else -> RelatedFlagsMenu.CHRONOLOGICAL
                         }
                     },
-                    onButtonPosition = { buttonOffset = it },
-                    onButtonWidth = { buttonWidth = it },
+                    onChronologicalButtonPosition = { buttonChronologicalOffset = it },
+                    onChronologicalButtonWidth = { buttonChronologicalWidth = it },
+                    onPoliticalButtonPosition = { buttonPoliticalOffset = it },
+                    onPoliticalButtonWidth = { buttonPoliticalWidth = it },
                     onNavigateBack = onNavigateBack,
                 )
             }
@@ -201,7 +205,7 @@ private fun FlagScreen(
 
             uiState.flagScreenContent?.let { flagScreenContent ->
                 FlagContent(
-                    modifier = Modifier.padding(scaffoldPadding),
+                    modifier = Modifier.padding(paddingValues = scaffoldPadding),
                     flagScreenContent = flagScreenContent,
                     onImageWide = { isFlagWide = it },
                     onRelatedFlag = onRelatedFlag,
@@ -212,36 +216,12 @@ private fun FlagScreen(
         /* ------------------- END OF SCAFFOLD ------------------- */
 
 
-        uiState.politicalRelatedFlagsContent?.let { relatedFlags ->
-            RelatedFlagsMenuCard(
-                modifier = Modifier.fillMaxSize(),
-                scaffoldPadding = scaffoldPaddingValues,
-                menuButtonOffset = buttonOffset,
-                menuButtonWidth = buttonWidth,
-                isExpanded = expandRelatedMenu == relatedFlags.menu,
-                onExpand = {
-                    expandRelatedMenu = when (expandRelatedMenu) {
-                        relatedFlags.menu -> null
-                        else -> relatedFlags.menu
-                    }
-                },
-                currentFlag = uiState.flag,
-                relatedFlagContent = relatedFlags,
-                onFlagSelect = { newFlag ->
-                    if (newFlag != uiState.flag) {
-                        expandRelatedMenu = null
-                        onRelatedFlag(newFlag, relatedFlags.menu, false)
-                    }
-                },
-            )
-        }
-
         uiState.chronologicalRelatedFlagsContent?.let { relatedFlags ->
             RelatedFlagsMenuCard(
                 modifier = Modifier.fillMaxSize(),
                 scaffoldPadding = scaffoldPaddingValues,
-                menuButtonOffset = buttonOffset,
-                menuButtonWidth = buttonWidth,
+                menuButtonOffset = buttonChronologicalOffset,
+                menuButtonWidth = buttonChronologicalWidth,
                 isExpanded = expandRelatedMenu  == relatedFlags.menu,
                 onExpand = {
                     expandRelatedMenu = when (expandRelatedMenu) {
@@ -252,6 +232,32 @@ private fun FlagScreen(
                 containerColor1 = MaterialTheme.colorScheme.tertiary,
                 containerColor2 = MaterialTheme.colorScheme.onTertiaryContainer,
                 currentFlag = uiState.flag,
+                isOnlyButton = !uiState.flag.isPoliticalRelatedFlags,
+                relatedFlagContent = relatedFlags,
+                onFlagSelect = { newFlag ->
+                    if (newFlag != uiState.flag) {
+                        expandRelatedMenu = null
+                        onRelatedFlag(newFlag, relatedFlags.menu, false)
+                    }
+                },
+            )
+        }
+
+        uiState.politicalRelatedFlagsContent?.let { relatedFlags ->
+            RelatedFlagsMenuCard(
+                modifier = Modifier.fillMaxSize(),
+                scaffoldPadding = scaffoldPaddingValues,
+                menuButtonOffset = buttonPoliticalOffset,
+                menuButtonWidth = buttonPoliticalWidth,
+                isExpanded = expandRelatedMenu == relatedFlags.menu,
+                onExpand = {
+                    expandRelatedMenu = when (expandRelatedMenu) {
+                        relatedFlags.menu -> null
+                        else -> relatedFlags.menu
+                    }
+                },
+                currentFlag = uiState.flag,
+                isOnlyButton = !uiState.flag.isChronologicalRelatedFlags,
                 relatedFlagContent = relatedFlags,
                 onFlagSelect = { newFlag ->
                     if (newFlag != uiState.flag) {
@@ -548,12 +554,12 @@ private fun FlagTopBar(
     isChronologicalButtonExpanded: Boolean,
     onPoliticalButtonExpand: () -> Unit,
     onChronologicalButtonExpand: () -> Unit,
-    onButtonPosition: (Offset) -> Unit,
-    onButtonWidth: (Int) -> Unit,
+    onChronologicalButtonPosition: (Offset) -> Unit,
+    onChronologicalButtonWidth: (Int) -> Unit,
+    onPoliticalButtonPosition: (Offset) -> Unit,
+    onPoliticalButtonWidth: (Int) -> Unit,
     onNavigateBack: () -> Unit,
 ) {
-    val isBothButtons = isChronologicalFlagsButton && isPoliticalFlagsButton
-
     TopAppBar(
         title = {
             Row {
@@ -566,12 +572,11 @@ private fun FlagTopBar(
                     ) {
                         RelatedFlagsButton(
                             relatedType = RelatedFlagsMenu.CHRONOLOGICAL,
-                            isFullSize = !isBothButtons,
+                            isFullSize = !isPoliticalFlagsButton,
                             menuExpanded = isChronologicalButtonExpanded,
                             onMenuExpand = onChronologicalButtonExpand,
-                            containerColor = MaterialTheme.colorScheme.tertiary,
-                            onButtonPosition = onButtonPosition,
-                            onButtonWidth = onButtonWidth,
+                            onButtonPosition = onChronologicalButtonPosition,
+                            onButtonWidth = onChronologicalButtonWidth,
                         )
                     }
                 }
@@ -589,11 +594,11 @@ private fun FlagTopBar(
                     ) {
                         RelatedFlagsButton(
                             relatedType = RelatedFlagsMenu.POLITICAL,
-                            isFullSize = !isBothButtons,
+                            isFullSize = !isChronologicalFlagsButton,
                             menuExpanded = isPoliticalButtonExpanded,
                             onMenuExpand = onPoliticalButtonExpand,
-                            onButtonPosition = onButtonPosition,
-                            onButtonWidth = onButtonWidth,
+                            onButtonPosition = onPoliticalButtonPosition,
+                            onButtonWidth = onPoliticalButtonWidth,
                         )
                     }
                 }

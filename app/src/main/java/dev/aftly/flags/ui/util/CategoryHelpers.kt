@@ -1,5 +1,8 @@
 package dev.aftly.flags.ui.util
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.data.DataSource.menuSuperCategoryList
 import dev.aftly.flags.data.DataSource.mutuallyExclusiveSubCategories
@@ -24,6 +27,9 @@ import dev.aftly.flags.model.FlagSuperCategory.Political
 import dev.aftly.flags.model.FlagSuperCategory.Regional
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 import dev.aftly.flags.model.FlagView
+import dev.aftly.flags.model.RelatedFlagsMenu
+import dev.aftly.flags.model.RelatedFlagsMenu.CHRONOLOGICAL
+import dev.aftly.flags.model.RelatedFlagsMenu.POLITICAL
 
 
 /* ------ General category helpers ------ */
@@ -44,11 +50,18 @@ fun getSingleCategoryPreviewTitleOrNull(
     }
 }
 
+/* Extension functions */
 fun ScoreItem.isCategoriesEmpty(): Boolean =
     gameSuperCategories.isEmpty() && gameSubCategories.isEmpty()
 
 fun ScoreItem.superCategories(): List<FlagSuperCategory> =
     gameSuperCategories.filterIsInstance<FlagSuperCategory>()
+
+@Composable
+fun RelatedFlagsMenu.color(): Color = when (this) {
+    CHRONOLOGICAL -> MaterialTheme.colorScheme.tertiary
+    POLITICAL -> MaterialTheme.colorScheme.secondary
+}
 
 
 /* ------ For updateCurrentCategory() in ViewModels ------ */

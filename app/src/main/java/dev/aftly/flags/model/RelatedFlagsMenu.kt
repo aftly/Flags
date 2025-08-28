@@ -10,16 +10,16 @@ import dev.aftly.flags.R
 enum class RelatedFlagsMenu(
     @param:StringRes val title: Int,
     @param:StringRes val titleShort: Int,
-    val icon: ImageVector
+    val icon: ImageVector,
 ) {
     CHRONOLOGICAL (
         title = R.string.menu_related_flags_chronological,
         titleShort = R.string.menu_related_flags_chronological_short,
-        icon = Icons.Default.History
+        icon = Icons.Default.History,
     ),
     POLITICAL (
         title = R.string.menu_related_flags_political,
         titleShort = R.string.menu_related_flags_political_short,
-        icon = Icons.Default.AccountBalance
+        icon = Icons.Default.AccountBalance,
     )
 }

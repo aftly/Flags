@@ -37560,10 +37560,6 @@
             {
                 "type": "StringResSource.Explicit",
                 "resName": "united_states_house_of_representatives_alt_9"
-            },
-            {
-                "type": "StringResSource.Explicit",
-                "resName": "united_states_house_of_representatives_alt_10"
             }
         ],
         "isFlagOfThe": {

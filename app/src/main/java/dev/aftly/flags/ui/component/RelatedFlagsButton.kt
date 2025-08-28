@@ -12,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -21,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalConfiguration
@@ -31,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import dev.aftly.flags.R
 import dev.aftly.flags.model.RelatedFlagsMenu
 import dev.aftly.flags.ui.theme.Dimens
+import dev.aftly.flags.ui.util.color
 
 
 @Composable
@@ -40,16 +39,14 @@ fun RelatedFlagsButton(
     isFullSize: Boolean,
     menuExpanded: Boolean,
     onMenuExpand: () -> Unit,
-    containerColor: Color = MaterialTheme.colorScheme.secondary,
-    buttonColors: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor),
     onButtonPosition: (Offset) -> Unit,
     onButtonWidth: (Int) -> Unit,
 ) {
+    val buttonColors = ButtonDefaults.buttonColors(containerColor = relatedType.color())
     val configuration = LocalConfiguration.current
     val fontScale = configuration.fontScale
     val iconSize = Dimens.standardIconSize24 * fontScale
     val iconPadding = 2.dp * fontScale
-    val iconSizePadding = iconSize + iconPadding
     val titleStringRes = if (isFullSize) relatedType.title else relatedType.titleShort
 
     Box(
@@ -71,11 +68,6 @@ fun RelatedFlagsButton(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                /*
-                Spacer(
-                    modifier = Modifier.width(iconSizePadding)
-                )
-                 */
                 Icon(
                     imageVector = relatedType.icon,
                     contentDescription = null,
