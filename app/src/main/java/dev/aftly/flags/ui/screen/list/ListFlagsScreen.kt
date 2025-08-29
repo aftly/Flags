@@ -8,6 +8,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,6 +32,8 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -59,10 +62,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -71,6 +76,7 @@ import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -340,10 +346,12 @@ private fun ListFlagsScreen(
                 scrollBehaviour = scrollBehaviour,
                 listState = listState,
                 isSavedFlags = uiState.isSavedFlags,
+                isSearchBar = isSearchBar,
                 isSearchQuery = uiState.isSearchQuery,
                 searchResults = searchResults,
                 currentFlags = uiState.currentFlags,
                 savedFlags = uiState.savedFlags,
+                onSearchQueryChange = onSearchQueryChange,
                 onFlagSelect = {
                     focusManager.clearFocus()
                     onFlagSelect(it)
@@ -397,10 +405,12 @@ private fun ListFlagsContent(
     scrollBehaviour: TopAppBarScrollBehavior,
     listState: LazyListState,
     isSavedFlags: Boolean,
+    isSearchBar: Boolean,
     isSearchQuery: Boolean,
     searchResults: List<FlagView>,
     currentFlags: List<FlagView>,
     savedFlags: List<FlagView>,
+    onSearchQueryChange: (String) -> Unit,
     onFlagSelect: (FlagView) -> Unit,
 ) {
     val listItemVerticalPadding = Dimens.small8
@@ -438,6 +448,8 @@ private fun ListFlagsContent(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalPadding = listItemVerticalPadding,
                                 flag = flags[index],
+                                isSearch = isSearchBar,
+                                onSearchQueryChange = onSearchQueryChange,
                                 onFlagSelect = onFlagSelect,
                             )
                         }
@@ -470,6 +482,8 @@ private fun ListFlagsContent(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalPadding = listItemVerticalPadding,
                                 flag = searchResults[index],
+                                isSearch = isSearchBar,
+                                onSearchQueryChange = onSearchQueryChange,
                                 onFlagSelect = onFlagSelect,
                             )
                         }
@@ -492,11 +506,16 @@ private fun ListItem(
     modifier: Modifier = Modifier,
     verticalPadding: Dp,
     flag: FlagView,
+    isSearch: Boolean,
+    onSearchQueryChange: (String) -> Unit,
     onFlagSelect: (FlagView) -> Unit,
 ) {
+    val haptics = LocalHapticFeedback.current
     val configuration = LocalConfiguration.current
     val fontScale = configuration.fontScale
     val dynamicHeight = Dimens.defaultListItemHeight48 * fontScale
+    val contentPadding = Dimens.extraSmall4
+    val flagOf = stringResource(flag.flagOf)
     val fromToYear =
         if (flag.previousFlagOfKey != null && flag.fromYear != null && flag.toYear != null) {
             val toYear =
@@ -511,21 +530,28 @@ private fun ListItem(
         } else null
 
     Column(modifier = modifier) {
-        FilledTonalButton(
-            modifier = modifier,
-            onClick = { onFlagSelect(flag) },
+        Card(
+            modifier = modifier
+                .clip(shape = MaterialTheme.shapes.large)
+                .combinedClickable(
+                    onClick = { onFlagSelect(flag) },
+                    onLongClick = {
+                        if (isSearch) {
+                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onSearchQueryChange(flagOf)
+                        }
+                    },
+                ),
             shape = MaterialTheme.shapes.large,
-            contentPadding = PaddingValues(Dimens.extraSmall4),
-            colors = ButtonDefaults.filledTonalButtonColors(
+            colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
             ),
         ) {
             Row(
-                modifier = modifier
-                    .padding(
-                        vertical = verticalPadding,
-                        horizontal = Dimens.small10,
-                    ),
+                modifier = modifier.padding(
+                    vertical = verticalPadding + contentPadding,
+                    horizontal = Dimens.small10 + contentPadding,
+                ),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {

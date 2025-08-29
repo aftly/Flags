@@ -1,6 +1,7 @@
 package dev.aftly.flags.ui.screen.list
 
 import android.app.Application
+import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
