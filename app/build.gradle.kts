@@ -14,8 +14,8 @@ android {
         applicationId = "dev.aftly.flags"
         minSdk = 24
         targetSdk = 35
-        versionCode = 18
-        versionName = "0.9.9-alpha"
+        versionCode = 19
+        versionName = "0.9.9.1-alpha"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
