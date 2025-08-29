@@ -345,12 +345,10 @@ private fun ListFlagsScreen(
                 scaffoldBottomPadding = scaffoldPadding.calculateBottomPadding(),
                 scrollBehaviour = scrollBehaviour,
                 listState = listState,
-                isSavedFlags = uiState.isSavedFlags,
                 isSearchBar = isSearchBar,
                 isSearchQuery = uiState.isSearchQuery,
                 searchResults = searchResults,
-                currentFlags = uiState.currentFlags,
-                savedFlags = uiState.savedFlags,
+                flags = if (uiState.isSavedFlags) uiState.savedFlags else uiState.currentFlags,
                 onSearchQueryChange = onSearchQueryChange,
                 onFlagSelect = {
                     focusManager.clearFocus()
@@ -404,17 +402,14 @@ private fun ListFlagsContent(
     scaffoldBottomPadding: Dp,
     scrollBehaviour: TopAppBarScrollBehavior,
     listState: LazyListState,
-    isSavedFlags: Boolean,
     isSearchBar: Boolean,
     isSearchQuery: Boolean,
     searchResults: List<FlagView>,
-    currentFlags: List<FlagView>,
-    savedFlags: List<FlagView>,
+    flags: List<FlagView>,
     onSearchQueryChange: (String) -> Unit,
     onFlagSelect: (FlagView) -> Unit,
 ) {
     val listItemVerticalPadding = Dimens.small8
-    val flags = if (isSavedFlags) savedFlags else currentFlags
 
     Column(modifier = modifier) {
         /* To make LazyColumn scroll disappear into center of FilterFlagsButton */

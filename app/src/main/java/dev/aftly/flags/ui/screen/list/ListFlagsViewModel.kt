@@ -1,7 +1,6 @@
 package dev.aftly.flags.ui.screen.list
 
 import android.app.Application
-import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -113,10 +112,10 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         val the = (flowArray[5] as SearchFlow.TheString).value
         val first = (flowArray[6] as SearchFlow.FirstItem).value
         val sovereign = (flowArray[7] as SearchFlow.SovereignFlag).value
-        val politicalInternal = (flowArray[8] as SearchFlow.PoliticalInternalFlags).value
-        val politicalExternal = (flowArray[9] as SearchFlow.PoliticalExternalFlags).value
-        val chronologicalDirect = (flowArray[10] as SearchFlow.ChronologicalDirectFlags).value
-        val chronologicalIndirect = (flowArray[11] as SearchFlow.ChronologicalIndirectFlags).value
+        val polInternal = (flowArray[8] as SearchFlow.PoliticalInternalFlags).value
+        val polExternal = (flowArray[9] as SearchFlow.PoliticalExternalFlags).value
+        val chronDirect = (flowArray[10] as SearchFlow.ChronologicalDirectFlags).value
+        val chronIndirect = (flowArray[11] as SearchFlow.ChronologicalIndirectFlags).value
 
         val flags = if (isSaved) saved else current
         val search = query.lowercase().removePrefix(the).let {
@@ -140,7 +139,12 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                     flagStrings.any { it.contains(search) }
                 }
             }.let { results ->
-                /* When there is an exact match (firstItem) append related flags to results */
+                /* When there is an exact match (firstItem) append related flags (from currentFlags)
+                 * to results */
+                val flags =
+                    if (uiState.value.isSavedFlags) uiState.value.savedFlags
+                    else uiState.value.currentFlags
+
                 _sovereignFlag.value = when (first?.sovereignStateKey) {
                     null -> first
                     else -> flagViewMap.getValue(first.sovereignStateKey)
@@ -174,8 +178,9 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                     )
                 } ?: emptyList()
 
-                (politicalInternal + politicalExternal + chronologicalDirect +
-                        chronologicalIndirect + results).distinct()
+                ((polInternal + polExternal + chronDirect + chronIndirect)
+                    .filter { it in flags } + results)
+                    .distinct()
             }.sortedWith { p1, p2 ->
                 /* Sort list starting with firstItem, then elements in relatedFlags, then else */
                 when {
@@ -183,14 +188,14 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                     p2 == first -> 1
                     p1 == sovereign -> -1
                     p2 == sovereign -> 1
-                    p1 in politicalInternal && p2 !in politicalInternal -> -1
-                    p1 !in politicalInternal && p2 in politicalInternal -> 1
-                    p1 in politicalExternal && p2 !in politicalExternal -> -1
-                    p1 !in politicalExternal && p2 in politicalExternal -> 1
-                    p1 in chronologicalDirect && p2 !in chronologicalDirect -> -1
-                    p1 !in chronologicalDirect && p2 in chronologicalDirect -> 1
-                    p1 in chronologicalIndirect && p2 !in chronologicalIndirect -> -1
-                    p1 !in chronologicalIndirect && p2 in chronologicalIndirect -> 1
+                    p1 in polInternal && p2 !in polInternal -> -1
+                    p1 !in polInternal && p2 in polInternal -> 1
+                    p1 in polExternal && p2 !in polExternal -> -1
+                    p1 !in polExternal && p2 in polExternal -> 1
+                    p1 in chronDirect && p2 !in chronDirect -> -1
+                    p1 !in chronDirect && p2 in chronDirect -> 1
+                    p1 in chronIndirect && p2 !in chronIndirect -> -1
+                    p1 !in chronIndirect && p2 in chronIndirect -> 1
                     else -> 0
                 }
             }
