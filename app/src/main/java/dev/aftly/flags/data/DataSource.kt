@@ -149,6 +149,13 @@ data object DataSource {
             propName = "name",
             context = context,
         )
+        val flagOfLiteralResId = getStringResExplicitOrInherit(
+            flagKey = flagKey,
+            flagRes = flagRes,
+            prop = FlagResources::flagOfLiteral,
+            propName = "name (literal)",
+            context = context,
+        )
         val flagOfOfficialResId = getStringResExplicitOrInherit(
             flagKey = flagKey,
             flagRes = flagRes,
@@ -173,13 +180,7 @@ data object DataSource {
             fromYear = flagRes.fromYear,
             toYear = flagRes.toYear,
             flagOf = flagOfResId,
-            flagOfLiteral = getStringResExplicitOrInherit(
-                flagKey = flagKey,
-                flagRes = flagRes,
-                prop = FlagResources::flagOfLiteral,
-                propName = "name (literal)",
-                context = context,
-            ),
+            flagOfLiteral = flagOfLiteralResId,
             flagOfOfficial = flagOfOfficialResId,
             flagOfAlternate = flagOfAlternativeResIds,
             isFlagOfThe = getBooleanExplicitOrInherit(
@@ -200,7 +201,8 @@ data object DataSource {
             parentUnitKey = flagRes.parentUnit,
             latestEntityKeys = flagRes.latestEntities,
             previousFlagOfKey = flagRes.previousFlagOf,
-            flagStringResIds = flagOfAlternativeResIds + flagOfResId + flagOfOfficialResId,
+            flagStringResIds =
+                flagOfAlternativeResIds + flagOfResId + flagOfLiteralResId + flagOfOfficialResId,
             politicalInternalRelatedFlagKeys = polIntRelFlagKeys,
             politicalExternalRelatedFlagKeys = polExtRelFlagKeys,
             chronologicalDirectRelatedFlagKeys = chronDirRelFlagKeys,
