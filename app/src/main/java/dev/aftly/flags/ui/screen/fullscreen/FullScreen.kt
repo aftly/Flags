@@ -14,6 +14,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -339,19 +340,9 @@ private fun FullscreenContent(
     )
 
     /* For controlling scroll to end/beginning when at first or last item in carousel */
-    var isFirstItem by remember { mutableStateOf(value = false) }
     var isLastItem by remember { mutableStateOf(value = false) }
-    var scrollToEnd: Boolean? by remember { mutableStateOf(value = null) }
     var scrollToBeginning: Boolean? by remember { mutableStateOf(value = null) }
 
-    LaunchedEffect(scrollToEnd) {
-        scrollToEnd?.let {
-            carouselState.animateScrollBy(
-                value = 10_000_000f,
-                animationSpec = tween(durationMillis = 10_000),
-            )
-        }
-    }
     LaunchedEffect(scrollToBeginning) {
         scrollToBeginning?.let {
             carouselState.animateScrollBy(
@@ -377,11 +368,6 @@ private fun FullscreenContent(
 
         var leftEdgeFromWindowLeft by remember { mutableFloatStateOf(value = 0f) }
         var rightEdgeFromWindowRight by remember { mutableFloatStateOf(value = 100f) }
-
-        isFirstItem = when (i) {
-            0 -> true
-            else -> false
-        }
 
         isLastItem = when (i) {
             flagsEndIndex -> true
@@ -442,22 +428,6 @@ private fun FullscreenContent(
                     animationTiming = exitButtonAnimationTiming,
                     onInvisible = {},
                     onFullScreen = onExitFullScreen,
-                )
-            }
-
-            /* Scroll end of list button */
-            if (isFirstItem && flags.size > 2) {
-                ScrollToOppositeEndButton(
-                    visible = isButtons,
-                    animationTiming = exitButtonAnimationTiming,
-                    isScreenPortrait = isScreenPortrait,
-                    isEnd = false,
-                    onClick = {
-                        scrollToEnd = when (val scrollToCopy = scrollToEnd) {
-                            null -> true
-                            else -> !scrollToCopy
-                        }
-                    }
                 )
             }
 
