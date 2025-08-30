@@ -9,10 +9,4 @@ sealed interface SearchFlow {
     data class IsSavedFlags(val value: Boolean) : SearchFlow
     data class AppResources(val value: Resources) : SearchFlow
     data class TheString(val value: String) : SearchFlow
-    data class FirstItems(val value: List<FlagView>) : SearchFlow
-    data class SovereignFlags(val value: List<FlagView>) : SearchFlow
-    data class PoliticalInternalFlags(val value: List<FlagView>) : SearchFlow
-    data class PoliticalExternalFlags(val value: List<FlagView>) : SearchFlow
-    data class ChronologicalDirectFlags(val value: List<FlagView>) : SearchFlow
-    data class ChronologicalIndirectFlags(val value: List<FlagView>) : SearchFlow
 }

@@ -47,23 +47,6 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
     var searchQuery by mutableStateOf(value = "")
         private set
 
-    private val _firstItems = MutableStateFlow<MutableList<FlagView>>(value = mutableListOf())
-    private val firstItems = _firstItems.asStateFlow()
-    private val _sovereignFlags = MutableStateFlow<List<FlagView>>(value = emptyList())
-    private val sovereignFlags = _sovereignFlags.asStateFlow()
-    private val _politicalInternalRelatedFlags =
-        MutableStateFlow<List<FlagView>>(value = emptyList())
-    private val politicalInternalRelatedFlags = _politicalInternalRelatedFlags.asStateFlow()
-    private val _politicalExternalRelatedFlags =
-        MutableStateFlow<List<FlagView>>(value = emptyList())
-    private val politicalExternalRelatedFlags = _politicalExternalRelatedFlags.asStateFlow()
-    private val _chronologicalDirectRelatedFlags =
-        MutableStateFlow<List<FlagView>>(value = emptyList())
-    private val chronologicalDirectRelatedFlags = _chronologicalDirectRelatedFlags.asStateFlow()
-    private val _chronologicalIndirectRelatedFlags =
-        MutableStateFlow<List<FlagView>>(value = emptyList())
-    private val chronologicalIndirectRelatedFlags = _chronologicalIndirectRelatedFlags.asStateFlow()
-
     private val currentFlagsFlow = uiState.map { SearchFlow.CurrentFlags(it.currentFlags) }
     private val savedFlagsFlow = uiState.map { SearchFlow.SavedFlags(it.savedFlags) }
     private var isSavedFlagsFlow = uiState.map { SearchFlow.IsSavedFlags(it.isSavedFlags) }
@@ -76,16 +59,6 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         getApplication<Application>().applicationContext.resources
             .getString(R.string.string_the_whitespace)
     }.map { SearchFlow.TheString(it) }
-    private val firstItemsFlow = firstItems.map { SearchFlow.FirstItems(it) }
-    private val sovereignFlagsFlow = sovereignFlags.map { SearchFlow.SovereignFlags(it) }
-    private val politicalInternalRelatedFlagsFlow = politicalInternalRelatedFlags
-        .map { SearchFlow.PoliticalInternalFlags(it) }
-    private val politicalExternalRelatedFlagsFlow = politicalExternalRelatedFlags
-        .map { SearchFlow.PoliticalExternalFlags(it) }
-    private val chronologicalDirectRelatedFlagsFlow = chronologicalDirectRelatedFlags
-        .map { SearchFlow.ChronologicalDirectFlags(it) }
-    private val chronologicalIndirectRelatedFlagsFlow = chronologicalIndirectRelatedFlags
-        .map { SearchFlow.ChronologicalIndirectFlags(it) }
 
     /* Use sealed interface SearchFlow for safe casting in combine() transform lambda */
     val flows: List<Flow<SearchFlow>> = listOf(
@@ -94,13 +67,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         savedFlagsFlow,
         isSavedFlagsFlow,
         appResourcesFlow,
-        theStringFlow,
-        firstItemsFlow,
-        sovereignFlagsFlow,
-        politicalInternalRelatedFlagsFlow,
-        politicalExternalRelatedFlagsFlow,
-        chronologicalDirectRelatedFlagsFlow,
-        chronologicalIndirectRelatedFlagsFlow
+        theStringFlow
     )
 
     val searchResults = combine(flows) { flowArray ->
@@ -110,17 +77,17 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         val isSaved = (flowArray[3] as SearchFlow.IsSavedFlags).value
         val res = (flowArray[4] as SearchFlow.AppResources).value
         val the = (flowArray[5] as SearchFlow.TheString).value
-        val first = (flowArray[6] as SearchFlow.FirstItems).value
-        val sovereign = (flowArray[7] as SearchFlow.SovereignFlags).value
-        val polInternal = (flowArray[8] as SearchFlow.PoliticalInternalFlags).value
-        val polExternal = (flowArray[9] as SearchFlow.PoliticalExternalFlags).value
-        val chronDirect = (flowArray[10] as SearchFlow.ChronologicalDirectFlags).value
-        val chronIndirect = (flowArray[11] as SearchFlow.ChronologicalIndirectFlags).value
 
         val flags = if (isSaved) saved else current
         val search = query.lowercase().removePrefix(the).let {
             normalizeString(it)
         }
+        val first = mutableListOf<FlagView>()
+        var sovereign = listOf<FlagView>()
+        var polInternal = listOf<FlagView>()
+        var polExternal = listOf<FlagView>()
+        var chronDirect = listOf<FlagView>()
+        var chronIndirect = listOf<FlagView>()
 
         when {
             query.isNotEmpty() -> flags.filter { flag ->
@@ -129,11 +96,8 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                     normalizeLower(res.getString(resId))
                 }.let { flagStrings ->
                     /* If exact match with searchQuery, add flag to firstItems */
-                    for (name in flagStrings) {
-                        if (name == search && flag.previousFlagOfKey == null) {
-                            _firstItems.value.add(flag)
-                            break
-                        }
+                    if (flagStrings.any { it == search && flag.previousFlagOfKey == null }) {
+                        first.add(flag)
                     }
                     /* Return true if search partial match for any flag name  */
                     flagStrings.any { it.contains(search) }
@@ -142,35 +106,35 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 /* When there is an exact match (firstItem) append related flags (from currentFlags)
                  * to results */
                 if (first.isNotEmpty()) {
-                    _sovereignFlags.value = first.map { flag ->
+                    sovereign = first.map { flag ->
                         when (flag.sovereignStateKey) {
                             null -> flag
                             else -> flagViewMap.getValue(flag.sovereignStateKey)
                         }
                     }.distinct()
 
-                    _politicalInternalRelatedFlags.value = sortFlagsAlphabetically(
+                    polInternal = sortFlagsAlphabetically(
                         application = application,
                         flags = first.flatMap { flag ->
                             getFlagsFromKeys(flag.politicalInternalRelatedFlagKeys)
                         }.distinct()
                     )
 
-                    _politicalExternalRelatedFlags.value = sortFlagsAlphabetically(
+                    polExternal = sortFlagsAlphabetically(
                         application = application,
                         flags = first.flatMap { flag ->
                             getFlagsFromKeys(flag.politicalExternalRelatedFlagKeys)
                         }.distinct()
                     )
 
-                    _chronologicalDirectRelatedFlags.value = sortFlagsAlphabetically(
+                    chronDirect = sortFlagsAlphabetically(
                         application = application,
                         flags = first.flatMap { flag ->
                             getFlagsFromKeys(flag.chronologicalDirectRelatedFlagKeys)
                         }.distinct()
                     )
 
-                    _chronologicalIndirectRelatedFlags.value = sortFlagsAlphabetically(
+                    chronIndirect = sortFlagsAlphabetically(
                         application = application,
                         flags = first.flatMap { flag ->
                             getFlagsFromKeys(flag.chronologicalIndirectRelatedFlagKeys)
@@ -184,6 +148,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                     results
                 }
             }.sortedWith { p1, p2 ->
+                /* Only sort list when exact matches */
                 val isMatch = first.isNotEmpty()
 
                 /* Sort list starting with firstItem, then elements in relatedFlags, then else */
@@ -374,9 +339,9 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun onSearchQueryChange(newQuery: String) {
         /* Reset exact match state with each change to searchQuery */
-        _firstItems.value = mutableListOf()
-        _uiState.update { it.copy(isSearchQuery = newQuery != "") }
+        //_firstItems.value = emptyList()
         searchQuery = newQuery
+        _uiState.update { it.copy(isSearchQuery = newQuery != "") }
     }
 
     fun toggleIsSearchBarInit(isSearchBarInit: Boolean) {
