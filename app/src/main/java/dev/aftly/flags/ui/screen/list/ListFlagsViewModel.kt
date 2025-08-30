@@ -258,8 +258,6 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         newSuperCategory: FlagSuperCategory?,
         newSubCategory: FlagCategory?,
     ) {
-        //if (uiState.value.currentSuperCategories.isEmpty())
-
         var isDeselect = false /* Controls whether flags are updated from current or all flags */
 
         val newSuperCategories = uiState.value.currentSuperCategories.toMutableList()
@@ -339,7 +337,6 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun onSearchQueryChange(newQuery: String) {
         /* Reset exact match state with each change to searchQuery */
-        //_firstItems.value = emptyList()
         searchQuery = newQuery
         _uiState.update { it.copy(isSearchQuery = newQuery != "") }
     }
