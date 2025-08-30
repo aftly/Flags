@@ -193,7 +193,6 @@ fun CategoriesButtonMenu(
     }
 
     val density = LocalDensity.current
-    val haptics = LocalHapticFeedback.current
     val isDarkTheme = LocalDarkTheme.current
     val containerColor3 = when (isDarkTheme) {
         true -> Color.White
@@ -359,7 +358,6 @@ fun CategoriesButtonMenu(
                         if (isSavedFlagsNotEmpty) {
                             item {
                                 MenuItemStatic(
-                                    haptics = haptics,
                                     textButtonStyle = textButtonStyle,
                                     buttonColors =
                                         if (currentSupers.isEmpty() && currentSubs.isEmpty()) {
@@ -394,7 +392,6 @@ fun CategoriesButtonMenu(
                                 /* If superCategory has 1 sub category use 1 tier (static) menu item
                                  * (where superCategory is meant to represent a sub/FlagCategory) */
                                 MenuItemStatic(
-                                    haptics = haptics,
                                     textButtonStyle = textButtonStyle,
                                     buttonColors = buttonColors,
                                     superCategory = superCategory,
@@ -411,7 +408,6 @@ fun CategoriesButtonMenu(
                                 /* If superCategory has any FlagCategories (ie. sub-categories)
                                  * use 2 tier expandable menu */
                                 MenuItemExpandable(
-                                    haptics = haptics,
                                     textButtonStyle = textButtonStyle,
                                     buttonColors1 = buttonColors,
                                     buttonColors2 = buttonColors2,
@@ -431,7 +427,6 @@ fun CategoriesButtonMenu(
                             } else {
                                 /* If superCategory only contains superCategories use 3 tier menu */
                                 MenuItemOfSupers(
-                                    haptics = haptics,
                                     textButtonStyle = textButtonStyle,
                                     buttonColors1 = buttonColors1,
                                     buttonColors2 = buttonColors2,
@@ -461,7 +456,6 @@ fun CategoriesButtonMenu(
 @Composable
 private fun MenuItemStatic(
     modifier: Modifier = Modifier,
-    haptics: HapticFeedback,
     textButtonStyle: TextStyle,
     buttonColors: ButtonColors,
     superCategory: FlagSuperCategory?, /* menu item is for SavedFlags when superCategory null */
@@ -490,7 +484,6 @@ private fun MenuItemStatic(
                     superCategory?.let { onCategorySelectSingle(it) } ?: onSavedFlagsSelect()
                 },
                 onLongClick = {
-                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                     superCategory?.let { onCategorySelectMultiple(it) }
                 },
             )
@@ -522,7 +515,6 @@ private fun MenuItemStatic(
 @Composable
 private fun MenuItemExpandable(
     modifier: Modifier = Modifier,
-    haptics: HapticFeedback,
     textButtonStyle: TextStyle,
     buttonColors1: ButtonColors,
     buttonColors2: ButtonColors,
@@ -626,7 +618,6 @@ private fun MenuItemExpandable(
                         }
                     },
                     onLongClick = {
-                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                         if (isSuperCategorySelectable) {
                             onCategorySelectMultiple(itemSuperCategory, null)
                         }
@@ -718,9 +709,6 @@ private fun MenuItemExpandable(
                                 .combinedClickable(
                                     onClick = { onCategorySelectSingle(null, subCategory) },
                                     onLongClick = {
-                                        haptics.performHapticFeedback(
-                                            HapticFeedbackType.LongPress
-                                        )
                                         onCategorySelectMultiple(null, subCategory)
                                     }
                                 )
@@ -766,7 +754,6 @@ private fun MenuItemExpandable(
 @Composable
 private fun MenuItemOfSupers(
     modifier: Modifier = Modifier,
-    haptics: HapticFeedback,
     textButtonStyle: TextStyle,
     buttonColors1: ButtonColors,
     buttonColors2: ButtonColors,
@@ -908,7 +895,6 @@ private fun MenuItemOfSupers(
                         itemSuperCategory.supers().forEach { superCategory ->
 
                             MenuItemExpandable(
-                                haptics = haptics,
                                 textButtonStyle = textButtonStyle,
                                 buttonColors1 = buttonColors2,
                                 buttonColors2 = buttonColors1,

@@ -499,7 +499,6 @@ private fun ListItem(
     onSearchQueryChange: (String) -> Unit,
     onFlagSelect: (FlagView) -> Unit,
 ) {
-    val haptics = LocalHapticFeedback.current
     val configuration = LocalConfiguration.current
     val fontScale = configuration.fontScale
     val dynamicHeight = Dimens.defaultListItemHeight48 * fontScale
@@ -525,10 +524,7 @@ private fun ListItem(
                 .combinedClickable(
                     onClick = { onFlagSelect(flag) },
                     onLongClick = {
-                        if (isSearch) {
-                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                            onSearchQueryChange(flagOf)
-                        }
+                        if (isSearch) onSearchQueryChange(flagOf)
                     },
                 ),
             shape = MaterialTheme.shapes.large,
