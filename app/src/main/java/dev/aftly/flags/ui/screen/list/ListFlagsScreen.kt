@@ -1,6 +1,7 @@
 package dev.aftly.flags.ui.screen.list
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
@@ -222,14 +223,6 @@ private fun ListFlagsScreen(
         if (!isSearchBar) {
             onIsSearchBarInit(false)
             onIsSearchBarInitTopBar(false)
-            delay(Timing.MENU_COLLAPSE.toLong())
-
-            if (uiState.isSearchQuery) {
-                onSearchQueryChange("")
-                if (!isAtTop) {
-                    coroutineScope.launch { listState.animateScrollToItem(index = 0) }
-                }
-            }
         }
     }
 
@@ -299,7 +292,8 @@ private fun ListFlagsScreen(
                     isSearchQuery = uiState.isSearchQuery,
                     onSearchQueryChange = onSearchQueryChange,
                     onSearchQueryClear = {
-                        if (!isAtTop) coroutineScope.launch {
+                        /* Only animate scroll to top if clearing an actual query */
+                        if (!isAtTop && uiState.isSearchQuery) coroutineScope.launch {
                             listState.animateScrollToItem(index = 0)
                         }
                         onSearchQueryChange("")
@@ -313,7 +307,7 @@ private fun ListFlagsScreen(
                     isSearchBarFocused = isSearchBarFocused,
                     isSearchBarInit = uiState.isSearchBarInitTopBar,
                     isSearchBar = isSearchBar,
-                    onIsSearchBar = { isSearchBar = !isSearchBar },
+                    onIsSearchBar = { isSearchBar = it },
                     onIsSearchBarInitTopBar = onIsSearchBarInitTopBar,
                     onNavigationDrawer = {
                         focusManager.clearFocus()
@@ -604,7 +598,7 @@ private fun ListFlagsTopBar(
     isSearchBarFocused: Boolean,
     isSearchBarInit: Boolean,
     isSearchBar: Boolean,
-    onIsSearchBar: () -> Unit,
+    onIsSearchBar: (Boolean) -> Unit,
     onIsSearchBarInitTopBar: (Boolean) -> Unit,
     onNavigationDrawer: () -> Unit,
 ) {
@@ -651,26 +645,16 @@ private fun ListFlagsTopBar(
         (navigationIconOffsetX + navigationIconWidth).toDp() + textFieldOffset
     }
 
-    /* For search action button and topBar title to respect search bar animation */
-    var isSearchBarDelay by rememberSaveable { mutableStateOf(value = true) }
-    LaunchedEffect(isSearchBar) {
-        when (isSearchBar) {
-            true -> isSearchBarDelay = false
-            false -> {
-                delay(timeMillis = Timing.MENU_COLLAPSE.toLong())
-                isSearchBarDelay = true
-            }
-        }
-    }
-    val isTopBarTitleDelay =
-        if (scrollBehaviour.state.collapsedFraction >= 0.5f) isSearchBarDelay
-        else true
+    /* Make top bar title visible when below search bar and when no search bar */
+    val isTopBarTitle =
+        if (scrollBehaviour.state.collapsedFraction < 0.5f) true
+        else !isSearchBar
 
 
     MediumTopAppBar(
         title = {
             AnimatedVisibility(
-                visible = isTopBarTitleDelay,
+                visible = isTopBarTitle,
                 enter = expandHorizontally(
                     animationSpec = tween(durationMillis = Timing.MENU_EXPAND * 2),
                     expandFrom = Alignment.Start,
@@ -715,34 +699,7 @@ private fun ListFlagsTopBar(
         },
         actions = {
             /* Search action button and search bar text field */
-            if (isSearchBarDelay) {
-                Box(modifier = Modifier
-                    .padding(
-                        end = TextFieldDefaults.contentPaddingWithoutLabel().calculateRightPadding(
-                            layoutDirection = LocalLayoutDirection.current
-                        ) - textFieldOffset
-                    )
-                ) {
-                    IconButton(
-                        onClick = onIsSearchBar,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "search",
-                        )
-                    }
-                }
-            }
-
-            AnimatedVisibility(
-                visible = isSearchBar,
-                enter = expandHorizontally(
-                    animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
-                ),
-                exit = shrinkHorizontally(
-                    animationSpec = tween(durationMillis = Timing.MENU_COLLAPSE),
-                ),
-            ) {
+            if (isSearchBar) {
                 val focusRequesterSearch = remember { FocusRequester() }
 
                 /* Focus search bar on nav back */
@@ -752,7 +709,7 @@ private fun ListFlagsTopBar(
                     }
                 }
                 /* Focus search bar on initial visibility */
-                if (isSearchBar && !isSearchBarInit) {
+                if (!isSearchBarInit) {
                     LaunchedEffect(Unit) {
                         focusRequesterSearch.requestFocus()
                         onIsSearchBarInitTopBar(true)
@@ -832,7 +789,10 @@ private fun ListFlagsTopBar(
                                 }
 
                                 IconButton(
-                                    onClick = onIsSearchBar,
+                                    onClick = {
+                                        onIsSearchBar(false)
+                                        onSearchQueryClear()
+                                    },
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Search,
@@ -851,6 +811,23 @@ private fun ListFlagsTopBar(
                             unfocusedIndicatorColor = Color.Transparent,
                         ),
                     )
+                }
+            } else {
+                Box(modifier = Modifier
+                    .padding(
+                        end = TextFieldDefaults.contentPaddingWithoutLabel().calculateRightPadding(
+                            layoutDirection = LocalLayoutDirection.current
+                        ) - textFieldOffset
+                    )
+                ) {
+                    IconButton(
+                        onClick = { onIsSearchBar(true) },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "search",
+                        )
+                    }
                 }
             }
         },

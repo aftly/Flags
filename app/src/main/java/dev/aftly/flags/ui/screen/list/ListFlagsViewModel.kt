@@ -141,10 +141,6 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
             }.let { results ->
                 /* When there is an exact match (firstItem) append related flags (from currentFlags)
                  * to results */
-                val flags =
-                    if (uiState.value.isSavedFlags) uiState.value.savedFlags
-                    else uiState.value.currentFlags
-
                 if (first.isNotEmpty()) {
                     _sovereignFlags.value = first.map { flag ->
                         when (flag.sovereignStateKey) {
@@ -180,26 +176,30 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                             getFlagsFromKeys(flag.chronologicalIndirectRelatedFlagKeys)
                         }.distinct()
                     )
-                }
 
-                ((polInternal + polExternal + chronDirect + chronIndirect)
-                    .filter { it in flags } + results)
-                    .distinct()
+                    ((polInternal + polExternal + chronDirect + chronIndirect)
+                        .filter { it in flags } + results)
+                        .distinct()
+                } else {
+                    results
+                }
             }.sortedWith { p1, p2 ->
+                val isMatch = first.isNotEmpty()
+
                 /* Sort list starting with firstItem, then elements in relatedFlags, then else */
                 when {
-                    p1 in first && p2 !in first -> -1
-                    p1 !in first && p2 in first -> 1
-                    p1 in sovereign && p2 !in sovereign -> -1
-                    p1 !in sovereign && p2 in sovereign -> 1
-                    p1 in polInternal && p2 !in polInternal -> -1
-                    p1 !in polInternal && p2 in polInternal -> 1
-                    p1 in polExternal && p2 !in polExternal -> -1
-                    p1 !in polExternal && p2 in polExternal -> 1
-                    p1 in chronDirect && p2 !in chronDirect -> -1
-                    p1 !in chronDirect && p2 in chronDirect -> 1
-                    p1 in chronIndirect && p2 !in chronIndirect -> -1
-                    p1 !in chronIndirect && p2 in chronIndirect -> 1
+                    isMatch && p1 in first && p2 !in first -> -1
+                    isMatch && p1 !in first && p2 in first -> 1
+                    isMatch && p1 in sovereign && p2 !in sovereign -> -1
+                    isMatch && p1 !in sovereign && p2 in sovereign -> 1
+                    isMatch && p1 in polInternal && p2 !in polInternal -> -1
+                    isMatch && p1 !in polInternal && p2 in polInternal -> 1
+                    isMatch && p1 in polExternal && p2 !in polExternal -> -1
+                    isMatch && p1 !in polExternal && p2 in polExternal -> 1
+                    isMatch && p1 in chronDirect && p2 !in chronDirect -> -1
+                    isMatch && p1 !in chronDirect && p2 in chronDirect -> 1
+                    isMatch && p1 in chronIndirect && p2 !in chronIndirect -> -1
+                    isMatch && p1 !in chronIndirect && p2 in chronIndirect -> 1
                     else -> 0
                 }
             }
@@ -375,9 +375,8 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
     fun onSearchQueryChange(newQuery: String) {
         /* Reset exact match state with each change to searchQuery */
         _firstItems.value = mutableListOf()
-        searchQuery = newQuery
-
         _uiState.update { it.copy(isSearchQuery = newQuery != "") }
+        searchQuery = newQuery
     }
 
     fun toggleIsSearchBarInit(isSearchBarInit: Boolean) {
