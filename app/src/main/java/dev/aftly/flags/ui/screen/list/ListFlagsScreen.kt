@@ -9,8 +9,12 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +36,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -49,6 +54,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -517,16 +523,35 @@ private fun ListItem(
                     stringResource(R.string.string_close_bracket)
         } else null
 
+    val haptic = LocalHapticFeedback.current
+    val interactionSource = remember { MutableInteractionSource() }
+
     Column(modifier = modifier) {
         Card(
             modifier = modifier
                 .clip(shape = MaterialTheme.shapes.large)
-                .combinedClickable(
-                    onClick = { onFlagSelect(flag) },
-                    onLongClick = {
-                        if (isSearch) onSearchQueryChange(flagOf)
-                    },
-                ),
+                .indication(interactionSource, ripple())
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onPress = { offset ->
+                            val press = PressInteraction.Press(offset)
+                            interactionSource.emit(press)
+
+                            val released = tryAwaitRelease()
+                            val end =
+                                if (released) PressInteraction.Release(press)
+                                else PressInteraction.Cancel(press)
+                            interactionSource.emit(end)
+                        },
+                        onTap = { onFlagSelect(flag) },
+                        onLongPress = {
+                            if (isSearch) {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                onSearchQueryChange(flagOf)
+                            }
+                        },
+                    )
+                },
             shape = MaterialTheme.shapes.large,
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
