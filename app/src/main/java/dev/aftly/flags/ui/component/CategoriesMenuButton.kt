@@ -52,12 +52,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.hapticfeedback.HapticFeedback
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -108,8 +105,8 @@ fun CategoriesButtonMenu(
     buttonColors1: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor1),
     buttonColors2: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor2),
     isSavedFlagsNotEmpty: Boolean,
-    currentSupers: List<FlagSuperCategory>,
-    currentSubs: List<FlagCategory>,
+    superCategories: List<FlagSuperCategory>,
+    subCategories: List<FlagCategory>,
     onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onSavedFlagsSelect: () -> Unit,
@@ -140,18 +137,40 @@ fun CategoriesButtonMenu(
     }
 
     /* Manage button title & exceptions */
-    val buttonTitle = when (currentSupers.isNotEmpty() to currentSubs.isNotEmpty()) {
+    val buttonTitle = when (superCategories.size to subCategories.size) {
+        0 to 0 -> buildString {
+            append(stringResource(R.string.saved_flags))
+            append(stringResource(R.string.button_title_flags))
+        }
+        1 to 0 -> buildString {
+            superCategories.first().categoriesMenuButton?.let { resId ->
+                append(stringResource(resId))
+            }
+            append(stringResource(R.string.button_title_flags))
+        }
+        0 to 1 -> buildString {
+            append(stringResource(subCategories.first().title))
+            append(stringResource(R.string.button_title_flags))
+        }
+        else -> buildString {
+            getButtonTitleStringResIds(superCategories, subCategories).forEach { resId ->
+            append(stringResource(resId))
+            }
+        }
+    }
+    /*
+    val buttonTitle = when (superCategories.isNotEmpty() to subCategories.isNotEmpty()) {
         true to true -> buildString {
-            val stringResIds = getCategoriesStringResources(
-                superCategories = currentSupers,
-                subCategories = currentSubs,
+            val stringResIds = getButtonTitleStringResIds(
+                superCategories = superCategories,
+                subCategories = subCategories,
             )
             stringResIds.forEach { append(stringResource(it)) }
         }
         false to true -> buildString {
             /* If subCategory belongs to Political superCategory, except for exceptions,
              * append "State" after subCategory */
-            val subCategory = currentSubs.first()
+            val subCategory = subCategories.first()
             val politicalStateCategories = Political.supersEnums().filterNot { polSub ->
                 polSub in buildList {
                     add(CONFEDERATION)
@@ -170,7 +189,7 @@ fun CategoriesButtonMenu(
             }
         }
         true to false -> buildString {
-            currentSupers.first().categoriesMenuButton?.let {
+            superCategories.first().categoriesMenuButton?.let {
                 append(stringResource(it))
             }
             append(stringResource(R.string.button_title_flags))
@@ -180,6 +199,7 @@ fun CategoriesButtonMenu(
             append(stringResource(R.string.button_title_flags))
         }
     }
+     */
 
     val textButtonStyle = MaterialTheme.typography.bodyMedium.copy(
         fontWeight = FontWeight.Medium,
@@ -360,7 +380,7 @@ fun CategoriesButtonMenu(
                                 MenuItemStatic(
                                     textButtonStyle = textButtonStyle,
                                     buttonColors =
-                                        if (currentSupers.isEmpty() && currentSubs.isEmpty()) {
+                                        if (superCategories.isEmpty() && subCategories.isEmpty()) {
                                             buttonColors2
                                         } else {
                                             buttonColors1
@@ -377,10 +397,10 @@ fun CategoriesButtonMenu(
 
                         /* Flag category items */
                         items(items = menuSuperCategoryList) { superCategory ->
-                            val buttonColors = if (superCategory in currentSupers) {
+                            val buttonColors = if (superCategory in superCategories) {
                                 buttonColors2
                             } else if (superCategory != All &&
-                                superCategory.enums().any { it in currentSubs }) {
+                                superCategory.enums().any { it in subCategories }) {
                                 buttonColors3
                             } else {
                                 buttonColors1
@@ -415,7 +435,7 @@ fun CategoriesButtonMenu(
                                     isCategoriesMenuExpanded = isMenuExpanded,
                                     isSuperCategorySelectable = true,
                                     itemSuperCategory = superCategory,
-                                    selectedSubCategories = currentSubs,
+                                    selectedSubCategories = subCategories,
                                     isMenuExpandedParentState = superCategory == expandSubMenu,
                                     onSuperItemSelect = { expandSubMenu = it },
                                     onCategorySelectSingle = { newSuperCategory, newSubCategory ->
@@ -434,7 +454,7 @@ fun CategoriesButtonMenu(
                                     cardColors2 = cardColors2,
                                     isCategoriesMenuExpanded = isMenuExpanded,
                                     itemSuperCategory = superCategory,
-                                    selectedSubCategories = currentSubs,
+                                    selectedSubCategories = subCategories,
                                     isMenuExpandedParentState = expandSubMenu,
                                     onSuperItemSelect = { expandSubMenu = it },
                                     onCategorySelectSingle = { newSuperCategory, newSubCategory ->
@@ -946,17 +966,13 @@ private fun MenuItemExpandableArrowIcon(
 private fun filterSuperCategories(
     superCategories: List<FlagSuperCategory>,
     subCategories: List<FlagCategory>,
-): List<FlagSuperCategory> {
-    val superCategoriesNew = superCategories.filterNot { superCategory ->
-        superCategory.enums().any { it in subCategories }
-    }
-    return when (superCategoriesNew.size to subCategories.isEmpty()) {
-        0 to true -> superCategoriesNew
-        else -> superCategoriesNew.filterNot { it == All }
-    }
+): List<FlagSuperCategory> = superCategories.filterNot { superCategory ->
+    /* Remove supers if any of it's categories in subcategories & remove All when other supers */
+    subCategories.any { it in superCategory.enums() } || superCategory == All && superCategories
+        .any { it != All }
 }
 
-private fun getCategoriesStringResources(
+private fun getButtonTitleStringResIds(
     superCategories: List<FlagSuperCategory>,
     subCategories: List<FlagCategory>,
 ): List<Int> {
