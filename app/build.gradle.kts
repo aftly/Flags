@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "dev.aftly.flags"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "dev.aftly.flags"
