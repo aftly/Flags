@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
@@ -44,14 +45,14 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
     private val _uiState = MutableStateFlow(ListFlagsUiState())
     val uiState = _uiState.asStateFlow()
 
-    var searchQuery by mutableStateOf(value = "")
+    var searchQueryValue by mutableStateOf(value = TextFieldValue())
         private set
 
     private val currentFlagsFlow = uiState.map { SearchFlow.CurrentFlags(it.currentFlags) }
     private val savedFlagsFlow = uiState.map { SearchFlow.SavedFlags(it.savedFlags) }
     private var isSavedFlagsFlow = uiState.map { SearchFlow.IsSavedFlags(it.isSavedFlags) }
-    private val searchQueryFlow = snapshotFlow { searchQuery }
-        .map { SearchFlow.SearchQuery(it) }
+    private val searchQueryFlow = snapshotFlow { searchQueryValue }
+        .map { SearchFlow.SearchQuery(it.text) }
     private val appResourcesFlow = snapshotFlow {
         getApplication<Application>().applicationContext.resources
     }.map { SearchFlow.AppResources(it) }
@@ -335,10 +336,9 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         } else _uiState.update { it.copy(isSavedFlags = false) }
     }
 
-    fun onSearchQueryChange(newQuery: String) {
-        /* Reset exact match state with each change to searchQuery */
-        searchQuery = newQuery
-        _uiState.update { it.copy(isSearchQuery = newQuery != "") }
+    fun onSearchQueryValueChange(newValue: TextFieldValue) {
+        searchQueryValue = newValue
+        _uiState.update { it.copy(isSearchQuery = newValue.text != "") }
     }
 
     fun toggleIsSearchBarInit(isSearchBarInit: Boolean) {

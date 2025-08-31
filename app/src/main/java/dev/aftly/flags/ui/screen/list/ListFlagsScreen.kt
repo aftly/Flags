@@ -1,16 +1,12 @@
 package dev.aftly.flags.ui.screen.list
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -36,12 +32,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -88,8 +81,10 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.lerp
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
@@ -99,9 +94,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import dev.aftly.flags.R
-import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
+import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.ui.component.CategoriesButtonMenu
 import dev.aftly.flags.ui.component.NoResultsFound
@@ -110,7 +105,6 @@ import dev.aftly.flags.ui.component.ScrollToTopButton
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.util.getFlagFromId
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -133,13 +127,12 @@ fun ListFlagsScreen(
         searchModel.sortFlagsAlphabetically()
     } */
 
-
     ListFlagsScreen(
         uiState = uiState,
         currentBackStackEntry = currentBackStackEntry,
         searchResults = searchResults,
-        searchQuery = viewModel.searchQuery,
-        onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
+        searchQueryValue = viewModel.searchQueryValue,
+        onSearchQueryValueChange = { viewModel.onSearchQueryValueChange(it) },
         onIsSearchBarInit = { viewModel.toggleIsSearchBarInit(it) },
         onIsSearchBarInitTopBar = { viewModel.toggleIsSearchBarInitTopBar(it) },
         onNavigationDrawer = onNavigationDrawer,
@@ -173,8 +166,8 @@ private fun ListFlagsScreen(
     searchResults: List<FlagView>,
     containerColor1: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     containerColor2: Color = MaterialTheme.colorScheme.secondary,
-    searchQuery: String,
-    onSearchQueryChange: (String) -> Unit,
+    searchQueryValue: TextFieldValue,
+    onSearchQueryValueChange: (TextFieldValue) -> Unit,
     onIsSearchBarInit: (Boolean) -> Unit,
     onIsSearchBarInitTopBar: (Boolean) -> Unit,
     onNavigationDrawer: () -> Unit,
@@ -209,12 +202,25 @@ private fun ListFlagsScreen(
         if (isMenuExpanded) focusManager.clearFocus()
     }
 
-    /* isSearchBar init LaunchedEffect only exists when it's needed (solves unintended launches) */
-    if (isSearchBar && !uiState.isSearchBarInit) {
-        LaunchedEffect(key1 = Unit) {
-            if (!uiState.currentFlags.containsAll(DataSource.allFlagsList) ||
-                uiState.isSavedFlags) {
-                onCategorySelectSingle(FlagSuperCategory.All, null)
+    LaunchedEffect(key1 = searchQueryValue.text) {
+        /* Minimize filter menu when keyboard input */
+        if (uiState.isSearchQuery && isMenuExpanded) {
+            isMenuExpanded = false
+        }
+    }
+
+    /* Handle isSearchBar effects */
+    LaunchedEffect(key1 = isSearchBar) {
+        if (!isSearchBar) {
+            onIsSearchBarInit(false)
+            onIsSearchBarInitTopBar(false)
+            onSearchQueryValueChange(TextFieldValue())
+
+        } else if (!uiState.isSearchBarInit) {
+            /* If saved flags or not All super category */
+            if (uiState.isSavedFlags || !(uiState.currentSuperCategories.all { it == All } &&
+                uiState.currentSubCategories.isEmpty())) {
+                onCategorySelectSingle(All, null)
                 onSavedFlagsSelect(false)
                 if (!isAtTop) {
                     coroutineScope.launch { listState.animateScrollToItem(index = 0) }
@@ -224,31 +230,19 @@ private fun ListFlagsScreen(
         }
     }
 
-    /* Handle isSearchBar disabled effects */
-    LaunchedEffect(key1 = isSearchBar) {
-        if (!isSearchBar) {
-            onIsSearchBarInit(false)
-            onIsSearchBarInitTopBar(false)
-        }
-    }
-
-    LaunchedEffect(key1 = searchQuery) {
-        /* Minimize filter menu when keyboard input */
-        if (uiState.isSearchQuery && isMenuExpanded) {
-            isMenuExpanded = false
-        }
-    }
-
     /* If returning from FlagScreen to SavedFlags and SavedFlags isEmpty() select All category */
     LaunchedEffect(key1 = uiState.savedFlags) {
         if (uiState.isSavedFlags && uiState.savedFlags.isEmpty()) {
-            onCategorySelectSingle(FlagSuperCategory.All, null)
+            onCategorySelectSingle(All, null)
         }
     }
 
     LaunchedEffect(key1 = searchResults) {
-        if (!uiState.isNavigatedAway)
+        if (!uiState.isNavigatedAway && uiState.isSearchQuery) {
             coroutineScope.launch { listState.scrollToItem(index = 0) }
+        } else if (!uiState.isNavigatedAway) {
+            coroutineScope.launch { listState.animateScrollToItem(index = 0) }
+        }
     }
 
     /* Scroll to flag from flag screen in list (if valid and present) */
@@ -294,16 +288,9 @@ private fun ListFlagsScreen(
             topBar = {
                 ListFlagsTopBar(
                     scrollBehaviour = scrollBehaviour,
-                    searchQuery = searchQuery,
+                    searchQuery = searchQueryValue,
                     isSearchQuery = uiState.isSearchQuery,
-                    onSearchQueryChange = onSearchQueryChange,
-                    onSearchQueryClear = {
-                        /* Only animate scroll to top if clearing an actual query */
-                        if (!isAtTop && uiState.isSearchQuery) coroutineScope.launch {
-                            listState.animateScrollToItem(index = 0)
-                        }
-                        onSearchQueryChange("")
-                    },
+                    onSearchQueryValueChange = onSearchQueryValueChange,
                     onFocus = { isSearchBarFocused = true },
                     onKeyboardDismiss = {
                         focusManager.clearFocus()
@@ -349,7 +336,15 @@ private fun ListFlagsScreen(
                 isSearchQuery = uiState.isSearchQuery,
                 searchResults = searchResults,
                 flags = if (uiState.isSavedFlags) uiState.savedFlags else uiState.currentFlags,
-                onSearchQueryChange = onSearchQueryChange,
+                onSearchQueryReplace = { flagOf ->
+                    /* Replace searchQueryValue with item name and cursor at end */
+                    onSearchQueryValueChange(
+                        TextFieldValue(
+                            text = flagOf,
+                            selection = TextRange(index = flagOf.length)
+                        )
+                    )
+                },
                 onFlagSelect = {
                     focusManager.clearFocus()
                     onFlagSelect(it)
@@ -406,7 +401,7 @@ private fun ListFlagsContent(
     isSearchQuery: Boolean,
     searchResults: List<FlagView>,
     flags: List<FlagView>,
-    onSearchQueryChange: (String) -> Unit,
+    onSearchQueryReplace: (String) -> Unit,
     onFlagSelect: (FlagView) -> Unit,
 ) {
     val listItemVerticalPadding = Dimens.small8
@@ -444,7 +439,7 @@ private fun ListFlagsContent(
                                 verticalPadding = listItemVerticalPadding,
                                 flag = flags[index],
                                 isSearch = isSearchBar,
-                                onSearchQueryChange = onSearchQueryChange,
+                                onSearchQueryReplace = onSearchQueryReplace,
                                 onFlagSelect = onFlagSelect,
                             )
                         }
@@ -478,7 +473,7 @@ private fun ListFlagsContent(
                                 verticalPadding = listItemVerticalPadding,
                                 flag = searchResults[index],
                                 isSearch = isSearchBar,
-                                onSearchQueryChange = onSearchQueryChange,
+                                onSearchQueryReplace = onSearchQueryReplace,
                                 onFlagSelect = onFlagSelect,
                             )
                         }
@@ -502,7 +497,7 @@ private fun ListItem(
     verticalPadding: Dp,
     flag: FlagView,
     isSearch: Boolean,
-    onSearchQueryChange: (String) -> Unit,
+    onSearchQueryReplace: (String) -> Unit,
     onFlagSelect: (FlagView) -> Unit,
 ) {
     val configuration = LocalConfiguration.current
@@ -547,7 +542,7 @@ private fun ListItem(
                         onLongPress = {
                             if (isSearch) {
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                onSearchQueryChange(flagOf)
+                                onSearchQueryReplace(flagOf)
                             }
                         },
                     )
@@ -609,10 +604,9 @@ private fun ListItem(
 private fun ListFlagsTopBar(
     modifier: Modifier = Modifier,
     scrollBehaviour: TopAppBarScrollBehavior,
-    searchQuery: String,
+    searchQuery: TextFieldValue,
     isSearchQuery: Boolean,
-    onSearchQueryChange: (String) -> Unit,
-    onSearchQueryClear: () -> Unit,
+    onSearchQueryValueChange: (TextFieldValue) -> Unit,
     onFocus: () -> Unit,
     onKeyboardDismiss: () -> Unit,
     isMenuExpanded: Boolean,
@@ -667,9 +661,7 @@ private fun ListFlagsTopBar(
     }
 
     /* Make top bar title visible when below search bar and when no search bar */
-    val isTopBarTitle =
-        if (scrollBehaviour.state.collapsedFraction < 0.5f) true
-        else !isSearchBar
+    val isTopBarTitle = if (scrollBehaviour.state.collapsedFraction < 0.5f) true else !isSearchBar
 
 
     MediumTopAppBar(
@@ -719,7 +711,7 @@ private fun ListFlagsTopBar(
             }
         },
         actions = {
-            /* Search action button and search bar text field */
+            /* Search bar text field */
             if (isSearchBar) {
                 val focusRequesterSearch = remember { FocusRequester() }
 
@@ -760,8 +752,8 @@ private fun ListFlagsTopBar(
 
                     TextField(
                         value = searchQuery,
-                        onValueChange = onSearchQueryChange,
-                        modifier = Modifier//.height(48.dp * configuration.fontScale)
+                        onValueChange = onSearchQueryValueChange,
+                        modifier = Modifier
                             .fillMaxWidth()
                             .padding(
                                 end = Dimens.marginHorizontal16 - textFieldOffset,
@@ -793,8 +785,9 @@ private fun ListFlagsTopBar(
                                             ),
                                         ),
                                     ) {
+                                        /* Clear search action button */
                                         IconButton(
-                                            onClick = onSearchQueryClear
+                                            onClick = { onSearchQueryValueChange(TextFieldValue()) }
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Default.Clear,
@@ -809,11 +802,9 @@ private fun ListFlagsTopBar(
                                     )
                                 }
 
+                                /* Disable search bar action button */
                                 IconButton(
-                                    onClick = {
-                                        onIsSearchBar(false)
-                                        onSearchQueryClear()
-                                    },
+                                    onClick = { onIsSearchBar(false) },
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Search,
@@ -834,6 +825,7 @@ private fun ListFlagsTopBar(
                     )
                 }
             } else {
+                /* Search bar action button */
                 Box(modifier = Modifier
                     .padding(
                         end = TextFieldDefaults.contentPaddingWithoutLabel().calculateRightPadding(
