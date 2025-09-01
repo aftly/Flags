@@ -4,12 +4,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import dev.aftly.flags.data.DataSource
+import dev.aftly.flags.data.DataSource.historicalSubCategoryWhitelist
 import dev.aftly.flags.data.DataSource.menuSuperCategoryList
 import dev.aftly.flags.data.DataSource.mutuallyExclusiveSubCategories
 import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories1
 import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories2
+import dev.aftly.flags.data.DataSource.supersExclusiveOfInstitution
+import dev.aftly.flags.data.DataSource.supersExclusiveOfPolitical
 import dev.aftly.flags.data.room.scorehistory.ScoreItem
 import dev.aftly.flags.model.FlagCategory
+import dev.aftly.flags.model.FlagCategory.CONFEDERATION
 import dev.aftly.flags.model.FlagCategory.CONSTITUTIONAL
 import dev.aftly.flags.model.FlagCategory.HISTORICAL
 import dev.aftly.flags.model.FlagCategory.INTERNATIONAL_ORGANIZATION
@@ -19,13 +23,15 @@ import dev.aftly.flags.model.FlagCategory.THEOCRACY
 import dev.aftly.flags.model.FlagCategory.THEOCRATIC
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
-import dev.aftly.flags.model.FlagSuperCategory.AutonomousRegion
-import dev.aftly.flags.model.FlagSuperCategory.Cultural
 import dev.aftly.flags.model.FlagSuperCategory.Historical
+import dev.aftly.flags.model.FlagSuperCategory.IdeologicalOrientation
+import dev.aftly.flags.model.FlagSuperCategory.Institution
 import dev.aftly.flags.model.FlagSuperCategory.International
 import dev.aftly.flags.model.FlagSuperCategory.Political
+import dev.aftly.flags.model.FlagSuperCategory.PowerDerivation
 import dev.aftly.flags.model.FlagSuperCategory.Regional
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
+import dev.aftly.flags.model.FlagSuperCategory.TerritorialDistributionOfAuthority
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.RelatedFlagsMenu
 import dev.aftly.flags.model.RelatedFlagsMenu.CHRONOLOGICAL
@@ -105,7 +111,7 @@ fun getFlagsByCategory(
      * unless it's superCategory has historical exception */
     for (flag in allFlags) {
         if (parentCategory in DataSource.historicalSuperCategoryExceptions &&
-            HISTORICAL in flag.categories) {
+            subCategory !in historicalSubCategoryWhitelist && HISTORICAL in flag.categories) {
             continue
         }
         for (category in categories) {
@@ -173,29 +179,56 @@ fun isSuperCategoryExit(
     superCategories: MutableList<FlagSuperCategory>,
     subCategories: MutableList<FlagCategory>,
 ): Boolean {
-    val exclusive1 = mutuallyExclusiveSuperCategories1
-    val exclusive2 = mutuallyExclusiveSuperCategories2
-    val subExitSupers = listOf(SovereignCountry, International)
+    val exclusive1Supers = mutuallyExclusiveSuperCategories1
+    val exclusive1Subs = exclusive1Supers.flatMap { it.enums() }
+    val exclusive2Supers = mutuallyExclusiveSuperCategories2
+    val exclusive2Subs = exclusive2Supers.flatMap { it.enums() }
+    val instExclusiveSupers = supersExclusiveOfInstitution
+    val instExclusiveSubs = instExclusiveSupers.flatMap { it.enums() }
+    val polExclusiveSupers = supersExclusiveOfPolitical
+    val polSubs = Political.supersEnums()
+    val polSubsExclOfInternational =
+        listOf(TerritorialDistributionOfAuthority, PowerDerivation, IdeologicalOrientation)
+            .flatMap { it.enums() }
+            .filterNot { it == CONFEDERATION }
 
-    /* TODO: Make hardcoded solutions (#2 & #4) dynamic */
-    /* After first, next 2 conditionals regard exclusive1, subsequent 2 regard exclusive2 */
     return if (superCategories.isEmpty() && subCategories.isEmpty()) {
-        /* SavedFlags (currently) represented by no selected categories */
-        true
-    } else if (superCategory !in superCategories &&
-        exclusive1.contains(superCategory) && exclusive1.any { it in superCategories }) {
-        true
+        true /* SavedFlags (currently) represented by no selected categories */
 
-    } else if (subCategories.any { subCategory ->
-        subCategory in AutonomousRegion.enums() || subCategory in Regional.enums() } &&
-        superCategory in subExitSupers) {
+    } else if (subCategories.any { it in superCategory.enums() }) {
         true
 
     } else if (superCategory !in superCategories &&
-        exclusive2.contains(superCategory) && exclusive2.any { it in superCategories }) {
+        superCategory in exclusive1Supers &&
+        (exclusive1Supers.any { it in superCategories } ||
+        exclusive1Subs.any { it in subCategories })) {
         true
 
-    } else if (subCategories.any { it in Cultural.enums() } && superCategory in subExitSupers) {
+    } else if (superCategory !in superCategories &&
+        superCategory in exclusive2Supers &&
+        (exclusive2Supers.any { it in superCategories } ||
+        exclusive2Subs.any { it in subCategories })) {
+        true
+
+    } else if (superCategory !in superCategories &&
+        superCategory == Institution &&
+        (superCategories.any { it in instExclusiveSupers } ||
+        subCategories.any { it in instExclusiveSubs })) {
+        true
+
+    } else if (superCategory !in superCategories &&
+        superCategory in instExclusiveSupers &&
+        Institution in superCategories) {
+        true
+
+    } else if (superCategory !in superCategories &&
+        superCategory in polExclusiveSupers &&
+        subCategories.any { it in polSubs }) {
+        true
+
+    } else if (superCategory !in superCategories &&
+        superCategory == International &&
+        subCategories.any { it in polSubsExclOfInternational }) {
         true
 
     } else {
@@ -209,48 +242,45 @@ fun isSubCategoryExit(
     subCategories: MutableList<FlagCategory>,
     superCategories: MutableList<FlagSuperCategory>,
 ): Boolean {
-    /* SavedFlags (currently) represented by no selected categories */
-    if (subCategories.isEmpty() && superCategories.isEmpty()) return true
+    val exclusiveSubsInSupers = mutuallyExclusiveSubCategories
+    val subCategorySuper = exclusiveSubsInSupers.find { subCategory in it.enums() }
+    val exclusive1Supers = mutuallyExclusiveSuperCategories1
+    val exclusive1Subs = exclusive1Supers.flatMap { it.enums() }
+    val exclusive2Supers = mutuallyExclusiveSuperCategories2
+    val exclusive2Subs = exclusive2Supers.flatMap { it.enums() }
+    val instExclusiveSupers = supersExclusiveOfInstitution
+    val instExclusiveSubs = instExclusiveSupers.flatMap { it.enums() }
+    val polExclusiveSupers = supersExclusiveOfPolitical
+    val polSubs = Political.supersEnums()
+    val polSubsExclOfInternational =
+        listOf(TerritorialDistributionOfAuthority, PowerDerivation, IdeologicalOrientation)
+            .flatMap { it.enums() }
+            .filterNot { it == CONFEDERATION }
 
-    mutuallyExclusiveSubCategories.forEach { superCategory ->
-        if (subCategory !in subCategories &&
-            superCategory.enums().any { it in subCategories } &&
-            subCategory in superCategory.enums()) {
-            return true
-        }
+    return if (subCategories.isEmpty() && superCategories.isEmpty()) {
+        true /* SavedFlags (currently) represented by no selected categories */
+
+    } else if (subCategory !in subCategories &&
+        subCategorySuper != null &&
+        subCategory in subCategorySuper.enums() &&
+        subCategories.any { it in subCategorySuper.enums() }) {
+        true
+
+    } else if (subCategory !in subCategories &&
+        subCategory in exclusive1Subs &&
+        (superCategories.any { it in exclusive1Supers } ||
+        subCategories.any { it in exclusive1Subs })) {
+        true
+
+    } else if (subCategory !in subCategories &&
+        subCategory in exclusive1Subs &&
+        (superCategories.any { it in exclusive2Supers } ||
+        subCategories.any { it in exclusive2Subs })) {
+        true
+
+    } else {
+        false
     }
-    mutuallyExclusiveSuperCategories1.let { exclusive1 ->
-        val subCategorySuper = exclusive1.find { subCategory in it.enums() }
-
-        if (subCategorySuper != null) {
-            /* If Sovereign or International selected reject selection of subcategories
-             * from Regional */
-            val selectedExclusiveSupers = exclusive1.filter { it in superCategories }
-                .filter { it in listOf(SovereignCountry, International) }
-
-            val unselectedExclusiveSupers = exclusive1.filterNot { it in superCategories }
-                .filter { it == Regional }
-
-            if (selectedExclusiveSupers.isNotEmpty() &&
-                subCategorySuper in unselectedExclusiveSupers) {
-                return true
-            }
-        }
-    }
-    mutuallyExclusiveSuperCategories2.let { exclusive2 ->
-        val subCategorySuper = exclusive2.find { subCategory in it.enums() }
-
-        if (subCategorySuper != null) {
-            val selectedExclusiveSupers = exclusive2.filter { it in superCategories }
-            val unselectedExclusiveSupers = exclusive2.filterNot { it in superCategories }
-
-            if (selectedExclusiveSupers.isNotEmpty() &&
-                subCategorySuper in unselectedExclusiveSupers) {
-                return true
-            }
-        }
-    }
-    return false
 }
 
 

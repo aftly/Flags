@@ -2,6 +2,7 @@ package dev.aftly.flags.data
 
 import android.content.Context
 import dev.aftly.flags.R
+import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagView
@@ -42,6 +43,9 @@ data object DataSource {
         FlagSuperCategory.International,
         FlagSuperCategory.Political
     )
+    val historicalSubCategoryWhitelist = listOf(
+        FlagCategory.CONFEDERATION
+    )
 
     /* For use in multi-selection in Filter Menu */
     val mutuallyExclusiveSuperCategories1 = listOf(
@@ -55,6 +59,18 @@ data object DataSource {
         FlagSuperCategory.Cultural,
         FlagSuperCategory.SovereignCountry,
         FlagSuperCategory.International
+    )
+
+    val supersExclusiveOfInstitution = listOf(
+        FlagSuperCategory.SovereignCountry,
+        FlagSuperCategory.AutonomousRegion,
+        FlagSuperCategory.Regional
+    )
+
+    val supersExclusiveOfPolitical = listOf(
+        FlagSuperCategory.Regional,
+        FlagSuperCategory.Institution,
+        FlagSuperCategory.Cultural
     )
 
     /* For use in multi-selection in Filter Menu */

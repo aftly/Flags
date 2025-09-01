@@ -1,6 +1,5 @@
 package dev.aftly.flags.ui.component
 
-import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -77,6 +76,7 @@ import dev.aftly.flags.model.FlagSuperCategory.ExecutiveStructure
 import dev.aftly.flags.model.FlagSuperCategory.Historical
 import dev.aftly.flags.model.FlagSuperCategory.IdeologicalOrientation
 import dev.aftly.flags.model.FlagSuperCategory.Institution
+import dev.aftly.flags.model.FlagSuperCategory.International
 import dev.aftly.flags.model.FlagSuperCategory.LegalConstraint
 import dev.aftly.flags.model.FlagSuperCategory.Political
 import dev.aftly.flags.model.FlagSuperCategory.PowerDerivation
@@ -149,7 +149,20 @@ fun CategoriesButtonMenu(
             append(stringResource(R.string.button_title_flags))
         }
         0 to 1 -> buildString {
-            append(stringResource(subCategories.first().title))
+            val subCategory = subCategories.first()
+            val polCatStateExceptions = buildList {
+                add(CONFEDERATION)
+                addAll(elements = PowerDerivation.enums()
+                    .filterNot { it in listOf(ONE_PARTY, PROVISIONAL_GOVERNMENT) }
+                )
+            }
+            append(stringResource(subCategory.title))
+
+            /* Append "State" if relevant political category */
+            if (subCategory in Political.supersEnums().filterNot { it in polCatStateExceptions }) {
+                append(stringResource(R.string.string_whitespace))
+                append(stringResource(R.string.category_state_title))
+            }
             append(stringResource(R.string.button_title_flags))
         }
         else -> buildString {
@@ -158,48 +171,6 @@ fun CategoriesButtonMenu(
             }
         }
     }
-    /*
-    val buttonTitle = when (superCategories.isNotEmpty() to subCategories.isNotEmpty()) {
-        true to true -> buildString {
-            val stringResIds = getButtonTitleStringResIds(
-                superCategories = superCategories,
-                subCategories = subCategories,
-            )
-            stringResIds.forEach { append(stringResource(it)) }
-        }
-        false to true -> buildString {
-            /* If subCategory belongs to Political superCategory, except for exceptions,
-             * append "State" after subCategory */
-            val subCategory = subCategories.first()
-            val politicalStateCategories = Political.supersEnums().filterNot { polSub ->
-                polSub in buildList {
-                    add(CONFEDERATION)
-                    addAll(elements = PowerDerivation.enums()
-                        .filterNot { it in listOf(ONE_PARTY, PROVISIONAL_GOVERNMENT) }
-                    )
-                }
-            }
-
-            if (subCategory in politicalStateCategories) {
-                append(stringResource(subCategory.title))
-                append(stringResource(R.string.button_title_state_flags))
-            } else {
-                append(stringResource(subCategory.title))
-                append(stringResource(R.string.button_title_flags))
-            }
-        }
-        true to false -> buildString {
-            superCategories.first().categoriesMenuButton?.let {
-                append(stringResource(it))
-            }
-            append(stringResource(R.string.button_title_flags))
-        }
-        else -> buildString {
-            append(stringResource(R.string.saved_flags))
-            append(stringResource(R.string.button_title_flags))
-        }
-    }
-     */
 
     val textButtonStyle = MaterialTheme.typography.bodyMedium.copy(
         fontWeight = FontWeight.Medium,
@@ -962,7 +933,6 @@ private fun MenuItemExpandableArrowIcon(
 }
 
 
-/* TODO: Centralize filter logic with GameViewModel's getScoreDataSupers() */
 private fun filterSuperCategories(
     superCategories: List<FlagSuperCategory>,
     subCategories: List<FlagCategory>,
@@ -976,6 +946,8 @@ private fun getButtonTitleStringResIds(
     superCategories: List<FlagSuperCategory>,
     subCategories: List<FlagCategory>,
 ): List<Int> {
+    /* -------------------------------- GET PROPERTIES -------------------------------- */
+
     /* Filter out supers when any of it's subs are selected and filter out All super when multiple
      * and return mutable list for further filtering */
     val superCategoriesFiltered = filterSuperCategories(
@@ -996,6 +968,10 @@ private fun getButtonTitleStringResIds(
 
     val isCultural = Cultural in superCategoriesFiltered
 
+    val isInternational =
+        International in superCategoriesFiltered &&
+                (Institution in superCategoriesFiltered || CONFEDERATION in subCategories)
+
     /* For string exceptions when supers mean associated countries */
     val isAssociatedCountrySupers = superCategoriesFiltered.contains(AutonomousRegion) &&
             superCategoriesFiltered.contains(SovereignCountry)
@@ -1011,17 +987,22 @@ private fun getButtonTitleStringResIds(
 
     val culturalCategories = subCategories.filter { it in Cultural.enums() }
 
-    /* Subcategories belonging to Political SuperCategory sans NonAdministrative,
-     * sorted semantically, according to sortPoliticalCategoriesBy */
-    val politicalCategories = subCategories.filter { it in Political.supersEnums() }
+    /* Political categories, sorted semantically, and exceptions applied */
+    val polCats = subCategories.filter { it in Political.supersEnums() }
+
+    val isConfederationException = CONFEDERATION in subCategories && subCategories
+        .none { it in PowerDerivation.enums() } && polCats.size > 1 || isInternational
+
+    val politicalCategories = polCats.filterNot { it == CONFEDERATION && isConfederationException }
         .sortedBy { politicalCategoriesSortOrder.indexOf(it) }
 
     /* Subcategories not in other list derivatives, minus duplicates */
     val remainingCategories = subCategories.filterNot { it in culturalCategories }
         .filterNot { it in politicalCategories }.toMutableList()
 
-    /* Mutable list for string resources for iteration */
-    @StringRes val strings = mutableListOf<Int>()
+
+    /* -------------------------------- GET ITERATIONS -------------------------------- */
+    val strings = mutableListOf<Int>()
 
     if (isHistorical) {
         superCategoriesFiltered.remove(Historical)
@@ -1034,33 +1015,44 @@ private fun getButtonTitleStringResIds(
         strings.add(Cultural.title)
         if (superCategoriesFiltered.isNotEmpty() || politicalCategories.isNotEmpty() ||
             remainingCategories.isNotEmpty()) {
-            strings.add(R.string.categories_and)
+            strings.add(R.string.string_whitespace)
         }
     }
 
-    culturalCategories.forEach { culturalCategory ->
+    culturalCategories.forEachIndexed { index, culturalCategory ->
         strings.add(culturalCategory.title)
-        if (culturalCategory != culturalCategories.last() || superCategoriesFiltered.isNotEmpty() ||
-            politicalCategories.isNotEmpty() || remainingCategories.isNotEmpty()) {
-            strings.add(R.string.categories_and)
-        }
+
+        if (index != culturalCategories.lastIndex) strings.add(R.string.categories_and)
+        else strings.add(R.string.string_whitespace)
     }
 
-    politicalCategories.forEach { politicalCategory ->
-        strings.add(politicalCategory.title)
+    politicalCategories.forEachIndexed { index, politicalCategory ->
+        if (politicalCategory == CONFEDERATION && politicalCategories.size > 1) {
+            strings.add(R.string.category_confederal_title)
+        } else {
+            strings.add(politicalCategory.title)
+        }
         strings.add(R.string.string_whitespace)
 
-        /* On last iteration, if no superCategories except for SovereignCountry AND no remaining
-         * subCategories AND politicalCategories doesn't contain exceptions, append "State" */
-        if (politicalCategory == politicalCategories.last() &&
-            superCategoriesFiltered.all { it == SovereignCountry } &&
-            remainingCategories.isEmpty() &&
-            politicalCategories.none { polSub ->
-                polSub in PowerDerivation.enums()
-                    .filterNot { it in listOf(ONE_PARTY, PROVISIONAL_GOVERNMENT) } + CONFEDERATION
-            }) {
-            strings.add(R.string.category_state_title)
+        /* On last iteration, if not international, remove SovereignCountry super and
+         * append "State" if not exception */
+        if (index == politicalCategories.lastIndex && International !in superCategoriesFiltered) {
+            superCategoriesFiltered.remove(SovereignCountry)
+
+            if (politicalCategory !in PowerDerivation.enums()
+                .filterNot { it in listOf(ONE_PARTY, PROVISIONAL_GOVERNMENT) } &&
+                AutonomousRegion !in superCategories &&
+                AutonomousRegion.enums().none { it in subCategories } &&
+                !isConfederationException) {
+                strings.add(R.string.category_state_title)
+            }
         }
+    }
+
+    if (isInternational) {
+        superCategoriesFiltered.remove(International)
+        strings.add(International.title)
+        strings.add(R.string.string_whitespace)
     }
 
     if (isAssociatedCountrySupers) {
@@ -1086,15 +1078,12 @@ private fun getButtonTitleStringResIds(
         strings.add(R.string.string_whitespace)
     }
 
-    superCategoriesFiltered.forEach { superCategory ->
-        if (superCategory == SovereignCountry && superCategory.categoriesMenuButton != null) {
-            if (politicalCategories.isEmpty()) {
-                strings.add(superCategory.categoriesMenuButton)
-                strings.add(R.string.string_comma_whitespace)
-            }
+    superCategoriesFiltered.forEachIndexed { index, superCategory ->
+        if (superCategory == Regional &&
+            (isHistorical || isCultural || culturalCategories.isNotEmpty())) {
+            strings.add(R.string.category_region_title)
         } else {
-            strings.add(superCategory.title)
-            strings.add(R.string.string_comma_whitespace)
+            superCategory.categoriesMenuButton?.let { strings.add(it) }
         }
     }
 
