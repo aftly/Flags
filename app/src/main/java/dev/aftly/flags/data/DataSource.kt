@@ -46,35 +46,45 @@ data object DataSource {
     val historicalSubCategoryWhitelist = listOf(
         FlagCategory.CONFEDERATION
     )
+    val absenceCategoriesMap = mapOf(
+        FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL to listOf(FlagCategory.CONSTITUTIONAL)
+    )
+    val absenceCategoriesAddAnyMap = mapOf(
+        FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL to FlagSuperCategory.SovereignCountry.enums()
+    )
 
-    /* For use in multi-selection in Filter Menu */
+    /* ----- For use in multi-selection in Filter Menu ----- */
     val mutuallyExclusiveSuperCategories1 = listOf(
         FlagSuperCategory.SovereignCountry,
         FlagSuperCategory.Regional,
         FlagSuperCategory.International
     )
-
-    /* For use in multi-selection in Filter Menu */
     val mutuallyExclusiveSuperCategories2 = listOf(
         FlagSuperCategory.Cultural,
         FlagSuperCategory.SovereignCountry,
         FlagSuperCategory.International
     )
-
     val supersExclusiveOfInstitution = listOf(
         FlagSuperCategory.SovereignCountry,
         FlagSuperCategory.AutonomousRegion,
         FlagSuperCategory.Regional
     )
-
     val supersExclusiveOfPolitical = listOf(
         FlagSuperCategory.Regional,
         FlagSuperCategory.Institution,
         FlagSuperCategory.Cultural
     )
-
-    /* For use in multi-selection in Filter Menu */
-    val mutuallyExclusiveSubCategories = listOf(
+    val supersExclusiveOfInternational = listOf(
+        FlagSuperCategory.AutonomousRegion,
+        FlagSuperCategory.TerritorialDistributionOfAuthority,
+        FlagSuperCategory.PowerDerivation,
+        FlagSuperCategory.IdeologicalOrientation
+    )
+    val subsExclusiveOfCountry = listOf(
+        FlagCategory.AUTONOMOUS_REGION,
+        FlagCategory.DEVOLVED_GOVERNMENT
+    )
+    val mutuallyExclusiveSubsSuperCategories = listOf(
         FlagSuperCategory.Regional,
         FlagSuperCategory.TerritorialDistributionOfAuthority,
         FlagSuperCategory.ExecutiveStructure,
@@ -82,6 +92,7 @@ data object DataSource {
         FlagSuperCategory.PowerDerivation,
         FlagSuperCategory.IdeologicalOrientation
     )
+
 
     val nullFlag = FlagView(
         id = 0,

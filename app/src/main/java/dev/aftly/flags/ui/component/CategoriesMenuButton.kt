@@ -65,6 +65,8 @@ import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.menuSuperCategoryList
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
+import dev.aftly.flags.model.FlagCategory.DEVOLVED_GOVERNMENT
+import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
 import dev.aftly.flags.model.FlagCategory.CONFEDERATION
 import dev.aftly.flags.model.FlagCategory.ONE_PARTY
 import dev.aftly.flags.model.FlagCategory.PROVISIONAL_GOVERNMENT
@@ -964,6 +966,8 @@ private fun getButtonTitleStringResIds(
         PowerDerivation.enums()
     ).flatten()
 
+
+    /* ------------------- Boolean exceptions ------------------- */
     val isHistorical = Historical in superCategoriesFiltered
 
     val isCultural = Cultural in superCategoriesFiltered
@@ -972,9 +976,9 @@ private fun getButtonTitleStringResIds(
         International in superCategoriesFiltered &&
                 (Institution in superCategoriesFiltered || CONFEDERATION in subCategories)
 
-    /* For string exceptions when supers mean associated countries */
-    val isAssociatedCountrySupers = superCategoriesFiltered.contains(AutonomousRegion) &&
-            superCategoriesFiltered.contains(SovereignCountry)
+    /* For string exceptions when supers or subs mean associated countries */
+    val isAssociatedCountry = SovereignCountry in superCategoriesFiltered &&
+            (AutonomousRegion in superCategoriesFiltered || FREE_ASSOCIATION in subCategories)
 
     /* For string exceptions when supers mean non-sovereign autonomous and associated regions */
     val isAutonomousRegionalSupers = superCategoriesFiltered.containsAll(
@@ -985,6 +989,21 @@ private fun getButtonTitleStringResIds(
     val isAutonomousRegionalSub = superCategoriesFiltered.contains(AutonomousRegion) &&
             subCategories.any { it in Regional.enums() }
 
+    /* For string exceptions when regional super or subs are autonomous */
+    val isAutonomousRegion =
+        (AutonomousRegion in superCategoriesFiltered || AUTONOMOUS_REGION in subCategories) &&
+                (Regional in superCategoriesFiltered || subCategories.any { it in Regional.enums() })
+
+    /* For string exceptions when regional super or subs are devolved */
+    val isDevolvedRegion = DEVOLVED_GOVERNMENT in subCategories &&
+            (Regional in superCategoriesFiltered ||
+            subCategories.any { it in Regional.enums() + AUTONOMOUS_REGION + DEVOLVED_GOVERNMENT })
+
+    val isRegion = Regional in superCategoriesFiltered &&
+            subCategories.any { it in listOf(AUTONOMOUS_REGION, DEVOLVED_GOVERNMENT) }
+
+
+    /* ------------------- Category groups ------------------- */
     val culturalCategories = subCategories.filter { it in Cultural.enums() }
 
     /* Political categories, sorted semantically, and exceptions applied */
@@ -1055,24 +1074,28 @@ private fun getButtonTitleStringResIds(
         strings.add(R.string.string_whitespace)
     }
 
-    if (isAssociatedCountrySupers) {
+    if (isAssociatedCountry) {
         superCategoriesFiltered.remove(SovereignCountry)
         superCategoriesFiltered.remove(AutonomousRegion)
+        remainingCategories.remove(FREE_ASSOCIATION)
         strings.add(R.string.categories_associated_country)
-        strings.add(R.string.string_comma_whitespace)
+        strings.add(R.string.string_whitespace)
     }
 
-    if (isAutonomousRegionalSupers && !isAutonomousRegionalSub) {
+    if (isDevolvedRegion) {
+        remainingCategories.remove(DEVOLVED_GOVERNMENT)
+        strings.add(R.string.categories_devolved_title)
+        strings.add(R.string.string_whitespace)
+    }
+
+    if (isAutonomousRegionalSupers) {
         superCategoriesFiltered.remove(AutonomousRegion)
         superCategoriesFiltered.remove(Regional)
         strings.add(R.string.categories_autonomous_regional)
-        strings.add(R.string.string_comma_whitespace)
-    } else if (isAutonomousRegionalSub) {
-        superCategoriesFiltered.remove(AutonomousRegion)
-        strings.add(R.string.categories_autonomous_title)
         strings.add(R.string.string_whitespace)
-    } else if (remainingCategories.contains(AUTONOMOUS_REGION) &&
-        remainingCategories.any { it in Regional.enums() }) {
+
+    } else if (isAutonomousRegion) {
+        superCategoriesFiltered.remove(AutonomousRegion)
         remainingCategories.remove(AUTONOMOUS_REGION)
         strings.add(R.string.categories_autonomous_title)
         strings.add(R.string.string_whitespace)
@@ -1080,16 +1103,19 @@ private fun getButtonTitleStringResIds(
 
     superCategoriesFiltered.forEachIndexed { index, superCategory ->
         if (superCategory == Regional &&
-            (isHistorical || isCultural || culturalCategories.isNotEmpty())) {
+            (isHistorical || isCultural || isAutonomousRegion ||
+                    isDevolvedRegion || culturalCategories.isNotEmpty())) {
             strings.add(R.string.category_region_title)
+            strings.add(R.string.string_whitespace)
         } else {
             superCategory.categoriesMenuButton?.let { strings.add(it) }
+            strings.add(R.string.string_whitespace)
         }
     }
 
     remainingCategories.forEach { subCategory ->
         strings.add(subCategory.title)
-        strings.add(R.string.string_comma_whitespace)
+        strings.add(R.string.string_whitespace)
     }
 
     if (strings.last() == R.string.string_comma_whitespace ||

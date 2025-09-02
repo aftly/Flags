@@ -243,7 +243,6 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                     currentSuperCategories = getSuperCategories(
                         superCategory = newSuperCategory,
                         subCategory = newSubCategory,
-                        flags = newFlags,
                     ),
                     currentSubCategories = when (newSubCategory) {
                         null -> emptyList()
@@ -259,7 +258,8 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         newSuperCategory: FlagSuperCategory?,
         newSubCategory: FlagCategory?,
     ) {
-        var isDeselect = false /* Controls whether flags are updated from current or all flags */
+        /* Controls whether flags are updated from current or all flags */
+        var isDeselectSwitch = false to false
 
         val newSuperCategories = uiState.value.currentSuperCategories.toMutableList()
         val newSubCategories = uiState.value.currentSubCategories.toMutableList()
@@ -269,24 +269,24 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         newSuperCategory?.let { superCategory ->
             if (isSuperCategoryExit(superCategory, newSuperCategories, newSubCategories)) return
 
-            isDeselect = updateCategoriesFromSuper(
+            isDeselectSwitch = updateCategoriesFromSuper(
                 superCategory = superCategory,
                 superCategories = newSuperCategories,
                 subCategories = newSubCategories,
-            )
+            ) to false
             /* Exit after All is deselected since (how) deselection is state inconsequential */
-            if (!isDeselect && superCategory == All) return
+            if (!isDeselectSwitch.first && superCategory == All) return
         }
         newSubCategory?.let { subCategory ->
             if (isSubCategoryExit(subCategory, newSubCategories, newSuperCategories)) return
 
-            isDeselect = updateCategoriesFromSub(
+            isDeselectSwitch = updateCategoriesFromSub(
                 subCategory = subCategory,
                 subCategories = newSubCategories,
             )
         }
         /* Return updateCurrentCategory() if deselection to only 1 super category */
-        if (isDeselect) {
+        if (isDeselectSwitch.first) {
             if (newSubCategories.isEmpty()) {
                 if (newSuperCategories.isEmpty()) {
                     return updateCurrentCategory(newSuperCategory = All, newSubCategory = null)
@@ -313,8 +313,8 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 currentFlags = getFlagsFromCategories(
                     allFlags = it.allFlags,
                     currentFlags = it.currentFlags,
-                    isDeselect = isDeselect,
-                    newSuperCategory = newSuperCategory,
+                    isDeselectSwitch = isDeselectSwitch,
+                    superCategory = newSuperCategory,
                     superCategories = newSuperCategories,
                     subCategories = newSubCategories,
                 ),
