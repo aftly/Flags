@@ -2,6 +2,7 @@ package dev.aftly.flags.ui.util
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.data.DataSource.absenceCategoriesMap
@@ -21,7 +22,6 @@ import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
 import dev.aftly.flags.model.FlagCategory.CONFEDERATION
 import dev.aftly.flags.model.FlagCategory.DEVOLVED_GOVERNMENT
 import dev.aftly.flags.model.FlagCategory.HISTORICAL
-import dev.aftly.flags.model.FlagCategory.INTERNATIONAL_ORGANIZATION
 import dev.aftly.flags.model.FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
@@ -90,51 +90,26 @@ fun getFlagsByCategory(
     /* Exclude flags if they have a particular category/categories */
     val categoriesNot = absenceCategoriesMap[subCategory] ?: emptyList()
 
-    /* Exclude flags if they don't have any categories in this list */
-    val categoriesHasAny = when (subCategory) {
-        in Political.supersEnums() -> listOf(SOVEREIGN_STATE, INTERNATIONAL_ORGANIZATION)
-        else -> null
+    /* Generate list of categories to iterate over (for flags list) from params */
+    val categories = when (subCategory) {
+        null -> superCategory?.enums() ?: exceptionCategories
+        NOMINAL_EXTRA_CONSTITUTIONAL -> listOf(SOVEREIGN_STATE)
+        THEOCRATIC -> listOf(subCategory, THEOCRACY)
+        else -> listOf(subCategory)
     }
 
-    /* Generate list of categories to iterate over (for flags list) from nullable values */
-    val categories = if (subCategory != null) {
-        when (subCategory) {
-            NOMINAL_EXTRA_CONSTITUTIONAL -> listOf(SOVEREIGN_STATE)
-            THEOCRATIC -> listOf(subCategory, THEOCRACY)
-            else -> listOf(subCategory)
-        }
-    } else superCategory?.enums() ?: exceptionCategories
+    /* For skipping historical flags when category in exception */
+    val isHistoricalException =  parentCategory in DataSource.historicalSuperCategoryExceptions &&
+            subCategory !in historicalSubCategoryWhitelist
 
-
-    /* Search for flags that contain any category(s) from categories and add to list,
-     * unless it's superCategory has historical exception */
-    //val newFlags = allFlags.filter { flag -> }
-
-    for (flag in allFlags) {
-        /* Skip historical flags when super is exception and subcategory not in whitelist */
-        if (parentCategory in DataSource.historicalSuperCategoryExceptions &&
-            subCategory !in historicalSubCategoryWhitelist &&
-            HISTORICAL in flag.categories) {
-            continue
-        }
-        for (category in categories) {
-            if (category in flag.categories) {
-                if (flag !in flags) {
-                    /* Add flag if none of it's categories are in categoriesNot and has any of
-                    * categoriesHasAny */
-                    if (categoriesNot.none { it in flag.categories }) {
-                        categoriesHasAny?.let {
-                            if (categoriesHasAny.any { it in flag.categories }) {
-                                flags.add(flag)
-                            }
-                        } ?: flags.add(flag)
-                    }
-                }
-                break
-            }
+    return allFlags.filter { flag ->
+        when {
+            isHistoricalException && HISTORICAL in flag.categories -> false
+            categoriesNot.any { it in flag.categories } -> false
+            categories.any { it in flag.categories } -> true
+            else -> false
         }
     }
-    return flags.toList()
 }
 
 
@@ -149,19 +124,16 @@ fun getSuperCategories(
 }
 
 
+/* If subCategory not null get it's superCategory, else if superCategory not null return it,
+    * else return exception superCategory  */
 fun getParentSuperCategory(
     superCategory: FlagSuperCategory?,
     subCategory: FlagCategory?,
     exceptionCategory: FlagSuperCategory = SovereignCountry,
-): FlagSuperCategory {
-    /* If subCategory not null get it's superCategory, else if superCategory not null return it,
-    * else return exception superCategory  */
-    return if (subCategory != null) {
-        menuSuperCategoryList.filterNot { it in listOf(All, Political) }
-            .find { subCategory in it.enums() } ?: Political
-    } else {
-        superCategory ?: exceptionCategory
-    }
+): FlagSuperCategory = when (subCategory) {
+    null -> superCategory ?: exceptionCategory
+    else -> menuSuperCategoryList.filterNot { it in listOf(All, Political) }
+        .find { subCategory in it.enums() } ?: Political
 }
 
 
@@ -357,40 +329,44 @@ fun getFlagsFromCategories(
     superCategories: MutableList<FlagSuperCategory>,
     subCategories: MutableList<FlagCategory>,
 ): List<FlagView> {
-    return if (isDeselectSwitch.first || isDeselectSwitch.second || superCategory == All ||
-        superCategory == Historical) {
-        allFlags /* Only when required */
-    } else {
-        currentFlags
-    }.let { flags ->
-        /* Filter by supercategory */
-        if (superCategories.isNotEmpty()) flags.filter { flag ->
-            superCategories.all { superCategory ->
-                flag.categories.any { it in superCategory.enums() }
-            }
-        } else flags
-    }.let { flags ->
-        /* Filter by subcategory */
-        if (subCategories.isNotEmpty()) {
-            flags.filter { flag ->
-                /* Handle nonAbsenceCategories (eg. Nominal/extra constitutional) */
-                val absenceKeyValues = absenceCategoriesMap.filterKeys { it in subCategories }
-                val nonAbsenceCategories = subCategories.filterNot { it in absenceKeyValues.keys }
-                val absenceAddAny = absenceCategoriesAddAnyMap.filterKeys { it in subCategories }
+    val isDeselectOrSwitch = isDeselectSwitch.first || isDeselectSwitch.second
+    val isSuperCategories = superCategories.isNotEmpty()
+    val isSubCategories = subCategories.isNotEmpty()
+    val flags = if (isDeselectOrSwitch || superCategory in listOf(All, Historical))
+        allFlags else currentFlags
 
-                flag.categories.containsAll(elements = nonAbsenceCategories) &&
-                        /* Empty absence values return true due to nature of none() and all() */
-                        flag.categories.none { it in absenceKeyValues.values.flatten() } &&
-                        flag.categories.any { cat -> absenceAddAny.all { cat in it.value } }
-            }
-        } else flags
-    }.let { flags ->
+    return flags.filter { flag ->
+        /* Filter flags from not empty superCategories */
+        if (!isSuperCategories) true
+        else superCategories.all { superCategory ->
+            flag.categories.any { it in superCategory.enums() }
+        }
+    }.filter { flag ->
+        /* Filter flags from not empty subCategories */
+        if (!isSubCategories) true
+        else {
+            val absenceKeyValues = absenceCategoriesMap.filterKeys { it in subCategories }
+            val nonAbsenceCategories = subCategories.filterNot { it in absenceKeyValues.keys }
+            val absenceAddAny = absenceCategoriesAddAnyMap.filterKeys { it in subCategories }
+
+            val isCategoryMatch = flag.categories.containsAll(elements = nonAbsenceCategories)
+            /* Empty absence values return true due to nature of none() and all() */
+            val isNotAbsent = flag.categories.none { it in absenceKeyValues.values.flatten() }
+            val isAbsenceAdd = flag.categories.any { cat -> absenceAddAny.all { cat in it.value } }
+
+            isCategoryMatch && isNotAbsent && isAbsenceAdd
+        }
+    }.filterNot { flag ->
         /* Handle unintended isDelect and isSwitch effects */
-        if ((isDeselectSwitch.first || isDeselectSwitch.second) &&
-            superCategories.none { it in listOf(All, Historical, Cultural) } &&
-            subCategories.none { it in Cultural.enums() + historicalSubCategoryWhitelist }) {
-            flags.filterNot { HISTORICAL in it.categories }
+        if (!isDeselectOrSwitch) false
+        else {
+            val isHistorical = HISTORICAL in flag.categories
+            val isNotSuperExceptions = superCategories
+                .none { it in listOf(All, Historical, Cultural) }
+            val isNotSubExceptions = subCategories
+                .none { it in Cultural.enums() + historicalSubCategoryWhitelist }
 
-        } else flags
+            isHistorical && isNotSuperExceptions && isNotSubExceptions
+        }
     }
 }
