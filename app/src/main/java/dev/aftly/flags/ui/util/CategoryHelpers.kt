@@ -192,7 +192,8 @@ fun isSuperCategoryExit(
     } else if (superCategory in superCategories) {
         false /* Escape function if supercategory already selected (so it can be deselected) */
 
-    } else if (subCategories.any { it in superCategory.enums() }) {
+    } else if (superCategory != All &&
+        subCategories.any { it in superCategory.enums() }) {
         true
 
     } else if (superCategory in exclusive1Supers &&
@@ -300,29 +301,27 @@ fun isSubCategoryExit(
 }
 
 
+/* Returns true if update deselects a category, else false */
 fun updateCategoriesFromSuper(
     superCategory: FlagSuperCategory,
     superCategories: MutableList<FlagSuperCategory>,
     subCategories: MutableList<FlagCategory>,
 ): Boolean {
-    var isRemove = false
-
-    /* Handle removal from superCategories */
-    if (superCategory in superCategories) {
+    return if (superCategory in superCategories) {
+        /* Handle removal from superCategories */
         superCategories.remove(superCategory)
-        isRemove = true
-    }
-    /* Handle removal from subCategories (not mutually exclusive from above) */
-    if (subCategories.isNotEmpty() && superCategory.subCategories.size == 1 &&
-        superCategory.firstCategoryEnumOrNull() in subCategories) {
-        subCategories.remove(superCategory.firstCategoryEnumOrNull())
-        isRemove = true
-    }
-    /* If either of previous are true return true */
-    if (isRemove) return true
+        true
 
-    superCategories.add(superCategory)
-    return false
+    } else if (subCategories.isNotEmpty() && superCategory.subCategories.size == 1 &&
+        superCategory.firstCategoryEnumOrNull() in subCategories) {
+        /* Handle removal from subCategories (not mutually exclusive from above) */
+        subCategories.remove(superCategory.firstCategoryEnumOrNull())
+        true
+
+    } else {
+        superCategories.add(superCategory)
+        false
+    }
 }
 
 
@@ -358,7 +357,8 @@ fun getFlagsFromCategories(
     superCategories: MutableList<FlagSuperCategory>,
     subCategories: MutableList<FlagCategory>,
 ): List<FlagView> {
-    return if (isDeselectSwitch.first || isDeselectSwitch.second || superCategory == Historical) {
+    return if (isDeselectSwitch.first || isDeselectSwitch.second || superCategory == All ||
+        superCategory == Historical) {
         allFlags /* Only when required */
     } else {
         currentFlags

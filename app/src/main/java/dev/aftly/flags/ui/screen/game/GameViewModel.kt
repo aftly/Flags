@@ -200,8 +200,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 superCategories = newSuperCategories,
                 subCategories = newSubCategories,
             ) to false
-            /* Exit after All is deselected since (how) deselection is state inconsequential */
-            if (!isDeselectSwitch.first && superCategory == All) return
         }
         newSubCategory?.let { subCategory ->
             if (isSubCategoryExit(subCategory, newSubCategories, newSuperCategories)) return
@@ -213,21 +211,24 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
         /* Return updateCurrentCategory() if deselection to only 1 super category */
         if (isDeselectSwitch.first) {
-            if (newSubCategories.isEmpty()) {
-                if (newSuperCategories.isEmpty()) {
-                    return updateCurrentCategory(newSuperCategory = All, newSubCategory = null)
-
-                } else if (newSuperCategories.size == 1) {
-                    return updateCurrentCategory(
-                        newSuperCategory = newSuperCategories.first(), newSubCategory = null
-                    )
-                }
-            } else if (newSubCategories.size == 1 && newSuperCategories.size == 1 &&
-                newSuperCategories.first().subCategories.size == 1 &&
-                newSubCategories.first() == newSuperCategories.first().firstCategoryEnumOrNull()) {
-                return updateCurrentCategory(
+            when (newSuperCategories.size to newSubCategories.size) {
+                0 to 0 -> return updateCurrentCategory(
+                    newSuperCategory = All, newSubCategory = null
+                )
+                1 to 0 -> return updateCurrentCategory(
                     newSuperCategory = newSuperCategories.first(), newSubCategory = null
                 )
+                1 to 1 -> {
+                    val superCategory = newSuperCategories.first()
+                    val subCategory = newSubCategories.first()
+
+                    if (superCategory.subCategories.size == 1 &&
+                        superCategory.firstCategoryEnumOrNull() == subCategory) {
+                        return updateCurrentCategory(
+                            newSuperCategory = superCategory, newSubCategory = null
+                        )
+                    }
+                }
             }
         }
 
