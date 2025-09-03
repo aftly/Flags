@@ -20,7 +20,6 @@ import dev.aftly.flags.ui.util.getFlagView
 import dev.aftly.flags.ui.util.getFlagsByCategory
 import dev.aftly.flags.ui.util.getFlagsFromCategories
 import dev.aftly.flags.ui.util.getFlagsFromKeys
-import dev.aftly.flags.ui.util.getSuperCategories
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
 import dev.aftly.flags.ui.util.normalizeLower
@@ -236,17 +235,15 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 allFlags = uiState.value.allFlags,
             )
 
-            _uiState.update {
-                it.copy(
+            _uiState.update { state ->
+                state.copy(
                     currentFlags = newFlags,
                     isSavedFlags = false,
-                    currentSuperCategories = getSuperCategories(
-                        superCategory = newSuperCategory,
-                        subCategory = newSubCategory,
-                    ),
-                    currentSubCategories = when (newSubCategory) {
-                        null -> emptyList()
-                        else -> listOf(newSubCategory)
+                    currentSuperCategories = buildList {
+                        newSuperCategory?.let { add(it) }
+                    },
+                    currentSubCategories = buildList {
+                        newSubCategory?.let { add(it) }
                     },
                 )
             }

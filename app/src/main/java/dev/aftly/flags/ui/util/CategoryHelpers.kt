@@ -2,19 +2,18 @@ package dev.aftly.flags.ui.util
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import dev.aftly.flags.data.DataSource
-import dev.aftly.flags.data.DataSource.absenceCategoriesMap
 import dev.aftly.flags.data.DataSource.absenceCategoriesAddAnyMap
+import dev.aftly.flags.data.DataSource.absenceCategoriesMap
 import dev.aftly.flags.data.DataSource.historicalSubCategoryWhitelist
 import dev.aftly.flags.data.DataSource.menuSuperCategoryList
 import dev.aftly.flags.data.DataSource.mutuallyExclusiveSubsSuperCategories
 import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories1
 import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories2
 import dev.aftly.flags.data.DataSource.subsExclusiveOfCountry
-import dev.aftly.flags.data.DataSource.supersExclusiveOfInternational
 import dev.aftly.flags.data.DataSource.supersExclusiveOfInstitution
+import dev.aftly.flags.data.DataSource.supersExclusiveOfInternational
 import dev.aftly.flags.data.DataSource.supersExclusiveOfPolitical
 import dev.aftly.flags.data.room.scorehistory.ScoreItem
 import dev.aftly.flags.model.FlagCategory
@@ -84,9 +83,6 @@ fun getFlagsByCategory(
     ),
     exceptionCategories: List<FlagCategory> = SovereignCountry.enums(),
 ): List<FlagView> {
-    /* Mutable list for adding flags to */
-    val flags = mutableListOf<FlagView>()
-
     /* Exclude flags if they have a particular category/categories */
     val categoriesNot = absenceCategoriesMap[subCategory] ?: emptyList()
 
@@ -99,7 +95,7 @@ fun getFlagsByCategory(
     }
 
     /* For skipping historical flags when category in exception */
-    val isHistoricalException =  parentCategory in DataSource.historicalSuperCategoryExceptions &&
+    val isHistoricalException = parentCategory in DataSource.historicalSuperCategoryExceptions &&
             subCategory !in historicalSubCategoryWhitelist
 
     return allFlags.filter { flag ->
@@ -112,20 +108,6 @@ fun getFlagsByCategory(
     }
 }
 
-
-/* Handle special cases like when subcategory is Political, return SovereignCountry super when
- * flags doesn't contain INTERNATIONAL_ORGANIZATION flags */
-fun getSuperCategories(
-    superCategory: FlagSuperCategory?,
-    subCategory: FlagCategory?,
-): List<FlagSuperCategory> = when (superCategory) {
-    null -> emptyList()
-    else -> listOf(superCategory)
-}
-
-
-/* If subCategory not null get it's superCategory, else if superCategory not null return it,
-    * else return exception superCategory  */
 fun getParentSuperCategory(
     superCategory: FlagSuperCategory?,
     subCategory: FlagCategory?,
@@ -135,7 +117,6 @@ fun getParentSuperCategory(
     else -> menuSuperCategoryList.filterNot { it in listOf(All, Political) }
         .find { subCategory in it.enums() } ?: Political
 }
-
 
 
 /* ------ For updateCurrentCategories() in ViewModels ------ */
@@ -209,7 +190,6 @@ fun isSuperCategoryExit(
     }
 }
 
-
 fun isSubCategoryExit(
     subCategory: FlagCategory,
     subCategories: MutableList<FlagCategory>,
@@ -272,7 +252,6 @@ fun isSubCategoryExit(
     }
 }
 
-
 /* Returns true if update deselects a category, else false */
 fun updateCategoriesFromSuper(
     superCategory: FlagSuperCategory,
@@ -295,7 +274,6 @@ fun updateCategoriesFromSuper(
         false
     }
 }
-
 
 fun updateCategoriesFromSub(
     subCategory: FlagCategory,
@@ -320,7 +298,6 @@ fun updateCategoriesFromSub(
     }
 }
 
-
 fun getFlagsFromCategories(
     allFlags: List<FlagView>,
     currentFlags: List<FlagView>,
@@ -337,7 +314,7 @@ fun getFlagsFromCategories(
 
     return flags.filter { flag ->
         /* Filter flags from not empty superCategories */
-        if (!isSuperCategories) true
+        if (!isSuperCategories) true 
         else superCategories.all { superCategory ->
             flag.categories.any { it in superCategory.enums() }
         }

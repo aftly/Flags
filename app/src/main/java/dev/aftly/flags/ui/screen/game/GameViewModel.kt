@@ -17,7 +17,6 @@ import dev.aftly.flags.model.TimeMode
 import dev.aftly.flags.ui.util.getFlagView
 import dev.aftly.flags.ui.util.getFlagsByCategory
 import dev.aftly.flags.ui.util.getFlagsFromCategories
-import dev.aftly.flags.ui.util.getSuperCategories
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
 import dev.aftly.flags.ui.util.normalizeString
@@ -165,13 +164,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
             _uiState.value = GameUiState(
                 currentFlags = newFlags,
-                currentSuperCategories = getSuperCategories(
-                    superCategory = newSuperCategory,
-                    subCategory = newSubCategory,
-                ),
-                currentSubCategories = when (newSubCategory) {
-                    null -> emptyList()
-                    else -> listOf(newSubCategory)
+                currentSuperCategories = buildList {
+                    newSuperCategory?.let { add(it) }
+                },
+                currentSubCategories = buildList {
+                    newSubCategory?.let { add(it) }
                 },
             )
 
