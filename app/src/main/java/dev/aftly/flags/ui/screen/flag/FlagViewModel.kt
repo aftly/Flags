@@ -198,9 +198,9 @@ class FlagViewModel(
             parentUnit?.let { add(it) }
         }
         val clickableResIds = clickableFlags.flatMap {
-            listOf(it.flagOf, it.flagOfLiteral, it.flagOfOfficial)
+            listOf(it.flagOf, it.flagOfOfficial)
         }
-        val flagNameResIds = listOf(flag.flagOf, flag.flagOfLiteral, flag.flagOfOfficial)
+        val flagNameResIds = listOf(flag.flagOf, flag.flagOfOfficial)
         val descriptorResIds = listOf(
             R.string.category_nominal_extra_constitutional_in_description,
             R.string.string_defunct
@@ -225,7 +225,7 @@ class FlagViewModel(
             resIds.add(R.string.string_defunct) /* DESCRIPTOR */
         } else {
             if (flag.isFlagOfThe) resIds.add(R.string.string_the_capitalized)
-            resIds.add(flag.flagOfLiteral) /* FLAG NAME */
+            resIds.add(flag.flagOf) /* FLAG NAME */
 
             if (isInstitutional) resIds.add(R.string.string_is_the)
             else resIds.add(R.string.string_is_a)
@@ -252,7 +252,7 @@ class FlagViewModel(
                     resIds.add(associatedState.flagOfOfficial) /* FLAG NAME */
                 } else {
                     if (associatedState.isFlagOfThe) resIds.add(R.string.string_the)
-                    resIds.add(associatedState.flagOfLiteral) /* FLAG NAME */
+                    resIds.add(associatedState.flagOf) /* FLAG NAME */
                 }
 
             } else if (sovereignState != null) {
@@ -267,7 +267,7 @@ class FlagViewModel(
                     resIds.add(sovereignState.flagOfOfficial) /* FLAG NAME */
                 } else {
                     if (sovereignState.isFlagOfThe) resIds.add(R.string.string_the)
-                    resIds.add(sovereignState.flagOfLiteral) /* FLAG NAME */
+                    resIds.add(sovereignState.flagOf) /* FLAG NAME */
                 }
             }
 
@@ -303,7 +303,7 @@ class FlagViewModel(
 
                     resIds.add(regionalCat.string)
                     resIds.add(R.string.string_of)
-                    resIds.add(parentUnit.flagOfLiteral)
+                    resIds.add(parentUnit.flagOf)
                 }
             }
 
@@ -366,7 +366,7 @@ class FlagViewModel(
                     resIds.add(sovereignState.flagOfOfficial) /* FLAG NAME */
                 } else {
                     if (sovereignState.isFlagOfThe) resIds.add(R.string.string_the)
-                    resIds.add(sovereignState.flagOfLiteral) /* FLAG NAME */
+                    resIds.add(sovereignState.flagOf) /* FLAG NAME */
                 }
             }
 

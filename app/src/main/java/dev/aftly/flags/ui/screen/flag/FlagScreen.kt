@@ -369,7 +369,7 @@ private fun FlagContent(
                                     )
                                 ) {
                                     val flagToNavigate = clickableFlags.find {
-                                        listOf(it.flagOf, it.flagOfLiteral, it.flagOfOfficial).any {
+                                        listOf(it.flagOf, it.flagOfOfficial).any {
                                             name -> name == resId
                                         }
                                     }

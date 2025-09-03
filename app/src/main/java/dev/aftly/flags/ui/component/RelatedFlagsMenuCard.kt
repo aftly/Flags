@@ -326,7 +326,7 @@ private fun RelatedItem(
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.Bottom,
                 ) {
-                    Text(text = stringResource(flag.flagOfLiteral))
+                    Text(text = stringResource(flag.flagOf))
 
                     fromToYear?.let {
                         Text(

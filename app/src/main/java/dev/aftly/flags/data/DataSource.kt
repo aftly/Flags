@@ -13,6 +13,7 @@ import dev.aftly.flags.ui.util.getFlagOfAlternativeResIds
 import dev.aftly.flags.ui.util.getPoliticalExternalRelatedFlagKeys
 import dev.aftly.flags.ui.util.getPoliticalInternalRelatedFlagKeys
 import dev.aftly.flags.ui.util.getStringResExplicitOrInherit
+import dev.aftly.flags.ui.util.getStringResExplicitOrInheritOrNull
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
@@ -177,15 +178,13 @@ data object DataSource {
             propName = "name",
             context = context,
         )
-        val flagOfDescriptorResId = flagRes.flagOfDescriptor?.let {
-            getStringResExplicitOrInherit(
-                flagKey = flagKey,
-                flagRes = flagRes,
-                prop = FlagResources::flagOfDescriptor,
-                propName = "descriptor (name)",
-                context = context,
-            )
-        }
+        val flagOfDescriptorResId = getStringResExplicitOrInheritOrNull(
+            flagKey = flagKey,
+            flagRes = flagRes,
+            prop = FlagResources::flagOfDescriptor,
+            propName = "descriptor (name)",
+            context = context,
+        )
         val flagOfOfficialResId = getStringResExplicitOrInherit(
             flagKey = flagKey,
             flagRes = flagRes,
@@ -231,8 +230,12 @@ data object DataSource {
             parentUnitKey = flagRes.parentUnit,
             latestEntityKeys = flagRes.latestEntities,
             previousFlagOfKey = flagRes.previousFlagOf,
-            flagStringResIds =
-                flagOfAlternativeResIds + flagOfResId + flagOfDescriptorResId + flagOfOfficialResId,
+            flagStringResIds = buildList {
+                add(flagOfResId)
+                flagOfDescriptorResId?.let { add(it) }
+                add(flagOfOfficialResId)
+                addAll(elements = flagOfAlternativeResIds)
+            },
             politicalInternalRelatedFlagKeys = polIntRelFlagKeys,
             politicalExternalRelatedFlagKeys = polExtRelFlagKeys,
             chronologicalDirectRelatedFlagKeys = chronDirRelFlagKeys,
