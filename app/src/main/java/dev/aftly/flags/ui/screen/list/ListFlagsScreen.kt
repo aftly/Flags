@@ -504,19 +504,34 @@ private fun ListItem(
     val fontScale = configuration.fontScale
     val dynamicHeight = Dimens.defaultListItemHeight48 * fontScale
     val contentPadding = Dimens.extraSmall4
-    val flagOf = stringResource(flag.flagOf)
-    val fromToYear =
-        if (flag.previousFlagOfKey != null && flag.fromYear != null && flag.toYear != null) {
-            val toYear =
-                if (flag.toYear == 0) stringResource(R.string.string_present)
-                else "${flag.toYear}"
+    val textColor = MaterialTheme.colorScheme.onPrimaryContainer
 
-            stringResource(R.string.string_open_bracket) +
-                    "${flag.fromYear}" +
-                    stringResource(R.string.string_dash) +
-                    toYear +
-                    stringResource(R.string.string_close_bracket)
-        } else null
+    /* Item strings */
+    val flagOf = stringResource(flag.flagOf)
+    val descriptor = buildString {
+        flag.flagOfDescriptor?.let {
+            append(stringResource(R.string.string_whitespace))
+            append(stringResource(it))
+        }
+    }
+    val fromToYear = buildString {
+        flag.previousFlagOfKey?.let {
+            val isDate = flag.fromYear != null || flag.toYear != null
+
+            if (isDate) {
+                append(stringResource(R.string.string_whitespace))
+                append(stringResource(R.string.string_open_bracket))
+            }
+            flag.fromYear?.let { append("${flag.fromYear}") }
+            flag.toYear?.let { toYear ->
+                append(stringResource(R.string.string_dash))
+
+                if (toYear != 0) append("${flag.toYear}")
+                else append(stringResource(R.string.string_present))
+            }
+            if (isDate) append(stringResource(R.string.string_close_bracket))
+        }
+    }
 
     val haptic = LocalHapticFeedback.current
     val interactionSource = remember { MutableInteractionSource() }
@@ -567,17 +582,24 @@ private fun ListItem(
                             /* Separate text from image */
                             .padding(end = Dimens.small8)
                             .fillMaxWidth(),
-                        verticalAlignment = Alignment.Bottom,
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = stringResource(flag.flagOf),
+                            text = flagOf,
                             style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            color = textColor,
                         )
-                        fromToYear?.let {
+                        if (descriptor.isNotEmpty()) {
                             Text(
-                                text = it,
-                                modifier = Modifier.padding(start = Dimens.extraSmall4),
+                                text = descriptor,
+                                fontWeight = FontWeight.Light,
+                                color = textColor,
+                            )
+                        }
+                        if (fromToYear.isNotEmpty()) {
+                            Text(
+                                text = fromToYear,
+                                modifier = Modifier.padding(top = 1.dp),
                                 fontWeight = FontWeight.Light,
                                 style = MaterialTheme.typography.titleSmall,
                                 color = Color.Gray,

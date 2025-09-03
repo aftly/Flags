@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -79,9 +80,9 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         val the = (flowArray[5] as SearchFlow.TheString).value
 
         val flags = if (isSaved) saved else current
-        val search = query.lowercase().removePrefix(the).let {
-            normalizeString(it)
-        }
+        val search = normalizeString(
+            string = query.lowercase().removePrefix(the)
+        )
         val first = mutableListOf<FlagView>()
         var sovereign = listOf<FlagView>()
         var polInternal = listOf<FlagView>()
@@ -92,10 +93,11 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         when {
             query.isNotEmpty() -> flags.filter { flag ->
                 /* Get flag strings to match query against */
-                val descriptorString = flag.flagOfDescriptor?.let { res.getString(it) }
+                val descriptorString = flag.flagOfDescriptor?.let {
+                    normalizeLower(res.getString(it))
+                }
                 val fullFlagOfString = buildString {
-                    append(res.getString(flag.flagOf))
-                    descriptorString?.let { append(res.getString(R.string.string_whitespace)) }
+                    append(normalizeLower(res.getString(flag.flagOf)))
                     descriptorString?.let { append(it) }
                 }
                 val flagStrings = flag.flagStringResIds
