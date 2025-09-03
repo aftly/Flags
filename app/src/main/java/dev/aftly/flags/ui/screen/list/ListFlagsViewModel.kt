@@ -17,7 +17,7 @@ import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.SearchFlow
 import dev.aftly.flags.ui.util.getFlagView
-import dev.aftly.flags.ui.util.getFlagsByCategory
+import dev.aftly.flags.ui.util.getFlagsFromCategory
 import dev.aftly.flags.ui.util.getFlagsFromCategories
 import dev.aftly.flags.ui.util.getFlagsFromKeys
 import dev.aftly.flags.ui.util.isSubCategoryExit
@@ -229,15 +229,13 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 )
             }
         } else {
-            val newFlags = getFlagsByCategory(
-                superCategory = newSuperCategory,
-                subCategory = newSubCategory,
-                allFlags = uiState.value.allFlags,
-            )
-
             _uiState.update { state ->
                 state.copy(
-                    currentFlags = newFlags,
+                    currentFlags = getFlagsFromCategory(
+                        superCategory = newSuperCategory,
+                        subCategory = newSubCategory,
+                        allFlags = state.allFlags,
+                    ),
                     isSavedFlags = false,
                     currentSuperCategories = buildList {
                         newSuperCategory?.let { add(it) }

@@ -44,7 +44,8 @@ data object DataSource {
         FlagSuperCategory.Political
     )
     val historicalSubCategoryWhitelist = listOf(
-        FlagCategory.CONFEDERATION
+        FlagCategory.CONFEDERATION,
+        FlagCategory.FASCIST
     )
     val absenceCategoriesMap = mapOf(
         FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL to listOf(FlagCategory.CONSTITUTIONAL)

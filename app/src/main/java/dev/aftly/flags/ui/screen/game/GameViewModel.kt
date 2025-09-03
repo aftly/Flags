@@ -15,7 +15,7 @@ import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.ScoreData
 import dev.aftly.flags.model.TimeMode
 import dev.aftly.flags.ui.util.getFlagView
-import dev.aftly.flags.ui.util.getFlagsByCategory
+import dev.aftly.flags.ui.util.getFlagsFromCategory
 import dev.aftly.flags.ui.util.getFlagsFromCategories
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
@@ -156,14 +156,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             resetGame()
 
         } else {
-            val newFlags = getFlagsByCategory(
-                superCategory = newSuperCategory,
-                subCategory = newSubCategory,
-                allFlags = uiState.value.allFlags,
-            )
-
             _uiState.value = GameUiState(
-                currentFlags = newFlags,
+                currentFlags = getFlagsFromCategory(
+                    superCategory = newSuperCategory,
+                    subCategory = newSubCategory,
+                    allFlags = uiState.value.allFlags,
+                ),
                 currentSuperCategories = buildList {
                     newSuperCategory?.let { add(it) }
                 },

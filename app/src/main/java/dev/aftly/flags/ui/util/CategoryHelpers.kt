@@ -73,14 +73,10 @@ fun RelatedFlagsMenu.color(): Color = when (this) {
 
 /* ------ For updateCurrentCategory() in ViewModels ------ */
 
-fun getFlagsByCategory(
+fun getFlagsFromCategory(
     superCategory: FlagSuperCategory?,
     subCategory: FlagCategory?,
     allFlags: List<FlagView>,
-    parentCategory: FlagSuperCategory = getParentSuperCategory(
-        superCategory = superCategory,
-        subCategory = subCategory,
-    ),
     exceptionCategories: List<FlagCategory> = SovereignCountry.enums(),
 ): List<FlagView> {
     /* Exclude flags if they have a particular category/categories */
@@ -95,6 +91,7 @@ fun getFlagsByCategory(
     }
 
     /* For skipping historical flags when category in exception */
+    val parentCategory = getParentSuperCategory(superCategory, subCategory)
     val isHistoricalException = parentCategory in DataSource.historicalSuperCategoryExceptions &&
             subCategory !in historicalSubCategoryWhitelist
 
@@ -275,6 +272,7 @@ fun updateCategoriesFromSuper(
     }
 }
 
+/* Returns bool pair, first if update deselects a category, second if update replaces a category */
 fun updateCategoriesFromSub(
     subCategory: FlagCategory,
     subCategories: MutableList<FlagCategory>,
@@ -314,7 +312,7 @@ fun getFlagsFromCategories(
 
     return flags.filter { flag ->
         /* Filter flags from not empty superCategories */
-        if (!isSuperCategories) true 
+        if (!isSuperCategories) true
         else superCategories.all { superCategory ->
             flag.categories.any { it in superCategory.enums() }
         }
