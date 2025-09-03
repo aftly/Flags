@@ -13,7 +13,7 @@ data class FlagView(
     val fromYear: Int?,
     val toYear: Int?,
     @param:StringRes val flagOf: Int,
-    @param:StringRes val flagOfLiteral: Int, // flagOf without descriptors
+    @param:StringRes val flagOfDescriptor: Int?, // for annotating flagOf with additional info
     @param:StringRes val flagOfOfficial: Int,
     val flagOfAlternate: List<Int>,
     val isFlagOfThe: Boolean,

@@ -11,7 +11,7 @@ data class FlagResources(
     val fromYear: Int?, // Year flag was adopted
     val toYear: Int?, // Year flag was unadopted
     val flagOf: StringResSource, // flagOf<> params are for common, official & alt names (of entity)
-    val flagOfLiteral: StringResSource, // flagOf without descriptors
+    val flagOfDescriptor: StringResSource?, // Additional description for flagOf name
     val flagOfOfficial: StringResSource,
     val flagOfAlternate: List<StringResSource>, // List of StringResIds
     val isFlagOfThe: BooleanSource, // <>The params are for if name is preceded by "the"

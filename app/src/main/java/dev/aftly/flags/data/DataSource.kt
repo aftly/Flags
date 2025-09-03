@@ -103,7 +103,7 @@ data object DataSource {
         fromYear = null,
         toYear = null,
         flagOf = R.string.error,
-        flagOfLiteral = R.string.error,
+        flagOfDescriptor = R.string.error,
         flagOfOfficial = R.string.error,
         flagOfAlternate = emptyList(),
         isFlagOfThe = false,
@@ -177,13 +177,15 @@ data object DataSource {
             propName = "name",
             context = context,
         )
-        val flagOfLiteralResId = getStringResExplicitOrInherit(
-            flagKey = flagKey,
-            flagRes = flagRes,
-            prop = FlagResources::flagOfLiteral,
-            propName = "name (literal)",
-            context = context,
-        )
+        val flagOfDescriptorResId = flagRes.flagOfDescriptor?.let {
+            getStringResExplicitOrInherit(
+                flagKey = flagKey,
+                flagRes = flagRes,
+                prop = FlagResources::flagOfDescriptor,
+                propName = "descriptor (name)",
+                context = context,
+            )
+        }
         val flagOfOfficialResId = getStringResExplicitOrInherit(
             flagKey = flagKey,
             flagRes = flagRes,
@@ -208,7 +210,7 @@ data object DataSource {
             fromYear = flagRes.fromYear,
             toYear = flagRes.toYear,
             flagOf = flagOfResId,
-            flagOfLiteral = flagOfLiteralResId,
+            flagOfDescriptor = flagOfDescriptorResId,
             flagOfOfficial = flagOfOfficialResId,
             flagOfAlternate = flagOfAlternativeResIds,
             isFlagOfThe = getBooleanExplicitOrInherit(
@@ -230,7 +232,7 @@ data object DataSource {
             latestEntityKeys = flagRes.latestEntities,
             previousFlagOfKey = flagRes.previousFlagOf,
             flagStringResIds =
-                flagOfAlternativeResIds + flagOfResId + flagOfLiteralResId + flagOfOfficialResId,
+                flagOfAlternativeResIds + flagOfResId + flagOfDescriptorResId + flagOfOfficialResId,
             politicalInternalRelatedFlagKeys = polIntRelFlagKeys,
             politicalExternalRelatedFlagKeys = polExtRelFlagKeys,
             chronologicalDirectRelatedFlagKeys = chronDirRelFlagKeys,
