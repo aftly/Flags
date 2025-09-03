@@ -91,26 +91,32 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
 
         when {
             query.isNotEmpty() -> flags.filter { flag ->
-                /* Handle searchQuery matching any flag string */
-                flag.flagStringResIds.map { resId ->
-                    normalizeLower(res.getString(resId))
-                }.let { flagStrings ->
-                    /* If exact match with searchQuery, add flag to firstItems */
-                    if (flagStrings.any { it == search && flag.previousFlagOfKey == null }) {
-                        first.add(flag)
-                    }
-                    /* Return true if search partial match for any flag name  */
-                    flagStrings.any { it.contains(search) }
+                /* Get flag strings to match query against */
+                val descriptorString = flag.flagOfDescriptor?.let { res.getString(it) }
+                val fullFlagOfString = buildString {
+                    append(res.getString(flag.flagOf))
+                    descriptorString?.let { append(res.getString(R.string.string_whitespace)) }
+                    descriptorString?.let { append(it) }
                 }
+                val flagStrings = flag.flagStringResIds
+                    .map { normalizeLower(res.getString(it)) } + fullFlagOfString
+                val flagStringsExact = if (descriptorString == null) flagStrings else
+                    flagStrings.filterNot { it == descriptorString }
+
+                /* If exact match with searchQuery, add flag to firstItems */
+                if (flagStringsExact.any { it == search && flag.previousFlagOfKey == null })
+                    first.add(flag)
+
+                /* Filter expression: True if partial match to any flag name  */
+                flagStrings.any { it.contains(search) }
+
             }.let { results ->
                 /* When there is an exact match (firstItem) append related flags (from currentFlags)
                  * to results */
                 if (first.isNotEmpty()) {
                     sovereign = first.map { flag ->
-                        when (flag.sovereignStateKey) {
-                            null -> flag
-                            else -> flagViewMap.getValue(flag.sovereignStateKey)
-                        }
+                        flag.sovereignStateKey?.let { flagViewMap.getValue(it) }
+                            ?: flag
                     }.distinct()
 
                     polInternal = sortFlagsAlphabetically(
