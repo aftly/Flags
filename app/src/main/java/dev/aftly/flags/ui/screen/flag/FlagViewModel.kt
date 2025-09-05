@@ -365,10 +365,15 @@ class FlagViewModel(
                 resIds.add(R.string.categories_under_a)
 
                 irregularCategories.forEach { category ->
-                    if (category == ONE_PARTY)
-                        resIds.add(R.string.category_one_party_in_description_short)
-                    else
+                    if (category in ExecutiveStructure.enums() &&
+                        CONSTITUTIONAL !in irregularCategories) {
+                        resIds.add(R.string.category_nominal_extra_constitutional_in_description)
                         resIds.add(category.string)
+                    } else if (category == ONE_PARTY) {
+                        resIds.add(R.string.category_one_party_in_description_short)
+                    } else {
+                        resIds.add(category.string)
+                    }
                 }
             }
 
@@ -527,6 +532,15 @@ class FlagViewModel(
             } else if (category == THEOCRACY && MONARCHY in categories) {
                 stringIds.add(R.string.string_and)
                 stringIds.add(category.string)
+
+            } else if (category == ONE_PARTY) {
+                stringIds.add(R.string.category_one_party_in_description)
+
+            } else if (category == MILITARY_JUNTA) {
+                stringIds.add(R.string.category_military_junta_in_description)
+
+            } else if (category == PROVISIONAL_GOVERNMENT) {
+                stringIds.add(R.string.category_provisional_government_in_description)
 
             } else {
                 stringIds.add(category.string)
