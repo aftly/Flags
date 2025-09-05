@@ -74,6 +74,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -115,6 +116,7 @@ fun GameScreen(
     viewModel: GameViewModel = viewModel(),
     currentBackStackEntry: NavBackStackEntry?,
     screen: Screen,
+    isNavigationDrawerOpen: Boolean,
     onNavigateToList: Boolean,
     onResetNavigateToList: () -> Unit,
     onNavigationDrawer: () -> Unit,
@@ -157,7 +159,8 @@ fun GameScreen(
     }
 
     BackHandler {
-        if (viewModel.isScoresEmpty()) onExit()
+        if (isNavigationDrawerOpen) onNavigationDrawer()
+        else if (viewModel.isScoresEmpty()) onExit()
         else viewModel.toggleConfirmExitDialog(on = true)
     }
 
@@ -281,9 +284,9 @@ private fun GameScreen(
     /* So that FilterFlagsButton can access Scaffold() padding */
     var scaffoldPaddingValues by remember { mutableStateOf(value = PaddingValues()) }
 
-    val context = LocalContext.current
+    val resources = LocalResources.current
     val isWideScreen = remember {
-        context.resources.displayMetrics.widthPixels > context.resources.displayMetrics.heightPixels
+        resources.displayMetrics.widthPixels > resources.displayMetrics.heightPixels
     }
     var isFlagWide by rememberSaveable { mutableStateOf(value = true) }
 

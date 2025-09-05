@@ -42,7 +42,7 @@ fun AppNavigationDrawer(
 ) {
     ModalNavigationDrawer(
         drawerContent = {
-            ModalDrawerSheet {
+            ModalDrawerSheet(drawerState = drawerState) {
                 Column(
                     modifier = Modifier.padding(horizontal = Dimens.medium16)
                         .verticalScroll(state = rememberScrollState())

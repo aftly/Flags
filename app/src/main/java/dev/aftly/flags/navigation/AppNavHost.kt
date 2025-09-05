@@ -226,6 +226,7 @@ fun AppNavHost(
                 GameScreen(
                     currentBackStackEntry = currentBackStackEntry,
                     screen = Screen.Game,
+                    isNavigationDrawerOpen = drawerState.isOpen,
                     onNavigateToList = onDrawerNavToListFromGame,
                     onResetNavigateToList = { onDrawerNavToListFromGame = false },
                     onNavigationDrawer = {
