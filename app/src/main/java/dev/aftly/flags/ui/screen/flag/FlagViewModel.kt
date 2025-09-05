@@ -453,13 +453,6 @@ class FlagViewModel(
         regionCategories.removeFirstOrNull()
         val politicalSuperEnums = Political.supersEnums()
 
-        /* Exception properties */
-        val isIrregularPower =
-            categories.any { it in listOf(ONE_PARTY, MILITARY_JUNTA, PROVISIONAL_GOVERNMENT) }
-        val ideologies = IdeologicalOrientation.enums()
-        val ideology = categories.firstOrNull { it in ideologies }
-
-
         /* ----- ITERATIONS ----- */
         for (category in categories) {
             if (category in skipCategories) {
@@ -469,13 +462,10 @@ class FlagViewModel(
                 continue
 
             } else if (category == AUTONOMOUS_REGION) {
-                val ideologyRegularPower = if (isIrregularPower) null else ideology
-
-                if (HISTORICAL !in categories && ideologyRegularPower == null) {
+                if (HISTORICAL !in categories) {
                     stringIds.add(R.string.category_autonomous_region_in_description_an)
                     whitespaceExceptions.add(stringIds.lastIndex)
                 } else {
-                    ideologyRegularPower?.let { stringIds.add(it.string) }
                     stringIds.add(R.string.category_autonomous_region_in_description)
                 }
 
@@ -521,7 +511,8 @@ class FlagViewModel(
             } else if (category == CONFEDERATION && INTERNATIONAL_ORGANIZATION !in categories) {
                 stringIds.add(R.string.category_confederal_string)
 
-            } else if (category in ideologies && AUTONOMOUS_REGION in categories) {
+            } else if (category in IdeologicalOrientation.enums() &&
+                AUTONOMOUS_REGION in categories) {
                 continue
 
             } else if (category in ExecutiveStructure.enums() &&
@@ -536,18 +527,6 @@ class FlagViewModel(
             } else if (category == THEOCRACY && MONARCHY in categories) {
                 stringIds.add(R.string.string_and)
                 stringIds.add(category.string)
-
-            } else if (category == ONE_PARTY) {
-                if (AUTONOMOUS_REGION !in categories)
-                    stringIds.add(R.string.category_one_party_in_description)
-
-            } else if (category == MILITARY_JUNTA) {
-                if (AUTONOMOUS_REGION !in categories)
-                    stringIds.add(R.string.category_military_junta_in_description)
-
-            } else if (category == PROVISIONAL_GOVERNMENT) {
-                if (AUTONOMOUS_REGION !in categories)
-                    stringIds.add(R.string.category_provisional_government_in_description)
 
             } else {
                 stringIds.add(category.string)
