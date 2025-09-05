@@ -11,9 +11,11 @@ import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.data.room.savedflags.SavedFlag
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
+import dev.aftly.flags.model.FlagCategory.CONFEDERATION
 import dev.aftly.flags.model.FlagCategory.CONSTITUTIONAL
 import dev.aftly.flags.model.FlagCategory.DEVOLVED_GOVERNMENT
 import dev.aftly.flags.model.FlagCategory.ETHNIC
+import dev.aftly.flags.model.FlagCategory.FASCIST
 import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
 import dev.aftly.flags.model.FlagCategory.HISTORICAL
 import dev.aftly.flags.model.FlagCategory.INTERNATIONAL_ORGANIZATION
@@ -26,22 +28,21 @@ import dev.aftly.flags.model.FlagCategory.PROVISIONAL_GOVERNMENT
 import dev.aftly.flags.model.FlagCategory.REGIONAL
 import dev.aftly.flags.model.FlagCategory.RELIGIOUS
 import dev.aftly.flags.model.FlagCategory.SOCIAL
+import dev.aftly.flags.model.FlagCategory.SOCIALIST
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.SUPRANATIONAL_UNION
+import dev.aftly.flags.model.FlagCategory.TERRITORY
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
-import dev.aftly.flags.model.FlagCategory.CONFEDERATION
 import dev.aftly.flags.model.FlagCategory.THEOCRATIC
-import dev.aftly.flags.model.FlagCategory.SOCIALIST
-import dev.aftly.flags.model.FlagCategory.FASCIST
 import dev.aftly.flags.model.FlagScreenContent
-import dev.aftly.flags.model.FlagSuperCategory
-import dev.aftly.flags.model.FlagSuperCategory.Regional
-import dev.aftly.flags.model.FlagSuperCategory.International
-import dev.aftly.flags.model.FlagSuperCategory.Institution
 import dev.aftly.flags.model.FlagSuperCategory.Cultural
 import dev.aftly.flags.model.FlagSuperCategory.ExecutiveStructure
-import dev.aftly.flags.model.FlagSuperCategory.TerritorialDistributionOfAuthority
 import dev.aftly.flags.model.FlagSuperCategory.IdeologicalOrientation
+import dev.aftly.flags.model.FlagSuperCategory.Institution
+import dev.aftly.flags.model.FlagSuperCategory.International
+import dev.aftly.flags.model.FlagSuperCategory.Political
+import dev.aftly.flags.model.FlagSuperCategory.Regional
+import dev.aftly.flags.model.FlagSuperCategory.TerritorialDistributionOfAuthority
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.RelatedFlagsMenu
 import dev.aftly.flags.ui.util.getChronologicalRelatedFlagsContentOrNull
@@ -190,12 +191,19 @@ class FlagViewModel(
         val associatedState = flagViewMap[flag.associatedStateKey]
         val sovereignState = flagViewMap[flag.sovereignStateKey]
         val parentUnit = flagViewMap[flag.parentUnitKey]
+        val latestEntities = buildList {
+            flag.latestEntityKeys.forEach { key ->
+                flagViewMap[key]?.let { add(it) }
+            }
+        }
+        val politicalSuperEnums = Political.supersEnums()
 
         val clickableFlags = buildList {
             previousFlagOf?.let { add(it) }
             associatedState?.let { add(it) }
             sovereignState?.let { add(it) }
             parentUnit?.let { add(it) }
+            addAll(elements = latestEntities)
         }
         val clickableResIds = clickableFlags.flatMap {
             listOf(it.flagOf, it.flagOfOfficial)
@@ -203,7 +211,9 @@ class FlagViewModel(
         val flagNameResIds = listOf(flag.flagOf, flag.flagOfOfficial)
         val descriptorResIds = listOf(
             R.string.category_nominal_extra_constitutional_in_description,
-            R.string.string_defunct
+            R.string.string_defunct,
+            R.string.string_defunct_bracketed,
+            R.string.categories_non_self_governing_territory_descriptor
         )
 
         val categoriesHistorical = categories.filter { it == HISTORICAL }
@@ -216,30 +226,46 @@ class FlagViewModel(
         val isPolitical = categoriesPolitical.isNotEmpty()
         val isInstitutional = categoriesInstitutional.isNotEmpty()
         val isCultural = categoriesCultural.isNotEmpty()
+        val isPoliticalSuperEnums = categories.any { it in politicalSuperEnums }
+        val isNSGT = SOVEREIGN_STATE !in categories && flag.sovereignStateKey == null
+        val isDependent = sovereignState != null
+        val isIrregularPower =
+            (isNSGT && isPoliticalSuperEnums) || (isDependent && isPoliticalSuperEnums)
 
         /* ----------------------- Description START ----------------------- */
-        if (HISTORICAL in categories) {
+
+        /* Add flag name */
+        if (HISTORICAL in categories && flag.flagOfDescriptor != null) {
             if (flag.isFlagOfOfficialThe) resIds.add(R.string.string_the_capitalized)
             resIds.add(flag.flagOfOfficial) /* FLAG NAME */
-            resIds.add(R.string.string_is_a)
-            resIds.add(R.string.string_defunct) /* DESCRIPTOR */
         } else {
             if (flag.isFlagOfThe) resIds.add(R.string.string_the_capitalized)
             resIds.add(flag.flagOf) /* FLAG NAME */
-
-            if (isInstitutional) resIds.add(R.string.string_is_the)
-            else resIds.add(R.string.string_is_a)
         }
 
-        if (isPolitical) {
+        /* Add connector */
+        if (isInstitutional) {
+            resIds.add(R.string.string_is_the)
+        } else {
+            resIds.add(R.string.string_is_a)
+        }
+
+        /* Add historical descriptor */
+        if (HISTORICAL in categories) {
+            resIds.add(R.string.string_defunct) /* DESCRIPTOR */
+        }
+
+        if (isPolitical) { /* Add POLITICAL description */
             iterateOverPoliticalCategories(
                 categories = categoriesHistorical + categoriesPolitical,
                 stringIds = resIds,
                 whitespaceExceptions = whitespaceExceptionIndexes,
                 isConstitutional = CONSTITUTIONAL in categories,
+                isNSGT = isNSGT,
+                isDependent = isDependent,
             )
 
-            /* If relevant add strings about the associated or sovereign state */
+            /* If relevant add strings about the associated, sovereign state or latest entity */
             if (associatedState != null) {
                 if (SOVEREIGN_STATE in categories) {
                     resIds.add(R.string.string_comma)
@@ -256,18 +282,40 @@ class FlagViewModel(
                 }
 
             } else if (sovereignState != null) {
-                when (REGIONAL) {
-                    in categories -> resIds.add(R.string.string_in)
-                    else -> resIds.add(R.string.string_of)
-                }
+                val isSovHistorical = HISTORICAL in sovereignState.categories
 
-                if (HISTORICAL in sovereignState.categories) {
+                if (REGIONAL in categories || isIrregularPower) resIds.add(R.string.string_in)
+                else resIds.add(R.string.string_of)
+
+                /* Historical name and placement of descriptor varies */
+                if (isSovHistorical && sovereignState.flagOfDescriptor != null) {
                     if (sovereignState.isFlagOfOfficialThe) resIds.add(R.string.string_the)
                     resIds.add(R.string.string_defunct) /* DESCRIPTOR */
                     resIds.add(sovereignState.flagOfOfficial) /* FLAG NAME */
                 } else {
-                    if (sovereignState.isFlagOfThe) resIds.add(R.string.string_the)
+                    if (sovereignState.isFlagOfThe) {
+                        resIds.add(R.string.string_the)
+                        if (isSovHistorical) resIds.add(R.string.string_defunct) /* DESCRIPTOR */
+                    }
                     resIds.add(sovereignState.flagOf) /* FLAG NAME */
+
+                    if (!sovereignState.isFlagOfThe && isSovHistorical)
+                        resIds.add(R.string.string_defunct_bracketed) /* DESCRIPTOR */
+                }
+            } else if (latestEntities.isNotEmpty() && SOVEREIGN_STATE !in categories) {
+                if (latestEntities.size == 1) resIds.add(R.string.string_of)
+                else resIds.add(R.string.string_in)
+
+                latestEntities.forEachIndexed { index, flag ->
+                    if (index > 0 && index == latestEntities.lastIndex) {
+                        resIds.add(R.string.string_and)
+                    } else if (index > 0) {
+                        resIds.add(R.string.string_comma)
+                        whitespaceExceptionIndexes.add(resIds.lastIndex)
+                    }
+
+                    if (flag.isFlagOfThe) resIds.add(R.string.string_the)
+                    resIds.add(flag.flagOf)
                 }
             }
 
@@ -290,7 +338,7 @@ class FlagViewModel(
             /* Append info about the parent unit */
             if (parentUnit != null) {
                 val regionalCat =
-                    parentUnit.categories.firstOrNull { it in FlagSuperCategory.Regional.enums() }
+                    parentUnit.categories.firstOrNull { it in Regional.enums() }
 
                 regionalCat?.let {
                     resIds.add(R.string.string_comma)
@@ -308,50 +356,23 @@ class FlagViewModel(
             }
 
             /* Append non-state irregular power information */
-            val irregularPowers = listOf(ONE_PARTY, MILITARY_JUNTA, PROVISIONAL_GOVERNMENT)
-
-            if (AUTONOMOUS_REGION in categories && categories.any { it in irregularPowers }) {
-                val power = categories.first { it in irregularPowers }
+            if (isIrregularPower) {
+                val irregularCategories = categories.filter { it in politicalSuperEnums }
 
                 resIds.add(R.string.string_comma)
                 whitespaceExceptionIndexes.add(resIds.lastIndex)
 
-                when (power) {
-                    ONE_PARTY ->
-                        if (THEOCRATIC in categories) {
-                            resIds.add(R.string.category_one_party_in_description_non_state_theocratic)
-                        } else if (SOCIALIST in categories) {
-                            resIds.add(R.string.category_one_party_in_description_non_state_socialist)
-                        } else if (FASCIST in categories) {
-                            resIds.add(R.string.category_one_party_in_description_non_state_fascist)
-                        } else {
-                            resIds.add(R.string.category_one_party_in_description_non_state)
-                        }
-                    MILITARY_JUNTA ->
-                        if (THEOCRATIC in categories) {
-                            resIds.add(R.string.category_military_junta_in_description_non_state_theocratic)
-                        } else if (SOCIALIST in categories) {
-                            resIds.add(R.string.category_military_junta_in_description_non_state_socialist)
-                        } else if (FASCIST in categories) {
-                            resIds.add(R.string.category_military_junta_in_description_non_state_fascist)
-                        } else {
-                            resIds.add(R.string.category_military_junta_in_description_non_state)
-                        }
-                    PROVISIONAL_GOVERNMENT ->
-                        if (THEOCRATIC in categories) {
-                            resIds.add(R.string.category_provisional_government_in_description_non_state_theocratic)
-                        } else if (SOCIALIST in categories) {
-                            resIds.add(R.string.category_provisional_government_in_description_non_state_socialist)
-                        } else if (FASCIST in categories) {
-                            resIds.add(R.string.category_provisional_government_in_description_non_state_fascist)
-                        } else {
-                            resIds.add(R.string.category_provisional_government_in_description_non_state)
-                        }
-                    else -> {}
+                resIds.add(R.string.categories_under_a)
+
+                irregularCategories.forEach { category ->
+                    if (category == ONE_PARTY)
+                        resIds.add(R.string.category_one_party_in_description_short)
+                    else
+                        resIds.add(category.string)
                 }
             }
 
-        } else if (isInstitutional) {
+        } else if (isInstitutional) { /* Add INSTITUTIONAL description */
             categoriesInstitutional.forEachIndexed { index, category ->
                 if (index == 1) resIds.add(R.string.string_of_the)
                 resIds.add(category.string)
@@ -370,7 +391,7 @@ class FlagViewModel(
                 }
             }
 
-        } else if (isCultural) {
+        } else if (isCultural) {  /* Add CULTURAL description */
             iterateOverCulturalCategories(
                 categories = categoriesCultural,
                 stringIds = resIds,
@@ -421,6 +442,8 @@ class FlagViewModel(
         stringIds: MutableList<Int>,
         whitespaceExceptions: MutableList<Int>,
         isConstitutional: Boolean,
+        isNSGT: Boolean,
+        isDependent: Boolean,
     ) {
         val skipCategories =
             listOf(SOVEREIGN_STATE, FREE_ASSOCIATION, HISTORICAL, DEVOLVED_GOVERNMENT)
@@ -428,6 +451,7 @@ class FlagViewModel(
         val regionCategories = categories.filter { it in Regional.enums() }
             .toMutableList()
         regionCategories.removeFirstOrNull()
+        val politicalSuperEnums = Political.supersEnums()
 
         /* Exception properties */
         val isIrregularPower =
@@ -441,17 +465,23 @@ class FlagViewModel(
             if (category in skipCategories) {
                 continue
 
+            } else if (category in politicalSuperEnums && (isNSGT || isDependent)) {
+                continue
+
             } else if (category == AUTONOMOUS_REGION) {
                 val ideologyRegularPower = if (isIrregularPower) null else ideology
 
                 if (HISTORICAL !in categories && ideologyRegularPower == null) {
                     stringIds.add(R.string.category_autonomous_region_in_description_an)
                     whitespaceExceptions.add(stringIds.lastIndex)
-                }
-                else {
+                } else {
                     ideologyRegularPower?.let { stringIds.add(it.string) }
                     stringIds.add(R.string.category_autonomous_region_in_description)
                 }
+
+            } else if (category == TERRITORY && isNSGT) {
+                stringIds.add(R.string.categories_non_self_governing_territory_string)
+                stringIds.add(R.string.categories_non_self_governing_territory_descriptor)
 
             } else if (category == OBLAST && AUTONOMOUS_REGION !in categories) {
                 stringIds.add(R.string.category_oblast_string_in_description_an)
