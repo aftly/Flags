@@ -35,6 +35,7 @@ import dev.aftly.flags.ui.theme.Dimens
 fun AppNavigationDrawer(
     drawerState: DrawerState,
     currentScreen: Screen?,
+    isGesturesEnabled: Boolean,
     onClose: () -> Unit,
     onNavigateDetails: (Screen) -> Unit,
     content: @Composable () -> Unit,
@@ -149,6 +150,7 @@ fun AppNavigationDrawer(
             }
         },
         drawerState = drawerState,
+        gesturesEnabled = isGesturesEnabled,
     ) {
         content()
     }

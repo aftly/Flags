@@ -60,6 +60,10 @@ fun AppNavHost(
     AppNavigationDrawer(
         drawerState = drawerState,
         currentScreen = getScreen(currentBackStackEntry),
+        isGesturesEnabled = when (getScreen(currentBackStackEntry)) {
+            in listOf(Screen.List, Screen.Game, Screen.Settings) -> true
+            else -> false
+        },
         onClose = {
             scope.launch { drawerState.close() }
         },
