@@ -12,6 +12,7 @@ import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagView
+import dev.aftly.flags.model.GameMode
 import dev.aftly.flags.model.ScoreData
 import dev.aftly.flags.model.TimeMode
 import dev.aftly.flags.ui.util.getFlagView
@@ -145,14 +146,35 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
+    fun initDatesGameMode() {
+        val gameMode = uiState.value.gameMode
+        val datesFlags = uiState.value.allFlags.filter { flag ->
+            flag.fromYear != null || (flag.toYear != null && flag.toYear != 0)
+        }
+
+        _uiState.value = GameUiState(
+            currentFlags = datesFlags,
+            gameMode = gameMode,
+        )
+        resetGame()
+    }
+
+
+    fun updateGameMode(gameMode: GameMode) {
+        _uiState.update { it.copy(gameMode = gameMode) }
+    }
+
+
     fun updateCurrentCategory(
         newSuperCategory: FlagSuperCategory?,
         newSubCategory: FlagCategory?,
     ) {
+        val gameMode = uiState.value.gameMode
+
         /* If the new category is the All super category set state with default values (which
          * includes allFlagsList), else dynamically generate flags list from category info */
         if (newSuperCategory == All) {
-            _uiState.value = GameUiState()
+            _uiState.value = GameUiState(gameMode = gameMode)
             resetGame()
 
         } else {
@@ -168,6 +190,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 currentSubCategories = buildList {
                     newSubCategory?.let { add(it) }
                 },
+                gameMode = gameMode,
             )
 
             resetGame()
@@ -230,6 +253,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         /* Update state with new categories lists and currentFlags list */
         val allFlags = uiState.value.allFlags
         val currentFlags = uiState.value.currentFlags
+        val gameMode = uiState.value.gameMode
         _uiState.value = GameUiState(
             /* Get new flags list from categories lists and either currentFlags or allFlags
              * (depending on select vs. deselect) */
@@ -243,6 +267,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             ),
             currentSuperCategories = newSuperCategories,
             currentSubCategories = newSubCategories,
+            gameMode = gameMode,
         )
 
         resetGame(startGame = false)
@@ -530,7 +555,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         mutableList.add(appResources.getString(flag.flagOf))
         mutableList.add(appResources.getString(flag.flagOfOfficial))
 
-        flag.flagOfAlternate?.forEach { resId ->
+        flag.flagOfAlternate.forEach { resId ->
             mutableList.add(appResources.getString(resId))
         }
         return mutableList.toList()

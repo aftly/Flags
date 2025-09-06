@@ -98,6 +98,7 @@ fun CategoriesButtonMenu(
     buttonHorizontalPadding: Dp,
     flagCount: Int?,
     onButtonHeightChange: (Dp) -> Unit,
+    isMenuEnabled: Boolean = true,
     isMenuExpanded: Boolean,
     onMenuButtonClick: () -> Unit,
     containerColor1: Color = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -232,6 +233,7 @@ fun CategoriesButtonMenu(
                 modifier = Modifier
                     .padding(bottom = Dimens.small8) /* Separate Button from Menu */
                     .height(buttonHeight),
+                enabled = isMenuEnabled,
                 shape = MaterialTheme.shapes.large,
                 colors = buttonColors2,
                 contentPadding = PaddingValues(horizontal = Dimens.medium16),

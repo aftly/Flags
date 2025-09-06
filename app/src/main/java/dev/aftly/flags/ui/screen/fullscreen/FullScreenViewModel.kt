@@ -15,7 +15,7 @@ class FullScreenViewModel(
     application: Application,
     savedStateHandle: SavedStateHandle,
 ) : AndroidViewModel(application) {
-    private val _uiState = MutableStateFlow(FullScreenUiState())
+    private val _uiState = MutableStateFlow(value = FullScreenUiState())
     val uiState = _uiState.asStateFlow()
 
     init {

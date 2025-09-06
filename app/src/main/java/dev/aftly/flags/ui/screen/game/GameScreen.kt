@@ -92,6 +92,7 @@ import dev.aftly.flags.R
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagView
+import dev.aftly.flags.model.GameMode
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.CategoriesButtonMenu
 import dev.aftly.flags.ui.component.DialogActionButton
@@ -115,6 +116,7 @@ import java.util.Locale
 fun GameScreen(
     viewModel: GameViewModel = viewModel(),
     currentBackStackEntry: NavBackStackEntry?,
+    toggleGameMode: GameMode,
     screen: Screen,
     isNavigationDrawerOpen: Boolean,
     onNavigateToList: Boolean,
@@ -140,6 +142,19 @@ fun GameScreen(
 
         currentBackStackEntry?.savedStateHandle?.get<Boolean>("isGameOver")?.let { isGameOver ->
             if (isGameOver) viewModel.toggleGameOverDialog(on = true)
+        }
+    }
+
+    LaunchedEffect(toggleGameMode) {
+        if (toggleGameMode != uiState.gameMode) {
+            when (toggleGameMode) {
+                GameMode.NAMES -> viewModel.updateCurrentCategory(
+                    newSuperCategory = FlagSuperCategory.SovereignCountry,
+                    newSubCategory = null,
+                )
+                GameMode.DATES -> viewModel.initDatesGameMode()
+            }
+            viewModel.updateGameMode(toggleGameMode)
         }
     }
 
@@ -355,6 +370,7 @@ private fun GameScreen(
 
             GameContent(
                 modifier = Modifier.padding(scaffoldPadding),
+                gameMode = uiState.gameMode,
                 isGame = uiState.isGame,
                 isGameOver = uiState.isGameOver,
                 isWideScreen = isWideScreen,
@@ -396,6 +412,7 @@ private fun GameScreen(
             buttonHorizontalPadding = Dimens.marginHorizontal16,
             flagCount = null,
             onButtonHeightChange = { buttonHeight = it },
+            isMenuEnabled = uiState.gameMode != GameMode.DATES,
             isMenuExpanded = isMenuExpanded,
             onMenuButtonClick = { isMenuExpanded = !isMenuExpanded },
             isSavedFlagsNotEmpty = savedFlags.isNotEmpty(),
@@ -422,6 +439,7 @@ private fun GameScreen(
 @Composable
 private fun GameContent(
     modifier: Modifier = Modifier,
+    gameMode: GameMode,
     isGame: Boolean,
     isGameOver: Boolean,
     isWideScreen: Boolean,
@@ -513,6 +531,7 @@ private fun GameContent(
         )
 
         GameCard(
+            gameMode = gameMode,
             isGame = isGame,
             isGameOver = isGameOver,
             contentColumnHeight = columnHeight,
@@ -592,6 +611,7 @@ private fun GameContent(
 @Composable
 private fun GameCard(
     modifier: Modifier = Modifier,
+    gameMode: GameMode,
     isGame: Boolean,
     isGameOver: Boolean,
     contentColumnHeight: Dp,
@@ -649,13 +669,20 @@ private fun GameCard(
         animationSpec = animationSpecError,
     )
 
-    val labelDefault = stringResource(R.string.game_guess_field_label)
+    val gameModeLabelResId = when (gameMode) {
+        GameMode.NAMES -> R.string.game_guess_field_names_label
+        GameMode.DATES -> R.string.game_guess_field_dates_label
+    }
+    val labelDefault = stringResource(gameModeLabelResId)
     val labelSuccess = stringResource(R.string.game_guess_field_label_success)
     val labelError = stringResource(R.string.game_guess_field_label_error)
     var labelState by remember { mutableStateOf(value = labelDefault) }
 
-
     /* LaunchedEffects for triggering animations of above variables */
+    LaunchedEffect(gameMode) {
+        if (labelState != labelSuccess && labelState != labelError)
+            labelState = labelDefault
+    }
     LaunchedEffect(isGuessCorrectEvent) {
         if (isGuessCorrect) {
             animationSpecSuccess = animationSpecEnter
@@ -733,7 +760,7 @@ private fun GameCard(
                     .padding(bottom = Dimens.medium16),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                /* Flag counters */
+                /* Flag counters and game mode */
                 Row {
                     Text(
                         text = "${correctGuessCount + shownAnswerCount}/$totalFlagCount",
@@ -761,6 +788,18 @@ private fun GameCard(
                             style = MaterialTheme.typography.titleSmall,
                         )
                     }
+
+                    Spacer(modifier = Modifier.width(2.dp))
+
+                    Text(
+                        text = stringResource(gameMode.title),
+                        modifier = Modifier
+                            .clip(MaterialTheme.shapes.medium)
+                            .background(MaterialTheme.colorScheme.tertiary)
+                            .padding(vertical = Dimens.extraSmall4, horizontal = Dimens.small10),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.titleSmall,
+                    )
                 }
 
                 Row {
@@ -928,6 +967,10 @@ private fun GameCard(
                 },
                 isError = isGuessWrong,
                 keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = when (gameMode) {
+                        GameMode.NAMES -> KeyboardType.Text
+                        GameMode.DATES -> KeyboardType.Number
+                    },
                     imeAction = ImeAction.Done,
                 ),
                 keyboardActions = KeyboardActions(

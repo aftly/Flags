@@ -21,7 +21,7 @@ class GameHistoryViewModel(
 ) : AndroidViewModel(application) {
     private val scoreItemsRepository =
         (application as FlagsApplication).container.scoreItemsRepository
-    private val _uiState = MutableStateFlow(GameHistoryUiState())
+    private val _uiState = MutableStateFlow(value = GameHistoryUiState())
     val uiState = _uiState.asStateFlow()
 
     init {

@@ -42,7 +42,7 @@ import kotlinx.coroutines.launch
 class ListFlagsViewModel(application: Application) : AndroidViewModel(application) {
     private val savedFlagsRepository =
         (application as FlagsApplication).container.savedFlagsRepository
-    private val _uiState = MutableStateFlow(ListFlagsUiState())
+    private val _uiState = MutableStateFlow(value = ListFlagsUiState())
     val uiState = _uiState.asStateFlow()
 
     var searchQueryValue by mutableStateOf(value = TextFieldValue())

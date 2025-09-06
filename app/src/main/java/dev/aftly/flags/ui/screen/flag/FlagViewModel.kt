@@ -62,7 +62,7 @@ class FlagViewModel(
 ) : AndroidViewModel(application) {
     private val savedFlagsRepository =
         (application as FlagsApplication).container.savedFlagsRepository
-    private val _uiState = MutableStateFlow(FlagUiState())
+    private val _uiState = MutableStateFlow(value = FlagUiState())
     val uiState = _uiState.asStateFlow()
 
     init {

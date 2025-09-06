@@ -8,11 +8,14 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -21,6 +24,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import dev.aftly.flags.model.GameMode
 import dev.aftly.flags.ui.component.AppNavigationDrawer
 import dev.aftly.flags.ui.screen.flag.FlagScreen
 import dev.aftly.flags.ui.screen.fullscreen.FullScreen
@@ -56,6 +60,7 @@ fun AppNavHost(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var onDrawerNavToListFromGame by remember { mutableStateOf(value = false) }
+    var gameModeToggle by rememberSaveable { mutableStateOf(value = GameMode.NAMES) }
 
     AppNavigationDrawer(
         drawerState = drawerState,
@@ -64,6 +69,8 @@ fun AppNavHost(
             in listOf(Screen.List, Screen.Game, Screen.Settings) -> true
             else -> false
         },
+        gameMode = gameModeToggle,
+        onGameMode = { gameModeToggle = it },
         onClose = {
             scope.launch { drawerState.close() }
         },
@@ -225,6 +232,7 @@ fun AppNavHost(
             ) {
                 GameScreen(
                     currentBackStackEntry = currentBackStackEntry,
+                    toggleGameMode = gameModeToggle,
                     screen = Screen.Game,
                     isNavigationDrawerOpen = drawerState.isOpen,
                     onNavigateToList = onDrawerNavToListFromGame,
