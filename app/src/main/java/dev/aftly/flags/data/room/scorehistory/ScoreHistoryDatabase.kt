@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import dev.aftly.flags.data.room.Converters
 
-@Database(entities = [ScoreItem::class], version = 5, exportSchema = false)
+@Database(entities = [ScoreItem::class], version = 6, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class ScoreHistoryDatabase : RoomDatabase() {
     abstract fun itemDao(): ScoreItemDao

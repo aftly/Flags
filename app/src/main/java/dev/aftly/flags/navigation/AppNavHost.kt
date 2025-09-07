@@ -23,6 +23,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dev.aftly.flags.model.game.AnswerMode
+import dev.aftly.flags.model.game.DifficultyMode
 import dev.aftly.flags.ui.component.AppNavigationDrawer
 import dev.aftly.flags.ui.screen.flag.FlagScreen
 import dev.aftly.flags.ui.screen.fullscreen.FullScreen
@@ -57,8 +58,9 @@ fun AppNavHost(
     val startDestination = listRoute
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    var onDrawerNavToListFromGame by remember { mutableStateOf(value = false) }
+    var onDrawerNavToListFromGame by rememberSaveable { mutableStateOf(value = false) }
     var answerModeToggle by rememberSaveable { mutableStateOf(value = AnswerMode.NAMES) }
+    var difficultyModeToggle by rememberSaveable { mutableStateOf(value = DifficultyMode.EASY) }
 
     AppNavigationDrawer(
         drawerState = drawerState,
@@ -68,7 +70,9 @@ fun AppNavHost(
             else -> false
         },
         answerMode = answerModeToggle,
+        difficultyMode = difficultyModeToggle,
         onAnswerMode = { answerModeToggle = it },
+        onDifficultyMode = { difficultyModeToggle = it },
         onClose = {
             scope.launch { drawerState.close() }
         },

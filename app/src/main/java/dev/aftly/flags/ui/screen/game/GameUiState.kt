@@ -7,6 +7,7 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.game.ScoreData
 import dev.aftly.flags.model.game.AnswerMode
+import dev.aftly.flags.model.game.DifficultyMode
 
 data class GameUiState(
     val allFlags: List<FlagView> = allFlagsList,
@@ -40,6 +41,7 @@ data class GameUiState(
     val isShowAnswer: Boolean = false,
 
     val answerMode: AnswerMode = AnswerMode.NAMES,
+    val difficultyMode: DifficultyMode = DifficultyMode.EASY,
 
     val isGame: Boolean = true,
     val isGameOver: Boolean = false,

@@ -1,6 +1,7 @@
 package dev.aftly.flags.ui.component
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,12 +29,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.aftly.flags.R
 import dev.aftly.flags.model.game.AnswerMode
+import dev.aftly.flags.model.game.DifficultyMode
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.theme.Dimens
 
@@ -43,7 +46,9 @@ fun AppNavigationDrawer(
     currentScreen: Screen?,
     isGesturesEnabled: Boolean,
     answerMode: AnswerMode,
+    difficultyMode: DifficultyMode,
     onAnswerMode: (AnswerMode) -> Unit,
+    onDifficultyMode: (DifficultyMode) -> Unit,
     onClose: () -> Unit,
     onNavigateDetails: (Screen) -> Unit,
     content: @Composable () -> Unit,
@@ -89,7 +94,7 @@ fun AppNavigationDrawer(
                     NavigationDrawerItem(
                         label = {
                             Text(
-                                text = Screen.List.title?.let { stringResource(it) } ?: "",
+                                text = stringResource(Screen.List.title),
                                 fontWeight = FontWeight.Medium,
                             )
                         },
@@ -116,7 +121,7 @@ fun AppNavigationDrawer(
                         NavigationDrawerItem(
                             label = {
                                 Text(
-                                    text = Screen.Game.title?.let { stringResource(it) } ?: "",
+                                    text = stringResource(Screen.Game.title),
                                     fontWeight = FontWeight.Medium,
                                 )
                             },
@@ -138,8 +143,12 @@ fun AppNavigationDrawer(
                             },
                         )
 
-                        Row(modifier = Modifier.padding(end = Dimens.medium12)) {
-                            /* NAMES game mode button */
+                        /* Mode selection */
+                        Row(
+                            modifier = Modifier.padding(end = Dimens.small8),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            /* NAMES answer mode button */
                             Card(
                                 onClick = {
                                     onAnswerMode(AnswerMode.NAMES)
@@ -164,9 +173,9 @@ fun AppNavigationDrawer(
                                 )
                             }
 
-                            Spacer(Modifier.width(4.dp))
+                            Spacer(Modifier.width(Dimens.extraSmall4))
 
-                            /* DATES game mode button */
+                            /* DATES answer mode button */
                             Card(
                                 onClick = {
                                     onAnswerMode(AnswerMode.DATES)
@@ -190,6 +199,64 @@ fun AppNavigationDrawer(
                                     style = MaterialTheme.typography.titleSmall,
                                 )
                             }
+
+                            Spacer(Modifier.width(Dimens.extraSmall4))
+
+                            Column {
+                                Row {
+                                    Box(modifier = Modifier
+                                        .padding(horizontal = 2.dp)
+                                        .clip(MaterialTheme.shapes.large)
+                                        .background(color = cardColorsSelected.containerColor)
+                                    ) {
+                                        Text(
+                                            text = "0",
+                                            modifier = Modifier
+                                                .padding(horizontal = Dimens.extraSmall4),
+                                            style = MaterialTheme.typography.titleSmall,
+                                        )
+                                    }
+                                    Box(modifier = Modifier
+                                        .padding(horizontal = 2.dp)
+                                        .clip(MaterialTheme.shapes.large)
+                                        .background(color = cardColorsSelected.containerColor)
+                                    ) {
+                                        Text(
+                                            text = "0",
+                                            modifier = Modifier
+                                                .padding(horizontal = Dimens.extraSmall4),
+                                            style = MaterialTheme.typography.titleSmall,
+                                        )
+                                    }
+                                }
+
+                                Row {
+                                    Box(modifier = Modifier
+                                        .padding(horizontal = 2.dp)
+                                        .clip(MaterialTheme.shapes.large)
+                                        .background(color = cardColorsSelected.containerColor)
+                                    ) {
+                                        Text(
+                                            text = "0",
+                                            modifier = Modifier
+                                                .padding(horizontal = Dimens.extraSmall4),
+                                            style = MaterialTheme.typography.titleSmall,
+                                        )
+                                    }
+                                    Box(modifier = Modifier
+                                        .padding(horizontal = 2.dp)
+                                        .clip(MaterialTheme.shapes.large)
+                                        .background(color = cardColorsSelected.containerColor)
+                                    ) {
+                                        Text(
+                                            text = "0",
+                                            modifier = Modifier
+                                                .padding(horizontal = Dimens.extraSmall4),
+                                            style = MaterialTheme.typography.titleSmall,
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
 
@@ -199,7 +266,7 @@ fun AppNavigationDrawer(
                     NavigationDrawerItem(
                         label = {
                             Text(
-                                text = Screen.Settings.title?.let { stringResource(it) } ?: "",
+                                text = stringResource(Screen.Settings.title),
                                 fontWeight = FontWeight.Medium,
                             )
                         },

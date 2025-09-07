@@ -608,6 +608,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         return ScoreData(
             timestamp = System.currentTimeMillis(),
             answerMode = uiState.value.answerMode,
+            difficultyMode = uiState.value.difficultyMode,
             timeMode = when (uiState.value.isTimeTrial) {
                 true -> TimeMode.TIME_TRIAL
                 false -> TimeMode.STANDARD
