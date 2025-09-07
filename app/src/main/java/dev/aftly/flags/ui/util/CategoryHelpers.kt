@@ -34,9 +34,9 @@ import dev.aftly.flags.model.FlagSuperCategory.International
 import dev.aftly.flags.model.FlagSuperCategory.Political
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 import dev.aftly.flags.model.FlagView
-import dev.aftly.flags.model.RelatedFlagsMenu
-import dev.aftly.flags.model.RelatedFlagsMenu.CHRONOLOGICAL
-import dev.aftly.flags.model.RelatedFlagsMenu.POLITICAL
+import dev.aftly.flags.model.relatedmenu.RelatedFlagsMenu
+import dev.aftly.flags.model.relatedmenu.RelatedFlagsMenu.CHRONOLOGICAL
+import dev.aftly.flags.model.relatedmenu.RelatedFlagsMenu.POLITICAL
 
 
 /* ------ General category helpers ------ */

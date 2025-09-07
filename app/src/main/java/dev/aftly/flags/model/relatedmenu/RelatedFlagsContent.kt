@@ -1,4 +1,4 @@
-package dev.aftly.flags.model
+package dev.aftly.flags.model.relatedmenu
 
 sealed interface RelatedFlagsContent {
     val menu: RelatedFlagsMenu

@@ -27,7 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.aftly.flags.R
-import dev.aftly.flags.model.RelatedFlagsMenu
+import dev.aftly.flags.model.relatedmenu.RelatedFlagsMenu
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.util.color
 

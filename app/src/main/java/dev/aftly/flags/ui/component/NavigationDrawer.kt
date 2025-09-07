@@ -33,7 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.aftly.flags.R
-import dev.aftly.flags.model.GameMode
+import dev.aftly.flags.model.game.AnswerMode
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.theme.Dimens
 
@@ -42,8 +42,8 @@ fun AppNavigationDrawer(
     drawerState: DrawerState,
     currentScreen: Screen?,
     isGesturesEnabled: Boolean,
-    gameMode: GameMode,
-    onGameMode: (GameMode) -> Unit,
+    answerMode: AnswerMode,
+    onAnswerMode: (AnswerMode) -> Unit,
     onClose: () -> Unit,
     onNavigateDetails: (Screen) -> Unit,
     content: @Composable () -> Unit,
@@ -142,21 +142,23 @@ fun AppNavigationDrawer(
                             /* NAMES game mode button */
                             Card(
                                 onClick = {
-                                    onGameMode(GameMode.NAMES)
+                                    onAnswerMode(AnswerMode.NAMES)
 
-                                    if (gameMode != GameMode.NAMES && currentScreen == Screen.Game)
+                                    if (answerMode != AnswerMode.NAMES &&
+                                        currentScreen == Screen.Game) {
                                         onClose()
+                                    }
                                 },
                                 shape =
-                                    if (gameMode == GameMode.NAMES) MaterialTheme.shapes.large
+                                    if (answerMode == AnswerMode.NAMES) MaterialTheme.shapes.large
                                     else MaterialTheme.shapes.extraSmall,
                                 colors =
-                                    if (gameMode == GameMode.NAMES) cardColorsSelected
+                                    if (answerMode == AnswerMode.NAMES) cardColorsSelected
                                     else if (currentScreen == Screen.Game) cardColorsUnselected2
                                     else cardColorsUnselected,
                             ) {
                                 Text(
-                                    text = stringResource(GameMode.NAMES.title),
+                                    text = stringResource(AnswerMode.NAMES.title),
                                     modifier = Modifier.padding(Dimens.small8),
                                     style = MaterialTheme.typography.titleSmall,
                                 )
@@ -167,21 +169,23 @@ fun AppNavigationDrawer(
                             /* DATES game mode button */
                             Card(
                                 onClick = {
-                                    onGameMode(GameMode.DATES)
+                                    onAnswerMode(AnswerMode.DATES)
 
-                                    if (gameMode != GameMode.DATES && currentScreen == Screen.Game)
+                                    if (answerMode != AnswerMode.DATES &&
+                                        currentScreen == Screen.Game) {
                                         onClose()
+                                    }
                                 },
                                 shape =
-                                    if (gameMode == GameMode.DATES) MaterialTheme.shapes.large
+                                    if (answerMode == AnswerMode.DATES) MaterialTheme.shapes.large
                                     else MaterialTheme.shapes.extraSmall,
                                 colors =
-                                    if (gameMode == GameMode.DATES) cardColorsSelected
+                                    if (answerMode == AnswerMode.DATES) cardColorsSelected
                                     else if (currentScreen == Screen.Game) cardColorsUnselected2
                                     else cardColorsUnselected,
                             ) {
                                 Text(
-                                    text = stringResource(GameMode.DATES.title),
+                                    text = stringResource(AnswerMode.DATES.title),
                                     modifier = Modifier.padding(Dimens.small8),
                                     style = MaterialTheme.typography.titleSmall,
                                 )

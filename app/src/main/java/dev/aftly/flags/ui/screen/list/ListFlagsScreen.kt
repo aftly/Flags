@@ -98,12 +98,14 @@ import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagView
+import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.CategoriesButtonMenu
 import dev.aftly.flags.ui.component.NoResultsFound
 import dev.aftly.flags.ui.component.ResultsType
 import dev.aftly.flags.ui.component.ScrollToTopButton
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
+import dev.aftly.flags.ui.util.flagDatesString
 import dev.aftly.flags.ui.util.getFlagFromId
 import kotlinx.coroutines.launch
 
@@ -113,6 +115,7 @@ import kotlinx.coroutines.launch
 fun ListFlagsScreen(
     viewModel: ListFlagsViewModel = viewModel(),
     currentBackStackEntry: NavBackStackEntry?,
+    screen: Screen,
     onNavigationDrawer: () -> Unit,
     onNavigateToFlagScreen: (FlagView, List<FlagView>) -> Unit,
 ) {
@@ -130,6 +133,7 @@ fun ListFlagsScreen(
     ListFlagsScreen(
         uiState = uiState,
         currentBackStackEntry = currentBackStackEntry,
+        screen = screen,
         searchResults = searchResults,
         searchQueryValue = viewModel.searchQueryValue,
         onSearchQueryValueChange = { viewModel.onSearchQueryValueChange(it) },
@@ -163,6 +167,7 @@ private fun ListFlagsScreen(
     modifier: Modifier = Modifier,
     uiState: ListFlagsUiState,
     currentBackStackEntry: NavBackStackEntry?,
+    screen: Screen,
     searchResults: List<FlagView>,
     containerColor1: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     containerColor2: Color = MaterialTheme.colorScheme.secondary,
@@ -287,6 +292,7 @@ private fun ListFlagsScreen(
                 },
             topBar = {
                 ListFlagsTopBar(
+                    screen = screen,
                     scrollBehaviour = scrollBehaviour,
                     searchQuery = searchQueryValue,
                     isSearchQuery = uiState.isSearchQuery,
@@ -515,21 +521,9 @@ private fun ListItem(
         }
     }
     val fromToYear = buildString {
-        flag.previousFlagOfKey?.let {
-            val isDate = flag.fromYear != null || flag.toYear != null
-
-            if (isDate) {
-                append(stringResource(R.string.string_whitespace))
-                append(stringResource(R.string.string_open_bracket))
-            }
-            flag.fromYear?.let { append("${flag.fromYear}") }
-            flag.toYear?.let { toYear ->
-                append(stringResource(R.string.string_dash))
-
-                if (toYear != 0) append("${flag.toYear}")
-                else append(stringResource(R.string.string_present))
-            }
-            if (isDate) append(stringResource(R.string.string_close_bracket))
+        if (flag.previousFlagOfKey != null && flag.isDated) {
+            append(stringResource(R.string.string_whitespace))
+            append(flagDatesString(flag))
         }
     }
 
@@ -625,6 +619,7 @@ private fun ListItem(
 @Composable
 private fun ListFlagsTopBar(
     modifier: Modifier = Modifier,
+    screen: Screen,
     scrollBehaviour: TopAppBarScrollBehavior,
     searchQuery: TextFieldValue,
     isSearchQuery: Boolean,
@@ -640,7 +635,7 @@ private fun ListFlagsTopBar(
     onNavigationDrawer: () -> Unit,
 ) {
     val annotatedTitle = buildAnnotatedString {
-        val title = stringResource(R.string.flags_of_the_world)
+        val title = stringResource(screen.title)
         val flags = stringResource(R.string.flags)
         val whitespace = stringResource(R.string.string_whitespace)
         val words: List<String> = title.split(whitespace)

@@ -7,19 +7,21 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
+import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.nullFlag
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagView
-import dev.aftly.flags.model.GameMode
-import dev.aftly.flags.model.ScoreData
-import dev.aftly.flags.model.TimeMode
+import dev.aftly.flags.model.game.ScoreData
+import dev.aftly.flags.model.game.AnswerMode
+import dev.aftly.flags.model.game.TimeMode
 import dev.aftly.flags.ui.util.getFlagView
 import dev.aftly.flags.ui.util.getFlagsFromCategory
 import dev.aftly.flags.ui.util.getFlagsFromCategories
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
+import dev.aftly.flags.ui.util.normalizeLower
 import dev.aftly.flags.ui.util.normalizeString
 import dev.aftly.flags.ui.util.sortFlagsAlphabetically
 import dev.aftly.flags.ui.util.updateCategoriesFromSub
@@ -31,6 +33,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
@@ -147,21 +150,21 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
 
     fun initDatesGameMode() {
-        val gameMode = uiState.value.gameMode
+        val gameMode = uiState.value.answerMode
         val datesFlags = uiState.value.allFlags.filter { flag ->
             flag.fromYear != null || (flag.toYear != null && flag.toYear != 0)
         }
 
         _uiState.value = GameUiState(
             currentFlags = datesFlags,
-            gameMode = gameMode,
+            answerMode = gameMode,
         )
         resetGame()
     }
 
 
-    fun updateGameMode(gameMode: GameMode) {
-        _uiState.update { it.copy(gameMode = gameMode) }
+    fun updateAnswerMode(answerMode: AnswerMode) {
+        _uiState.update { it.copy(answerMode = answerMode) }
     }
 
 
@@ -169,12 +172,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         newSuperCategory: FlagSuperCategory?,
         newSubCategory: FlagCategory?,
     ) {
-        val gameMode = uiState.value.gameMode
+        val answerMode = uiState.value.answerMode
 
         /* If the new category is the All super category set state with default values (which
          * includes allFlagsList), else dynamically generate flags list from category info */
         if (newSuperCategory == All) {
-            _uiState.value = GameUiState(gameMode = gameMode)
+            _uiState.value = GameUiState(answerMode = answerMode)
             resetGame()
 
         } else {
@@ -190,7 +193,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 currentSubCategories = buildList {
                     newSubCategory?.let { add(it) }
                 },
-                gameMode = gameMode,
+                answerMode = answerMode,
             )
 
             resetGame()
@@ -253,7 +256,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         /* Update state with new categories lists and currentFlags list */
         val allFlags = uiState.value.allFlags
         val currentFlags = uiState.value.currentFlags
-        val gameMode = uiState.value.gameMode
+        val answerMode = uiState.value.answerMode
         _uiState.value = GameUiState(
             /* Get new flags list from categories lists and either currentFlags or allFlags
              * (depending on select vs. deselect) */
@@ -267,7 +270,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             ),
             currentSuperCategories = newSuperCategories,
             currentSubCategories = newSubCategories,
-            gameMode = gameMode,
+            answerMode = answerMode,
         )
 
         resetGame(startGame = false)
@@ -338,12 +341,35 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun checkUserGuess() {
         cancelConfirmShowAnswer()
 
-        val normalizedUserGuess = getNormalizedString(string = userGuess)
-        val answers = uiState.value.currentFlagStrings
-        val normalizedAnswers = mutableListOf<String>()
+        val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+        val the = getApplication<Application>().applicationContext.resources
+            .getString(R.string.string_the_whitespace)
+        val normalizedUserGuess = normalizeString(
+            string = userGuess.lowercase().removePrefix(the)
+        )
 
-        answers.forEach { answer ->
-            normalizedAnswers.add(getNormalizedString(string = answer))
+        val normalizedAnswers = when (uiState.value.answerMode) {
+            AnswerMode.NAMES ->
+                uiState.value.currentFlagStrings.map {
+                    normalizeLower(string = it)
+                }
+            AnswerMode.DATES ->
+                uiState.value.currentFlags.flatMap { flag ->
+                    buildList {
+                        flag.fromYear?.let { add(it.toString()) }
+                        flag.toYear?.let {
+                            if (it == 0) add(currentYear.toString())
+                            else add(it.toString())
+                        }
+
+                        if (flag.fromYear != null && flag.toYear != null) {
+                            val toYear = if (flag.toYear == 0) currentYear else flag.toYear
+                            val fromToString = "${flag.fromYear} - $toYear"
+
+                            add(fromToString)
+                        }
+                    }
+                }.map { normalizeLower(string = it) }
         }
 
         if (normalizedUserGuess in normalizedAnswers) {
@@ -562,20 +588,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    /* For use in normalizing both userGuess and flag names for comparisons in checkUserGuess()
-     * Deletes all usages of "the" and non-(standard-)alphabetic characters */
-    private fun getNormalizedString(string: String): String {
-        /* normalizeString() normalizes special alphabetic characters */
-        return normalizeString(string = string).lowercase()
-            /* Replaces all non-alphabetic characters with a whitespace */
-            .replace(regex = Regex(pattern = "[^a-z]"), replacement = " ")
-            /* Previous replace() allows any usages of the word "the" to be recognised & deleted */
-            .replace(regex = Regex(pattern = "\\bthe\\b"), replacement = "")
-            /* Deletes all whitespace-like characters */
-            .replace(regex = Regex(pattern = "\\s"), replacement = "")
-    }
-
-
     private fun sortFlags(flags: MutableList<FlagView>): List<FlagView> =
         sortFlagsAlphabetically(getApplication(), flags)
 
@@ -594,15 +606,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     /* Return ScoreData from current game state */
     private fun getScoreData(): ScoreData {
         return ScoreData(
-            flagsAll = uiState.value.currentFlags,
-            flagsGuessed = guessedFlags.toList(),
-            flagsGuessedSorted = sortFlags(guessedFlags),
-            flagsSkippedGuessed = skippedGuessedFlags.toList(),
-            flagsSkippedGuessedSorted = sortFlags(skippedGuessedFlags),
-            flagsSkipped = skippedFlags.toList(),
-            flagsSkippedSorted = sortFlags(skippedFlags),
-            flagsShown = shownFlags.toList(),
-            flagsShownSorted = sortFlags(shownFlags),
+            timestamp = System.currentTimeMillis(),
+            answerMode = uiState.value.answerMode,
             timeMode = when (uiState.value.isTimeTrial) {
                 true -> TimeMode.TIME_TRIAL
                 false -> TimeMode.STANDARD
@@ -617,7 +622,15 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             },
             gameSuperCategories = getScoreDataSupers(),
             gameSubCategories = getScoreDataSubs(),
-            timestamp = System.currentTimeMillis(),
+            flagsAll = uiState.value.currentFlags,
+            flagsGuessed = guessedFlags.toList(),
+            flagsGuessedSorted = sortFlags(guessedFlags),
+            flagsSkippedGuessed = skippedGuessedFlags.toList(),
+            flagsSkippedGuessedSorted = sortFlags(skippedGuessedFlags),
+            flagsSkipped = skippedFlags.toList(),
+            flagsSkippedSorted = sortFlags(skippedFlags),
+            flagsShown = shownFlags.toList(),
+            flagsShownSorted = sortFlags(shownFlags),
         )
     }
 

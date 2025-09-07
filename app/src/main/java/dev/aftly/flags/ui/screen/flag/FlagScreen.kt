@@ -71,7 +71,7 @@ import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.model.FlagScreenContent
 import dev.aftly.flags.model.FlagView
-import dev.aftly.flags.model.RelatedFlagsMenu
+import dev.aftly.flags.model.relatedmenu.RelatedFlagsMenu
 import dev.aftly.flags.ui.component.FullscreenButton
 import dev.aftly.flags.ui.component.RelatedFlagsButton
 import dev.aftly.flags.ui.component.RelatedFlagsMenuCard
@@ -80,6 +80,7 @@ import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.SystemUiController
+import dev.aftly.flags.ui.util.flagDatesString
 
 
 @Composable
@@ -395,23 +396,12 @@ private fun FlagContent(
                 }
             }
 
-            val fromToYearString =
-                if (flag.fromYear != null && flag.toYear != null) {
-                    val toYear =
-                        if (flag.toYear == 0) stringResource(R.string.string_present)
-                        else "${flag.toYear}"
+            val fromToYearString = if (flag.isDated) flagDatesString(flag) else null
 
-                    stringResource(R.string.string_open_bracket) +
-                            "${flag.fromYear}" +
-                            stringResource(R.string.string_dash) +
-                            toYear +
-                            stringResource(R.string.string_close_bracket)
-                } else null
-
-            val wikiLink =
-                stringResource(R.string.wikipedia_site_prefix) +
-                        stringResource(flag.wikipediaUrlPath)
-
+            val wikiLink = buildString {
+                append(stringResource(R.string.wikipedia_site_prefix))
+                append(stringResource(flag.wikipediaUrlPath))
+            }
 
             /* Ui content */
             Spacer(modifier = Modifier.height(0.dp))

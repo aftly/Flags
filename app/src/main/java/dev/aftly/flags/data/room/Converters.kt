@@ -3,7 +3,7 @@ package dev.aftly.flags.data.room
 import androidx.room.TypeConverter
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategoryBase
-import dev.aftly.flags.model.TimeMode
+import dev.aftly.flags.model.game.TimeMode
 import kotlinx.serialization.json.Json
 
 class Converters {

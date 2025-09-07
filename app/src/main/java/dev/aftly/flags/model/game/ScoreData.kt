@@ -1,25 +1,21 @@
-package dev.aftly.flags.model
+package dev.aftly.flags.model.game
 
-import androidx.annotation.StringRes
-import dev.aftly.flags.R
 import dev.aftly.flags.data.room.scorehistory.ScoreItem
+import dev.aftly.flags.model.FlagCategory
+import dev.aftly.flags.model.FlagCategoryBase
+import dev.aftly.flags.model.FlagSuperCategory
+import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.ui.util.getFlagKeys
 import dev.aftly.flags.ui.util.getFlagsFromKeys
 import dev.aftly.flags.ui.util.superCategories
-import kotlinx.serialization.Serializable
-
-
-@Serializable
-enum class TimeMode(@param:StringRes val title: Int) {
-    STANDARD (title = R.string.time_mode_standard),
-    TIME_TRIAL (title = R.string.time_mode_time_trial)
-}
 
 
 /* ------------ Game score top level class ------------ */
 class ScoreData(
     val id: Int = 0,
     val timestamp: Long,
+    val answerMode: AnswerMode,
+    val difficultyMode: DifficultyMode,
     val timeMode: TimeMode,
     val timerStart: Int?, /* In seconds */
     val timerEnd: Int, /* In seconds */
@@ -42,6 +38,8 @@ class ScoreData(
     private val scorePercent = (correctAnswers.toFloat() / flagsAll.size.toFloat()) * 100f
 
     val scoreOverview = ScoreOverview(
+        answerMode = answerMode,
+        difficultyMode = difficultyMode,
         totalsOverview = TotalsOverview(
             correctAnswers = correctAnswers,
             outOfCount = flagsAll.size,
@@ -87,6 +85,8 @@ class ScoreData(
         timestamp = timestamp,
         score = correctAnswers,
         outOf = flagsAll.size,
+        answerMode = answerMode,
+        difficultyMode = difficultyMode,
         timeMode = timeMode,
         timerStart = timerStart,
         timerEnd = timerEnd,
@@ -113,6 +113,8 @@ fun ScoreItem.toScoreData(
 ): ScoreData = ScoreData(
     id = id,
     timestamp = timestamp,
+    answerMode = answerMode,
+    difficultyMode = difficultyMode,
     timeMode = timeMode,
     timerStart = timerStart,
     timerEnd = timerEnd,
@@ -132,6 +134,8 @@ fun ScoreItem.toScoreData(
 
 /* ------------ Score overview classes ------------ */
 data class ScoreOverview(
+    val answerMode: AnswerMode,
+    val difficultyMode: DifficultyMode,
     val totalsOverview: TotalsOverview,
     val categoriesOverview: CategoriesOverview,
     val timeOverview: TimeOverview,

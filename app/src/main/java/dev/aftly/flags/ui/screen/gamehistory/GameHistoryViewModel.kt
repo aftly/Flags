@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.data.room.scorehistory.ScoreItem
 import dev.aftly.flags.model.FlagView
-import dev.aftly.flags.model.toScoreData
+import dev.aftly.flags.model.game.toScoreData
 import dev.aftly.flags.ui.util.getFlagsFromKeys
 import dev.aftly.flags.ui.util.sortFlagsAlphabetically
 import kotlinx.coroutines.flow.MutableStateFlow

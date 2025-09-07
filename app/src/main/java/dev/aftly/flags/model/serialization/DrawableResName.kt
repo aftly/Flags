@@ -1,4 +1,4 @@
-package dev.aftly.flags.model
+package dev.aftly.flags.model.serialization
 
 import android.content.Context
 import kotlinx.serialization.Serializable

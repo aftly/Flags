@@ -5,7 +5,6 @@ import androidx.annotation.StringRes
 
 /* Launch process class from flagsMap FlagResources for complete information for view and search */
 data class FlagView(
-    //val flagsMapKey: String, /* For flagsMap and <>RelatedFlags properties lookups */
     val id: Int,
     @param:StringRes val wikipediaUrlPath: Int,
     @param:DrawableRes val image: Int,
@@ -32,4 +31,6 @@ data class FlagView(
     val isPoliticalRelatedFlags: Boolean, /* flag has */
     val isChronologicalRelatedFlags: Boolean, /* flag has */
     val categories: List<FlagCategory>,
-)
+) {
+    val isDated = fromYear != null || toYear != null
+}

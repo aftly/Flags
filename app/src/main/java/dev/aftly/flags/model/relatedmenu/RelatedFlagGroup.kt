@@ -1,6 +1,8 @@
-package dev.aftly.flags.model
+package dev.aftly.flags.model.relatedmenu
 
 import androidx.annotation.StringRes
+import dev.aftly.flags.model.FlagCategory
+import dev.aftly.flags.model.FlagView
 
 sealed interface RelatedFlagGroup {
     val category: Int

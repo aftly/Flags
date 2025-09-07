@@ -209,11 +209,12 @@
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancel</string>
     <string name="error">Error</string>
+    <string name="flag_title">Flag</string>
     <string name="flag">flag</string>
     <string name="flags">flags</string>
     <string name="flags_of_the_world">Flags of the World</string>
+    <string name="fullscreen_title">Fullscreen</string>
     <string name="game_title">Game</string>
-    <string name="game_description">Guess names of flags from their pictures</string>
     <string name="game_button_submit">Submit</string>
     <string name="game_button_skip">Skip</string>
     <string name="game_button_show">Show answer</string>
@@ -249,7 +250,6 @@
     <string name="game_score_details_time_mode">Time mode:</string>
     <string name="game_score_details_time">%dm %02ds</string>
     <string name="game_score_details_time_date_connector">,\ </string>
-    <string name="game_score_details_time_date_separator">\n</string>
     <string name="game_score_details_guessed">Guessed (%d)</string>
     <string name="game_score_details_skipped_guessed">Skipped, guessed (%d)</string>
     <string name="game_score_details_skipped">Skipped, not guessed (%d)</string>
@@ -264,8 +264,6 @@
     <string name="game_history_category_multiple">Multiple</string>
     <string name="game_history_none_description_1">Play some games to create score history</string>
     <string name="game_history_none_description_2">(Requires at least 1 correct, skipped or shown flag)</string>
-    <string name="list_title">View</string>
-    <string name="list_description">Display lists of flags by category,\nor it\'s names (eg. \"United Kingdom\" or \"Britain\")</string>
     <string name="menu_related_flags_political">Politically Related</string>
     <string name="menu_related_flags_political_short">Pol</string>
     <string name="menu_related_flags_chronological">Chronologically Related</string>
@@ -325,6 +323,7 @@
     <string name="string_in_the">in the</string>
     <string name="string_is_a">is a</string>
     <string name="string_is_the">is the</string>
+    <string name="string_new_line">\n</string>
     <string name="string_new_paragraph">\n\n</string>
     <string name="string_of">of</string>
     <string name="string_of_the">of the</string>

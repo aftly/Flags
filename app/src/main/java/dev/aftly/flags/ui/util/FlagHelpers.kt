@@ -9,7 +9,7 @@ import dev.aftly.flags.data.DataSource.flagViewMapId
 import dev.aftly.flags.data.DataSource.inverseFlagResMap
 import dev.aftly.flags.data.DataSource.inverseFlagViewMap
 import dev.aftly.flags.data.room.savedflags.SavedFlag
-import dev.aftly.flags.model.BooleanSource
+import dev.aftly.flags.model.serialization.BooleanSource
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
 import dev.aftly.flags.model.FlagCategory.CANTON
 import dev.aftly.flags.model.FlagCategory.CITY
@@ -38,10 +38,10 @@ import dev.aftly.flags.model.FlagSuperCategory.International
 import dev.aftly.flags.model.FlagSuperCategory.Regional
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 import dev.aftly.flags.model.FlagView
-import dev.aftly.flags.model.RelatedFlagGroup
-import dev.aftly.flags.model.RelatedFlagsCategory
-import dev.aftly.flags.model.RelatedFlagsContent
-import dev.aftly.flags.model.StringResSource
+import dev.aftly.flags.model.relatedmenu.RelatedFlagGroup
+import dev.aftly.flags.model.relatedmenu.RelatedFlagsCategory
+import dev.aftly.flags.model.relatedmenu.RelatedFlagsContent
+import dev.aftly.flags.model.serialization.StringResSource
 
 fun getFlagKey(flag: FlagView): String = inverseFlagViewMap.getValue(key = flag)
 
@@ -547,7 +547,7 @@ fun getChronologicalRelatedFlagsContentOrNull(
 
         val previousEntitiesOfSovereign = indirectRelatedFlags.filterNot {
             indirectFlag -> indirectFlag in dependentsOfLatest
-        }
+        }.sortedByDescending { it.fromYear }
 
         RelatedFlagsContent.Chronological(
             latestEntities = if (latestEntities.isEmpty()) null else {

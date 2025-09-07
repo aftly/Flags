@@ -1,4 +1,4 @@
-package dev.aftly.flags.model
+package dev.aftly.flags.model.relatedmenu
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons

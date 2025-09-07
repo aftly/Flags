@@ -40,7 +40,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -57,14 +56,16 @@ import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.data.DataSource.inverseFlagViewMap
 import dev.aftly.flags.model.FlagView
-import dev.aftly.flags.model.LazyColumnItem
-import dev.aftly.flags.model.RelatedFlagGroup
-import dev.aftly.flags.model.RelatedFlagsContent
-import dev.aftly.flags.model.RelatedFlagsMenu
+import dev.aftly.flags.model.relatedmenu.LazyColumnItem
+import dev.aftly.flags.model.relatedmenu.RelatedFlagGroup
+import dev.aftly.flags.model.relatedmenu.RelatedFlagsCategory
+import dev.aftly.flags.model.relatedmenu.RelatedFlagsContent
+import dev.aftly.flags.model.relatedmenu.RelatedFlagsMenu
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Shapes
 import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.theme.surfaceLight
+import dev.aftly.flags.ui.util.flagDatesString
 
 
 @Composable
@@ -122,6 +123,11 @@ fun RelatedFlagsMenuCard(
             }
         }
     }
+
+    val showDatesHeaderTitles = listOf(
+        RelatedFlagsCategory.PREVIOUS_ENTITIES.title,
+        RelatedFlagsCategory.PREVIOUS_ENTITIES_OF_SOVEREIGN.title
+    )
 
     /* On menu expand scroll to current item or immediately preceding header */
     LaunchedEffect(isExpanded) {
@@ -227,6 +233,10 @@ fun RelatedFlagsMenuCard(
                         key = { it.key },
                         contentType = { it.type }
                     ) { item ->
+                        val index = relatedFlagItems.indexOf(item)
+                        val lastHeader = relatedFlagItems.subList(0, index)
+                            .lastOrNull { it is LazyColumnItem.Header } as? LazyColumnItem.Header
+
                         when (item) {
                             is LazyColumnItem.Header -> RelatedHeader(
                                 modifier = Modifier.fillMaxWidth(),
@@ -237,6 +247,7 @@ fun RelatedFlagsMenuCard(
                                 flag = item.flag,
                                 currentFlag = currentFlag,
                                 menu = relatedFlagContent.menu,
+                                showDates = lastHeader?.title in showDatesHeaderTitles,
                                 buttonColors1 = buttonColors1,
                                 buttonColors2 = buttonColors2,
                                 onFlagSelect = onFlagSelect,
@@ -281,6 +292,7 @@ private fun RelatedItem(
     flag: FlagView,
     currentFlag: FlagView,
     menu: RelatedFlagsMenu,
+    showDates: Boolean,
     buttonColors1: ButtonColors,
     buttonColors2: ButtonColors,
     onFlagSelect: (FlagView) -> Unit,
@@ -293,16 +305,11 @@ private fun RelatedItem(
         flag == currentFlag || (menu == RelatedFlagsMenu.POLITICAL && inverseFlagViewMap
             .getValue(flag) == currentFlag.previousFlagOfKey)
     val fromToYear =
-        if (flag.previousFlagOfKey != null && flag.fromYear != null && flag.toYear != null) {
-            val toYear =
-                if (flag.toYear == 0) stringResource(R.string.string_present)
-                else "${flag.toYear}"
-
-            stringResource(R.string.string_open_bracket) +
-                    "${flag.fromYear}" +
-                    stringResource(R.string.string_dash) +
-                    toYear +
-                    stringResource(R.string.string_close_bracket)
+        if (flag.isDated && (showDates || flag.previousFlagOfKey != null)) {
+            buildString {
+                append(stringResource(R.string.string_whitespace))
+                append(flagDatesString(flag))
+            }
         } else null
 
     TextButton(
@@ -331,7 +338,6 @@ private fun RelatedItem(
                     fromToYear?.let {
                         Text(
                             text = it,
-                            modifier = Modifier.padding(start = Dimens.extraSmall4),
                             fontWeight = FontWeight.Light,
                             style = MaterialTheme.typography.titleSmall,
                             color = Color.Gray,

@@ -44,7 +44,7 @@ import dev.aftly.flags.model.FlagSuperCategory.Political
 import dev.aftly.flags.model.FlagSuperCategory.Regional
 import dev.aftly.flags.model.FlagSuperCategory.TerritorialDistributionOfAuthority
 import dev.aftly.flags.model.FlagView
-import dev.aftly.flags.model.RelatedFlagsMenu
+import dev.aftly.flags.model.relatedmenu.RelatedFlagsMenu
 import dev.aftly.flags.ui.util.getChronologicalRelatedFlagsContentOrNull
 import dev.aftly.flags.ui.util.getFlagFromId
 import dev.aftly.flags.ui.util.getFlagIdsFromString

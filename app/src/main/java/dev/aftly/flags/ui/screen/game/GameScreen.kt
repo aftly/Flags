@@ -2,7 +2,6 @@ package dev.aftly.flags.ui.screen.game
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
-import androidx.annotation.StringRes
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -54,7 +53,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -78,10 +76,14 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -92,7 +94,7 @@ import dev.aftly.flags.R
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagView
-import dev.aftly.flags.model.GameMode
+import dev.aftly.flags.model.game.AnswerMode
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.CategoriesButtonMenu
 import dev.aftly.flags.ui.component.DialogActionButton
@@ -108,6 +110,7 @@ import dev.aftly.flags.ui.theme.successLight
 import dev.aftly.flags.ui.theme.surfaceLight
 import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.SystemUiController
+import dev.aftly.flags.ui.util.flagDatesString
 import kotlinx.coroutines.delay
 import java.util.Locale
 
@@ -116,7 +119,7 @@ import java.util.Locale
 fun GameScreen(
     viewModel: GameViewModel = viewModel(),
     currentBackStackEntry: NavBackStackEntry?,
-    toggleGameMode: GameMode,
+    toggleAnswerMode: AnswerMode,
     screen: Screen,
     isNavigationDrawerOpen: Boolean,
     onNavigateToList: Boolean,
@@ -145,16 +148,16 @@ fun GameScreen(
         }
     }
 
-    LaunchedEffect(toggleGameMode) {
-        if (toggleGameMode != uiState.gameMode) {
-            when (toggleGameMode) {
-                GameMode.NAMES -> viewModel.updateCurrentCategory(
+    LaunchedEffect(toggleAnswerMode) {
+        if (toggleAnswerMode != uiState.answerMode) {
+            when (toggleAnswerMode) {
+                AnswerMode.NAMES -> viewModel.updateCurrentCategory(
                     newSuperCategory = FlagSuperCategory.SovereignCountry,
                     newSubCategory = null,
                 )
-                GameMode.DATES -> viewModel.initDatesGameMode()
+                AnswerMode.DATES -> viewModel.initDatesGameMode()
             }
-            viewModel.updateGameMode(toggleGameMode)
+            viewModel.updateAnswerMode(toggleAnswerMode)
         }
     }
 
@@ -370,7 +373,7 @@ private fun GameScreen(
 
             GameContent(
                 modifier = Modifier.padding(scaffoldPadding),
-                gameMode = uiState.gameMode,
+                answerMode = uiState.answerMode,
                 isGame = uiState.isGame,
                 isGameOver = uiState.isGameOver,
                 isWideScreen = isWideScreen,
@@ -412,7 +415,7 @@ private fun GameScreen(
             buttonHorizontalPadding = Dimens.marginHorizontal16,
             flagCount = null,
             onButtonHeightChange = { buttonHeight = it },
-            isMenuEnabled = uiState.gameMode != GameMode.DATES,
+            isMenuEnabled = uiState.answerMode != AnswerMode.DATES,
             isMenuExpanded = isMenuExpanded,
             onMenuButtonClick = { isMenuExpanded = !isMenuExpanded },
             isSavedFlagsNotEmpty = savedFlags.isNotEmpty(),
@@ -439,7 +442,7 @@ private fun GameScreen(
 @Composable
 private fun GameContent(
     modifier: Modifier = Modifier,
-    gameMode: GameMode,
+    answerMode: AnswerMode,
     isGame: Boolean,
     isGameOver: Boolean,
     isWideScreen: Boolean,
@@ -531,7 +534,7 @@ private fun GameContent(
         )
 
         GameCard(
-            gameMode = gameMode,
+            answerMode = answerMode,
             isGame = isGame,
             isGameOver = isGameOver,
             contentColumnHeight = columnHeight,
@@ -611,7 +614,7 @@ private fun GameContent(
 @Composable
 private fun GameCard(
     modifier: Modifier = Modifier,
-    gameMode: GameMode,
+    answerMode: AnswerMode,
     isGame: Boolean,
     isGameOver: Boolean,
     contentColumnHeight: Dp,
@@ -669,9 +672,9 @@ private fun GameCard(
         animationSpec = animationSpecError,
     )
 
-    val gameModeLabelResId = when (gameMode) {
-        GameMode.NAMES -> R.string.game_guess_field_names_label
-        GameMode.DATES -> R.string.game_guess_field_dates_label
+    val gameModeLabelResId = when (answerMode) {
+        AnswerMode.NAMES -> R.string.game_guess_field_names_label
+        AnswerMode.DATES -> R.string.game_guess_field_dates_label
     }
     val labelDefault = stringResource(gameModeLabelResId)
     val labelSuccess = stringResource(R.string.game_guess_field_label_success)
@@ -679,7 +682,7 @@ private fun GameCard(
     var labelState by remember { mutableStateOf(value = labelDefault) }
 
     /* LaunchedEffects for triggering animations of above variables */
-    LaunchedEffect(gameMode) {
+    LaunchedEffect(answerMode) {
         if (labelState != labelSuccess && labelState != labelError)
             labelState = labelDefault
     }
@@ -720,11 +723,16 @@ private fun GameCard(
     val focusManager = LocalFocusManager.current
 
     /* Referencing currentFlag.flagOf directly in Text() shows next flagOf for 1 frame after skip */
-    @StringRes var correctAnswer by rememberSaveable {
-        mutableIntStateOf(value = R.string.game_button_show)
-    }
-    LaunchedEffect(isShowAnswer) {
-        if (isShowAnswer) correctAnswer = currentFlag.flagOf
+    val correctAnswer = when (isShowAnswer to answerMode) {
+        true to AnswerMode.NAMES -> AnnotatedString(text = stringResource(currentFlag.flagOf))
+        true to AnswerMode.DATES -> buildAnnotatedString {
+            withStyle(style = SpanStyle(fontWeight = FontWeight.Light)) {
+                append(stringResource(currentFlag.flagOf))
+            }
+            append(stringResource(R.string.string_new_line))
+            append(flagDatesString(flag = currentFlag, isGameDatesMode = true))
+        }
+        else -> null
     }
 
     /* Manage FocusRequester */
@@ -792,7 +800,7 @@ private fun GameCard(
                     Spacer(modifier = Modifier.width(2.dp))
 
                     Text(
-                        text = stringResource(gameMode.title),
+                        text = stringResource(answerMode.title),
                         modifier = Modifier
                             .clip(MaterialTheme.shapes.medium)
                             .background(MaterialTheme.colorScheme.tertiary)
@@ -919,19 +927,21 @@ private fun GameCard(
                             modifier = Modifier.padding(Dimens.medium16),
                             contentAlignment = Alignment.Center,
                         ) {
-                            Text(
-                                text = stringResource(correctAnswer),
-                                modifier = Modifier
-                                    .clip(MaterialTheme.shapes.large)
-                                    .background(color = Color.Black.copy(alpha = 0.75f))
-                                    .padding(
-                                        vertical = Dimens.small8,
-                                        horizontal = Dimens.medium16,
-                                    ),
-                                color = surfaceLight,
-                                textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.headlineLarge,
-                            )
+                            correctAnswer?.let { answer ->
+                                Text(
+                                    text = answer,
+                                    modifier = Modifier
+                                        .clip(MaterialTheme.shapes.large)
+                                        .background(color = Color.Black.copy(alpha = 0.75f))
+                                        .padding(
+                                            vertical = Dimens.small8,
+                                            horizontal = Dimens.medium16,
+                                        ),
+                                    color = surfaceLight,
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.headlineLarge,
+                                )
+                            }
                         }
                     }
 
@@ -967,9 +977,9 @@ private fun GameCard(
                 },
                 isError = isGuessWrong,
                 keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = when (gameMode) {
-                        GameMode.NAMES -> KeyboardType.Text
-                        GameMode.DATES -> KeyboardType.Number
+                    keyboardType = when (answerMode) {
+                        AnswerMode.NAMES -> KeyboardType.Text
+                        AnswerMode.DATES -> KeyboardType.Number
                     },
                     imeAction = ImeAction.Done,
                 ),

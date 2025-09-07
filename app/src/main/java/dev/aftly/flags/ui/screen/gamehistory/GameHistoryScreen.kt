@@ -45,8 +45,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.R
 import dev.aftly.flags.data.room.scorehistory.ScoreItem
-import dev.aftly.flags.model.FlagSuperCategory
-import dev.aftly.flags.model.TimeMode
+import dev.aftly.flags.model.game.TimeMode
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.NoResultsFound
 import dev.aftly.flags.ui.component.ResultsType
@@ -388,7 +387,7 @@ private fun HistoryItem(
                     Text(
                         text = formatTimestamp(item.timestamp).replace(
                             oldValue = stringResource(R.string.game_score_details_time_date_connector),
-                            newValue = stringResource(R.string.game_score_details_time_date_separator),
+                            newValue = stringResource(R.string.string_new_line),
                         ),
                         modifier = Modifier.padding(horizontal = padding, vertical = padding / 2),
                         textAlign = TextAlign.Center,

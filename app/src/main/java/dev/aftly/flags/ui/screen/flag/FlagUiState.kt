@@ -4,8 +4,8 @@ import dev.aftly.flags.data.DataSource.nullFlag
 import dev.aftly.flags.data.room.savedflags.SavedFlag
 import dev.aftly.flags.model.FlagScreenContent
 import dev.aftly.flags.model.FlagView
-import dev.aftly.flags.model.RelatedFlagsContent
-import dev.aftly.flags.model.RelatedFlagsMenu
+import dev.aftly.flags.model.relatedmenu.RelatedFlagsContent
+import dev.aftly.flags.model.relatedmenu.RelatedFlagsMenu
 
 data class FlagUiState(
     val flag: FlagView = nullFlag,

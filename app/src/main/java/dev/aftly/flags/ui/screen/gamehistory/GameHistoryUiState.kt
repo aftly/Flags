@@ -1,7 +1,7 @@
 package dev.aftly.flags.ui.screen.gamehistory
 
 import dev.aftly.flags.data.room.scorehistory.ScoreItem
-import dev.aftly.flags.model.ScoreData
+import dev.aftly.flags.model.game.ScoreData
 
 data class GameHistoryUiState(
     val scores: List<ScoreItem> = emptyList(),

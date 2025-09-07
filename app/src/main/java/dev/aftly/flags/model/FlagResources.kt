@@ -1,5 +1,8 @@
 package dev.aftly.flags.model
 
+import dev.aftly.flags.model.serialization.BooleanSource
+import dev.aftly.flags.model.serialization.DrawableResName
+import dev.aftly.flags.model.serialization.StringResSource
 import kotlinx.serialization.Serializable
 
 @Serializable

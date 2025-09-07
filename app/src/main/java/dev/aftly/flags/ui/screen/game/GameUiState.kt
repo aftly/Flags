@@ -5,8 +5,8 @@ import dev.aftly.flags.data.DataSource.nullFlag
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagView
-import dev.aftly.flags.model.GameMode
-import dev.aftly.flags.model.ScoreData
+import dev.aftly.flags.model.game.ScoreData
+import dev.aftly.flags.model.game.AnswerMode
 
 data class GameUiState(
     val allFlags: List<FlagView> = allFlagsList,
@@ -39,7 +39,7 @@ data class GameUiState(
     val isConfirmShowAnswer: Boolean = false,
     val isShowAnswer: Boolean = false,
 
-    val gameMode: GameMode = GameMode.NAMES,
+    val answerMode: AnswerMode = AnswerMode.NAMES,
 
     val isGame: Boolean = true,
     val isGameOver: Boolean = false,
