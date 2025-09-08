@@ -115,7 +115,6 @@ import kotlinx.coroutines.launch
 fun ListFlagsScreen(
     viewModel: ListFlagsViewModel = viewModel(),
     currentBackStackEntry: NavBackStackEntry?,
-    screen: Screen,
     onNavigationDrawer: () -> Unit,
     onNavigateToFlagScreen: (FlagView, List<FlagView>) -> Unit,
 ) {
@@ -133,7 +132,6 @@ fun ListFlagsScreen(
     ListFlagsScreen(
         uiState = uiState,
         currentBackStackEntry = currentBackStackEntry,
-        screen = screen,
         searchResults = searchResults,
         searchQueryValue = viewModel.searchQueryValue,
         onSearchQueryValueChange = { viewModel.onSearchQueryValueChange(it) },
@@ -167,7 +165,6 @@ private fun ListFlagsScreen(
     modifier: Modifier = Modifier,
     uiState: ListFlagsUiState,
     currentBackStackEntry: NavBackStackEntry?,
-    screen: Screen,
     searchResults: List<FlagView>,
     containerColor1: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     containerColor2: Color = MaterialTheme.colorScheme.secondary,
@@ -292,7 +289,6 @@ private fun ListFlagsScreen(
                 },
             topBar = {
                 ListFlagsTopBar(
-                    screen = screen,
                     scrollBehaviour = scrollBehaviour,
                     searchQuery = searchQueryValue,
                     isSearchQuery = uiState.isSearchQuery,
@@ -619,7 +615,6 @@ private fun ListItem(
 @Composable
 private fun ListFlagsTopBar(
     modifier: Modifier = Modifier,
-    screen: Screen,
     scrollBehaviour: TopAppBarScrollBehavior,
     searchQuery: TextFieldValue,
     isSearchQuery: Boolean,
@@ -635,7 +630,7 @@ private fun ListFlagsTopBar(
     onNavigationDrawer: () -> Unit,
 ) {
     val annotatedTitle = buildAnnotatedString {
-        val title = stringResource(screen.title)
+        val title = stringResource(R.string.flags_of_the_world)
         val flags = stringResource(R.string.flags)
         val whitespace = stringResource(R.string.string_whitespace)
         val words: List<String> = title.split(whitespace)

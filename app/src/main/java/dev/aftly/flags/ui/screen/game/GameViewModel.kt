@@ -15,6 +15,7 @@ import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.game.ScoreData
 import dev.aftly.flags.model.game.AnswerMode
+import dev.aftly.flags.model.game.DifficultyMode
 import dev.aftly.flags.model.game.TimeMode
 import dev.aftly.flags.ui.util.getFlagView
 import dev.aftly.flags.ui.util.getFlagsFromCategory
@@ -51,6 +52,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private var skippedGuessedFlags = mutableListOf<FlagView>()
     private var skippedFlags = mutableListOf<FlagView>()
     private var shownFlags = mutableListOf<FlagView>()
+    private var failedFlags = mutableListOf<FlagView>()
 
     private var timerStandardJob: Job? = null
     private var timerTimeTrialJob: Job? = null
@@ -84,12 +86,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     /* Reset game state with a new flag and necessary starting values */
     fun resetGame(
         startGame: Boolean = true,
-        initTimeTrial: Boolean = false,
+        isTimeTrial: Boolean = false,
     ) {
         guessedFlags = mutableListOf()
         skippedGuessedFlags = mutableListOf()
         skippedFlags = mutableListOf()
         shownFlags = mutableListOf()
+        failedFlags = mutableListOf()
         userGuess = ""
         cancelTimers()
         cancelConfirmShowAnswer()
@@ -112,6 +115,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 nextFlagInSkipped = null,
                 isTimerPaused = false,
                 timerStandard = 0,
+                answersRemaining = it.difficultyMode.guessLimit,
                 isGame = if (it.currentFlags.isNotEmpty()) startGame else false,
                 isGameOver = false,
                 isGameOverDialog = false,
@@ -121,7 +125,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             )
         }
 
-        if (!initTimeTrial) {
+        if (!isTimeTrial) {
             _uiState.update {
                 it.copy(
                     isTimeTrial = false,
@@ -140,52 +144,73 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     /* To enable buttons, show flag and start timer after resetGame() without startGame = true */
     fun startGame() {
         if (!uiState.value.isGame && uiState.value.currentFlags.isNotEmpty()) {
+            val isTimeTrial = uiState.value.isTimeTrial
+
             _uiState.update { it.copy(isGame = true) }
 
-            if (isJobInactive(timerStandardJob)) {
+            if (isTimeTrial && isJobInactive(timerTimeTrialJob)) {
+                timerTimeTrialJob = viewModelScope.launch { startTimerTimeTrial() }
+
+            } else if (!isTimeTrial && isJobInactive(timerStandardJob)) {
                 timerStandardJob = viewModelScope.launch { startTimerStandard() }
             }
         }
     }
 
 
-    fun initDatesGameMode() {
-        val gameMode = uiState.value.answerMode
-        val datesFlags = uiState.value.allFlags.filter { flag ->
-            flag.fromYear != null || (flag.toYear != null && flag.toYear != 0)
+    fun updateGameModes(
+        answerMode: AnswerMode,
+        difficultyMode: DifficultyMode,
+    ) {
+        if (answerMode != uiState.value.answerMode) {
+            /* Reset game with default categories */
+            updateCurrentCategory(
+                newSuperCategory = FlagSuperCategory.SovereignCountry,
+                newSubCategory = null,
+                answerModeNew = answerMode,
+            )
         }
 
-        _uiState.value = GameUiState(
-            currentFlags = datesFlags,
-            answerMode = gameMode,
-        )
-        resetGame()
-    }
+        if (difficultyMode != uiState.value.difficultyMode) {
+            _uiState.update { it.copy(difficultyMode = difficultyMode) }
 
-
-    fun updateAnswerMode(answerMode: AnswerMode) {
-        _uiState.update { it.copy(answerMode = answerMode) }
+            /* Reset game depending on time trial */
+            if (uiState.value.isTimeTrial) {
+                setTimeTrial(startTime = uiState.value.timeTrialStartTime)
+            } else {
+                resetGame()
+            }
+        }
     }
 
 
     fun updateCurrentCategory(
         newSuperCategory: FlagSuperCategory?,
         newSubCategory: FlagCategory?,
+        answerModeNew: AnswerMode? = null,
     ) {
-        val answerMode = uiState.value.answerMode
+        val allFlags = uiState.value.allFlags
+        val answerMode = answerModeNew ?: uiState.value.answerMode
+        val difficultyMode = uiState.value.difficultyMode
+        val isTimeTrial = uiState.value.isTimeTrial
+        val timeTrialStartTime = uiState.value.timeTrialStartTime
+        val isDatesMode = answerMode == AnswerMode.DATES
 
         /* If the new category is the All super category set state with default values (which
          * includes allFlagsList), else dynamically generate flags list from category info */
-        if (newSuperCategory == All) {
-            _uiState.value = GameUiState(answerMode = answerMode)
-            resetGame()
+        if (newSuperCategory == All || isDatesMode) {
+            _uiState.value = GameUiState(
+                currentFlags = if (isDatesMode) getDatesFlags(allFlags) else allFlags,
+                answerMode = answerMode,
+                difficultyMode = difficultyMode,
+            )
 
         } else {
             _uiState.value = GameUiState(
                 currentFlags = getFlagsFromCategory(
                     superCategory = newSuperCategory,
                     subCategory = newSubCategory,
-                    allFlags = uiState.value.allFlags,
+                    allFlags = allFlags,
                 ),
                 currentSuperCategories = buildList {
                     newSuperCategory?.let { add(it) }
@@ -194,10 +219,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     newSubCategory?.let { add(it) }
                 },
                 answerMode = answerMode,
+                difficultyMode = difficultyMode,
             )
-
-            resetGame()
         }
+
+        if (isTimeTrial) setTimeTrial(startTime = timeTrialStartTime)
+        else resetGame()
     }
 
 
@@ -257,6 +284,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         val allFlags = uiState.value.allFlags
         val currentFlags = uiState.value.currentFlags
         val answerMode = uiState.value.answerMode
+        val difficultyMode = uiState.value.difficultyMode
+        val isTimeTrial = uiState.value.isTimeTrial
+        val timeTrialStartTime = uiState.value.timeTrialStartTime
         _uiState.value = GameUiState(
             /* Get new flags list from categories lists and either currentFlags or allFlags
              * (depending on select vs. deselect) */
@@ -271,9 +301,11 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             currentSuperCategories = newSuperCategories,
             currentSubCategories = newSubCategories,
             answerMode = answerMode,
+            difficultyMode = difficultyMode,
         )
 
-        resetGame(startGame = false)
+        if (isTimeTrial) setTimeTrial(startTime = timeTrialStartTime, startGame = false)
+        else resetGame(startGame = false)
     }
 
 
@@ -285,53 +317,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 currentSubCategories = emptyList(),
             )
         }
-
         resetGame()
     }
 
 
     fun isScoresEmpty(): Boolean =
         guessedFlags.isEmpty() && skippedFlags.isEmpty() && shownFlags.isEmpty()
-
-    fun toggleConfirmExitDialog(on: Boolean) {
-        _uiState.update { it.copy(isConfirmExitDialog = on) }
-    }
-
-
-    fun toggleTimeTrialDialog(on: Boolean) {
-        _uiState.update { it.copy(isTimeTrialDialog = on) }
-    }
-
-    fun initTimeTrial(startTime: Int) {
-        /* Cancel timers and reset game */
-        cancelTimers()
-        cancelConfirmShowAnswer()
-        resetGame(initTimeTrial = true)
-
-        _uiState.update {
-            it.copy(
-                isTimeTrial = true,
-                timerTimeTrial = startTime,
-                timeTrialStartTime = startTime,
-            )
-        }
-
-        timerTimeTrialJob = viewModelScope.launch { startTimerTimeTrial() }
-    }
-
-    fun updateUserMinutesInput(newString: String) {
-        /* Only update if 2 characters or less AND a number OR empty */
-        if ((newString.toIntOrNull() != null || newString == "") && newString.length <= 2) {
-            userTimerInputMinutes = newString
-        }
-    }
-    fun updateUserSecondsInput(newString: String) {
-        /* Only update if 2 characters or less AND empty OR a number of 60 or less */
-        if ((newString.toIntOrNull()?.let { return@let it <= 60 } == true || newString == "") &&
-            newString.length <= 2) {
-            userTimerInputSeconds = newString
-        }
-    }
 
 
     fun updateUserGuess(newString: String) {
@@ -373,6 +364,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         if (normalizedUserGuess in normalizedAnswers) {
+            /* If correct answer */
             userGuess = ""
             _uiState.update {
                 it.copy(
@@ -385,12 +377,25 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             updateCurrentFlag()
 
         } else {
+            /* If incorrect answer */
+            val answersRemaining = uiState.value.answersRemaining
+            val isUpdateFlag = answersRemaining == 1
+            val isSuddenDeath = answersRemaining == 0
+
+            if (isUpdateFlag) {
+                updateCurrentFlag(isFail = true)
+            } else if (isSuddenDeath) {
+                return endGame()
+            }
+
             userGuess = ""
             _uiState.update {
                 it.copy(
                     isGuessCorrect = false,
                     isGuessWrong = true,
                     isGuessWrongEvent = !it.isGuessWrongEvent,
+                    answersRemaining =
+                        if (isUpdateFlag) it.answersRemaining else answersRemaining?.dec(),
                 )
             }
         }
@@ -428,14 +433,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         cancelTimers()
         cancelConfirmShowAnswer()
 
+        shownFlags.add(uiState.value.currentFlag)
         _uiState.update {
             it.copy(
                 isShowAnswer = true,
-                shownAnswerCount = it.shownAnswerCount.inc(),
+                shownAnswerCount = shownFlags.size,
                 isTimerPaused = true,
             )
         }
-        shownFlags.add(uiState.value.currentFlag)
     }
 
     fun confirmShowAnswer() {
@@ -466,13 +471,63 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+
+    fun setTimeTrial(
+        startTime: Int,
+        startGame: Boolean = true,
+    ) {
+        /* Cancel timers and reset game */
+        cancelTimers()
+        cancelConfirmShowAnswer()
+        resetGame(startGame = startGame, isTimeTrial = true)
+
+        _uiState.update {
+            it.copy(
+                isTimeTrial = true,
+                timerTimeTrial = startTime,
+                timeTrialStartTime = startTime,
+            )
+        }
+
+        if (uiState.value.isGame) {
+            timerTimeTrialJob = viewModelScope.launch { startTimerTimeTrial() }
+        }
+    }
+
+    fun updateUserMinutesInput(newString: String) {
+        /* Only update if 2 characters or less AND a number OR empty */
+        if ((newString.toIntOrNull() != null || newString == "") && newString.length <= 2) {
+            userTimerInputMinutes = newString
+        }
+    }
+    fun updateUserSecondsInput(newString: String) {
+        /* Only update if 2 characters or less AND empty OR a number of 60 or less */
+        if ((newString.toIntOrNull()?.let { return@let it <= 60 } == true || newString == "") &&
+            newString.length <= 2) {
+            userTimerInputSeconds = newString
+        }
+    }
+
+
+    /* Toggle game dialogs */
+    fun toggleTimeTrialDialog(on: Boolean) {
+        _uiState.update { it.copy(isTimeTrialDialog = on) }
+    }
+
+    fun toggleGameModesDialog(on: Boolean) {
+        _uiState.update { it.copy(isGameModesDialog = on) }
+    }
+
     fun toggleGameOverDialog(on: Boolean) {
         _uiState.update { it.copy(isGameOverDialog = on) }
     }
 
-
     fun toggleScoreDetails(on: Boolean) {
         _uiState.update { it.copy(isScoreDetails = on) }
+    }
+
+    fun toggleConfirmExitDialog(on: Boolean) {
+        _uiState.update { it.copy(isConfirmExitDialog = on) }
     }
 
 
@@ -484,14 +539,23 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
+    /* Filter flags with non-null date parameters */
+    private fun getDatesFlags(flags: List<FlagView>) = flags.filter { it.isDated }
+
+
     private fun updateCurrentFlag(
         isSkip: Boolean = false,
         isShowAnswer: Boolean = false,
+        isFail: Boolean = false,
     ) {
         val currentFlag: FlagView = uiState.value.currentFlag
 
         if (isSkip) { /* If user skip & un-skipped flags remain, add flag to skip list */
             if (!isSkipMax()) skippedFlags.add(currentFlag)
+
+        } else if (isFail) {
+            failedFlags.add(currentFlag)
+            _uiState.update { it.copy(failedAnswerCount = failedFlags.size) }
 
         } else { /* If user guess, add flag to guessed set */
             if (!isShowAnswer) guessedFlags.add(currentFlag)
@@ -504,16 +568,18 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         /* If all flags guessed, end the game */
-        if (shownFlags.size + guessedFlags.size == uiState.value.currentFlags.size) return endGame()
+        if (guessedFlags.size + shownFlags.size + failedFlags.size >=
+            uiState.value.currentFlags.size) return endGame()
 
         /* If no un-skipped flags remain get skipped flag, else get random flag */
-        val newFlag = if (isSkipMax()) getSkippedFlag() else getRandomFlag()
+        val newFlag = if (!isFail && isSkipMax()) getSkippedFlag() else getRandomFlag()
         val newFlagStrings = getStringsList(newFlag)
 
         _uiState.update {
             it.copy(
                 currentFlag = newFlag,
                 currentFlagStrings = newFlagStrings,
+                answersRemaining = it.difficultyMode.guessLimit,
             )
         }
     }
@@ -534,14 +600,19 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             _uiState.update { it.copy(currentFlag = nullFlag) }
         }
 
-        if (currentFlags.isNotEmpty()) {
+        return if (currentFlags.isNotEmpty()) {
             val newFlag = currentFlags.random()
+            val newFlagExclusions = buildList {
+                add(uiState.value.currentFlag)
+                addAll(elements =
+                    listOf(guessedFlags, skippedFlags, shownFlags, failedFlags).flatten()
+                )
+            }
+            /* Recurs until (random) newFlag not exclusive */
+            if (newFlag in newFlagExclusions) getRandomFlag() else newFlag
 
-            /* Recurs until (random) newFlag not currentFlag or in guessedFlags or in skippedFlags */
-            return if (newFlag == uiState.value.currentFlag || newFlag in guessedFlags ||
-                newFlag in skippedFlags || newFlag in shownFlags) getRandomFlag() else newFlag
         } else {
-            return nullFlag
+            nullFlag
         }
     }
 
@@ -553,7 +624,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private fun getSkippedFlag(): FlagView {
         val nextFlagInSkipped = uiState.value.nextFlagInSkipped
 
-        if (nextFlagInSkipped != null) { // Ie. After first time call to getSkippedFlag()
+        return if (nextFlagInSkipped != null) { // Ie. After first time call to getSkippedFlag()
             val nextFlagIndex = skippedFlags.indexOf(nextFlagInSkipped)
             val isListEnd = nextFlagIndex == skippedFlags.size - 1
 
@@ -563,13 +634,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 _uiState.update { it.copy(nextFlagInSkipped = skippedFlags[nextFlagIndex + 1]) }
             }
 
-            return nextFlagInSkipped
+            nextFlagInSkipped
 
         } else { // On first time call to getSkippedFlag()
             val nextIndex = if (skippedFlags.size == 1) 0 else 1
             _uiState.update { it.copy(nextFlagInSkipped = skippedFlags[nextIndex]) }
 
-            return skippedFlags[0]
+            skippedFlags[0]
         }
     }
 

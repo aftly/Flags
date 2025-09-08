@@ -59,8 +59,6 @@ fun AppNavHost(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var onDrawerNavToListFromGame by rememberSaveable { mutableStateOf(value = false) }
-    var answerModeToggle by rememberSaveable { mutableStateOf(value = AnswerMode.NAMES) }
-    var difficultyModeToggle by rememberSaveable { mutableStateOf(value = DifficultyMode.EASY) }
 
     AppNavigationDrawer(
         drawerState = drawerState,
@@ -69,10 +67,6 @@ fun AppNavHost(
             in listOf(Screen.List, Screen.Game, Screen.Settings) -> true
             else -> false
         },
-        answerMode = answerModeToggle,
-        difficultyMode = difficultyModeToggle,
-        onAnswerMode = { answerModeToggle = it },
-        onDifficultyMode = { difficultyModeToggle = it },
         onClose = {
             scope.launch { drawerState.close() }
         },
@@ -150,7 +144,6 @@ fun AppNavHost(
             ) {
                 ListFlagsScreen(
                     currentBackStackEntry = currentBackStackEntry,
-                    screen = Screen.List,
                     onNavigationDrawer = {
                         scope.launch {
                             if (drawerState.isClosed) drawerState.open() else drawerState.close()
@@ -235,7 +228,6 @@ fun AppNavHost(
             ) {
                 GameScreen(
                     currentBackStackEntry = currentBackStackEntry,
-                    toggleAnswerMode = answerModeToggle,
                     screen = Screen.Game,
                     isNavigationDrawerOpen = drawerState.isOpen,
                     onNavigateToList = onDrawerNavToListFromGame,

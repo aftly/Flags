@@ -30,6 +30,7 @@ data class GameUiState(
 
     val correctGuessCount: Int = 0,
     val shownAnswerCount: Int = 0,
+    val failedAnswerCount: Int = 0,
     val isGuessCorrect: Boolean = false,
     val isGuessCorrectEvent: Boolean = false,
     val isGuessWrong: Boolean = false,
@@ -40,8 +41,10 @@ data class GameUiState(
     val isConfirmShowAnswer: Boolean = false,
     val isShowAnswer: Boolean = false,
 
+    val isGameModesDialog: Boolean = false,
     val answerMode: AnswerMode = AnswerMode.NAMES,
     val difficultyMode: DifficultyMode = DifficultyMode.EASY,
+    val answersRemaining: Int? = null,
 
     val isGame: Boolean = true,
     val isGameOver: Boolean = false,

@@ -32,5 +32,5 @@ data class FlagView(
     val isChronologicalRelatedFlags: Boolean, /* flag has */
     val categories: List<FlagCategory>,
 ) {
-    val isDated = fromYear != null || toYear != null
+    val isDated = fromYear != null || (toYear != null && toYear != 0)
 }

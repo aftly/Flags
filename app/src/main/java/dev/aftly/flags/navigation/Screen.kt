@@ -10,22 +10,22 @@ sealed class Screen(
 ) {
     data object List : Screen(
         route = "list_screen",
-        title = R.string.flags_of_the_world,
+        title = R.string.list_screen_title,
     )
 
     data object Flag : Screen(
         route = "flag_screen",
-        title = R.string.flag_title
+        title = R.string.flag_screen_title
     )
 
     data object Game : Screen(
         route = "game_screen",
-        title = R.string.game_title,
+        title = R.string.game_screen_title,
     )
 
     data object GameHistory : Screen(
         route = "game_history_screen",
-        title = R.string.game_history_title,
+        title = R.string.game_history_screen_title,
     )
 
     data object FullScreen : Screen(
@@ -35,7 +35,7 @@ sealed class Screen(
 
     data object Settings : Screen(
         route = "settings_screen",
-        title = R.string.settings_title,
+        title = R.string.settings_screen_title,
     )
 
 

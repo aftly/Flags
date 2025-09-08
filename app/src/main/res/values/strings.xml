@@ -209,12 +209,12 @@
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancel</string>
     <string name="error">Error</string>
-    <string name="flag_title">Flag</string>
+    <string name="flag_screen_title">Flag</string>
     <string name="flag">flag</string>
     <string name="flags">flags</string>
     <string name="flags_of_the_world">Flags of the World</string>
     <string name="fullscreen_title">Fullscreen</string>
-    <string name="game_title">Game</string>
+    <string name="game_screen_title">Game</string>
     <string name="game_button_submit">Submit</string>
     <string name="game_button_skip">Skip</string>
     <string name="game_button_show">Show answer</string>
@@ -227,8 +227,9 @@
     <string name="game_guess_field_dates_label">Guess date(s)</string>
     <string name="game_guess_field_label_error">Incorrect</string>
     <string name="game_guess_field_label_success">Correct!</string>
-    <string name="game_mode_names_title">Names</string>
-    <string name="game_mode_dates_title">Dates</string>
+    <string name="game_modes_title">Game Modes</string>
+    <string name="game_mode_answer_names_title">Names</string>
+    <string name="game_mode_answer_dates_title">Dates</string>
     <string name="game_over_title">Game over</string>
     <string name="game_over_text">Flags guessed: %d/%d</string>
     <string name="game_over_text_max_score">You guessed every flag…\nNerd!</string>
@@ -259,11 +260,12 @@
     <string name="game_time_trial_input_placeholder">00</string>
     <string name="game_time_trial_minute">m</string>
     <string name="game_time_trial_second">s</string>
-    <string name="game_history_title">Score History</string>
+    <string name="game_history_screen_title">Score History</string>
     <string name="game_history_score">%d/%d</string>
     <string name="game_history_category_multiple">Multiple</string>
     <string name="game_history_none_description_1">Play some games to create score history</string>
     <string name="game_history_none_description_2">(Requires at least 1 correct, skipped or shown flag)</string>
+    <string name="list_screen_title">View</string>
     <string name="menu_related_flags_political">Politically Related</string>
     <string name="menu_related_flags_political_short">Pol</string>
     <string name="menu_related_flags_chronological">Chronologically Related</string>
@@ -291,7 +293,7 @@
     <string name="search_clear">Clear search</string>
     <string name="search_no_results_description_1">Queries will match common &amp; official names</string>
     <string name="search_no_results_description_2">(Matches are special character agnostic)</string>
-    <string name="settings_title">Settings</string>
+    <string name="settings_screen_title">Settings</string>
     <string name="settings_colors">Colors</string>
     <string name="settings_dynamic_colors_title">Dynamic color / Material You</string>
     <string name="settings_dynamic_colors_description">Use colors from system palette</string>
@@ -319,6 +321,7 @@
     <string name="string_comma_whitespace">,\ </string>
     <string name="string_defunct">defunct</string>
     <string name="string_defunct_bracketed">(defunct)</string>
+    <string name="string_forward_slash">/</string>
     <string name="string_in">in</string>
     <string name="string_in_the">in the</string>
     <string name="string_is_a">is a</string>

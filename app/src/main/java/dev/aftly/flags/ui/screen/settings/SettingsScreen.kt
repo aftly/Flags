@@ -490,13 +490,11 @@ private fun SettingsTopBar(
 ) {
     TopAppBar(
         title = {
-            screen.title?.let {
-                Text(
-                    text = stringResource(it),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
+            Text(
+                text = stringResource(screen.title),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+            )
         },
         modifier = modifier,
         navigationIcon = {

@@ -2,6 +2,7 @@ package dev.aftly.flags.ui.screen.game
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
+import androidx.annotation.StringRes
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -30,17 +31,22 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.AllInclusive
+import androidx.compose.material.icons.filled.ElectricBolt
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Replay
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -95,6 +101,7 @@ import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.game.AnswerMode
+import dev.aftly.flags.model.game.DifficultyMode
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.CategoriesButtonMenu
 import dev.aftly.flags.ui.component.DialogActionButton
@@ -119,7 +126,6 @@ import java.util.Locale
 fun GameScreen(
     viewModel: GameViewModel = viewModel(),
     currentBackStackEntry: NavBackStackEntry?,
-    toggleAnswerMode: AnswerMode,
     screen: Screen,
     isNavigationDrawerOpen: Boolean,
     onNavigateToList: Boolean,
@@ -145,19 +151,6 @@ fun GameScreen(
 
         currentBackStackEntry?.savedStateHandle?.get<Boolean>("isGameOver")?.let { isGameOver ->
             if (isGameOver) viewModel.toggleGameOverDialog(on = true)
-        }
-    }
-
-    LaunchedEffect(toggleAnswerMode) {
-        if (toggleAnswerMode != uiState.answerMode) {
-            when (toggleAnswerMode) {
-                AnswerMode.NAMES -> viewModel.updateCurrentCategory(
-                    newSuperCategory = FlagSuperCategory.SovereignCountry,
-                    newSubCategory = null,
-                )
-                AnswerMode.DATES -> viewModel.initDatesGameMode()
-            }
-            viewModel.updateAnswerMode(toggleAnswerMode)
         }
     }
 
@@ -203,8 +196,19 @@ fun GameScreen(
             userSecondsInput = viewModel.userTimerInputSeconds,
             onUserMinutesInputChange = { viewModel.updateUserMinutesInput(it) },
             onUserSecondsInputChange = { viewModel.updateUserSecondsInput(it) },
-            onTimeTrial = { viewModel.initTimeTrial(it) },
             onDismiss = { viewModel.toggleTimeTrialDialog(on = false) },
+            onTimeTrial = { viewModel.setTimeTrial(it) },
+        )
+    }
+
+    if (uiState.isGameModesDialog) {
+        GameModesDialog(
+            answerMode = uiState.answerMode,
+            difficultyMode = uiState.difficultyMode,
+            onDismiss = { viewModel.toggleGameModesDialog(on = false) },
+            onGameModes = { answerMode, difficultyMode ->
+                viewModel.updateGameModes(answerMode, difficultyMode)
+            }
         )
     }
 
@@ -253,10 +257,12 @@ fun GameScreen(
         onSkip = { viewModel.skipFlag() },
         onConfirmShowAnswer = { viewModel.confirmShowAnswer() },
         onShowAnswer = { viewModel.showAnswer() },
-        onTimeTrialDialog = { viewModel.toggleTimeTrialDialog(on = true) },
         onStartGame = { viewModel.startGame() },
         onEndGame = { viewModel.endGame() },
+        onResetGame = { viewModel.resetGame() },
         onNavigationDrawer = onNavigationDrawer,
+        onTimeTrialDialog = { viewModel.toggleTimeTrialDialog(on = true) },
+        onGameModesDialog = { viewModel.toggleGameModesDialog(on = true) },
         onScoreHistory = { onScoreHistory(uiState.isGameOver) },
         onFullscreen = { isFlagWide ->
             onFullscreen(uiState.currentFlag, isFlagWide, !uiState.isShowAnswer)
@@ -264,8 +270,8 @@ fun GameScreen(
         onCategorySelectSingle = { newSuperCategory, newSubCategory ->
             viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
         },
-        onCategorySelectMultiple = { selectSuperCategory, selectSubCategory ->
-            viewModel.updateCurrentCategories(selectSuperCategory, selectSubCategory)
+        onCategorySelectMultiple = { newSuperCategory, newSubCategory ->
+            viewModel.updateCurrentCategories(newSuperCategory, newSubCategory)
         },
         onSavedFlagsSelect = { viewModel.selectSavedFlags() },
     )
@@ -285,10 +291,12 @@ private fun GameScreen(
     onSkip: () -> Unit,
     onConfirmShowAnswer: () -> Unit,
     onShowAnswer: () -> Unit,
-    onTimeTrialDialog: () -> Unit,
     onStartGame: () -> Unit,
     onEndGame: () -> Unit,
+    onResetGame: () -> Unit,
     onNavigationDrawer: () -> Unit,
+    onTimeTrialDialog: () -> Unit,
+    onGameModesDialog: () -> Unit,
     onScoreHistory: () -> Unit,
     onFullscreen: (Boolean) -> Unit,
     onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
@@ -352,19 +360,28 @@ private fun GameScreen(
                     screen = screen,
                     isGame = uiState.isGame,
                     isFlags = uiState.currentFlags.isNotEmpty(),
+                    isTimeTrial = uiState.isTimeTrial,
                     isTimerPaused = uiState.isTimerPaused,
                     timer = timerString,
                     onNavigationDrawer = {
                         focusManager.clearFocus()
                         onNavigationDrawer()
                     },
-                    onScoreHistory = {
+                    onTimeAction = {
+                        if (uiState.isTimeTrial) {
+                            onResetGame()
+                        } else {
+                            focusManager.clearFocus()
+                            onTimeTrialDialog()
+                        }
+                    },
+                    onSettingsAction = {
+                        focusManager.clearFocus()
+                        onGameModesDialog()
+                    },
+                    onHistoryAction = {
                         focusManager.clearFocus()
                         onScoreHistory()
-                    },
-                    onTimeTrialAction = {
-                        focusManager.clearFocus()
-                        onTimeTrialDialog()
                     },
                 )
             }
@@ -380,7 +397,7 @@ private fun GameScreen(
                 filterButtonHeight = buttonHeight,
                 totalFlagCount = uiState.totalFlagCount,
                 correctGuessCount = uiState.correctGuessCount,
-                shownAnswerCount = uiState.shownAnswerCount,
+                shownFailedAnswerCount = uiState.shownAnswerCount + uiState.failedAnswerCount,
                 currentFlag = uiState.currentFlag,
                 userGuess = userGuess,
                 onUserGuessChange = onUserGuessChange,
@@ -449,7 +466,7 @@ private fun GameContent(
     filterButtonHeight: Dp,
     totalFlagCount: Int,
     correctGuessCount: Int,
-    shownAnswerCount: Int,
+    shownFailedAnswerCount: Int,
     currentFlag: FlagView,
     userGuess: String,
     onUserGuessChange: (String) -> Unit,
@@ -548,7 +565,7 @@ private fun GameContent(
             onCardWidthModifierChange = { cardWidthModifier = it },
             totalFlagCount = totalFlagCount,
             correctGuessCount = correctGuessCount,
-            shownAnswerCount = shownAnswerCount,
+            shownFailedAnswerCount = shownFailedAnswerCount,
             currentFlag = currentFlag,
             userGuess = userGuess,
             onUserGuessChange = onUserGuessChange,
@@ -628,7 +645,7 @@ private fun GameCard(
     onCardWidthModifierChange: (Modifier) -> Unit,
     totalFlagCount: Int,
     correctGuessCount: Int,
-    shownAnswerCount: Int,
+    shownFailedAnswerCount: Int,
     currentFlag: FlagView,
     userGuess: String,
     onUserGuessChange: (String) -> Unit,
@@ -771,7 +788,12 @@ private fun GameCard(
                 /* Flag counters and game mode */
                 Row {
                     Text(
-                        text = "${correctGuessCount + shownAnswerCount}/$totalFlagCount",
+                        text = buildString {
+                            val progress = correctGuessCount + shownFailedAnswerCount
+                            append(progress.toString())
+                            append(stringResource(R.string.string_forward_slash))
+                            append(totalFlagCount.toString())
+                        },
                         modifier = Modifier
                             .clip(MaterialTheme.shapes.medium)
                             .background(MaterialTheme.colorScheme.primary)
@@ -780,11 +802,11 @@ private fun GameCard(
                         style = MaterialTheme.typography.titleSmall,
                     )
 
-                    if (shownAnswerCount > 0) {
+                    if (shownFailedAnswerCount > 0) {
                         Spacer(modifier = Modifier.width(2.dp))
 
                         Text(
-                            text = "$shownAnswerCount",
+                            text = shownFailedAnswerCount.toString(),
                             modifier = Modifier
                                 .clip(MaterialTheme.shapes.medium)
                                 .background(MaterialTheme.colorScheme.error)
@@ -1005,126 +1027,39 @@ private fun GameCard(
 }
 
 
+/* Template component for other simple game screen submission dialogs */
 @Composable
-private fun TimeTrialDialog(
-    userMinutesInput: String,
-    userSecondsInput: String,
-    onUserMinutesInputChange: (String) -> Unit,
-    onUserSecondsInputChange: (String) -> Unit,
-    onTimeTrial: (Int) -> Unit,
+private fun GameDialog(
+    @StringRes title: Int,
     onDismiss: () -> Unit,
+    onSubmit: () -> Unit,
+    content: @Composable (() -> Unit),
 ) {
-    val inputStyle = MaterialTheme.typography.headlineLarge
-    val inputWidth = 68.dp
-    val inputShape = MaterialTheme.shapes.large
-    val inputAnnotationStyle = MaterialTheme.typography.titleLarge
-    val focusRequesterMinutes = remember { FocusRequester() }
-    val focusRequesterSeconds = remember { FocusRequester() }
-
-    fun onTimeTrialAction() {
-        val timeMinute = when (userMinutesInput) {
-            "" -> 0
-            else -> userMinutesInput.toInt() * 60
-        }
-        val timeSecond = when (userSecondsInput) {
-            "" -> 0
-            else -> userSecondsInput.toInt()
-        }
-
-        onTimeTrial(timeMinute + timeSecond)
-        onDismiss()
-    }
-
-    LaunchedEffect(key1 = Unit) { focusRequesterMinutes.requestFocus() }
-
-
     Dialog(onDismissRequest = onDismiss) {
         Card(shape = MaterialTheme.shapes.extraLarge) {
             Column(
-                modifier = Modifier.padding(
-                    top = Dimens.large24,
-                    start = Dimens.large24,
-                ),
-                verticalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.padding(top = Dimens.large24),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 /* Title */
-                Row {
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = Dimens.large24)
+                        .align(Alignment.Start)
+                ) {
                     Text(
-                        text = stringResource(R.string.game_time_trial_title),
+                        text = stringResource(title),
                         style = MaterialTheme.typography.headlineSmall,
                     )
                 }
 
-
-                /* Time trial inputs */
-                Row(
-                    modifier = Modifier.padding(
-                        top = Dimens.large24,
-                        end = Dimens.large24,
-                    ),
-                    verticalAlignment = Alignment.Bottom
+                /* CONTENT */
+                Column(
+                    modifier = Modifier.padding(horizontal = Dimens.large24),
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    /* Minutes */
-                    OutlinedTextField(
-                        value = userMinutesInput,
-                        onValueChange = onUserMinutesInputChange,
-                        modifier = Modifier
-                            .width(inputWidth)
-                            .focusRequester(focusRequesterMinutes),
-                        textStyle = inputStyle,
-                        placeholder = {
-                            Text(
-                                text = stringResource(R.string.game_time_trial_input_placeholder),
-                                style = inputStyle,
-                            )
-                        },
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Next,
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onNext = { focusRequesterSeconds.requestFocus() }
-                        ),
-                        singleLine = true,
-                        shape = inputShape
-                    )
-                    Text(
-                        text = stringResource(R.string.game_time_trial_minute),
-                        modifier = Modifier.padding(horizontal = Dimens.small8),
-                        style = inputAnnotationStyle,
-                    )
-
-                    /* Seconds */
-                    OutlinedTextField(
-                        value = userSecondsInput,
-                        onValueChange = onUserSecondsInputChange,
-                        modifier = Modifier
-                            .width(inputWidth)
-                            .focusRequester(focusRequesterSeconds),
-                        textStyle = inputStyle,
-                        placeholder = {
-                            Text(
-                                text = stringResource(R.string.game_time_trial_input_placeholder),
-                                style = inputStyle,
-                            )
-                        },
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Done,
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = { onTimeTrialAction() }
-                        ),
-                        singleLine = true,
-                        shape = inputShape
-                    )
-                    Text(
-                        text = stringResource(R.string.game_time_trial_second),
-                        modifier = Modifier.padding(start = Dimens.small8),
-                        style = inputAnnotationStyle,
-                    )
+                    content()
                 }
-
 
                 /* Action buttons */
                 Row(
@@ -1141,11 +1076,310 @@ private fun TimeTrialDialog(
                     )
 
                     DialogActionButton(
-                        onClick = { onTimeTrialAction() },
+                        onClick = onSubmit,
                         buttonStringResId = R.string.dialog_ok,
                     )
                 }
             }
+        }
+    }
+}
+
+
+@Composable
+private fun TimeTrialDialog(
+    userMinutesInput: String,
+    userSecondsInput: String,
+    onUserMinutesInputChange: (String) -> Unit,
+    onUserSecondsInputChange: (String) -> Unit,
+    onDismiss: () -> Unit,
+    onTimeTrial: (Int) -> Unit,
+) {
+    val inputStyle = MaterialTheme.typography.headlineLarge
+    val inputWidth = 68.dp
+    val inputShape = MaterialTheme.shapes.large
+    val inputAnnotationStyle = MaterialTheme.typography.titleLarge
+    val focusRequesterMinutes = remember { FocusRequester() }
+    val focusRequesterSeconds = remember { FocusRequester() }
+    LaunchedEffect(key1 = Unit) { focusRequesterMinutes.requestFocus() }
+
+    fun onTimeTrialAction() {
+        val timeMinute = when (userMinutesInput) {
+            "" -> 0
+            else -> userMinutesInput.toInt() * 60
+        }
+        val timeSecond = when (userSecondsInput) {
+            "" -> 0
+            else -> userSecondsInput.toInt()
+        }
+
+        onTimeTrial(timeMinute + timeSecond)
+        onDismiss()
+    }
+
+    GameDialog(
+        title = R.string.game_time_trial_title,
+        onDismiss = onDismiss,
+        onSubmit = { onTimeTrialAction() },
+    ) {
+        /* Time trial inputs */
+        Row(
+            modifier = Modifier.padding(top = Dimens.large24),
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            /* Minutes */
+            OutlinedTextField(
+                value = userMinutesInput,
+                onValueChange = onUserMinutesInputChange,
+                modifier = Modifier
+                    .width(inputWidth)
+                    .focusRequester(focusRequesterMinutes),
+                textStyle = inputStyle,
+                placeholder = {
+                    Text(
+                        text = stringResource(R.string.game_time_trial_input_placeholder),
+                        style = inputStyle,
+                    )
+                },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next,
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext = { focusRequesterSeconds.requestFocus() }
+                ),
+                singleLine = true,
+                shape = inputShape
+            )
+            Text(
+                text = stringResource(R.string.game_time_trial_minute),
+                modifier = Modifier.padding(horizontal = Dimens.small8),
+                style = inputAnnotationStyle,
+            )
+
+            /* Seconds */
+            OutlinedTextField(
+                value = userSecondsInput,
+                onValueChange = onUserSecondsInputChange,
+                modifier = Modifier
+                    .width(inputWidth)
+                    .focusRequester(focusRequesterSeconds),
+                textStyle = inputStyle,
+                placeholder = {
+                    Text(
+                        text = stringResource(R.string.game_time_trial_input_placeholder),
+                        style = inputStyle,
+                    )
+                },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done,
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = { onTimeTrialAction() }
+                ),
+                singleLine = true,
+                shape = inputShape
+            )
+            Text(
+                text = stringResource(R.string.game_time_trial_second),
+                modifier = Modifier.padding(start = Dimens.small8),
+                style = inputAnnotationStyle,
+            )
+        }
+    }
+}
+
+
+@Composable
+private fun GameModesDialog(
+    answerMode: AnswerMode,
+    difficultyMode: DifficultyMode,
+    onDismiss: () -> Unit,
+    onGameModes: (AnswerMode, DifficultyMode) -> Unit,
+) {
+    var answerModeSelected by rememberSaveable { mutableStateOf(value = answerMode) }
+    var difficultyModeSelected by rememberSaveable { mutableStateOf(value = difficultyMode) }
+
+    val cardColorsSelected = CardDefaults.cardColors(
+        containerColor = MaterialTheme.colorScheme.primary
+    )
+    val cardColorsUnselected = CardDefaults.cardColors(
+        containerColor = MaterialTheme.colorScheme.outlineVariant
+    )
+
+    GameDialog(
+        title = R.string.game_modes_title,
+        onDismiss = onDismiss,
+        onSubmit = {
+            onGameModes(answerModeSelected, difficultyModeSelected)
+            onDismiss()
+        },
+    ) {
+        /* Answer mode selection */
+        Text(
+            text = "Answer mode:",
+            modifier = Modifier.padding(top = Dimens.large24),
+            style = MaterialTheme.typography.labelMedium,
+        )
+        Row {
+            /* NAMES answer mode button */
+            Card(
+                onClick = { answerModeSelected = AnswerMode.NAMES },
+                shape =
+                    if (answerModeSelected == AnswerMode.NAMES) MaterialTheme.shapes.large
+                    else MaterialTheme.shapes.extraSmall,
+                colors =
+                    if (answerModeSelected == AnswerMode.NAMES) cardColorsSelected
+                    else cardColorsUnselected,
+            ) {
+                Text(
+                    text = stringResource(AnswerMode.NAMES.title),
+                    modifier = Modifier.padding(
+                        vertical = Dimens.small8,
+                        horizontal = Dimens.medium16,
+                    ),
+                    style = MaterialTheme.typography.titleSmall,
+                )
+            }
+
+            Spacer(Modifier.width(Dimens.small8))
+
+            /* DATES answer mode button */
+            Card(
+                onClick = { answerModeSelected = AnswerMode.DATES },
+                shape =
+                    if (answerModeSelected == AnswerMode.DATES) MaterialTheme.shapes.large
+                    else MaterialTheme.shapes.extraSmall,
+                colors =
+                    if (answerModeSelected == AnswerMode.DATES) cardColorsSelected
+                    else cardColorsUnselected,
+            ) {
+                Text(
+                    text = stringResource(AnswerMode.DATES.title),
+                    modifier = Modifier.padding(
+                        vertical = Dimens.small8,
+                        horizontal = Dimens.medium16,
+                    ),
+                    style = MaterialTheme.typography.titleSmall,
+                )
+            }
+        }
+
+        /* Difficulty mode selection */
+        Text(
+            text = "Answer limit:",
+            modifier = Modifier.padding(top = Dimens.large24),
+            style = MaterialTheme.typography.labelMedium,
+        )
+        Row {
+            /* EASY difficulty mode button */
+            Card(
+                onClick = { difficultyModeSelected = DifficultyMode.EASY },
+                shape =
+                    if (difficultyModeSelected == DifficultyMode.EASY) MaterialTheme.shapes.large
+                    else MaterialTheme.shapes.extraSmall,
+                colors =
+                    if (difficultyModeSelected == DifficultyMode.EASY) cardColorsSelected
+                    else cardColorsUnselected,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.AllInclusive,
+                    contentDescription = null,
+                    modifier = Modifier.padding(
+                        vertical = Dimens.extraSmall6,
+                        horizontal = Dimens.small8,
+                    ),
+                )
+            }
+
+            /* MEDIUM difficulty mode button */
+            Card(
+                onClick = { difficultyModeSelected = DifficultyMode.MEDIUM },
+                shape =
+                    if (difficultyModeSelected == DifficultyMode.MEDIUM) MaterialTheme.shapes.large
+                    else MaterialTheme.shapes.extraSmall,
+                colors =
+                    if (difficultyModeSelected == DifficultyMode.MEDIUM) cardColorsSelected
+                    else cardColorsUnselected,
+            ) {
+                Text(
+                    text = DifficultyMode.MEDIUM.guessLimit.toString(),
+                    modifier = Modifier.padding(
+                        vertical = Dimens.small8,
+                        horizontal = Dimens.medium16,
+                    ),
+                    style = MaterialTheme.typography.titleSmall,
+                )
+            }
+
+            /* HARD difficulty mode button */
+            Card(
+                onClick = { difficultyModeSelected = DifficultyMode.HARD },
+                shape =
+                    if (difficultyModeSelected == DifficultyMode.HARD) MaterialTheme.shapes.large
+                    else MaterialTheme.shapes.extraSmall,
+                colors =
+                    if (difficultyModeSelected == DifficultyMode.HARD) cardColorsSelected
+                    else cardColorsUnselected,
+            ) {
+                Text(
+                    text = DifficultyMode.HARD.guessLimit.toString(),
+                    modifier = Modifier.padding(
+                        vertical = Dimens.small8,
+                        horizontal = Dimens.medium16,
+                    ),
+                    style = MaterialTheme.typography.titleSmall,
+                )
+            }
+
+            /* SUDDEN_DEATH difficulty mode button */
+            Card(
+                onClick = { difficultyModeSelected = DifficultyMode.SUDDEN_DEATH },
+                shape =
+                    if (difficultyModeSelected == DifficultyMode.SUDDEN_DEATH)
+                        MaterialTheme.shapes.large
+                    else
+                        MaterialTheme.shapes.extraSmall,
+                colors =
+                    if (difficultyModeSelected == DifficultyMode.SUDDEN_DEATH) cardColorsSelected
+                    else cardColorsUnselected,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ElectricBolt,
+                    contentDescription = null,
+                    modifier = Modifier.padding(
+                        vertical = Dimens.extraSmall6,
+                        horizontal = Dimens.small8,
+                    ),
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun ConfirmExitDialog(
+    onDismiss: () -> Unit,
+    onExit: () -> Unit,
+) {
+    GameDialog(
+        title = R.string.game_confirm_exit_title,
+        onDismiss = onDismiss,
+        onSubmit = onExit,
+    ) {
+        /* Description */
+        Row(
+            modifier = Modifier.padding(
+                top = Dimens.large24,
+                end = Dimens.large24,
+            ),
+        ) {
+            Text(
+                text = stringResource(R.string.game_confirm_exit_description),
+                style = MaterialTheme.typography.bodyMedium,
+            )
         }
     }
 }
@@ -1260,69 +1494,6 @@ private fun GameOverDialog(
 }
 
 
-@Composable
-private fun ConfirmExitDialog(
-    onExit: () -> Unit,
-    onDismiss: () -> Unit,
-) {
-    Dialog(
-        onDismissRequest = onDismiss,
-    ) {
-        Card(
-            modifier = Modifier.padding(all = Dimens.small8),
-            shape = MaterialTheme.shapes.extraLarge,
-        ) {
-            Column(
-                modifier = Modifier.padding(
-                    top = Dimens.large24,
-                    start = Dimens.large24
-                ),
-                verticalArrangement = Arrangement.SpaceBetween,
-            ) {
-                /* Title */
-                Text(
-                    text = stringResource(R.string.game_confirm_exit_title),
-                    style = MaterialTheme.typography.headlineSmall,
-                )
-
-                /* Description */
-                Row(
-                    modifier = Modifier.padding(
-                        top = Dimens.large24,
-                        end = Dimens.large24,
-                    ),
-                ) {
-                    Text(
-                        text = stringResource(R.string.game_confirm_exit_description),
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
-
-                /* Action buttons */
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.End)
-                        .padding(
-                            vertical = Dimens.small8,
-                            horizontal = Dimens.small8,
-                        ),
-                ) {
-                    DialogActionButton(
-                        onClick = onDismiss,
-                        buttonStringResId = R.string.dialog_cancel,
-                    )
-
-                    DialogActionButton(
-                        onClick = onExit,
-                        buttonStringResId = R.string.dialog_ok,
-                    )
-                }
-            }
-        }
-    }
-}
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun GameTopBar(
@@ -1330,21 +1501,23 @@ private fun GameTopBar(
     screen: Screen,
     isGame: Boolean,
     isFlags: Boolean,
+    isTimeTrial: Boolean,
     isTimerPaused: Boolean,
     timer: String = "0:00",
     onNavigationDrawer: () -> Unit,
-    onScoreHistory: () -> Unit,
-    onTimeTrialAction: () -> Unit,
+    onTimeAction: () -> Unit,
+    onSettingsAction: () -> Unit,
+    onHistoryAction: () -> Unit,
 ) {
+    val activeTimerColor = MaterialTheme.colorScheme.error
+
     TopAppBar(
         title = {
-            screen.title?.let {
-                Text(
-                    text = stringResource(it),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
+            Text(
+                text = stringResource(screen.title),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+            )
         },
         modifier = modifier,
         navigationIcon = {
@@ -1360,7 +1533,7 @@ private fun GameTopBar(
                 text = timer,
                 modifier = Modifier.padding(end = Dimens.extraSmall4),
                 color = when (isGame to isTimerPaused) {
-                    true to false -> MaterialTheme.colorScheme.error
+                    true to false -> activeTimerColor
                     else -> MaterialTheme.colorScheme.outline
                 },
                 fontSize = 18.sp,
@@ -1368,16 +1541,24 @@ private fun GameTopBar(
             )
 
             IconButton(
-                onClick = onTimeTrialAction,
+                onClick = onTimeAction,
                 enabled = isFlags,
             ) {
                 Icon(
                     imageVector = Icons.Default.Timer,
                     contentDescription = null,
+                    tint = if (isTimeTrial) activeTimerColor else LocalContentColor.current,
                 )
             }
 
-            IconButton(onClick = onScoreHistory) {
+            IconButton(onClick = onSettingsAction) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = null,
+                )
+            }
+
+            IconButton(onClick = onHistoryAction) {
                 Icon(
                     imageVector = Icons.Default.History,
                     contentDescription = null,
