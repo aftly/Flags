@@ -92,10 +92,8 @@ fun ScoreDetails(
     /* For Ui details */
     val insetsPadding = WindowInsets.systemBars.asPaddingValues()
     var isDetailsSorted by rememberSaveable { mutableStateOf(value = false) }
-    val sortButtonIcon = when (isDetailsSorted) {
-        false -> Icons.Default.SortByAlpha
-        true -> Icons.Default.AccessTime
-    }
+    val sortButtonIcon =
+        if (!isDetailsSorted) Icons.Default.SortByAlpha else Icons.Default.AccessTime
 
     /* For controlling system bars */
     val view = LocalView.current
@@ -110,11 +108,12 @@ fun ScoreDetails(
         }
     }
 
-    /* -------- Scrim to mimic BasicAlertDialog() -------- */
+    /* Content */
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
+        /* -------- Scrim to mimic BasicAlertDialog() -------- */
         AnimatedVisibility(
             visible = visible,
             enter = EnterTransition.None,
@@ -133,7 +132,7 @@ fun ScoreDetails(
         }
 
 
-        /* Score details card */
+        /* -------- Score details card -------- */
         AnimatedVisibility(
             visible = visible,
             enter = fadeIn() + slideInVertically(initialOffsetY = { it / 4 }),
@@ -212,10 +211,7 @@ private fun ScoreDetails(
     isDetailsSorted: Boolean,
     scoreDetails: ScoreData,
 ) {
-    val lerpSurface = when (isDarkTheme) {
-        true -> Color.White
-        false -> Color.Black
-    }
+    val lerpSurface = if (isDarkTheme) Color.White else Color.Black
 
     LazyColumn {
         item {
@@ -247,10 +243,7 @@ private fun ScoreOverViewContent(
 ) {
     var isExpanded by remember { mutableStateOf(value = true) }
 
-    val dropDownIcon = when (isExpanded) {
-        true -> Icons.Default.ArrowDropUp
-        false -> Icons.Default.ArrowDropDown
-    }
+    val dropDownIcon = if (!isExpanded) Icons.Default.ArrowDropDown else Icons.Default.ArrowDropUp
     val clippedPadding = 2.dp
 
     Card(
@@ -397,11 +390,6 @@ private fun TotalsOverview(
     isDarkTheme: Boolean,
     clippedPadding: Dp,
 ) {
-    val successColor = when (isDarkTheme) {
-        true -> successDark
-        false -> successLight
-    }
-
     /* Manage locale aware percentage that excludes redundant 0 decimals */
     val locale = LocalConfiguration.current.locales[0]
     val percentFormat = NumberFormat.getPercentInstance(locale)
@@ -414,6 +402,7 @@ private fun TotalsOverview(
         totalsOverview.correctAnswers,
         totalsOverview.outOfCount
     )
+    val successColor = if (isDarkTheme) successDark else successLight
 
     OverviewItem(
         modifier = modifier,
@@ -618,25 +607,15 @@ private fun FlagDetailsContent(
             ""
     }
 
-    val scoreTitleColor = when (scoreDetails.list.size) {
-        0 -> MaterialTheme.colorScheme.error
-        else -> MaterialTheme.colorScheme.primary
-    }
+    val itemTitleColor =
+        if (scoreDetails.list.isNotEmpty()) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.error
 
-    val scoresList = when (isDetailsSorted) {
-        false -> scoreDetails.list
-        true -> scoreDetails.sortedList
-    }
+    val itemList = if (isDetailsSorted) scoreDetails.sortedList else scoreDetails.list
 
-    val textButtonIsEnabled = when (scoreDetails.list.size) {
-        0 -> false
-        else -> true
-    }
+    val textButtonIsEnabled = scoreDetails.list.isNotEmpty()
 
-    val dropDownIcon = when (isExpanded) {
-        true -> Icons.Default.ArrowDropUp
-        false -> Icons.Default.ArrowDropDown
-    }
+    val dropDownIcon = if (!isExpanded) Icons.Default.ArrowDropDown else Icons.Default.ArrowDropUp
 
 
     /* Card for encapsulating each score details group */
@@ -667,7 +646,7 @@ private fun FlagDetailsContent(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = scoreTitle,
-                    color = scoreTitleColor,
+                    color = itemTitleColor,
                 )
                 if (scoreDetails.list.isNotEmpty()) {
                     Icon(
@@ -697,10 +676,10 @@ private fun FlagDetailsContent(
             ) {
                 items(
                     count = scoreDetails.list.size,
-                    key = { index -> scoresList[index].id }
+                    key = { index -> itemList[index].id }
                 ) { index ->
                     FlagItem(
-                        flag = scoresList[index],
+                        flag = itemList[index],
                         textStyle = textStyle,
                     )
                 }
