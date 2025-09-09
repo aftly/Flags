@@ -2,7 +2,6 @@ package dev.aftly.flags.ui.component
 
 import android.app.Activity
 import android.icu.text.NumberFormat
-import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -17,15 +16,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -57,13 +57,15 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import dev.aftly.flags.R
 import dev.aftly.flags.model.game.CategoriesOverview
 import dev.aftly.flags.model.FlagView
+import dev.aftly.flags.model.game.AnswerMode
+import dev.aftly.flags.model.game.DifficultyMode
+import dev.aftly.flags.model.game.FailedFlags
 import dev.aftly.flags.model.game.GuessedFlags
 import dev.aftly.flags.model.game.RemainderFlags
 import dev.aftly.flags.model.game.ScoreData
@@ -108,12 +110,11 @@ fun ScoreDetails(
         }
     }
 
-
+    /* -------- Scrim to mimic BasicAlertDialog() -------- */
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
-        /* Scrim to mimic Compose BasicAlertDialog()'s */
         AnimatedVisibility(
             visible = visible,
             enter = EnterTransition.None,
@@ -149,7 +150,7 @@ fun ScoreDetails(
                     ),
                 shape = MaterialTheme.shapes.extraLarge
             ) {
-                /* Card title bar */
+                /* -------- Card title bar -------- */
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -192,8 +193,8 @@ fun ScoreDetails(
                     }
                 }
 
-                /* Score details content */
-                ScoreDetailsItems(
+                /* -------- Score details content -------- */
+                ScoreDetails(
                     isDarkTheme = isDarkTheme,
                     isDetailsSorted = isDetailsSorted,
                     scoreDetails = scoreDetails,
@@ -206,7 +207,7 @@ fun ScoreDetails(
 
 /* Score details content */
 @Composable
-private fun ScoreDetailsItems(
+private fun ScoreDetails(
     isDarkTheme: Boolean,
     isDetailsSorted: Boolean,
     scoreDetails: ScoreData,
@@ -215,44 +216,34 @@ private fun ScoreDetailsItems(
         true -> Color.White
         false -> Color.Black
     }
-    val itemFontSize = 14.sp
-    val itemLineHeight = 18.sp
-
 
     LazyColumn {
-        /* Overview item containing overview items */
         item {
-            ScoreOverViewItem(
+            ScoreOverViewContent(
                 isDarkTheme = isDarkTheme,
                 scoreDetails = scoreDetails,
                 lerpSurface = lerpSurface,
-                itemFontSize = itemFontSize,
-                itemLineHeight = itemLineHeight,
             )
         }
 
         items(scoreDetails.allScores) { scoreDetails ->
-            ScoresItem(
+            FlagDetailsContent(
                 isDetailsSorted = isDetailsSorted,
                 scoreDetails = scoreDetails,
                 lerpSurface = lerpSurface,
-                itemFontSize = itemFontSize,
-                itemLineHeight = itemLineHeight,
             )
         }
     }
 }
 
 
-/* Top level overview item containing Totals and Time overview items */
+/* Overview item containing score totals and game mode info */
 @Composable
-private fun ScoreOverViewItem(
+private fun ScoreOverViewContent(
     modifier: Modifier = Modifier,
     isDarkTheme: Boolean,
     scoreDetails: ScoreData,
     lerpSurface: Color,
-    itemFontSize: TextUnit,
-    itemLineHeight: TextUnit,
 ) {
     var isExpanded by remember { mutableStateOf(value = true) }
 
@@ -260,6 +251,7 @@ private fun ScoreOverViewItem(
         true -> Icons.Default.ArrowDropUp
         false -> Icons.Default.ArrowDropDown
     }
+    val clippedPadding = 2.dp
 
     Card(
         modifier = modifier
@@ -311,27 +303,32 @@ private fun ScoreOverViewItem(
                         bottom = Dimens.medium16,
                     )
             ) {
-                TotalsOverviewItem(
+                TotalsOverview(
+                    modifier = Modifier.padding(bottom = Dimens.extraSmall4),
                     totalsOverview = scoreDetails.scoreOverview.totalsOverview,
                     isDarkTheme = isDarkTheme,
-                    fontSize = itemFontSize,
-                    lineHeight = itemLineHeight,
+                    clippedPadding = clippedPadding,
                 )
 
-                Spacer(modifier = Modifier.height(Dimens.extraSmall4))
-
-                CategoriesOverviewItem(
+                CategoriesOverview(
+                    modifier = Modifier.padding(bottom = Dimens.extraSmall4),
                     categoriesOverview = scoreDetails.scoreOverview.categoriesOverview,
-                    fontSize = itemFontSize,
-                    lineHeight = itemLineHeight,
+                    clippedPadding = clippedPadding,
                 )
 
-                Spacer(modifier = Modifier.height(Dimens.extraSmall4))
+                AnswerOverview(
+                    modifier = Modifier.padding(bottom = Dimens.extraSmall4),
+                    answerMode = scoreDetails.scoreOverview.answerMode,
+                )
 
-                TimeOverviewItem(
+                DifficultyOverview(
+                    modifier = Modifier.padding(bottom = Dimens.extraSmall4),
+                    difficultyMode = scoreDetails.scoreOverview.difficultyMode,
+                )
+
+                TimeOverview(
                     timeOverview = scoreDetails.scoreOverview.timeOverview,
-                    fontSize = itemFontSize,
-                    lineHeight = itemLineHeight,
+                    clippedPadding = clippedPadding,
                 )
             }
         }
@@ -339,243 +336,251 @@ private fun ScoreOverViewItem(
 }
 
 
-/* Totals overview row strings */
+/* Overview component */
 @Composable
-private fun TotalsOverviewItem(
+private fun OverviewItem(
+    modifier: Modifier = Modifier,
+    title: String,
+    description: String?,
+    clippedContent: @Composable (RowScope.() -> Unit)?,
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        /* Type */
+        Text(
+            text = title,
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.titleSmall,
+        )
+
+        /* String */
+        description?.let {
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+
+        clippedContent?.let {
+            clippedContent()
+        }
+    }
+}
+
+
+/* Clipped text component for use in Overview composables */
+@Composable
+private fun ClippedItem(
+    modifier: Modifier = Modifier,
+    text: String,
+    backgroundColor: Color,
+    textColor: Color,
+) {
+    Text(
+        text = text,
+        modifier = modifier
+            .clip(shape = MaterialTheme.shapes.medium)
+            .background(color = backgroundColor)
+            .padding(vertical = 2.dp, horizontal = Dimens.small8),
+        color = textColor,
+        style = MaterialTheme.typography.bodyMedium,
+    )
+}
+
+
+@Composable
+private fun TotalsOverview(
     modifier: Modifier = Modifier,
     totalsOverview: TotalsOverview,
     isDarkTheme: Boolean,
-    fontSize: TextUnit,
-    lineHeight: TextUnit,
+    clippedPadding: Dp,
 ) {
-    val configuration = LocalConfiguration.current
-    val fontScale = configuration.fontScale
-    val spacePadding = Dimens.extraSmall4 * fontScale
-
     val successColor = when (isDarkTheme) {
         true -> successDark
         false -> successLight
     }
 
     /* Manage locale aware percentage that excludes redundant 0 decimals */
-    val locale = configuration.locales[0]
+    val locale = LocalConfiguration.current.locales[0]
     val percentFormat = NumberFormat.getPercentInstance(locale)
     percentFormat.maximumFractionDigits = 2
     val scorePercent = percentFormat.format(totalsOverview.scorePercent.toDouble() / 100)
 
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        /* Title */
-        Text(
-            text = stringResource(R.string.game_score_details_correct_title),
-            color = MaterialTheme.colorScheme.onSurface,
-            lineHeight = lineHeight,
-            style = MaterialTheme.typography.titleSmall,
-        )
+    val title = stringResource(R.string.game_score_details_correct_title)
+    val absoluteScore = stringResource(
+        R.string.game_score_details_correct_absolute,
+        totalsOverview.correctAnswers,
+        totalsOverview.outOfCount
+    )
 
+    OverviewItem(
+        modifier = modifier,
+        title = title,
+        description = null,
+    ) {
         /* Absolute score */
-        Text(
-            text = stringResource(
-                R.string.game_score_details_correct_absolute,
-                totalsOverview.correctAnswers,
-                totalsOverview.outOfCount
-            ),
-            modifier = Modifier
-                .padding(horizontal = spacePadding)
-                .clip(MaterialTheme.shapes.medium)
-                .background(MaterialTheme.colorScheme.primary)
-                .padding(vertical = 2.dp, horizontal = Dimens.small8),
-            color = MaterialTheme.colorScheme.onPrimary,
-            fontSize = fontSize,
-            lineHeight = lineHeight,
+        ClippedItem(
+            text = absoluteScore,
+            backgroundColor = MaterialTheme.colorScheme.primary,
+            textColor = MaterialTheme.colorScheme.onPrimary,
         )
 
         /* Relative score */
-        Text(
+        ClippedItem(
+            modifier = Modifier.padding(start = clippedPadding),
             text = scorePercent,
-            modifier = Modifier
-                .clip(MaterialTheme.shapes.medium)
-                .background(successColor)
-                .padding(vertical = 2.dp, horizontal = Dimens.small8),
-            color = MaterialTheme.colorScheme.surface,
-            fontSize = fontSize,
-            lineHeight = lineHeight,
+            backgroundColor = successColor,
+            textColor = MaterialTheme.colorScheme.surface,
         )
     }
 }
 
 
-/* Totals overview row strings */
 @Composable
-private fun CategoriesOverviewItem(
+private fun CategoriesOverview(
     modifier: Modifier = Modifier,
     categoriesOverview: CategoriesOverview,
-    fontSize: TextUnit,
-    lineHeight: TextUnit,
+    clippedPadding: Dp,
 ) {
-    val configuration = LocalConfiguration.current
-    val fontScale = configuration.fontScale
-    val spacePadding = 2.dp * fontScale
+    val title = stringResource(R.string.game_score_details_categories_title)
 
-    Column(
-        modifier = modifier
-    ) {
+    Column(modifier = modifier.padding(bottom = clippedPadding)) {
         /* Title */
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = stringResource(R.string.game_score_details_categories_title),
-                color = MaterialTheme.colorScheme.onSurface,
-                lineHeight = lineHeight,
-                style = MaterialTheme.typography.titleSmall,
-            )
-        }
+        OverviewItem(
+            title = title,
+            description = null,
+            clippedContent = null,
+        )
 
         /* If game list is saved flags */
         if (categoriesOverview.superCategories.isEmpty() &&
             categoriesOverview.subCategories.isEmpty()) {
-            CategoryItem(
-                topPadding = spacePadding,
-                stringResId = R.string.saved_flags_score_detailed,
-                fontSize = fontSize,
-                lineHeight = lineHeight,
-                isPrimary = true,
+            val savedFlagsText = stringResource(R.string.saved_flags_score_detailed)
+
+            ClippedItem(
+                modifier = Modifier.padding(top = clippedPadding),
+                text = savedFlagsText,
+                backgroundColor = MaterialTheme.colorScheme.primary,
+                textColor = MaterialTheme.colorScheme.onPrimary,
             )
+
         } else {
             /* Super-categories */
             categoriesOverview.superCategories.forEach { superCategory ->
                 superCategory.gameScoreCategoryDetailed?.let {
-                    CategoryItem(
-                        topPadding = spacePadding,
-                        stringResId = it,
-                        fontSize = fontSize,
-                        lineHeight = lineHeight,
-                        isPrimary = true,
+                    val categoryText = stringResource(it)
+
+                    ClippedItem(
+                        modifier = Modifier.padding(top = clippedPadding),
+                        text = categoryText,
+                        backgroundColor = MaterialTheme.colorScheme.primary,
+                        textColor = MaterialTheme.colorScheme.onPrimary,
                     )
                 }
             }
 
             /* Sub-categories */
             categoriesOverview.subCategories.forEach { subCategory ->
-                CategoryItem(
-                    topPadding = spacePadding,
-                    stringResId = subCategory.title,
-                    fontSize = fontSize,
-                    lineHeight = lineHeight,
-                    isPrimary = false,
+                val categoryText = stringResource(subCategory.title)
+
+                ClippedItem(
+                    modifier = Modifier.padding(top = clippedPadding),
+                    text = categoryText,
+                    backgroundColor = MaterialTheme.colorScheme.secondary,
+                    textColor = MaterialTheme.colorScheme.onSecondary,
                 )
             }
         }
-
-        Spacer(modifier = Modifier.height(spacePadding))
     }
 }
 
+
 @Composable
-private fun CategoryItem(
-    topPadding: Dp,
-    @StringRes stringResId: Int,
-    fontSize: TextUnit,
-    lineHeight: TextUnit,
-    isPrimary: Boolean,
+private fun AnswerOverview(
+    modifier: Modifier = Modifier,
+    answerMode: AnswerMode,
 ) {
-    Row(
-        modifier = Modifier.padding(top = topPadding)
-    ) {
-        Text(
-            text = stringResource(stringResId),
-            modifier = Modifier
-                .clip(shape = MaterialTheme.shapes.medium)
-                .background(color =
-                    if (isPrimary) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.secondary
-                )
-                .padding(vertical = 2.dp, horizontal = Dimens.small8),
-            color =
-                if (isPrimary) MaterialTheme.colorScheme.onPrimary
-                else MaterialTheme.colorScheme.surface,
-            fontSize = fontSize,
-            lineHeight = lineHeight,
-        )
-    }
+    val title = stringResource(R.string.game_score_details_answer_mode)
+    val description = stringResource(answerMode.title)
+
+    OverviewItem(
+        modifier = modifier,
+        title = title,
+        description = description,
+        clippedContent = null,
+    )
 }
 
 
-/* Time overview row strings */
 @Composable
-private fun TimeOverviewItem(
+private fun DifficultyOverview(
+    modifier: Modifier = Modifier,
+    difficultyMode: DifficultyMode,
+) {
+    val title = stringResource(R.string.game_score_details_difficulty_mode)
+    val description = difficultyMode.name
+
+    OverviewItem(
+        modifier = modifier,
+        title = title,
+        description = description,
+        clippedContent = null,
+    )
+}
+
+
+@Composable
+private fun TimeOverview(
     modifier: Modifier = Modifier,
     timeOverview: TimeOverview,
-    fontSize: TextUnit,
-    lineHeight: TextUnit,
+    clippedPadding: Dp,
 ) {
-    val configuration = LocalConfiguration.current
-    val fontScale = configuration.fontScale
-    val spacePadding = Dimens.extraSmall4 * fontScale
-
     val endTimeBackgroundColor = when (timeOverview.timeMode) {
         TimeMode.STANDARD -> MaterialTheme.colorScheme.primary
         TimeMode.TIME_TRIAL -> MaterialTheme.colorScheme.error
     }
-
     val endTimeTextColor = when (timeOverview.timeMode) {
         TimeMode.STANDARD -> MaterialTheme.colorScheme.onPrimary
         TimeMode.TIME_TRIAL -> MaterialTheme.colorScheme.onError
     }
 
+    val title = stringResource(R.string.game_score_details_time_mode)
+    val description = stringResource(timeOverview.timeMode.title)
 
-    Row(
+
+    OverviewItem(
         modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
+        title = title,
+        description = description,
     ) {
-        /* Title */
-        Text(
-            text = stringResource(R.string.game_score_details_time_mode),
-            color = MaterialTheme.colorScheme.onSurface,
-            lineHeight = lineHeight,
-            style = MaterialTheme.typography.titleSmall,
-        )
-
-        /* Time mode type */
-        Text(
-            text = stringResource(timeOverview.timeMode.title),
-            modifier = Modifier.padding(horizontal = spacePadding),
-            fontSize = fontSize,
-            lineHeight = lineHeight,
-        )
+        Spacer(modifier = Modifier.width(clippedPadding))
 
         /* Time trial start time */
         timeOverview.timeTrialStart?.let { time ->
-            Text(
-                text = stringResource(
-                    R.string.game_score_details_time,
-                    time / 60, time % 60
-                ),
-                modifier = Modifier
-                    .padding(end = spacePadding)
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.primary)
-                    .padding(vertical = 2.dp, horizontal = Dimens.small8),
-                color = MaterialTheme.colorScheme.onPrimary,
-                fontSize = fontSize,
-                lineHeight = lineHeight,
+            val startTimeText = stringResource(
+                R.string.game_score_details_time,
+                time / 60, time % 60
+            )
+            ClippedItem(
+                modifier = Modifier.padding(start = clippedPadding),
+                text = startTimeText,
+                backgroundColor = MaterialTheme.colorScheme.primary,
+                textColor = MaterialTheme.colorScheme.onPrimary,
             )
         }
 
         /* Time elapsed */
-        Text(
-            text = stringResource(
-                R.string.game_score_details_time,
-                timeOverview.time / 60, timeOverview.time % 60
-            ),
-            modifier = Modifier
-                .clip(MaterialTheme.shapes.medium)
-                .background(endTimeBackgroundColor)
-                .padding(vertical = 2.dp, horizontal = Dimens.small8),
-            color = endTimeTextColor,
-            fontSize = fontSize,
-            lineHeight = lineHeight,
+        val elapsedTimeText = stringResource(
+            R.string.game_score_details_time,
+            timeOverview.time / 60, timeOverview.time % 60
+        )
+        ClippedItem(
+            modifier = Modifier.padding(start = clippedPadding),
+            text = elapsedTimeText,
+            backgroundColor = endTimeBackgroundColor,
+            textColor = endTimeTextColor,
         )
     }
 }
@@ -583,19 +588,18 @@ private fun TimeOverviewItem(
 
 /* Top level score details item containing lazy list of ScoreItem() */
 @Composable
-private fun ScoresItem(
+private fun FlagDetailsContent(
     modifier: Modifier = Modifier,
     isDetailsSorted: Boolean,
     scoreDetails: TitledList,
     lerpSurface: Color,
-    itemFontSize: TextUnit,
-    itemLineHeight: TextUnit,
 ) {
     var isExpanded by remember { mutableStateOf(value = false) }
+    val textStyle = MaterialTheme.typography.bodyMedium
 
-    val lazyColumnHeight = (with(LocalDensity.current) {
-        itemLineHeight.toDp()
-    } + Dimens.medium16) * (scoreDetails.list.size + 1)
+    val lazyColumnPadding = Dimens.medium16
+    val itemHeight = with(LocalDensity.current) { textStyle.lineHeight.toDp() }
+    val lazyColumnHeight = (itemHeight + lazyColumnPadding) * (scoreDetails.list.size + 1)
 
     val scoreTitle = when (scoreDetails) {
         is GuessedFlags ->
@@ -608,6 +612,8 @@ private fun ScoresItem(
             stringResource(R.string.game_score_details_shown, scoreDetails.list.size)
         is RemainderFlags ->
             stringResource(R.string.game_score_details_remainder, scoreDetails.list.size)
+        is FailedFlags ->
+            stringResource(R.string.game_score_details_failed, scoreDetails.list.size)
         else ->
             ""
     }
@@ -683,9 +689,9 @@ private fun ScoresItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        start = Dimens.medium16,
-                        end = Dimens.medium16,
-                        bottom = Dimens.medium16,
+                        start = lazyColumnPadding,
+                        end = lazyColumnPadding,
+                        bottom = lazyColumnPadding,
                     )
                     .heightIn(max = lazyColumnHeight)
             ) {
@@ -693,10 +699,9 @@ private fun ScoresItem(
                     count = scoreDetails.list.size,
                     key = { index -> scoresList[index].id }
                 ) { index ->
-                    ScoreItem(
+                    FlagItem(
                         flag = scoresList[index],
-                        fontSize = itemFontSize,
-                        lineHeight = itemLineHeight,
+                        textStyle = textStyle,
                     )
                 }
             }
@@ -706,18 +711,16 @@ private fun ScoresItem(
 
 /* Item composable for the score details lists */
 @Composable
-private fun ScoreItem(
+private fun FlagItem(
     modifier: Modifier = Modifier,
     flag: FlagView,
-    fontSize: TextUnit,
-    lineHeight: TextUnit,
+    textStyle: TextStyle,
 ) {
     Row(modifier = modifier) {
         Text(
             text = stringResource(flag.flagOf),
             color = MaterialTheme.colorScheme.onSurface,
-            fontSize = fontSize,
-            lineHeight = lineHeight,
+            style = textStyle,
         )
     }
 }

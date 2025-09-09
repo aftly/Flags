@@ -46,4 +46,6 @@ data class ScoreItem(
     val flagsSkipped: List<String>,
     @ColumnInfo(name = "flags_shown")
     val flagsShown: List<String>,
+    @ColumnInfo(name = "flags_failed")
+    val flagsFailed: List<String>,
 )

@@ -703,6 +703,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             flagsSkippedSorted = sortFlags(skippedFlags),
             flagsShown = shownFlags.toList(),
             flagsShownSorted = sortFlags(shownFlags),
+            flagsFailed = failedFlags.toList(),
+            flagsFailedSorted = sortFlags(failedFlags),
         )
     }
 

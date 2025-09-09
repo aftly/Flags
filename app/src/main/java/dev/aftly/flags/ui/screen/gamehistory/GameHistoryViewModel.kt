@@ -41,7 +41,6 @@ class GameHistoryViewModel(
         _uiState.update {
             it.copy(
                 scoreDetails = scoreItem?.toScoreData(
-                    //flagsGuessedSorted = sortFlags(scoreItem.flagsGuessed),
                     flagsGuessedSorted = sortFlags(
                         flags = getFlagsFromKeys(flagKeys = scoreItem.flagsGuessed)
                     ),
@@ -53,6 +52,9 @@ class GameHistoryViewModel(
                     ),
                     flagsShownSorted = sortFlags(
                         flags = getFlagsFromKeys(flagKeys = scoreItem.flagsShown)
+                    ),
+                    flagsFailedSorted = sortFlags(
+                        flags = getFlagsFromKeys(flagKeys = scoreItem.flagsFailed)
                     ),
                 ),
             )

@@ -30,10 +30,12 @@ class ScoreData(
     flagsSkippedSorted: List<FlagView>,
     val flagsShown: List<FlagView>,
     flagsShownSorted: List<FlagView>,
+    val flagsFailed: List<FlagView>,
+    flagsFailedSorted: List<FlagView>,
 ) {
-    private val remainderFlags = flagsAll.filterNot { it in flagsGuessed }
-        .filterNot { it in flagsSkipped }.filterNot { it in flagsShown }
-
+    private val remainderFlags = flagsAll.filterNot { flag ->
+        flag in (flagsGuessed + flagsSkipped + flagsShown + flagsFailed)
+    }
     private val correctAnswers = flagsGuessed.size
     private val scorePercent = (correctAnswers.toFloat() / flagsAll.size.toFloat()) * 100f
 
@@ -73,6 +75,10 @@ class ScoreData(
             list = flagsShown,
             sortedList = flagsShownSorted,
         ),
+        FailedFlags(
+            list = flagsFailed,
+            sortedList = flagsFailedSorted,
+        ),
         RemainderFlags(
             list = remainderFlags,
             sortedList = remainderFlags,
@@ -97,9 +103,11 @@ class ScoreData(
         flagsSkippedGuessed = getFlagKeys(flags = flagsSkippedGuessed),
         flagsSkipped = getFlagKeys(flags = flagsSkipped),
         flagsShown = getFlagKeys(flags = flagsShown),
+        flagsFailed = getFlagKeys(flags = flagsFailed),
     )
 
-    fun isScoresEmpty() = flagsGuessed.isEmpty() && flagsSkipped.isEmpty() && flagsShown.isEmpty()
+    fun isScoresEmpty() = flagsGuessed.isEmpty() && flagsSkipped.isEmpty() &&
+            flagsShown.isEmpty() && flagsFailed.isEmpty()
 }
 
 
@@ -110,6 +118,7 @@ fun ScoreItem.toScoreData(
     flagsSkippedGuessedSorted: List<FlagView>,
     flagsSkippedSorted: List<FlagView>,
     flagsShownSorted: List<FlagView>,
+    flagsFailedSorted: List<FlagView>,
 ): ScoreData = ScoreData(
     id = id,
     timestamp = timestamp,
@@ -129,17 +138,21 @@ fun ScoreItem.toScoreData(
     flagsSkippedSorted = flagsSkippedSorted,
     flagsShown = getFlagsFromKeys(flagKeys = flagsShown),
     flagsShownSorted = flagsShownSorted,
+    flagsFailed = getFlagsFromKeys(flagKeys = flagsFailed),
+    flagsFailedSorted = flagsFailedSorted,
 )
 
 
 /* ------------ Score overview classes ------------ */
 data class ScoreOverview(
-    val answerMode: AnswerMode,
-    val difficultyMode: DifficultyMode,
     val totalsOverview: TotalsOverview,
     val categoriesOverview: CategoriesOverview,
+    val answerMode: AnswerMode,
+    val difficultyMode: DifficultyMode,
     val timeOverview: TimeOverview,
 )
+
+
 
 data class TotalsOverview(
     val correctAnswers: Int,
@@ -181,6 +194,11 @@ class SkippedFlags(
 ) : TitledList(list, sortedList)
 
 class ShownFlags(
+    list: List<FlagView>,
+    sortedList: List<FlagView>,
+) : TitledList(list, sortedList)
+
+class FailedFlags(
     list: List<FlagView>,
     sortedList: List<FlagView>,
 ) : TitledList(list, sortedList)

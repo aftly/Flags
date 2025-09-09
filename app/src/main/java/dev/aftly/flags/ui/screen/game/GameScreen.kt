@@ -391,6 +391,7 @@ private fun GameScreen(
             GameContent(
                 modifier = Modifier.padding(scaffoldPadding),
                 answerMode = uiState.answerMode,
+                difficultyMode = uiState.difficultyMode,
                 isGame = uiState.isGame,
                 isGameOver = uiState.isGameOver,
                 isWideScreen = isWideScreen,
@@ -398,6 +399,7 @@ private fun GameScreen(
                 totalFlagCount = uiState.totalFlagCount,
                 correctGuessCount = uiState.correctGuessCount,
                 shownFailedAnswerCount = uiState.shownAnswerCount + uiState.failedAnswerCount,
+                answersRemainingCount = uiState.answersRemaining,
                 currentFlag = uiState.currentFlag,
                 userGuess = userGuess,
                 onUserGuessChange = onUserGuessChange,
@@ -460,6 +462,7 @@ private fun GameScreen(
 private fun GameContent(
     modifier: Modifier = Modifier,
     answerMode: AnswerMode,
+    difficultyMode: DifficultyMode,
     isGame: Boolean,
     isGameOver: Boolean,
     isWideScreen: Boolean,
@@ -467,6 +470,7 @@ private fun GameContent(
     totalFlagCount: Int,
     correctGuessCount: Int,
     shownFailedAnswerCount: Int,
+    answersRemainingCount: Int?,
     currentFlag: FlagView,
     userGuess: String,
     onUserGuessChange: (String) -> Unit,
@@ -552,6 +556,7 @@ private fun GameContent(
 
         GameCard(
             answerMode = answerMode,
+            difficultyMode = difficultyMode,
             isGame = isGame,
             isGameOver = isGameOver,
             contentColumnHeight = columnHeight,
@@ -566,6 +571,7 @@ private fun GameContent(
             totalFlagCount = totalFlagCount,
             correctGuessCount = correctGuessCount,
             shownFailedAnswerCount = shownFailedAnswerCount,
+            answersRemainingCount = answersRemainingCount,
             currentFlag = currentFlag,
             userGuess = userGuess,
             onUserGuessChange = onUserGuessChange,
@@ -632,6 +638,7 @@ private fun GameContent(
 private fun GameCard(
     modifier: Modifier = Modifier,
     answerMode: AnswerMode,
+    difficultyMode: DifficultyMode,
     isGame: Boolean,
     isGameOver: Boolean,
     contentColumnHeight: Dp,
@@ -646,6 +653,7 @@ private fun GameCard(
     totalFlagCount: Int,
     correctGuessCount: Int,
     shownFailedAnswerCount: Int,
+    answersRemainingCount: Int?,
     currentFlag: FlagView,
     userGuess: String,
     onUserGuessChange: (String) -> Unit,
@@ -783,10 +791,10 @@ private fun GameCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = Dimens.medium16),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 /* Flag counters and game mode */
-                Row {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = buildString {
                             val progress = correctGuessCount + shownFailedAnswerCount
@@ -827,9 +835,63 @@ private fun GameCard(
                             .clip(MaterialTheme.shapes.medium)
                             .background(MaterialTheme.colorScheme.tertiary)
                             .padding(vertical = Dimens.extraSmall4, horizontal = Dimens.small10),
-                        color = MaterialTheme.colorScheme.onPrimary,
+                        color = MaterialTheme.colorScheme.onTertiary,
                         style = MaterialTheme.typography.titleSmall,
                     )
+
+                    /* Difficulty mode icon/text */
+                    if (difficultyMode.icon != null) {
+                        Spacer(modifier = Modifier.width(2.dp))
+
+                        Icon(
+                            imageVector = difficultyMode.icon,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .clip(MaterialTheme.shapes.medium)
+                                .background(MaterialTheme.colorScheme.tertiary)
+                                .padding(vertical = 23.dp / 10, horizontal = Dimens.small8),
+                            tint = MaterialTheme.colorScheme.onTertiary,
+                        )
+                    } else if (difficultyMode.guessLimit != null) {
+                        Spacer(modifier = Modifier.width(2.dp))
+
+                        Text(
+                            text = difficultyMode.guessLimit.toString(),
+                            modifier = Modifier
+                                .clip(MaterialTheme.shapes.medium)
+                                .background(MaterialTheme.colorScheme.tertiary)
+                                .padding(
+                                    vertical = Dimens.extraSmall4,
+                                    horizontal = Dimens.small10
+                                ),
+                            color = MaterialTheme.colorScheme.onTertiary,
+                            style = MaterialTheme.typography.titleSmall,
+                        )
+                    }
+
+                    /* If relevant, show guesses remaining */
+                    difficultyMode.guessLimit?.let { guessLimit ->
+                        if (guessLimit > 1) {
+                            answersRemainingCount?.let { answersRemaining ->
+                                Spacer(modifier = Modifier.width(2.dp))
+
+                                Text(
+                                    text = answersRemaining.toString(),
+                                    modifier = Modifier
+                                        .clip(MaterialTheme.shapes.medium)
+                                        .background(
+                                            color = if (isDarkTheme) successDark else successLight
+                                        )
+                                        .padding(
+                                            vertical = Dimens.extraSmall4,
+                                            horizontal = Dimens.small10
+                                        ),
+                                    color = MaterialTheme.colorScheme.surface,
+                                    style = MaterialTheme.typography.titleSmall,
+                                )
+                            }
+                        }
+                    }
                 }
 
                 Row {
@@ -1283,14 +1345,16 @@ private fun GameModesDialog(
                     if (difficultyModeSelected == DifficultyMode.EASY) cardColorsSelected
                     else cardColorsUnselected,
             ) {
-                Icon(
-                    imageVector = Icons.Default.AllInclusive,
-                    contentDescription = null,
-                    modifier = Modifier.padding(
-                        vertical = Dimens.extraSmall6,
-                        horizontal = Dimens.small8,
-                    ),
-                )
+                DifficultyMode.EASY.icon?.let { icon ->
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        modifier = Modifier.padding(
+                            vertical = Dimens.extraSmall6,
+                            horizontal = Dimens.small8,
+                        ),
+                    )
+                }
             }
 
             /* MEDIUM difficulty mode button */
@@ -1303,14 +1367,16 @@ private fun GameModesDialog(
                     if (difficultyModeSelected == DifficultyMode.MEDIUM) cardColorsSelected
                     else cardColorsUnselected,
             ) {
-                Text(
-                    text = DifficultyMode.MEDIUM.guessLimit.toString(),
-                    modifier = Modifier.padding(
-                        vertical = Dimens.small8,
-                        horizontal = Dimens.medium16,
-                    ),
-                    style = MaterialTheme.typography.titleSmall,
-                )
+                DifficultyMode.MEDIUM.guessLimit?.let { guessLimit ->
+                    Text(
+                        text = guessLimit.toString(),
+                        modifier = Modifier.padding(
+                            vertical = Dimens.small8,
+                            horizontal = Dimens.medium16,
+                        ),
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                }
             }
 
             /* HARD difficulty mode button */
@@ -1323,14 +1389,16 @@ private fun GameModesDialog(
                     if (difficultyModeSelected == DifficultyMode.HARD) cardColorsSelected
                     else cardColorsUnselected,
             ) {
-                Text(
-                    text = DifficultyMode.HARD.guessLimit.toString(),
-                    modifier = Modifier.padding(
-                        vertical = Dimens.small8,
-                        horizontal = Dimens.medium16,
-                    ),
-                    style = MaterialTheme.typography.titleSmall,
-                )
+                DifficultyMode.HARD.guessLimit?.let { guessLimit ->
+                    Text(
+                        text = guessLimit.toString(),
+                        modifier = Modifier.padding(
+                            vertical = Dimens.small8,
+                            horizontal = Dimens.medium16,
+                        ),
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                }
             }
 
             /* SUDDEN_DEATH difficulty mode button */
@@ -1345,14 +1413,16 @@ private fun GameModesDialog(
                     if (difficultyModeSelected == DifficultyMode.SUDDEN_DEATH) cardColorsSelected
                     else cardColorsUnselected,
             ) {
-                Icon(
-                    imageVector = Icons.Default.ElectricBolt,
-                    contentDescription = null,
-                    modifier = Modifier.padding(
-                        vertical = Dimens.extraSmall6,
-                        horizontal = Dimens.small8,
-                    ),
-                )
+                DifficultyMode.SUDDEN_DEATH.icon?.let { icon ->
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        modifier = Modifier.padding(
+                            vertical = Dimens.extraSmall6,
+                            horizontal = Dimens.small8,
+                        ),
+                    )
+                }
             }
         }
     }
