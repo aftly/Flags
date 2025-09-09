@@ -87,7 +87,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
             string = query.lowercase().removePrefix(the)
         )
         val exactFlags = mutableListOf<FlagView>()
-        val exactNotFlags = mutableListOf<FlagView>()
+        val exactOther = mutableListOf<FlagView>()
         var sovereign = listOf<FlagView>()
         var polInternal = listOf<FlagView>()
         var polExternal = listOf<FlagView>()
@@ -113,7 +113,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 /* If exact match with searchQuery and in flags add flag to exact, else to first */
                 if (flagStringsExact.any { it == search && flag.previousFlagOfKey == null }) {
                     if (isFlagInFlags) exactFlags.add(flag)
-                    else exactNotFlags.add(flag)
+                    else exactOther.add(flag)
                 }
 
                 /* Filter expression: True if partial match to any flag name in flags  */
@@ -123,7 +123,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 /* Add related flags of search exact matches to results:
                  * If exact match is in currentFlags, add any/every related flag
                  * If exact match not in current flags, add only directly related flags */
-                if (exactFlags.isNotEmpty() || exactNotFlags.isNotEmpty()) {
+                if (exactFlags.isNotEmpty() || exactOther.isNotEmpty()) {
                     if (exactFlags.isNotEmpty()) {
                         sovereign = exactFlags.map { flag ->
                             flag.sovereignStateKey?.let { flagViewMap.getValue(it) } ?: flag
@@ -146,8 +146,8 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                         }
                     }
 
-                    if (exactNotFlags.isNotEmpty()) {
-                        exactNotFlags.forEach { flag ->
+                    if (exactOther.isNotEmpty()) {
+                        exactOther.forEach { flag ->
                             val flagKey = inverseFlagViewMap.getValue(flag)
 
                             if (flag.sovereignStateKey == null) {
@@ -196,7 +196,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 }
             }.sortedWith { p1, p2 ->
                 /* Only sort list when exact matches */
-                val isMatch = exactNotFlags.isNotEmpty() || exactFlags.isNotEmpty()
+                val isMatch = exactFlags.isNotEmpty() || exactOther.isNotEmpty()
 
                 /* Sort list starting with firstItem, then elements in relatedFlags, then else */
                 when {
