@@ -5,13 +5,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.flagViewMap
+import dev.aftly.flags.data.DataSource.inverseFlagViewMap
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
@@ -48,22 +48,24 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
     var searchQueryValue by mutableStateOf(value = TextFieldValue())
         private set
 
-    private val currentFlagsFlow = uiState.map { SearchFlow.CurrentFlags(it.currentFlags) }
-    private val savedFlagsFlow = uiState.map { SearchFlow.SavedFlags(it.savedFlags) }
-    private var isSavedFlagsFlow = uiState.map { SearchFlow.IsSavedFlags(it.isSavedFlags) }
+    private val allFlagsFlow = uiState.map { SearchFlow.FlagsList(it.allFlags) }
+    private val currentFlagsFlow = uiState.map { SearchFlow.FlagsList(it.currentFlags) }
+    private val savedFlagsFlow = uiState.map { SearchFlow.FlagsList(it.savedFlags) }
+    private var isSavedFlagsFlow = uiState.map { SearchFlow.Bool(it.isSavedFlags) }
     private val searchQueryFlow = snapshotFlow { searchQueryValue }
-        .map { SearchFlow.SearchQuery(it.text) }
+        .map { SearchFlow.Str(it.text) }
     private val appResourcesFlow = snapshotFlow {
         getApplication<Application>().applicationContext.resources
     }.map { SearchFlow.AppResources(it) }
     private val theStringFlow = snapshotFlow {
         getApplication<Application>().applicationContext.resources
             .getString(R.string.string_the_whitespace)
-    }.map { SearchFlow.TheString(it) }
+    }.map { SearchFlow.Str(it) }
 
     /* Use sealed interface SearchFlow for safe casting in combine() transform lambda */
     val flows: List<Flow<SearchFlow>> = listOf(
         searchQueryFlow,
+        allFlagsFlow,
         currentFlagsFlow,
         savedFlagsFlow,
         isSavedFlagsFlow,
@@ -72,18 +74,20 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
     )
 
     val searchResults = combine(flows) { flowArray ->
-        val query = (flowArray[0] as SearchFlow.SearchQuery).value
-        val current = (flowArray[1] as SearchFlow.CurrentFlags).value
-        val saved = (flowArray[2] as SearchFlow.SavedFlags).value
-        val isSaved = (flowArray[3] as SearchFlow.IsSavedFlags).value
-        val res = (flowArray[4] as SearchFlow.AppResources).value
-        val the = (flowArray[5] as SearchFlow.TheString).value
+        val query = (flowArray[0] as SearchFlow.Str).value
+        val all = (flowArray[1] as SearchFlow.FlagsList).value
+        val current = (flowArray[2] as SearchFlow.FlagsList).value
+        val saved = (flowArray[3] as SearchFlow.FlagsList).value
+        val isSaved = (flowArray[4] as SearchFlow.Bool).value
+        val res = (flowArray[5] as SearchFlow.AppResources).value
+        val the = (flowArray[6] as SearchFlow.Str).value
 
         val flags = if (isSaved) saved else current
         val search = normalizeString(
             string = query.lowercase().removePrefix(the)
         )
-        val first = mutableListOf<FlagView>()
+        val exactFlags = mutableListOf<FlagView>()
+        val exactNotFlags = mutableListOf<FlagView>()
         var sovereign = listOf<FlagView>()
         var polInternal = listOf<FlagView>()
         var polExternal = listOf<FlagView>()
@@ -91,8 +95,9 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         var chronIndirect = listOf<FlagView>()
 
         when {
-            query.isNotEmpty() -> flags.filter { flag ->
+            query.isNotEmpty() -> all.filter { flag ->
                 /* Get flag strings to match query against */
+                val isFlagInFlags = flag in flags
                 val descriptorString = flag.flagOfDescriptor?.let {
                     normalizeLower(res.getString(it))
                 }
@@ -105,64 +110,98 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                 val flagStringsExact = if (descriptorString == null) flagStrings else
                     flagStrings.filterNot { it == descriptorString }
 
-                /* If exact match with searchQuery, add flag to firstItems */
-                if (flagStringsExact.any { it == search && flag.previousFlagOfKey == null })
-                    first.add(flag)
+                /* If exact match with searchQuery and in flags add flag to exact, else to first */
+                if (flagStringsExact.any { it == search && flag.previousFlagOfKey == null }) {
+                    if (isFlagInFlags) exactFlags.add(flag)
+                    else exactNotFlags.add(flag)
+                }
 
-                /* Filter expression: True if partial match to any flag name  */
-                flagStrings.any { it.contains(search) }
+                /* Filter expression: True if partial match to any flag name in flags  */
+                isFlagInFlags && flagStrings.any { it.contains(search) }
 
             }.let { results ->
-                /* When there is an exact match (firstItem) append related flags (from currentFlags)
-                 * to results */
-                if (first.isNotEmpty()) {
-                    sovereign = first.map { flag ->
-                        flag.sovereignStateKey?.let { flagViewMap.getValue(it) }
-                            ?: flag
+                /* Add related flags of search exact matches to results:
+                 * If exact match is in currentFlags, add any/every related flag
+                 * If exact match not in current flags, add only directly related flags */
+                if (exactFlags.isNotEmpty() || exactNotFlags.isNotEmpty()) {
+                    if (exactFlags.isNotEmpty()) {
+                        sovereign = exactFlags.map { flag ->
+                            flag.sovereignStateKey?.let { flagViewMap.getValue(it) } ?: flag
+                        }
+
+                        polInternal = exactFlags.flatMap { flag ->
+                            getFlagsFromKeys(flag.politicalInternalRelatedFlagKeys)
+                        }
+
+                        polExternal = exactFlags.flatMap { flag ->
+                            getFlagsFromKeys(flag.politicalExternalRelatedFlagKeys)
+                        }
+
+                        chronDirect = exactFlags.flatMap { flag ->
+                            getFlagsFromKeys(flag.chronologicalDirectRelatedFlagKeys)
+                        }
+
+                        chronIndirect = exactFlags.flatMap { flag ->
+                            getFlagsFromKeys(flag.chronologicalIndirectRelatedFlagKeys)
+                        }
+                    }
+
+                    if (exactNotFlags.isNotEmpty()) {
+                        exactNotFlags.forEach { flag ->
+                            val flagKey = inverseFlagViewMap.getValue(flag)
+
+                            if (flag.sovereignStateKey == null) {
+                                // If sovereign: All related
+                                sovereign = sovereign + flag
+
+                                polInternal = polInternal +
+                                        getFlagsFromKeys(flag.politicalInternalRelatedFlagKeys)
+
+                                polExternal = polExternal +
+                                        getFlagsFromKeys(flag.politicalExternalRelatedFlagKeys)
+
+                                chronDirect = chronDirect +
+                                        getFlagsFromKeys(flag.chronologicalDirectRelatedFlagKeys)
+
+                                chronIndirect = chronIndirect +
+                                        getFlagsFromKeys(flag.chronologicalIndirectRelatedFlagKeys)
+
+                            } else {
+                                // Else: Sovereign + parent and/or children internal units only
+                                val related = getFlagsFromKeys(flag.politicalInternalRelatedFlagKeys)
+                                val children = related.filter { it.parentUnitKey == flagKey }
+
+                                sovereign = sovereign + flagViewMap.getValue(flag.sovereignStateKey)
+                                polInternal = polInternal + children
+
+                                flag.parentUnitKey?.let { parentKey ->
+                                    val parents = related.filter {
+                                        inverseFlagViewMap.getValue(it) == parentKey
+                                    }
+                                    polInternal = polInternal + parents
+                                }
+                            }
+                        }
+                    }
+
+                    buildList {
+                        val relatedFlags = (polInternal + polExternal + chronDirect + chronIndirect)
+                        val relatedSorted = sortFlagsAlphabetically(application, relatedFlags)
+                        addAll(elements = relatedSorted.filter { it in flags })
+                        addAll(elements = results)
                     }.distinct()
 
-                    polInternal = sortFlagsAlphabetically(
-                        application = application,
-                        flags = first.flatMap { flag ->
-                            getFlagsFromKeys(flag.politicalInternalRelatedFlagKeys)
-                        }.distinct()
-                    )
-
-                    polExternal = sortFlagsAlphabetically(
-                        application = application,
-                        flags = first.flatMap { flag ->
-                            getFlagsFromKeys(flag.politicalExternalRelatedFlagKeys)
-                        }.distinct()
-                    )
-
-                    chronDirect = sortFlagsAlphabetically(
-                        application = application,
-                        flags = first.flatMap { flag ->
-                            getFlagsFromKeys(flag.chronologicalDirectRelatedFlagKeys)
-                        }.distinct()
-                    )
-
-                    chronIndirect = sortFlagsAlphabetically(
-                        application = application,
-                        flags = first.flatMap { flag ->
-                            getFlagsFromKeys(flag.chronologicalIndirectRelatedFlagKeys)
-                        }.distinct()
-                    )
-
-                    ((polInternal + polExternal + chronDirect + chronIndirect)
-                        .filter { it in flags } + results)
-                        .distinct()
                 } else {
                     results
                 }
             }.sortedWith { p1, p2 ->
                 /* Only sort list when exact matches */
-                val isMatch = first.isNotEmpty()
+                val isMatch = exactNotFlags.isNotEmpty() || exactFlags.isNotEmpty()
 
                 /* Sort list starting with firstItem, then elements in relatedFlags, then else */
                 when {
-                    isMatch && p1 in first && p2 !in first -> -1
-                    isMatch && p1 !in first && p2 in first -> 1
+                    isMatch && p1 in exactFlags && p2 !in exactFlags -> -1
+                    isMatch && p1 !in exactFlags && p2 in exactFlags -> 1
                     isMatch && p1 in sovereign && p2 !in sovereign -> -1
                     isMatch && p1 !in sovereign && p2 in sovereign -> 1
                     isMatch && p1 in polInternal && p2 !in polInternal -> -1
