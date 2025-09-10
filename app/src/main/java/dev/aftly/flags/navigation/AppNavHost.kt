@@ -3,6 +3,8 @@ package dev.aftly.flags.navigation
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material3.DrawerValue
@@ -10,7 +12,6 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -22,8 +23,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import dev.aftly.flags.model.game.AnswerMode
-import dev.aftly.flags.model.game.DifficultyMode
 import dev.aftly.flags.ui.component.AppNavigationDrawer
 import dev.aftly.flags.ui.screen.flag.FlagScreen
 import dev.aftly.flags.ui.screen.fullscreen.FullScreen
@@ -141,6 +140,20 @@ fun AppNavHost(
                         defaultValue = 0
                     }
                 ),
+                exitTransition = {
+                    when (targetState.destination.route) {
+                        in listOf(gameRoute, Screen.Settings.route) ->
+                            fadeOut(animationSpec = tween(durationMillis = Timing.DRAWER_NAV))
+                        else -> null
+                    }
+                },
+                popEnterTransition = {
+                    when (initialState.destination.route) {
+                        in listOf(gameRoute, Screen.Settings.route) ->
+                            fadeIn(animationSpec = tween(durationMillis = Timing.DRAWER_NAV))
+                        else -> null
+                    }
+                },
             ) {
                 ListFlagsScreen(
                     currentBackStackEntry = currentBackStackEntry,
@@ -213,15 +226,27 @@ fun AppNavHost(
                         defaultValue = false
                     }
                 ),
+                enterTransition = {
+                    when (initialState.destination.route) {
+                        in listOf(listRoute, Screen.Settings.route) ->
+                            fadeIn(animationSpec = tween(durationMillis = Timing.DRAWER_NAV))
+                        else -> null
+                    }
+                },
                 exitTransition = {
                     when (targetState.destination.route) {
                         Screen.FullScreen.route -> ExitTransition.None
+                        in listOf(listRoute, Screen.Settings.route) ->
+                            fadeOut(animationSpec = tween(durationMillis = Timing.DRAWER_NAV))
                         else -> null
                     }
                 },
                 popEnterTransition = {
                     when (initialState.destination.route) {
                         Screen.FullScreen.route -> EnterTransition.None
+                        Screen.Settings.route -> fadeIn(
+                            animationSpec = tween(durationMillis = Timing.DRAWER_NAV)
+                        )
                         else -> null
                     }
                 },
@@ -302,6 +327,12 @@ fun AppNavHost(
             /* SettingsScreen NavGraph */
             composable(
                 route = Screen.Settings.route,
+                enterTransition = {
+                    fadeIn(animationSpec = tween(durationMillis = Timing.DRAWER_NAV))
+                },
+                exitTransition = {
+                    fadeOut(animationSpec = tween(durationMillis = Timing.DRAWER_NAV))
+                },
             ) {
                 SettingsScreen(
                     screen = Screen.Settings,
