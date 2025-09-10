@@ -7,14 +7,13 @@ import dev.aftly.flags.R
 import dev.aftly.flags.model.FlagView
 import java.util.Calendar
 
-/* Input string with special characters, output as string with non-special characters */
+/* Normalize special characters and non-alphanumeric */
 fun normalizeString(string: String): String {
     val normalizer = Normalizer2.getNFDInstance()
     val decomposed = normalizer.normalize(string)
     return decomposed.filter { it.isLetterOrDigit() }
 }
 
-/* normalizeString and make lowercase */
 fun normalizeLower(string: String): String = normalizeString(string).lowercase()
 
 
@@ -22,9 +21,10 @@ fun normalizeLower(string: String): String = normalizeString(string).lowercase()
 fun flagDatesString(
     flag: FlagView,
     isGameDatesMode: Boolean = false,
+    isBrackets: Boolean = true,
 ) = buildString {
     if (flag.isDated) {
-        append(stringResource(R.string.string_open_bracket))
+        if (isBrackets) append(stringResource(R.string.string_open_bracket))
 
         flag.fromYear?.let { append(it.toString()) }
 
@@ -40,6 +40,6 @@ fun flagDatesString(
             }
         }
 
-        append(stringResource(R.string.string_close_bracket))
+        if (isBrackets) append(stringResource(R.string.string_close_bracket))
     }
 }

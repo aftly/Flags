@@ -58,7 +58,7 @@ class ScoreData(
         )
     )
 
-    val allScores: List<TitledList> = listOf(
+    val allScores: List<FlagList> = listOf(
         GuessedFlags(
             list = flagsGuessed,
             sortedList = flagsGuessedSorted,
@@ -173,7 +173,7 @@ data class TimeOverview(
 
 
 /* ------------ Score details classes ------------ */
-abstract class TitledList(
+abstract class FlagList(
     val list: List<FlagView>,
     val sortedList: List<FlagView>,
 )
@@ -181,29 +181,29 @@ abstract class TitledList(
 class GuessedFlags(
     list: List<FlagView>,
     sortedList: List<FlagView>,
-) : TitledList(list, sortedList)
+) : FlagList(list, sortedList)
 
 class SkippedGuessedFlags(
     list: List<FlagView>,
     sortedList: List<FlagView>,
-) : TitledList(list, sortedList)
+) : FlagList(list, sortedList)
 
 class SkippedFlags(
     list: List<FlagView>,
     sortedList: List<FlagView>,
-) : TitledList(list, sortedList)
+) : FlagList(list, sortedList)
 
 class ShownFlags(
     list: List<FlagView>,
     sortedList: List<FlagView>,
-) : TitledList(list, sortedList)
+) : FlagList(list, sortedList)
 
 class FailedFlags(
     list: List<FlagView>,
     sortedList: List<FlagView>,
-) : TitledList(list, sortedList)
+) : FlagList(list, sortedList)
 
 class RemainderFlags(
     list: List<FlagView>,
     sortedList: List<FlagView>,
-) : TitledList(list, sortedList)
+) : FlagList(list, sortedList)

@@ -711,17 +711,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     /* Remove redundant super categories for ScoreData */
     private fun getScoreDataSupers(): List<FlagSuperCategory> {
+        val superCategories = uiState.value.currentSuperCategories
         val subCategories = uiState.value.currentSubCategories
+        val isNonAllCategories =
+            superCategories.size > 1 || superCategories.isNotEmpty() && subCategories.isNotEmpty()
 
-        return uiState.value.currentSuperCategories.filterNot { superCategory ->
-            superCategory.enums().any { it in subCategories }
-
-        }.let { superCategories ->
-            when (superCategories.size to subCategories.isEmpty()) {
-                0 to true -> superCategories
-                else -> superCategories.filterNot { it == All }
-            }
-
+        return superCategories.filterNot { superCategory ->
+            superCategory.enums().any { it in subCategories } &&
+                    (superCategory != All || isNonAllCategories)
         }
     }
 

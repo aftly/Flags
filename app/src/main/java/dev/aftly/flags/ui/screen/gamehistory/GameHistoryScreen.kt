@@ -1,6 +1,5 @@
 package dev.aftly.flags.ui.screen.gamehistory
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,13 +16,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.HourglassFull
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material.icons.filled.SportsScore
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -38,13 +40,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.R
 import dev.aftly.flags.data.room.scorehistory.ScoreItem
+import dev.aftly.flags.model.game.AnswerMode
 import dev.aftly.flags.model.game.TimeMode
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.NoResultsFound
@@ -131,7 +138,7 @@ private fun GameHistoryScreen(
         if (uiState.scoreDetails != null) {
             ScoreDetails(
                 visible = uiState.isScoreDetails,
-                scoreDetails = uiState.scoreDetails,
+                scoreData = uiState.scoreDetails,
                 onClose = onCloseScoreDetails,
             )
         }
@@ -183,60 +190,52 @@ private fun HistoryItem(
 ) {
     /* General properties */
     val isDarkTheme = LocalDarkTheme.current
-    val isTimeTrial = item.timeMode == TimeMode.TIME_TRIAL
     val padding = Dimens.extraSmall4
-    val iconBackgroundColor = MaterialTheme.colorScheme.surface
-    val detailsRowModifier = Modifier
+    val itemElementModifier = Modifier
         .padding(vertical = padding)
         .background(
-            color = iconBackgroundColor,
-            shape = MaterialTheme.shapes.medium
+            color = MaterialTheme.colorScheme.surface,
+            shape = MaterialTheme.shapes.medium,
         )
-    val timerRowModifier = Modifier.background(
-        color = iconBackgroundColor,
-        shape = MaterialTheme.shapes.large
-    )
-    @StringRes val categoryTitle =
+    val categoryResId =
         if (item.isCategoriesEmpty()) R.string.saved_flags_score_preview
         else getSingleCategoryPreviewTitleOrNull(
             superCategories = item.superCategories(),
             subCategories = item.gameSubCategories,
         ) ?: R.string.game_history_category_multiple
 
-
     /* Icon properties */
     val iconSize = Dimens.standardIconSize24 * 0.85f
     val categoryIcon = Icons.Default.Category
     val scoreIcon = Icons.Default.SportsScore
-    val timeModeIcon = Icons.Default.Timer
-    val timeModeTypeIcon = when (isTimeTrial) {
-        true -> Icons.Default.ArrowDownward
-        false -> Icons.Default.ArrowUpward
-    }
-    val dateTimeIcon = Icons.Default.DateRange
-
+    val modeIcon = Icons.Default.Settings
+    val timestampIcon = Icons.Default.CalendarMonth
 
     /* Card properties */
     val scoreCardColors = CardDefaults.cardColors(
-        containerColor = when (isDarkTheme) {
-            true -> successDark
-            false -> successLight
-        },
+        containerColor = if (isDarkTheme) successDark else successLight,
         contentColor = MaterialTheme.colorScheme.surface
     )
-    val timerCardColors = CardDefaults.cardColors(
+    val detailCardColors = CardDefaults.cardColors(
         containerColor = MaterialTheme.colorScheme.primary,
         contentColor = MaterialTheme.colorScheme.onPrimary,
     )
-    val timerRemainingCardColors = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.error,
-        contentColor = MaterialTheme.colorScheme.onError,
-    )
-    val dateTimeCardColors = CardDefaults.cardColors(
+    val detailCardColors2 = CardDefaults.cardColors(
         containerColor = MaterialTheme.colorScheme.secondary,
         contentColor = MaterialTheme.colorScheme.onSecondary
     )
+    val modeCardColors = CardDefaults.cardColors(
+        containerColor = MaterialTheme.colorScheme.tertiary,
+        contentColor = MaterialTheme.colorScheme.onTertiary,
+    )
 
+    /* Element properties */
+    val scoreText = stringResource(R.string.game_history_score, item.score, item.outOf)
+    val categoryText = stringResource(categoryResId)
+    val timestampText = formatTimestamp(item.timestamp).replace(
+        oldValue = stringResource(R.string.game_score_details_time_date_connector),
+        newValue = stringResource(R.string.string_new_line),
+    )
 
     Card(modifier = modifier.clickable { onScoreDetails(item) }) {
         Row(
@@ -246,155 +245,72 @@ private fun HistoryItem(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            /* Score */
-            Row(
-                modifier = detailsRowModifier,
-                verticalAlignment = Alignment.CenterVertically,
+            /* ----- Score item ----- */
+            HistoryItemElement(
+                modifier = itemElementModifier,
+                icon = scoreIcon,
+                iconSize = iconSize,
+                padding = padding,
+                cardColors = scoreCardColors,
             ) {
-                Icon(
-                    imageVector = scoreIcon,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(start = padding / 2)
-                        .size(iconSize),
-                )
+                HistoryItemElementText(text = scoreText, padding = padding)
+            }
 
-                Card(colors = scoreCardColors) {
-                    Text(
-                        text = stringResource(R.string.game_history_score, item.score, item.outOf),
-                        modifier = Modifier.padding(horizontal = padding, vertical = padding / 2),
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.labelLarge,
-                    )
+            HistoryItemElementSpacer()
+
+            /* ----- Category item ----- */
+            HistoryItemElement(
+                modifier = itemElementModifier.weight(1f),
+                icon = categoryIcon,
+                iconSize = iconSize,
+                padding = padding,
+                cardColors = detailCardColors,
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    HistoryItemElementText(text = categoryText, padding = padding)
                 }
             }
 
-            Spacer(modifier = Modifier.width(Dimens.small8))
+            HistoryItemElementSpacer()
 
-
-            /* Category */
-            Row(
-                modifier = detailsRowModifier.weight(1f),
-                verticalAlignment = Alignment.CenterVertically,
+            /* ----- Mode item ----- */
+            HistoryItemElement(
+                modifier = itemElementModifier,
+                icon = modeIcon,
+                iconSize = iconSize,
+                padding = padding,
+                cardColors = modeCardColors,
             ) {
-                Icon(
-                    imageVector = categoryIcon,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(start = padding / 2)
-                        .size(iconSize),
-                )
+                Row(modifier = Modifier.padding(all = padding / 2)) {
+                    /* Answer mode */
+                    HistoryItemElementIcon(icon = item.answerMode.icon, iconSize = iconSize)
 
-                Card(colors = scoreCardColors) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = stringResource(categoryTitle),
-                            modifier = Modifier.padding(horizontal = padding, vertical = padding / 2),
-                            textAlign = TextAlign.Center,
-                            lineHeight = MaterialTheme.typography.labelLarge.lineHeight * 0.75f,
-                            style = MaterialTheme.typography.labelLarge,
-                        )
+                    /* Difficulty mode */
+                    item.difficultyMode.icon?.let { icon ->
+                        HistoryItemElementIcon(Modifier.padding(horizontal = 2.dp), icon, iconSize)
+                    } ?: item.difficultyMode.guessLimit?.let { guessLimit ->
+                        HistoryItemElementText(text = guessLimit.toString(), padding = padding)
                     }
+
+                    /* Time mode */
+                    HistoryItemElementIcon(icon = item.timeMode.icon, iconSize = iconSize)
                 }
             }
 
-            Spacer(modifier = Modifier.width(Dimens.small8))
+            HistoryItemElementSpacer()
 
-
-            /* Time details */
-            Row(
-                modifier = timerRowModifier,
-                verticalAlignment = Alignment.CenterVertically,
+            /* ----- Timestamp item ----- */
+            HistoryItemElement(
+                modifier = itemElementModifier,
+                icon = timestampIcon,
+                iconSize = iconSize,
+                padding = padding,
+                cardColors = detailCardColors2,
             ) {
-                Icon(
-                    imageVector = timeModeIcon,
-                    contentDescription = null,
-                    modifier = Modifier.size(iconSize),
-                )
-                Icon(
-                    imageVector = timeModeTypeIcon,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(end = padding / 2)
-                        .size(iconSize),
-                )
-
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    item.timerStart?.let { startTime ->
-                        if (isTimeTrial) {
-                            Card(colors = timerCardColors) {
-                                Text(
-                                    text = stringResource(
-                                        R.string.game_score_details_time,
-                                        startTime / 60, startTime % 60
-                                    ),
-                                    modifier = Modifier
-                                        .padding(
-                                            horizontal = padding,
-                                            vertical = padding / 4,
-                                        ),
-                                    textAlign = TextAlign.Center,
-                                    lineHeight = MaterialTheme.typography.labelLarge.lineHeight * 0.75f,
-                                    style = MaterialTheme.typography.labelLarge,
-                                )
-                            }
-                        }
-                    }
-                    Card(
-                        colors = if (isTimeTrial) timerRemainingCardColors else timerCardColors
-                    ) {
-                        val verticalPadding = if (isTimeTrial) padding / 4 else padding / 1.5f
-
-                        Text(
-                            text = stringResource(
-                                R.string.game_score_details_time,
-                                item.timerEnd / 60, item.timerEnd % 60
-                            ),
-                            modifier = Modifier
-                                .padding(
-                                    horizontal = padding,
-                                    vertical = verticalPadding,
-                                ),
-                            textAlign = TextAlign.Center,
-                            lineHeight = MaterialTheme.typography.labelLarge.lineHeight * 0.75f,
-                            style = MaterialTheme.typography.labelLarge,
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.width(Dimens.small8))
-
-
-            /* Date & Time of game end */
-            Row(
-                modifier = detailsRowModifier,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    imageVector = dateTimeIcon,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(horizontal = padding / 2)
-                        .size(iconSize),
-                )
-
-                Card(colors = dateTimeCardColors) {
-                    Text(
-                        text = formatTimestamp(item.timestamp).replace(
-                            oldValue = stringResource(R.string.game_score_details_time_date_connector),
-                            newValue = stringResource(R.string.string_new_line),
-                        ),
-                        modifier = Modifier.padding(horizontal = padding, vertical = padding / 2),
-                        textAlign = TextAlign.Center,
-                        lineHeight = MaterialTheme.typography.labelMedium.lineHeight * 0.75f,
-                        style = MaterialTheme.typography.labelMedium,
-                    )
-                }
+                HistoryItemElementText(text = timestampText, padding = padding)
             }
         }
     }
@@ -402,26 +318,65 @@ private fun HistoryItem(
 }
 
 
-/*
 @Composable
-private fun ItemElement(
+private fun HistoryItemElement(
+    modifier: Modifier = Modifier,
     icon: ImageVector,
-    text: String,
-    style: FontStyle,
+    iconSize: Dp,
+    padding: Dp,
+    cardColors: CardColors,
+    elementContent: @Composable (() -> Unit),
 ) {
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
-        )
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row {
-            Icon(imageVector = icon, contentDescription = null)
-            Text(text = text)
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier
+                .padding(start = padding / 2)
+                .size(iconSize),
+        )
+
+        Card(colors = cardColors) {
+            elementContent()
         }
     }
 }
- */
+
+@Composable
+private fun HistoryItemElementText(
+    modifier: Modifier = Modifier,
+    text: String,
+    padding: Dp,
+) {
+    Text(
+        text = text,
+        modifier = modifier.padding(horizontal = padding, vertical = padding / 2),
+        textAlign = TextAlign.Center,
+        lineHeight = MaterialTheme.typography.labelMedium.lineHeight * 0.75f,
+        style = MaterialTheme.typography.labelLarge,
+    )
+}
+
+@Composable
+private fun HistoryItemElementIcon(
+    modifier: Modifier = Modifier,
+    icon: ImageVector,
+    iconSize: Dp,
+) {
+    Icon(
+        imageVector = icon,
+        contentDescription = null,
+        modifier = modifier.size(iconSize),
+    )
+}
+
+@Composable
+private fun HistoryItemElementSpacer() {
+    Spacer(modifier = Modifier.width(Dimens.small8))
+}
 
 
 @OptIn(ExperimentalMaterial3Api::class)

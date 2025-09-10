@@ -31,8 +31,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.AllInclusive
-import androidx.compose.material.icons.filled.ElectricBolt
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Replay
@@ -450,7 +448,7 @@ private fun GameScreen(
         if (uiState.scoreDetails != null) {
             ScoreDetails(
                 visible = uiState.isScoreDetails,
-                scoreDetails = uiState.scoreDetails,
+                scoreData = uiState.scoreDetails,
                 onClose = onCloseScoreDetails,
             )
         }
@@ -1260,8 +1258,8 @@ private fun GameModesDialog(
     onDismiss: () -> Unit,
     onGameModes: (AnswerMode, DifficultyMode) -> Unit,
 ) {
-    var answerModeSelected by rememberSaveable { mutableStateOf(value = answerMode) }
-    var difficultyModeSelected by rememberSaveable { mutableStateOf(value = difficultyMode) }
+    var answerModeSelect by rememberSaveable { mutableStateOf(value = answerMode) }
+    var difficultyModeSelect by rememberSaveable { mutableStateOf(value = difficultyMode) }
 
     val cardColorsSelected = CardDefaults.cardColors(
         containerColor = MaterialTheme.colorScheme.primary
@@ -1269,30 +1267,36 @@ private fun GameModesDialog(
     val cardColorsUnselected = CardDefaults.cardColors(
         containerColor = MaterialTheme.colorScheme.outlineVariant
     )
+    val isEasyButtonEnabled = answerModeSelect != AnswerMode.DATES
+
+    LaunchedEffect(answerModeSelect) {
+        if (answerModeSelect == AnswerMode.DATES && difficultyModeSelect == DifficultyMode.EASY)
+            difficultyModeSelect = DifficultyMode.MEDIUM
+    }
 
     GameDialog(
-        title = R.string.game_modes_title,
+        title = R.string.game_modes_dialog_title,
         onDismiss = onDismiss,
         onSubmit = {
-            onGameModes(answerModeSelected, difficultyModeSelected)
+            onGameModes(answerModeSelect, difficultyModeSelect)
             onDismiss()
         },
     ) {
         /* Answer mode selection */
         Text(
-            text = "Answer mode:",
+            text = stringResource(R.string.game_modes_dialog_answer_mode_title),
             modifier = Modifier.padding(top = Dimens.large24),
             style = MaterialTheme.typography.labelMedium,
         )
         Row {
             /* NAMES answer mode button */
             Card(
-                onClick = { answerModeSelected = AnswerMode.NAMES },
+                onClick = { answerModeSelect = AnswerMode.NAMES },
                 shape =
-                    if (answerModeSelected == AnswerMode.NAMES) MaterialTheme.shapes.large
+                    if (answerModeSelect == AnswerMode.NAMES) MaterialTheme.shapes.large
                     else MaterialTheme.shapes.extraSmall,
                 colors =
-                    if (answerModeSelected == AnswerMode.NAMES) cardColorsSelected
+                    if (answerModeSelect == AnswerMode.NAMES) cardColorsSelected
                     else cardColorsUnselected,
             ) {
                 Text(
@@ -1309,12 +1313,12 @@ private fun GameModesDialog(
 
             /* DATES answer mode button */
             Card(
-                onClick = { answerModeSelected = AnswerMode.DATES },
+                onClick = { answerModeSelect = AnswerMode.DATES },
                 shape =
-                    if (answerModeSelected == AnswerMode.DATES) MaterialTheme.shapes.large
+                    if (answerModeSelect == AnswerMode.DATES) MaterialTheme.shapes.large
                     else MaterialTheme.shapes.extraSmall,
                 colors =
-                    if (answerModeSelected == AnswerMode.DATES) cardColorsSelected
+                    if (answerModeSelect == AnswerMode.DATES) cardColorsSelected
                     else cardColorsUnselected,
             ) {
                 Text(
@@ -1330,19 +1334,20 @@ private fun GameModesDialog(
 
         /* Difficulty mode selection */
         Text(
-            text = "Answer limit:",
+            text = stringResource(R.string.game_modes_dialog_difficulty_mode_title),
             modifier = Modifier.padding(top = Dimens.large24),
             style = MaterialTheme.typography.labelMedium,
         )
         Row {
             /* EASY difficulty mode button */
             Card(
-                onClick = { difficultyModeSelected = DifficultyMode.EASY },
+                onClick = { difficultyModeSelect = DifficultyMode.EASY },
+                enabled = isEasyButtonEnabled,
                 shape =
-                    if (difficultyModeSelected == DifficultyMode.EASY) MaterialTheme.shapes.large
+                    if (difficultyModeSelect == DifficultyMode.EASY) MaterialTheme.shapes.large
                     else MaterialTheme.shapes.extraSmall,
                 colors =
-                    if (difficultyModeSelected == DifficultyMode.EASY) cardColorsSelected
+                    if (difficultyModeSelect == DifficultyMode.EASY) cardColorsSelected
                     else cardColorsUnselected,
             ) {
                 DifficultyMode.EASY.icon?.let { icon ->
@@ -1359,12 +1364,12 @@ private fun GameModesDialog(
 
             /* MEDIUM difficulty mode button */
             Card(
-                onClick = { difficultyModeSelected = DifficultyMode.MEDIUM },
+                onClick = { difficultyModeSelect = DifficultyMode.MEDIUM },
                 shape =
-                    if (difficultyModeSelected == DifficultyMode.MEDIUM) MaterialTheme.shapes.large
+                    if (difficultyModeSelect == DifficultyMode.MEDIUM) MaterialTheme.shapes.large
                     else MaterialTheme.shapes.extraSmall,
                 colors =
-                    if (difficultyModeSelected == DifficultyMode.MEDIUM) cardColorsSelected
+                    if (difficultyModeSelect == DifficultyMode.MEDIUM) cardColorsSelected
                     else cardColorsUnselected,
             ) {
                 DifficultyMode.MEDIUM.guessLimit?.let { guessLimit ->
@@ -1381,12 +1386,12 @@ private fun GameModesDialog(
 
             /* HARD difficulty mode button */
             Card(
-                onClick = { difficultyModeSelected = DifficultyMode.HARD },
+                onClick = { difficultyModeSelect = DifficultyMode.HARD },
                 shape =
-                    if (difficultyModeSelected == DifficultyMode.HARD) MaterialTheme.shapes.large
+                    if (difficultyModeSelect == DifficultyMode.HARD) MaterialTheme.shapes.large
                     else MaterialTheme.shapes.extraSmall,
                 colors =
-                    if (difficultyModeSelected == DifficultyMode.HARD) cardColorsSelected
+                    if (difficultyModeSelect == DifficultyMode.HARD) cardColorsSelected
                     else cardColorsUnselected,
             ) {
                 DifficultyMode.HARD.guessLimit?.let { guessLimit ->
@@ -1403,14 +1408,14 @@ private fun GameModesDialog(
 
             /* SUDDEN_DEATH difficulty mode button */
             Card(
-                onClick = { difficultyModeSelected = DifficultyMode.SUDDEN_DEATH },
+                onClick = { difficultyModeSelect = DifficultyMode.SUDDEN_DEATH },
                 shape =
-                    if (difficultyModeSelected == DifficultyMode.SUDDEN_DEATH)
+                    if (difficultyModeSelect == DifficultyMode.SUDDEN_DEATH)
                         MaterialTheme.shapes.large
                     else
                         MaterialTheme.shapes.extraSmall,
                 colors =
-                    if (difficultyModeSelected == DifficultyMode.SUDDEN_DEATH) cardColorsSelected
+                    if (difficultyModeSelect == DifficultyMode.SUDDEN_DEATH) cardColorsSelected
                     else cardColorsUnselected,
             ) {
                 DifficultyMode.SUDDEN_DEATH.icon?.let { icon ->

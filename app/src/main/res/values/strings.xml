@@ -4,7 +4,7 @@
     <string name="button_title_state_flags">\ State Flags</string>
     <string name="category_super_all">All</string>
     <string name="category_super_all_menu_button">All</string>
-    <string name="category_super_all_score_preview">All flags</string>
+    <string name="category_super_all_score_preview">All</string>
     <string name="category_super_all_score_detailed">All flags</string>
     <string name="category_super_sovereign_country">Country (sovereign)</string>
     <string name="category_super_sovereign_country_menu_button">Country</string>
@@ -227,9 +227,15 @@
     <string name="game_guess_field_dates_label">Guess date(s)</string>
     <string name="game_guess_field_label_error">Incorrect</string>
     <string name="game_guess_field_label_success">Correct!</string>
-    <string name="game_modes_title">Game Modes</string>
     <string name="game_mode_answer_names_title">Names</string>
     <string name="game_mode_answer_dates_title">Dates</string>
+    <string name="game_mode_difficulty_easy_title">Easy</string>
+    <string name="game_mode_difficulty_medium_title">Medium</string>
+    <string name="game_mode_difficulty_hard_title">Hard</string>
+    <string name="game_mode_difficulty_sudden_death_title">Sudden death</string>
+    <string name="game_modes_dialog_title">Game Modes</string>
+    <string name="game_modes_dialog_answer_mode_title">Answer mode:</string>
+    <string name="game_modes_dialog_difficulty_mode_title">Guess limit:</string>
     <string name="game_over_title">Game over</string>
     <string name="game_over_text">Flags guessed: %d/%d</string>
     <string name="game_over_text_max_score">You guessed every flag…\nNerd!</string>
@@ -251,6 +257,7 @@
     <string name="game_score_details_answer_mode">Answer mode:\ </string>
     <string name="game_score_details_difficulty_mode">Difficulty mode:\ </string>
     <string name="game_score_details_time_mode">Time mode:\ </string>
+    <string name="game_score_details_timestamp_title">Date &amp; time:\ </string>
     <string name="game_score_details_time">%dm %02ds</string>
     <string name="game_score_details_time_date_connector">,\ </string>
     <string name="game_score_details_guessed">Guessed (%d)</string>

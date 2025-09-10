@@ -53,19 +53,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.aftly.flags.R
-import dev.aftly.flags.model.game.CategoriesOverview
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.game.AnswerMode
+import dev.aftly.flags.model.game.CategoriesOverview
 import dev.aftly.flags.model.game.DifficultyMode
 import dev.aftly.flags.model.game.FailedFlags
+import dev.aftly.flags.model.game.FlagList
 import dev.aftly.flags.model.game.GuessedFlags
 import dev.aftly.flags.model.game.RemainderFlags
 import dev.aftly.flags.model.game.ScoreData
@@ -74,22 +80,22 @@ import dev.aftly.flags.model.game.SkippedFlags
 import dev.aftly.flags.model.game.SkippedGuessedFlags
 import dev.aftly.flags.model.game.TimeMode
 import dev.aftly.flags.model.game.TimeOverview
-import dev.aftly.flags.model.game.TitledList
 import dev.aftly.flags.model.game.TotalsOverview
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.successDark
 import dev.aftly.flags.ui.theme.successLight
 import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.SystemUiController
+import dev.aftly.flags.ui.util.flagDatesString
+import dev.aftly.flags.ui.util.formatTimestamp
 
 
 @Composable
 fun ScoreDetails(
     visible: Boolean,
-    scoreDetails: ScoreData,
+    scoreData: ScoreData,
     onClose: () -> Unit,
 ) {
-    /* For Ui details */
     val insetsPadding = WindowInsets.systemBars.asPaddingValues()
     var isDetailsSorted by rememberSaveable { mutableStateOf(value = false) }
     val sortButtonIcon =
@@ -196,7 +202,7 @@ fun ScoreDetails(
                 ScoreDetails(
                     isDarkTheme = isDarkTheme,
                     isDetailsSorted = isDetailsSorted,
-                    scoreDetails = scoreDetails,
+                    scoreData = scoreData,
                 )
             }
         }
@@ -209,23 +215,25 @@ fun ScoreDetails(
 private fun ScoreDetails(
     isDarkTheme: Boolean,
     isDetailsSorted: Boolean,
-    scoreDetails: ScoreData,
+    scoreData: ScoreData,
 ) {
     val lerpSurface = if (isDarkTheme) Color.White else Color.Black
+    val isDatesMode = scoreData.answerMode == AnswerMode.DATES
 
     LazyColumn {
         item {
             ScoreOverViewContent(
                 isDarkTheme = isDarkTheme,
-                scoreDetails = scoreDetails,
+                scoreData = scoreData,
                 lerpSurface = lerpSurface,
             )
         }
 
-        items(scoreDetails.allScores) { scoreDetails ->
+        items(scoreData.allScores) { flagDetails ->
             FlagDetailsContent(
                 isDetailsSorted = isDetailsSorted,
-                scoreDetails = scoreDetails,
+                flagDetails = flagDetails,
+                isDatesMode = isDatesMode,
                 lerpSurface = lerpSurface,
             )
         }
@@ -238,7 +246,7 @@ private fun ScoreDetails(
 private fun ScoreOverViewContent(
     modifier: Modifier = Modifier,
     isDarkTheme: Boolean,
-    scoreDetails: ScoreData,
+    scoreData: ScoreData,
     lerpSurface: Color,
 ) {
     var isExpanded by remember { mutableStateOf(value = true) }
@@ -297,32 +305,36 @@ private fun ScoreOverViewContent(
                     )
             ) {
                 TotalsOverview(
-                    modifier = Modifier.padding(bottom = Dimens.extraSmall4),
-                    totalsOverview = scoreDetails.scoreOverview.totalsOverview,
+                    modifier = Modifier.padding(bottom = Dimens.extraSmall4 / 2),
+                    totalsOverview = scoreData.scoreOverview.totalsOverview,
                     isDarkTheme = isDarkTheme,
                     clippedPadding = clippedPadding,
                 )
 
                 CategoriesOverview(
                     modifier = Modifier.padding(bottom = Dimens.extraSmall4),
-                    categoriesOverview = scoreDetails.scoreOverview.categoriesOverview,
+                    categoriesOverview = scoreData.scoreOverview.categoriesOverview,
                     clippedPadding = clippedPadding,
                 )
 
                 AnswerOverview(
                     modifier = Modifier.padding(bottom = Dimens.extraSmall4),
-                    answerMode = scoreDetails.scoreOverview.answerMode,
+                    answerMode = scoreData.scoreOverview.answerMode,
                 )
 
                 DifficultyOverview(
-                    modifier = Modifier.padding(bottom = Dimens.extraSmall4),
-                    difficultyMode = scoreDetails.scoreOverview.difficultyMode,
+                    modifier = Modifier.padding(bottom = Dimens.extraSmall4 / 2),
+                    difficultyMode = scoreData.scoreOverview.difficultyMode,
+                    clippedPadding = clippedPadding,
                 )
 
                 TimeOverview(
-                    timeOverview = scoreDetails.scoreOverview.timeOverview,
+                    modifier = Modifier.padding(bottom = Dimens.extraSmall4 / 2),
+                    timeOverview = scoreData.scoreOverview.timeOverview,
                     clippedPadding = clippedPadding,
                 )
+
+                TimestampOverview(timestamp = scoreData.timestamp)
             }
         }
     }
@@ -335,7 +347,7 @@ private fun OverviewItem(
     modifier: Modifier = Modifier,
     title: String,
     description: String?,
-    clippedContent: @Composable (RowScope.() -> Unit)?,
+    clippedContent: @Composable (RowScope.() -> Unit)? = null,
 ) {
     Row(
         modifier = modifier,
@@ -365,7 +377,7 @@ private fun OverviewItem(
 
 /* Clipped text component for use in Overview composables */
 @Composable
-private fun ClippedItem(
+private fun ClippedTextItem(
     modifier: Modifier = Modifier,
     text: String,
     backgroundColor: Color,
@@ -379,6 +391,25 @@ private fun ClippedItem(
             .padding(vertical = 2.dp, horizontal = Dimens.small8),
         color = textColor,
         style = MaterialTheme.typography.bodyMedium,
+    )
+}
+
+
+@Composable
+private fun ClippedIconItem(
+    modifier: Modifier = Modifier,
+    icon: ImageVector,
+    backgroundColor: Color,
+    iconColor: Color,
+) {
+    Icon(
+        imageVector = icon,
+        contentDescription = null,
+        modifier = modifier
+            .clip(shape = MaterialTheme.shapes.medium)
+            .background(color = backgroundColor)
+            .padding(horizontal = Dimens.small8),
+        tint = iconColor,
     )
 }
 
@@ -410,14 +441,14 @@ private fun TotalsOverview(
         description = null,
     ) {
         /* Absolute score */
-        ClippedItem(
+        ClippedTextItem(
             text = absoluteScore,
             backgroundColor = MaterialTheme.colorScheme.primary,
             textColor = MaterialTheme.colorScheme.onPrimary,
         )
 
         /* Relative score */
-        ClippedItem(
+        ClippedTextItem(
             modifier = Modifier.padding(start = clippedPadding),
             text = scorePercent,
             backgroundColor = successColor,
@@ -440,7 +471,6 @@ private fun CategoriesOverview(
         OverviewItem(
             title = title,
             description = null,
-            clippedContent = null,
         )
 
         /* If game list is saved flags */
@@ -448,7 +478,7 @@ private fun CategoriesOverview(
             categoriesOverview.subCategories.isEmpty()) {
             val savedFlagsText = stringResource(R.string.saved_flags_score_detailed)
 
-            ClippedItem(
+            ClippedTextItem(
                 modifier = Modifier.padding(top = clippedPadding),
                 text = savedFlagsText,
                 backgroundColor = MaterialTheme.colorScheme.primary,
@@ -461,7 +491,7 @@ private fun CategoriesOverview(
                 superCategory.gameScoreCategoryDetailed?.let {
                     val categoryText = stringResource(it)
 
-                    ClippedItem(
+                    ClippedTextItem(
                         modifier = Modifier.padding(top = clippedPadding),
                         text = categoryText,
                         backgroundColor = MaterialTheme.colorScheme.primary,
@@ -474,7 +504,7 @@ private fun CategoriesOverview(
             categoriesOverview.subCategories.forEach { subCategory ->
                 val categoryText = stringResource(subCategory.title)
 
-                ClippedItem(
+                ClippedTextItem(
                     modifier = Modifier.padding(top = clippedPadding),
                     text = categoryText,
                     backgroundColor = MaterialTheme.colorScheme.secondary,
@@ -492,13 +522,12 @@ private fun AnswerOverview(
     answerMode: AnswerMode,
 ) {
     val title = stringResource(R.string.game_score_details_answer_mode)
-    val description = stringResource(answerMode.title)
+    val answerModeText = stringResource(answerMode.title)
 
     OverviewItem(
         modifier = modifier,
         title = title,
-        description = description,
-        clippedContent = null,
+        description = answerModeText.uppercase(),
     )
 }
 
@@ -507,16 +536,35 @@ private fun AnswerOverview(
 private fun DifficultyOverview(
     modifier: Modifier = Modifier,
     difficultyMode: DifficultyMode,
+    clippedPadding: Dp,
 ) {
     val title = stringResource(R.string.game_score_details_difficulty_mode)
-    val description = difficultyMode.name
+    val difficultyModeText = stringResource(difficultyMode.title)
+    val backgroundColor = MaterialTheme.colorScheme.tertiary
+    val onBackgroundColor = MaterialTheme.colorScheme.onTertiary
+    val clippedModifier = Modifier.padding(start = clippedPadding * 2)
 
     OverviewItem(
         modifier = modifier,
         title = title,
-        description = description,
-        clippedContent = null,
-    )
+        description = difficultyModeText.uppercase(),
+    ) {
+        if (difficultyMode.icon != null) {
+            ClippedIconItem(
+                modifier = clippedModifier,
+                icon = difficultyMode.icon,
+                backgroundColor = backgroundColor,
+                iconColor = onBackgroundColor,
+            )
+        } else if (difficultyMode.guessLimit != null) {
+            ClippedTextItem(
+                modifier = clippedModifier,
+                text = difficultyMode.guessLimit.toString(),
+                backgroundColor = backgroundColor,
+                textColor = onBackgroundColor,
+            )
+        }
+    }
 }
 
 
@@ -536,13 +584,13 @@ private fun TimeOverview(
     }
 
     val title = stringResource(R.string.game_score_details_time_mode)
-    val description = stringResource(timeOverview.timeMode.title)
+    val timeModeText = stringResource(timeOverview.timeMode.title)
 
 
     OverviewItem(
         modifier = modifier,
         title = title,
-        description = description,
+        description = timeModeText.uppercase(),
     ) {
         Spacer(modifier = Modifier.width(clippedPadding))
 
@@ -552,7 +600,7 @@ private fun TimeOverview(
                 R.string.game_score_details_time,
                 time / 60, time % 60
             )
-            ClippedItem(
+            ClippedTextItem(
                 modifier = Modifier.padding(start = clippedPadding),
                 text = startTimeText,
                 backgroundColor = MaterialTheme.colorScheme.primary,
@@ -565,7 +613,7 @@ private fun TimeOverview(
             R.string.game_score_details_time,
             timeOverview.time / 60, timeOverview.time % 60
         )
-        ClippedItem(
+        ClippedTextItem(
             modifier = Modifier.padding(start = clippedPadding),
             text = elapsedTimeText,
             backgroundColor = endTimeBackgroundColor,
@@ -575,12 +623,29 @@ private fun TimeOverview(
 }
 
 
+@Composable
+private fun TimestampOverview(
+    modifier: Modifier = Modifier,
+    timestamp: Long,
+) {
+    val title = stringResource(R.string.game_score_details_timestamp_title)
+    val timestampText = formatTimestamp(timestamp)
+
+    OverviewItem(
+        modifier = modifier,
+        title = title,
+        description = timestampText,
+    )
+}
+
+
 /* Top level score details item containing lazy list of ScoreItem() */
 @Composable
 private fun FlagDetailsContent(
     modifier: Modifier = Modifier,
     isDetailsSorted: Boolean,
-    scoreDetails: TitledList,
+    flagDetails: FlagList,
+    isDatesMode: Boolean,
     lerpSurface: Color,
 ) {
     var isExpanded by remember { mutableStateOf(value = false) }
@@ -588,32 +653,32 @@ private fun FlagDetailsContent(
 
     val lazyColumnPadding = Dimens.medium16
     val itemHeight = with(LocalDensity.current) { textStyle.lineHeight.toDp() }
-    val lazyColumnHeight = (itemHeight + lazyColumnPadding) * (scoreDetails.list.size + 1)
+    val lazyColumnHeight = (itemHeight + lazyColumnPadding) * (flagDetails.list.size + 1)
 
-    val scoreTitle = when (scoreDetails) {
+    val scoreTitle = when (flagDetails) {
         is GuessedFlags ->
-            stringResource(R.string.game_score_details_guessed, scoreDetails.list.size)
+            stringResource(R.string.game_score_details_guessed, flagDetails.list.size)
         is SkippedGuessedFlags ->
-            stringResource(R.string.game_score_details_skipped_guessed, scoreDetails.list.size)
+            stringResource(R.string.game_score_details_skipped_guessed, flagDetails.list.size)
         is SkippedFlags ->
-            stringResource(R.string.game_score_details_skipped, scoreDetails.list.size)
+            stringResource(R.string.game_score_details_skipped, flagDetails.list.size)
         is ShownFlags ->
-            stringResource(R.string.game_score_details_shown, scoreDetails.list.size)
+            stringResource(R.string.game_score_details_shown, flagDetails.list.size)
         is RemainderFlags ->
-            stringResource(R.string.game_score_details_remainder, scoreDetails.list.size)
+            stringResource(R.string.game_score_details_remainder, flagDetails.list.size)
         is FailedFlags ->
-            stringResource(R.string.game_score_details_failed, scoreDetails.list.size)
+            stringResource(R.string.game_score_details_failed, flagDetails.list.size)
         else ->
             ""
     }
 
     val itemTitleColor =
-        if (scoreDetails.list.isNotEmpty()) MaterialTheme.colorScheme.primary
+        if (flagDetails.list.isNotEmpty()) MaterialTheme.colorScheme.primary
         else MaterialTheme.colorScheme.error
 
-    val itemList = if (isDetailsSorted) scoreDetails.sortedList else scoreDetails.list
+    val itemList = if (isDetailsSorted) flagDetails.sortedList else flagDetails.list
 
-    val textButtonIsEnabled = scoreDetails.list.isNotEmpty()
+    val textButtonIsEnabled = flagDetails.list.isNotEmpty()
 
     val dropDownIcon = if (!isExpanded) Icons.Default.ArrowDropDown else Icons.Default.ArrowDropUp
 
@@ -648,7 +713,7 @@ private fun FlagDetailsContent(
                     text = scoreTitle,
                     color = itemTitleColor,
                 )
-                if (scoreDetails.list.isNotEmpty()) {
+                if (flagDetails.list.isNotEmpty()) {
                     Icon(
                         imageVector = dropDownIcon,
                         contentDescription = null,
@@ -675,12 +740,13 @@ private fun FlagDetailsContent(
                     .heightIn(max = lazyColumnHeight)
             ) {
                 items(
-                    count = scoreDetails.list.size,
+                    count = flagDetails.list.size,
                     key = { index -> itemList[index].id }
                 ) { index ->
                     FlagItem(
                         flag = itemList[index],
                         textStyle = textStyle,
+                        isDatesMode = isDatesMode,
                     )
                 }
             }
@@ -694,10 +760,28 @@ private fun FlagItem(
     modifier: Modifier = Modifier,
     flag: FlagView,
     textStyle: TextStyle,
+    isDatesMode: Boolean,
 ) {
+    val flagString = buildAnnotatedString {
+        if (isDatesMode) {
+            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                append(flagDatesString(flag = flag, isGameDatesMode = true, isBrackets = false))
+            }
+            append(stringResource(R.string.string_whitespace))
+
+            withStyle(style = SpanStyle(fontWeight = FontWeight.Light)) {
+                append(stringResource(R.string.string_open_bracket))
+                append(stringResource(flag.flagOf))
+                append(stringResource(R.string.string_close_bracket))
+            }
+        } else {
+            append(stringResource(flag.flagOf))
+        }
+    }
+
     Row(modifier = modifier) {
         Text(
-            text = stringResource(flag.flagOf),
+            text = flagString,
             color = MaterialTheme.colorScheme.onSurface,
             style = textStyle,
         )
