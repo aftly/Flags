@@ -104,6 +104,7 @@ fun GameHistoryScreen(
         },
         onCheckedItem = { viewModel.onCheckedItem(item = it) },
         onCheckAllItems = { viewModel.onCheckAllItems(checkAll = it) },
+        onDeleteCheckedItems = { viewModel.onDeleteCheckedItems() },
         onNavigateUp = { onNavigateUp(uiState.isFromGameOver) },
     )
 }
@@ -118,18 +119,29 @@ private fun GameHistoryScreen(
     onScoreDetails: (ScoreItem) -> Unit,
     onCheckedItem: (ScoreItem) -> Unit,
     onCheckAllItems: (Boolean) -> Unit,
+    onDeleteCheckedItems: () -> Unit,
     onNavigateUp: () -> Unit,
 ) {
     var isInit by rememberSaveable { mutableStateOf(value = false) }
     var isDeleteMode by rememberSaveable { mutableStateOf(value = false) }
-    var isCheckedAllInit by rememberSaveable { mutableStateOf(value = false) }
+    var isAllCheckbox by rememberSaveable { mutableStateOf(value = false) }
     val allItemIds = uiState.scoreItems.map { it.id }.toSet()
     val isCheckedAll = uiState.checkedScoreItems.keys == allItemIds
+    val isCheckedAny = uiState.checkedScoreItems.isNotEmpty()
 
+    /* Manage top bar (check all) checkbox state */
+    LaunchedEffect(isCheckedAll) {
+        if (isCheckedAll) isAllCheckbox = true
+    }
+    LaunchedEffect(isCheckedAny) {
+        if (!isCheckedAny) isAllCheckbox = false
+    }
+
+    /* Reset state when delete mode is disabled (after init) */
     LaunchedEffect(isDeleteMode) {
         if (!isDeleteMode && isInit) {
             onCheckAllItems(false)
-            isCheckedAllInit = false
+            isAllCheckbox = false
         } else {
             isInit = true
         }
@@ -147,13 +159,21 @@ private fun GameHistoryScreen(
             topBar = {
                 GameHistoryTopBar(
                     screen = screen,
+                    isDeleteButton = uiState.scoreItems.isNotEmpty(),
                     isDeleteMode = isDeleteMode,
+                    isCheckedAny = isCheckedAny,
                     isCheckedAll = isCheckedAll,
-                    isCheckedInit = isCheckedAllInit,
-                    onDeleteAction = { isDeleteMode = !isDeleteMode },
+                    isCheckedInit = isAllCheckbox,
+                    onDeleteAction = {
+                        if (isDeleteMode && isCheckedAny) {
+                            onDeleteCheckedItems()
+                        } else {
+                            isDeleteMode = !isDeleteMode
+                        }
+                    },
                     onCheckboxAction = {
-                        onCheckAllItems(!isCheckedAllInit)
-                        isCheckedAllInit = !isCheckedAllInit
+                        onCheckAllItems(!isAllCheckbox)
+                        isAllCheckbox = !isAllCheckbox
                     },
                     onNavigateUp = onNavigateUp,
                 )
@@ -446,7 +466,9 @@ private fun HistoryItemElementSpacer() {
 private fun GameHistoryTopBar(
     modifier: Modifier = Modifier,
     screen: Screen,
+    isDeleteButton: Boolean,
     isDeleteMode: Boolean,
+    isCheckedAny: Boolean,
     isCheckedAll: Boolean,
     isCheckedInit: Boolean,
     onDeleteAction: () -> Unit,
@@ -454,7 +476,10 @@ private fun GameHistoryTopBar(
     onNavigateUp: () -> Unit,
 ) {
     val deleteIconColor =
-        if (isDeleteMode) MaterialTheme.colorScheme.error else LocalContentColor.current
+        if (!isDeleteButton) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+        else if (isDeleteMode && isCheckedAny) MaterialTheme.colorScheme.error
+        else LocalContentColor.current
+
     val deleteIconEndPadding = if (isDeleteMode) 0.dp else Dimens.small8
 
     val checkedColor =
@@ -481,7 +506,8 @@ private fun GameHistoryTopBar(
         actions = {
             IconButton(
                 onClick = onDeleteAction,
-                modifier = Modifier.padding(end = deleteIconEndPadding)
+                modifier = Modifier.padding(end = deleteIconEndPadding),
+                enabled = isDeleteButton,
             ) {
                 Icon(
                     imageVector = Icons.Default.Delete,
@@ -490,7 +516,7 @@ private fun GameHistoryTopBar(
                 )
             }
 
-            if (isDeleteMode) {
+            if (isDeleteMode && isDeleteButton) {
                 Checkbox(
                     checked = isCheckedInit,
                     onCheckedChange = onCheckboxAction,

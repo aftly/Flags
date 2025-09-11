@@ -89,6 +89,19 @@ class GameHistoryViewModel(
         _uiState.update { it.copy(checkedScoreItems = checkedItems) }
     }
 
+    fun onDeleteCheckedItems() {
+        val checkedItems = uiState.value.checkedScoreItems.values
+
+        if (checkedItems.isNotEmpty()) {
+            viewModelScope.launch {
+                checkedItems.forEach { item ->
+                    scoreItemsRepository.deleteItem(item)
+                }
+                _uiState.update { it.copy(checkedScoreItems = emptyMap()) }
+            }
+        }
+    }
+
     private fun sortFlags(flags: List<FlagView>): List<FlagView> =
         sortFlagsAlphabetically(getApplication(), flags)
 }
