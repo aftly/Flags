@@ -1,5 +1,6 @@
 package dev.aftly.flags.ui.screen.gamehistory
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -18,26 +18,30 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.HourglassFull
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material.icons.filled.SportsScore
-import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,8 +55,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.R
 import dev.aftly.flags.data.room.scorehistory.ScoreItem
-import dev.aftly.flags.model.game.AnswerMode
-import dev.aftly.flags.model.game.TimeMode
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.NoResultsFound
 import dev.aftly.flags.ui.component.ResultsType
@@ -100,6 +102,8 @@ fun GameHistoryScreen(
                 viewModel.toggleScoreDetails()
             }
         },
+        onCheckedItem = { viewModel.onCheckedItem(item = it) },
+        onCheckAllItems = { viewModel.onCheckAllItems(checkAll = it) },
         onNavigateUp = { onNavigateUp(uiState.isFromGameOver) },
     )
 }
@@ -112,8 +116,30 @@ private fun GameHistoryScreen(
     screen: Screen,
     onCloseScoreDetails: () -> Unit,
     onScoreDetails: (ScoreItem) -> Unit,
+    onCheckedItem: (ScoreItem) -> Unit,
+    onCheckAllItems: (Boolean) -> Unit,
     onNavigateUp: () -> Unit,
 ) {
+    var isInit by rememberSaveable { mutableStateOf(value = false) }
+    var isDeleteMode by rememberSaveable { mutableStateOf(value = false) }
+    var isCheckedAllInit by rememberSaveable { mutableStateOf(value = false) }
+    val allItemIds = uiState.scoreItems.map { it.id }.toSet()
+    val isCheckedAll = uiState.checkedScoreItems.keys == allItemIds
+
+    LaunchedEffect(isDeleteMode) {
+        if (!isDeleteMode && isInit) {
+            onCheckAllItems(false)
+            isCheckedAllInit = false
+        } else {
+            isInit = true
+        }
+    }
+
+    BackHandler {
+        if (isDeleteMode) isDeleteMode = false
+        else onNavigateUp()
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
         /* ------------------- START OF SCAFFOLD ------------------- */
         Scaffold(
@@ -121,14 +147,25 @@ private fun GameHistoryScreen(
             topBar = {
                 GameHistoryTopBar(
                     screen = screen,
+                    isDeleteMode = isDeleteMode,
+                    isCheckedAll = isCheckedAll,
+                    isCheckedInit = isCheckedAllInit,
+                    onDeleteAction = { isDeleteMode = !isDeleteMode },
+                    onCheckboxAction = {
+                        onCheckAllItems(!isCheckedAllInit)
+                        isCheckedAllInit = !isCheckedAllInit
+                    },
                     onNavigateUp = onNavigateUp,
                 )
             },
         ) { scaffoldPadding ->
             GameHistoryContent(
                 modifier = Modifier.padding(scaffoldPadding),
-                scoreHistory = uiState.scores,
+                isDeleteMode = isDeleteMode,
+                checkedIds = uiState.checkedScoreItems.keys,
+                scoreItems = uiState.scoreItems,
                 onScoreDetails = onScoreDetails,
+                onCheckedItem = onCheckedItem,
             )
         }
         /* ------------------- END OF SCAFFOLD ------------------- */
@@ -149,15 +186,18 @@ private fun GameHistoryScreen(
 @Composable
 private fun GameHistoryContent(
     modifier: Modifier = Modifier,
-    scoreHistory: List<ScoreItem>,
+    isDeleteMode: Boolean,
+    checkedIds: Set<Int>,
+    scoreItems: List<ScoreItem>,
     onScoreDetails: (ScoreItem) -> Unit,
+    onCheckedItem: (ScoreItem) -> Unit,
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = Dimens.marginHorizontal16)
     ) {
-        if (scoreHistory.isEmpty()) {
+        if (scoreItems.isEmpty()) {
             NoResultsFound(
                 modifier = Modifier.fillMaxSize(),
                 resultsType = ResultsType.GAME_HISTORY,
@@ -166,13 +206,18 @@ private fun GameHistoryContent(
         } else {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
                 items(
-                    count = scoreHistory.size,
-                    key = { index -> scoreHistory[index].timestamp }
+                    count = scoreItems.size,
+                    key = { index -> scoreItems[index].timestamp }
                 ) { index ->
+                    val item = scoreItems[index]
+
                     HistoryItem(
                         modifier = Modifier.fillMaxWidth(),
-                        item = scoreHistory[index],
+                        isDeleteMode = isDeleteMode,
+                        isChecked = checkedIds.contains(item.id),
+                        item = item,
                         onScoreDetails = onScoreDetails,
+                        onCheckedItem = onCheckedItem,
                     )
                 }
             }
@@ -184,9 +229,11 @@ private fun GameHistoryContent(
 @Composable
 private fun HistoryItem(
     modifier: Modifier = Modifier,
+    isDeleteMode: Boolean,
+    isChecked: Boolean,
     item: ScoreItem,
     onScoreDetails: (ScoreItem) -> Unit,
-
+    onCheckedItem: (ScoreItem) -> Unit,
 ) {
     /* General properties */
     val isDarkTheme = LocalDarkTheme.current
@@ -237,84 +284,99 @@ private fun HistoryItem(
         newValue = stringResource(R.string.string_new_line),
     )
 
-    Card(modifier = modifier.clickable { onScoreDetails(item) }) {
-        Row(
-            modifier = Modifier
-                .padding(horizontal = padding)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            /* ----- Score item ----- */
-            HistoryItemElement(
-                modifier = itemElementModifier,
-                icon = scoreIcon,
-                iconSize = iconSize,
-                padding = padding,
-                cardColors = scoreCardColors,
+    Row(
+        modifier = modifier.padding(bottom = padding),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Card(modifier = Modifier
+            .weight(1f)
+            .clickable { onScoreDetails(item) }) {
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = padding)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                HistoryItemElementText(text = scoreText, padding = padding)
-            }
-
-            HistoryItemElementSpacer()
-
-            /* ----- Category item ----- */
-            HistoryItemElement(
-                modifier = itemElementModifier.weight(1f),
-                icon = categoryIcon,
-                iconSize = iconSize,
-                padding = padding,
-                cardColors = detailCardColors,
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
+                /* ----- Score item ----- */
+                HistoryItemElement(
+                    modifier = itemElementModifier,
+                    icon = scoreIcon,
+                    iconSize = iconSize,
+                    padding = padding,
+                    cardColors = scoreCardColors,
                 ) {
-                    HistoryItemElementText(text = categoryText, padding = padding)
+                    HistoryItemElementText(text = scoreText, padding = padding)
                 }
-            }
 
-            HistoryItemElementSpacer()
+                HistoryItemElementSpacer()
 
-            /* ----- Mode item ----- */
-            HistoryItemElement(
-                modifier = itemElementModifier,
-                icon = modeIcon,
-                iconSize = iconSize,
-                padding = padding,
-                cardColors = modeCardColors,
-            ) {
-                Row(modifier = Modifier.padding(all = padding / 2)) {
-                    /* Answer mode */
-                    HistoryItemElementIcon(icon = item.answerMode.icon, iconSize = iconSize)
-
-                    /* Difficulty mode */
-                    item.difficultyMode.icon?.let { icon ->
-                        HistoryItemElementIcon(Modifier.padding(horizontal = 2.dp), icon, iconSize)
-                    } ?: item.difficultyMode.guessLimit?.let { guessLimit ->
-                        HistoryItemElementText(text = guessLimit.toString(), padding = padding)
+                /* ----- Category item ----- */
+                HistoryItemElement(
+                    modifier = itemElementModifier.weight(1f),
+                    icon = categoryIcon,
+                    iconSize = iconSize,
+                    padding = padding,
+                    cardColors = detailCardColors,
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        HistoryItemElementText(text = categoryText, padding = padding)
                     }
-
-                    /* Time mode */
-                    HistoryItemElementIcon(icon = item.timeMode.icon, iconSize = iconSize)
                 }
-            }
 
-            HistoryItemElementSpacer()
+                HistoryItemElementSpacer()
 
-            /* ----- Timestamp item ----- */
-            HistoryItemElement(
-                modifier = itemElementModifier,
-                icon = timestampIcon,
-                iconSize = iconSize,
-                padding = padding,
-                cardColors = detailCardColors2,
-            ) {
-                HistoryItemElementText(text = timestampText, padding = padding)
+                /* ----- Mode item ----- */
+                HistoryItemElement(
+                    modifier = itemElementModifier,
+                    icon = modeIcon,
+                    iconSize = iconSize,
+                    padding = padding,
+                    cardColors = modeCardColors,
+                ) {
+                    Row(modifier = Modifier.padding(all = padding / 2)) {
+                        /* Answer mode */
+                        HistoryItemElementIcon(icon = item.answerMode.icon, iconSize = iconSize)
+
+                        /* Difficulty mode */
+                        item.difficultyMode.icon?.let { icon ->
+                            HistoryItemElementIcon(Modifier.padding(horizontal = 2.dp), icon, iconSize)
+                        } ?: item.difficultyMode.guessLimit?.let { guessLimit ->
+                            HistoryItemElementText(text = guessLimit.toString(), padding = padding)
+                        }
+
+                        /* Time mode */
+                        HistoryItemElementIcon(icon = item.timeMode.icon, iconSize = iconSize)
+                    }
+                }
+
+                HistoryItemElementSpacer()
+
+                /* ----- Timestamp item ----- */
+                HistoryItemElement(
+                    modifier = itemElementModifier,
+                    icon = timestampIcon,
+                    iconSize = iconSize,
+                    padding = padding,
+                    cardColors = detailCardColors2,
+                ) {
+                    HistoryItemElementText(text = timestampText, padding = padding)
+                }
             }
         }
+        if (isDeleteMode) {
+            Checkbox(
+                checked = isChecked,
+                onCheckedChange = { onCheckedItem(item) },
+                modifier = Modifier
+                    .padding(start = Dimens.small8)
+                    .size(Dimens.standardIconSize24)
+            )
+        }
     }
-    Spacer(modifier = Modifier.height(padding))
 }
 
 
@@ -384,8 +446,21 @@ private fun HistoryItemElementSpacer() {
 private fun GameHistoryTopBar(
     modifier: Modifier = Modifier,
     screen: Screen,
+    isDeleteMode: Boolean,
+    isCheckedAll: Boolean,
+    isCheckedInit: Boolean,
+    onDeleteAction: () -> Unit,
+    onCheckboxAction: (Boolean) -> Unit,
     onNavigateUp: () -> Unit,
 ) {
+    val deleteIconColor =
+        if (isDeleteMode) MaterialTheme.colorScheme.error else LocalContentColor.current
+    val deleteIconEndPadding = if (isDeleteMode) 0.dp else Dimens.small8
+
+    val checkedColor =
+        if (isCheckedAll == isCheckedInit) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.secondary
+
     TopAppBar(
         title = {
             Text(
@@ -403,5 +478,25 @@ private fun GameHistoryTopBar(
                 )
             }
         },
+        actions = {
+            IconButton(
+                onClick = onDeleteAction,
+                modifier = Modifier.padding(end = deleteIconEndPadding)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = null,
+                    tint = deleteIconColor,
+                )
+            }
+
+            if (isDeleteMode) {
+                Checkbox(
+                    checked = isCheckedInit,
+                    onCheckedChange = onCheckboxAction,
+                    colors = CheckboxDefaults.colors(checkedColor = checkedColor)
+                )
+            }
+        }
     )
 }

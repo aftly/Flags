@@ -1633,14 +1633,15 @@ private fun GameTopBar(
                 )
             }
 
-            IconButton(onClick = onHistoryAction) {
+            IconButton(
+                onClick = onHistoryAction,
+                modifier = Modifier.padding(end = Dimens.small8)
+            ) {
                 Icon(
                     imageVector = Icons.Default.History,
                     contentDescription = null,
                 )
             }
-
-            Spacer(modifier = Modifier.width(Dimens.small8))
         },
     )
 }

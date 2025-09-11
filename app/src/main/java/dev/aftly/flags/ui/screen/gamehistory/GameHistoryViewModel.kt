@@ -31,11 +31,10 @@ class GameHistoryViewModel(
 
         viewModelScope.launch {
             scoreItemsRepository.getAllItemsStream().collect { items ->
-                _uiState.update { it.copy(scores = items) }
+                _uiState.update { it.copy(scoreItems = items) }
             }
         }
     }
-
 
     fun updateScoreDetails(scoreItem: ScoreItem?) {
         _uiState.update {
@@ -61,11 +60,34 @@ class GameHistoryViewModel(
         }
     }
 
-
     fun toggleScoreDetails() {
         _uiState.update { it.copy(isScoreDetails = !it.isScoreDetails) }
     }
 
+    fun onCheckedItem(item: ScoreItem) {
+        val checkedItems = uiState.value.checkedScoreItems
+        val checkedItemsNew = buildMap {
+            when (item) {
+                in checkedItems.values ->
+                    putAll(from = checkedItems.filterKeys { it != item.id })
+                else -> {
+                    putAll(from = checkedItems)
+                    put(key = item.id, value = item)
+                }
+            }
+        }
+        _uiState.update { it.copy(checkedScoreItems = checkedItemsNew) }
+    }
+
+    fun onCheckAllItems(checkAll: Boolean) {
+        val scoreItems = uiState.value.scoreItems
+        val checkedItems = buildMap {
+            if (checkAll) scoreItems.forEach { item ->
+                put(key = item.id, value = item)
+            }
+        }
+        _uiState.update { it.copy(checkedScoreItems = checkedItems) }
+    }
 
     private fun sortFlags(flags: List<FlagView>): List<FlagView> =
         sortFlagsAlphabetically(getApplication(), flags)
