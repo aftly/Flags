@@ -8,7 +8,7 @@ object Timing {
     const val MENU_COLLAPSE: Int = 256
     const val GUESS_STATE_DURATION: Int = 1300
     const val GUESS_STATE_EXIT: Int = 700
-    const val SCROLL_BUTTON: Int = 275
+    const val SCALE_IN: Int = 275
     const val SYSTEM_BARS: Int = 1050
     const val SYSTEM_BARS_HANG: Int = 600
     const val FULLSCREEN_BUTTON: Int = 800

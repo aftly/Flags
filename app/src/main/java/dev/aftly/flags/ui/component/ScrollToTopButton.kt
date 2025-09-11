@@ -20,8 +20,8 @@ fun ScrollToTopButton(
 ) {
     AnimatedVisibility(
         visible = isVisible,
-        enter = scaleIn(animationSpec = tween(durationMillis = Timing.SCROLL_BUTTON)),
-        exit = scaleOut(animationSpec = tween(durationMillis = Timing.SCROLL_BUTTON)),
+        enter = scaleIn(animationSpec = tween(durationMillis = Timing.SCALE_IN)),
+        exit = scaleOut(animationSpec = tween(durationMillis = Timing.SCALE_IN)),
     ) {
         FloatingActionButton(
             onClick = onClick,

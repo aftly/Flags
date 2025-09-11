@@ -1,6 +1,10 @@
 package dev.aftly.flags.ui.screen.gamehistory
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,7 +48,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
@@ -321,6 +324,7 @@ private fun HistoryItem(
                 /* ----- Score item ----- */
                 HistoryItemElement(
                     modifier = itemElementModifier,
+                    isPaddingEnd = true,
                     icon = scoreIcon,
                     iconSize = iconSize,
                     padding = padding,
@@ -329,11 +333,10 @@ private fun HistoryItem(
                     HistoryItemElementText(text = scoreText, padding = padding)
                 }
 
-                HistoryItemElementSpacer()
-
                 /* ----- Category item ----- */
                 HistoryItemElement(
                     modifier = itemElementModifier.weight(1f),
+                    isPaddingEnd = true,
                     icon = categoryIcon,
                     iconSize = iconSize,
                     padding = padding,
@@ -347,11 +350,10 @@ private fun HistoryItem(
                     }
                 }
 
-                HistoryItemElementSpacer()
-
                 /* ----- Mode item ----- */
                 HistoryItemElement(
                     modifier = itemElementModifier,
+                    isPaddingEnd = true,
                     icon = modeIcon,
                     iconSize = iconSize,
                     padding = padding,
@@ -373,8 +375,6 @@ private fun HistoryItem(
                     }
                 }
 
-                HistoryItemElementSpacer()
-
                 /* ----- Timestamp item ----- */
                 HistoryItemElement(
                     modifier = itemElementModifier,
@@ -387,7 +387,12 @@ private fun HistoryItem(
                 }
             }
         }
-        if (isDeleteMode) {
+
+        AnimatedVisibility(
+            visible = isDeleteMode,
+            enter = scaleIn(animationSpec = tween(durationMillis = Timing.SCALE_IN)),
+            exit = ExitTransition.None
+        ) {
             Checkbox(
                 checked = isChecked,
                 onCheckedChange = { onCheckedItem(item) },
@@ -403,6 +408,7 @@ private fun HistoryItem(
 @Composable
 private fun HistoryItemElement(
     modifier: Modifier = Modifier,
+    isPaddingEnd: Boolean = false,
     icon: ImageVector,
     iconSize: Dp,
     padding: Dp,
@@ -424,6 +430,10 @@ private fun HistoryItemElement(
         Card(colors = cardColors) {
             elementContent()
         }
+    }
+
+    if (isPaddingEnd) {
+        Spacer(modifier = Modifier.width(Dimens.small8))
     }
 }
 
@@ -453,11 +463,6 @@ private fun HistoryItemElementIcon(
         contentDescription = null,
         modifier = modifier.size(iconSize),
     )
-}
-
-@Composable
-private fun HistoryItemElementSpacer() {
-    Spacer(modifier = Modifier.width(Dimens.small8))
 }
 
 
@@ -516,13 +521,22 @@ private fun GameHistoryTopBar(
                 )
             }
 
-            if (isDeleteMode && isDeleteButton) {
+            AnimatedVisibility(
+                visible = isDeleteMode && isDeleteButton,
+                enter = scaleIn(animationSpec = tween(durationMillis = Timing.SCALE_IN)),
+                exit = ExitTransition.None,
+            ) {
                 Checkbox(
                     checked = isCheckedInit,
                     onCheckedChange = onCheckboxAction,
                     colors = CheckboxDefaults.colors(checkedColor = checkedColor)
                 )
             }
+            /*
+            if (isDeleteMode && isDeleteButton) {
+
+            }
+             */
         }
     )
 }
