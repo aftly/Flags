@@ -34,12 +34,15 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.SaveAs
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
@@ -663,6 +666,7 @@ private fun ListItem(
                 Icon(
                     imageVector = saveFlagIcon,
                     contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
@@ -737,7 +741,7 @@ private fun ListFlagsTopBar(
     val isTopBarTitle = if (scrollBehaviour.state.collapsedFraction < 0.5f) true else !isSearchBar
 
     /* Other action properties */
-    val saveModeIcon = if (isSaveMode) Icons.Default.Close else Icons.Default.Add
+    val saveModeIcon = if (isSaveMode) Icons.Default.Close else Icons.Default.Save
     val searchIconEndPadding = TextFieldDefaults.contentPaddingWithoutLabel()
         .calculateRightPadding(layoutDirection = LocalLayoutDirection.current) - textFieldOffset
 
@@ -813,16 +817,13 @@ private fun ListFlagsTopBar(
                     }
                 }
 
-                Box {
+                Box(modifier = Modifier.weight(1f)) {
                     /* Background for TextField as clipping issues when setting size directly */
                     Surface(
                         modifier = Modifier
                             .offset(y = textFieldOffset)
                             .fillMaxWidth()
-                            .padding(
-                                end = Dimens.marginHorizontal16 - textFieldOffset,
-                                start = textFieldStartPadding,
-                            )
+                            .padding(start = textFieldStartPadding)
                             .height(48.dp * configuration.fontScale),
                         shape = TextFieldDefaults.shape,
                         color = TextFieldDefaults.colors().focusedContainerColor
@@ -833,10 +834,7 @@ private fun ListFlagsTopBar(
                         onValueChange = onSearchQueryValueChange,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(
-                                end = Dimens.marginHorizontal16 - textFieldOffset,
-                                start = textFieldStartPadding,
-                            )
+                            .padding(start = textFieldStartPadding)
                             .onFocusChanged {
                                 if (it.isFocused) onFocus()
                             }
@@ -847,8 +845,10 @@ private fun ListFlagsTopBar(
                         },
                         trailingIcon = {
                             Box(
-                                contentAlignment = Alignment.CenterEnd,
+                                contentAlignment = Alignment.CenterEnd
                             ) {
+                                /* Use box to place clear and search buttons closer together
+                                 * due to internal IconButton padding */
                                 Row {
                                     AnimatedVisibility(
                                         visible = isSearchQuery,
@@ -875,18 +875,19 @@ private fun ListFlagsTopBar(
                                             )
                                         }
                                     }
-                                    Spacer(
-                                        modifier = Modifier.width(Dimens.standardIconSize24 * 1.6f)
+                                    /* Spacer enables centred animation of above button */
+                                    Spacer(modifier = Modifier
+                                        .width(Dimens.standardIconSize24 * 1.75f)
                                     )
                                 }
 
                                 /* Disable search bar action button */
                                 IconButton(
-                                    onClick = { onIsSearchBar(false) },
+                                    onClick = { onIsSearchBar(false) }
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Search,
-                                        contentDescription = "search",
+                                        contentDescription = null,
                                     )
                                 }
                             }
@@ -903,23 +904,26 @@ private fun ListFlagsTopBar(
                     )
                 }
             } else {
-                IconButton(onClick = onSaveAction) {
-                    Icon(
-                        imageVector = saveModeIcon,
-                        contentDescription = null,
-                    )
-                }
-
                 /* Search bar action button */
                 IconButton(
-                    onClick = { onIsSearchBar(true) },
-                    modifier = Modifier.padding(end = searchIconEndPadding)
+                    onClick = { onIsSearchBar(true) }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "search",
+                        contentDescription = null,
                     )
                 }
+            }
+
+            /* Save mode action button */
+            IconButton(
+                onClick = onSaveAction,
+                modifier = Modifier.padding(end = Dimens.small8),
+            ) {
+                Icon(
+                    imageVector = saveModeIcon,
+                    contentDescription = null,
+                )
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(

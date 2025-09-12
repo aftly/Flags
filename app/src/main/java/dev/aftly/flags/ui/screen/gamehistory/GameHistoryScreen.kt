@@ -483,7 +483,7 @@ private fun GameHistoryTopBar(
     val deleteIconColor =
         if (!isDeleteButton) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
         else if (isDeleteMode && isCheckedAny) MaterialTheme.colorScheme.error
-        else LocalContentColor.current
+        else MaterialTheme.colorScheme.onSurfaceVariant
 
     val deleteIconEndPadding = if (isDeleteMode) 0.dp else Dimens.small8
 
