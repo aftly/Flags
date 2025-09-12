@@ -3,6 +3,7 @@ package dev.aftly.flags.ui.screen.gamehistory
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.data.room.scorehistory.ScoreItem
@@ -16,9 +17,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class GameHistoryViewModel(
-    application: Application,
+    app: Application,
     savedStateHandle: SavedStateHandle,
-) : AndroidViewModel(application) {
+) : AndroidViewModel(application = app) {
     private val scoreItemsRepository =
         (application as FlagsApplication).container.scoreItemsRepository
     private val _uiState = MutableStateFlow(value = GameHistoryUiState())
@@ -103,5 +104,5 @@ class GameHistoryViewModel(
     }
 
     private fun sortFlags(flags: List<FlagView>): List<FlagView> =
-        sortFlagsAlphabetically(getApplication(), flags)
+        sortFlagsAlphabetically(application, flags)
 }

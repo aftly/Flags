@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.flagViewMap
-import dev.aftly.flags.data.room.savedflags.SavedFlag
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
 import dev.aftly.flags.model.FlagCategory.CONFEDERATION
@@ -50,6 +49,7 @@ import dev.aftly.flags.ui.util.getFlagFromId
 import dev.aftly.flags.ui.util.getFlagIdsFromString
 import dev.aftly.flags.ui.util.getFlagKey
 import dev.aftly.flags.ui.util.getPoliticalRelatedFlagsContentOrNull
+import dev.aftly.flags.ui.util.toSavedFlag
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -57,9 +57,9 @@ import kotlinx.coroutines.launch
 
 
 class FlagViewModel(
-    application: Application,
+    app: Application,
     savedStateHandle: SavedStateHandle,
-) : AndroidViewModel(application) {
+) : AndroidViewModel(application = app) {
     private val savedFlagsRepository =
         (application as FlagsApplication).container.savedFlagsRepository
     private val _uiState = MutableStateFlow(value = FlagUiState())
@@ -82,9 +82,10 @@ class FlagViewModel(
 
         viewModelScope.launch {
             savedFlagsRepository.getAllFlagsStream().collect { savedFlags ->
-                val savedFlag = savedFlags.find { it.flagKey == uiState.value.flagKey }
+                val flag = uiState.value.flag
+                val savedFlag = savedFlags.find { it.flagKey == getFlagKey(flag) }
                 _uiState.update {
-                    it.copy(savedFlags = savedFlags, savedFlag = savedFlag)
+                    it.copy(savedFlags = savedFlags.toSet(), savedFlag = savedFlag)
                 }
             }
         }
@@ -100,14 +101,11 @@ class FlagViewModel(
         val flag = getFlagFromId(flagId)
 
         if (flag != uiState.value.flag) {
-            val flagKey = getFlagKey(flag)
-
             _uiState.update {
                 val listFlagIds = flagIdsFromList ?: it.flagIdsFromList
 
                 it.copy(
                     flag = flag,
-                    flagKey = flagKey,
                     politicalRelatedFlagsContent =
                         getPoliticalRelatedFlagsContentOrNull(flag, application),
                     chronologicalRelatedFlagsContent =
@@ -121,7 +119,7 @@ class FlagViewModel(
                         }
                     },
                     savedFlag = it.savedFlags.find { savedFlag ->
-                        savedFlag.flagKey == flagKey
+                        savedFlag.flagKey == getFlagKey(flag)
                     }
                 )
             }
@@ -144,13 +142,13 @@ class FlagViewModel(
 
     fun updateSavedFlag() {
         val savedFlag = uiState.value.savedFlag
-        val flagKey = uiState.value.flagKey
+        val flag = uiState.value.flag
 
         viewModelScope.launch {
-            savedFlag?.let { flag ->
-                savedFlagsRepository.deleteFlag(flag)
-            } ?: flagKey?.let { key ->
-                savedFlagsRepository.insertFlag(SavedFlag(flagKey = key))
+            if (savedFlag != null) {
+                savedFlagsRepository.deleteFlag(savedFlag)
+            } else {
+                savedFlagsRepository.insertFlag(flag.toSavedFlag())
             }
         }
     }

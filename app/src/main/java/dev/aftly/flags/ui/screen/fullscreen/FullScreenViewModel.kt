@@ -1,8 +1,7 @@
 package dev.aftly.flags.ui.screen.fullscreen
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.ui.util.getFlagFromId
 import dev.aftly.flags.ui.util.getFlagIdsFromString
@@ -11,10 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class FullScreenViewModel(
-    application: Application,
-    savedStateHandle: SavedStateHandle,
-) : AndroidViewModel(application) {
+class FullScreenViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
     private val _uiState = MutableStateFlow(value = FullScreenUiState())
     val uiState = _uiState.asStateFlow()
 

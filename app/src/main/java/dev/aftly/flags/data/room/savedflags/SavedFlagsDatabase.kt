@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import dev.aftly.flags.data.room.Converters
 
-@Database(entities = [SavedFlag::class], version = 3, exportSchema = false)
+@Database(entities = [SavedFlag::class], version = 4, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class SavedFlagsDatabase : RoomDatabase() {
     abstract fun flagDao(): SavedFlagDao

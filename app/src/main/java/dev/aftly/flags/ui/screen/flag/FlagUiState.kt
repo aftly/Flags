@@ -9,7 +9,6 @@ import dev.aftly.flags.model.relatedmenu.RelatedFlagsMenu
 
 data class FlagUiState(
     val flag: FlagView = nullFlag,
-    val flagKey: String? = null,
     val politicalRelatedFlagsContent: RelatedFlagsContent.Political? = null,
     val chronologicalRelatedFlagsContent: RelatedFlagsContent.Chronological? = null,
     val flagIdsFromList: List<Int> = emptyList(),
@@ -17,6 +16,6 @@ data class FlagUiState(
     val navBackScrollToId: Int = 0,
     val annotatedLinkFrom: List<FlagView> = emptyList(),
     val latestMenuInteraction: RelatedFlagsMenu? = null,
-    val savedFlags: List<SavedFlag> = emptyList(),
+    val savedFlags: Set<SavedFlag> = emptySet(),
     val savedFlag: SavedFlag? = null,
 )

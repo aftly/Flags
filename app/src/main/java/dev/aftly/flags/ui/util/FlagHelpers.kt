@@ -54,16 +54,22 @@ fun getFlagsFromKeys(flagKeys: List<String>): List<FlagView> =
 fun sortFlagsAlphabetically(
     application: Application,
     flags: List<FlagView>,
-): List<FlagView> {
-    val appResources = application.applicationContext.resources
-
-    return flags.sortedBy { flag ->
-        normalizeString(string = appResources.getString(flag.flagOf))
-    }
+): List<FlagView> = flags.sortedBy { flag ->
+    normalizeString(string = application.resources.getString(flag.flagOf))
 }
+
+fun getSavedFlagView(savedFlags: Set<SavedFlag>): List<FlagView> =
+    savedFlags.map { it.getFlagView() }
+
+fun getSavedFlagViewSorted(
+    application: Application,
+    savedFlags: Set<SavedFlag>,
+): List<FlagView> =
+    sortFlagsAlphabetically(application = application, flags = getSavedFlagView(savedFlags))
 
 
 fun SavedFlag.getFlagView(): FlagView = flagViewMap.getValue(key = this.flagKey)
+fun FlagView.toSavedFlag(): SavedFlag = SavedFlag(flagKey = getFlagKey(flag = this))
 
 
 /* ---------- For navigation ---------- */

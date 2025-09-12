@@ -391,7 +391,7 @@ private fun HistoryItem(
         AnimatedVisibility(
             visible = isDeleteMode,
             enter = scaleIn(animationSpec = tween(durationMillis = Timing.SCALE_IN)),
-            exit = ExitTransition.None
+            exit = ExitTransition.None,
         ) {
             Checkbox(
                 checked = isChecked,

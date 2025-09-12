@@ -29,7 +29,10 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
@@ -98,7 +101,6 @@ import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagView
-import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.CategoriesButtonMenu
 import dev.aftly.flags.ui.component.NoResultsFound
 import dev.aftly.flags.ui.component.ResultsType
@@ -107,6 +109,7 @@ import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.util.flagDatesString
 import dev.aftly.flags.ui.util.getFlagFromId
+import dev.aftly.flags.ui.util.getSavedFlagView
 import kotlinx.coroutines.launch
 
 
@@ -121,6 +124,10 @@ fun ListFlagsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val searchResults by viewModel.searchResults.collectAsStateWithLifecycle()
 
+    val savedFlags = viewModel.sortFlagsAlphabetically(
+        flags = getSavedFlagView(uiState.savedFlags)
+    )
+
     /* Update (alphabetical) order of flag lists when language changes */
     //val configuration = LocalConfiguration.current
     //val locale = configuration.locales[0]
@@ -133,6 +140,7 @@ fun ListFlagsScreen(
         uiState = uiState,
         currentBackStackEntry = currentBackStackEntry,
         searchResults = searchResults,
+        savedFlags = savedFlags,
         searchQueryValue = viewModel.searchQueryValue,
         onSearchQueryValueChange = { viewModel.onSearchQueryValueChange(it) },
         onIsSearchBarInit = { viewModel.toggleIsSearchBarInit(it) },
@@ -145,11 +153,12 @@ fun ListFlagsScreen(
         onCategorySelectMultiple = { selectSuperCategory, selectSubCategory ->
             viewModel.updateCurrentCategories(selectSuperCategory, selectSubCategory)
         },
-        onSavedFlagsSelect = { viewModel.toggleSavedFlags(on = it) },
+        onSavedFlagsSelect = { viewModel.selectSavedFlags(on = it) },
+        onSaveFlag = { viewModel.onSaveFlag(flag = it) },
         onFlagSelect = { flag ->
             val flags =
                 if (uiState.isSearchQuery) searchResults
-                else if (uiState.isSavedFlags) uiState.savedFlags
+                else if (uiState.isViewSavedFlags) savedFlags
                 else uiState.currentFlags
 
             viewModel.toggleNavigateAwayFlag(true)
@@ -166,6 +175,7 @@ private fun ListFlagsScreen(
     uiState: ListFlagsUiState,
     currentBackStackEntry: NavBackStackEntry?,
     searchResults: List<FlagView>,
+    savedFlags: List<FlagView>,
     containerColor1: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     containerColor2: Color = MaterialTheme.colorScheme.secondary,
     searchQueryValue: TextFieldValue,
@@ -177,6 +187,7 @@ private fun ListFlagsScreen(
     onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onSavedFlagsSelect: (Boolean) -> Unit,
+    onSaveFlag: (FlagView) -> Unit,
     onFlagSelect: (FlagView) -> Unit,
 ) {
     /* Controls FilterFlagsButton menu expansion amd tracks current button height
@@ -220,7 +231,7 @@ private fun ListFlagsScreen(
 
         } else if (!uiState.isSearchBarInit) {
             /* If saved flags or not All super category */
-            if (uiState.isSavedFlags || !(uiState.currentSuperCategories.all { it == All } &&
+            if (uiState.isViewSavedFlags || !(uiState.currentSuperCategories.all { it == All } &&
                 uiState.currentSubCategories.isEmpty())) {
                 onCategorySelectSingle(All, null)
                 onSavedFlagsSelect(false)
@@ -234,7 +245,7 @@ private fun ListFlagsScreen(
 
     /* If returning from FlagScreen to SavedFlags and SavedFlags isEmpty() select All category */
     LaunchedEffect(key1 = uiState.savedFlags) {
-        if (uiState.isSavedFlags && uiState.savedFlags.isEmpty()) {
+        if (uiState.isViewSavedFlags && uiState.savedFlags.isEmpty()) {
             onCategorySelectSingle(All, null)
         }
     }
@@ -254,11 +265,11 @@ private fun ListFlagsScreen(
                 val flag = getFlagFromId(flagId)
                 val flags =
                     if (uiState.isSearchQuery) searchResults
-                    else if (uiState.isSavedFlags) uiState.savedFlags
+                    else if (uiState.isViewSavedFlags) savedFlags
                     else uiState.currentFlags
 
                 /* If not returning to saved flags from a removed saved flag */
-                if (!(uiState.isSavedFlags && flag !in uiState.savedFlags)) {
+                if (!(uiState.isViewSavedFlags && flag !in savedFlags)) {
                     val index = flags.indexOf(flag)
                     coroutineScope.launch { listState.scrollToItem(index = index) }
                 }
@@ -270,6 +281,9 @@ private fun ListFlagsScreen(
     /* For expandable/collapsable Scaffold TopBar */
     val scrollBehaviour = TopAppBarDefaults
         .exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+
+    /* Properties for save item mode */
+    var isSaveMode by rememberSaveable { mutableStateOf(value = false) }
 
 
     /* Scaffold within box so FilterFlagsButton & it's associated surface can overlay it */
@@ -304,6 +318,8 @@ private fun ListFlagsScreen(
                     isSearchBar = isSearchBar,
                     onIsSearchBar = { isSearchBar = it },
                     onIsSearchBarInitTopBar = onIsSearchBarInitTopBar,
+                    isSaveMode = isSaveMode,
+                    onSaveAction = { isSaveMode = !isSaveMode },
                     onNavigationDrawer = {
                         focusManager.clearFocus()
                         onNavigationDrawer()
@@ -334,10 +350,12 @@ private fun ListFlagsScreen(
                 scaffoldBottomPadding = scaffoldPadding.calculateBottomPadding(),
                 scrollBehaviour = scrollBehaviour,
                 listState = listState,
+                isSaveMode = isSaveMode,
                 isSearchBar = isSearchBar,
                 isSearchQuery = uiState.isSearchQuery,
                 searchResults = searchResults,
-                flags = if (uiState.isSavedFlags) uiState.savedFlags else uiState.currentFlags,
+                flags = if (uiState.isViewSavedFlags) savedFlags else uiState.currentFlags,
+                savedFlags = savedFlags,
                 onSearchQueryReplace = { flagOf ->
                     /* Replace searchQueryValue with item name and cursor at end */
                     onSearchQueryValueChange(
@@ -347,6 +365,7 @@ private fun ListFlagsScreen(
                         )
                     )
                 },
+                onSaveFlag = onSaveFlag,
                 onFlagSelect = {
                     focusManager.clearFocus()
                     onFlagSelect(it)
@@ -364,7 +383,7 @@ private fun ListFlagsScreen(
             buttonHorizontalPadding = Dimens.marginHorizontal16,
             flagCount =
                 if (uiState.isSearchQuery) searchResults.size
-                else if (uiState.isSavedFlags) uiState.savedFlags.size
+                else if (uiState.isViewSavedFlags) uiState.savedFlags.size
                 else uiState.currentFlags.size,
             onButtonHeightChange = { buttonHeight = it },
             isMenuExpanded = isMenuExpanded,
@@ -399,14 +418,18 @@ private fun ListFlagsContent(
     scaffoldBottomPadding: Dp,
     scrollBehaviour: TopAppBarScrollBehavior,
     listState: LazyListState,
+    isSaveMode: Boolean,
     isSearchBar: Boolean,
     isSearchQuery: Boolean,
     searchResults: List<FlagView>,
     flags: List<FlagView>,
+    savedFlags: List<FlagView>,
     onSearchQueryReplace: (String) -> Unit,
+    onSaveFlag: (FlagView) -> Unit,
     onFlagSelect: (FlagView) -> Unit,
 ) {
     val listItemVerticalPadding = Dimens.small8
+    val savedFlagsSet = savedFlags.toSet()
 
     Column(modifier = modifier) {
         /* To make LazyColumn scroll disappear into center of FilterFlagsButton */
@@ -436,12 +459,17 @@ private fun ListFlagsContent(
                             count = flags.size,
                             key = { index -> flags[index].id }
                         ) { index ->
+                            val flag = flags[index]
+
                             ListItem(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalPadding = listItemVerticalPadding,
-                                flag = flags[index],
+                                flag = flag,
+                                isSaveMode = isSaveMode,
+                                isSavedItem = savedFlagsSet.contains(flag),
                                 isSearch = isSearchBar,
                                 onSearchQueryReplace = onSearchQueryReplace,
+                                onSaveFlag = onSaveFlag,
                                 onFlagSelect = onFlagSelect,
                             )
                         }
@@ -470,12 +498,17 @@ private fun ListFlagsContent(
                             count = searchResults.size,
                             key = { index -> searchResults[index].id }
                         ) { index ->
+                            val flag = searchResults[index]
+
                             ListItem(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalPadding = listItemVerticalPadding,
-                                flag = searchResults[index],
+                                flag = flag,
+                                isSaveMode = isSaveMode,
+                                isSavedItem = savedFlagsSet.contains(flag),
                                 isSearch = isSearchBar,
                                 onSearchQueryReplace = onSearchQueryReplace,
+                                onSaveFlag = onSaveFlag,
                                 onFlagSelect = onFlagSelect,
                             )
                         }
@@ -498,8 +531,11 @@ private fun ListItem(
     modifier: Modifier = Modifier,
     verticalPadding: Dp,
     flag: FlagView,
+    isSaveMode: Boolean,
+    isSavedItem: Boolean,
     isSearch: Boolean,
     onSearchQueryReplace: (String) -> Unit,
+    onSaveFlag: (FlagView) -> Unit,
     onFlagSelect: (FlagView) -> Unit,
 ) {
     val configuration = LocalConfiguration.current
@@ -526,9 +562,15 @@ private fun ListItem(
     val haptic = LocalHapticFeedback.current
     val interactionSource = remember { MutableInteractionSource() }
 
-    Column(modifier = modifier) {
+    val saveFlagIcon = if (isSavedItem) Icons.Default.Check else Icons.Default.Add
+
+    Row(
+        modifier = modifier.padding(bottom = verticalPadding),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         Card(
-            modifier = modifier
+            modifier = Modifier
+                .weight(1f)
                 .clip(shape = MaterialTheme.shapes.large)
                 .indication(interactionSource, ripple())
                 .pointerInput(Unit) {
@@ -606,7 +648,24 @@ private fun ListItem(
                 )
             }
         }
-        Spacer(modifier = modifier.height(verticalPadding))
+
+        AnimatedVisibility(
+            visible = isSaveMode,
+            enter = scaleIn(animationSpec = tween(durationMillis = Timing.SCALE_IN)),
+            exit = ExitTransition.None,
+        ) {
+            IconButton(
+                onClick = { onSaveFlag(flag) },
+                modifier = Modifier
+                    .padding(start = Dimens.marginHorizontal16 - Dimens.extraSmall4)
+                    .width(Dimens.standardIconSize24 + Dimens.extraSmall4),
+            ) {
+                Icon(
+                    imageVector = saveFlagIcon,
+                    contentDescription = null,
+                )
+            }
+        }
     }
 }
 
@@ -627,6 +686,8 @@ private fun ListFlagsTopBar(
     isSearchBar: Boolean,
     onIsSearchBar: (Boolean) -> Unit,
     onIsSearchBarInitTopBar: (Boolean) -> Unit,
+    isSaveMode: Boolean,
+    onSaveAction: () -> Unit,
     onNavigationDrawer: () -> Unit,
 ) {
     val annotatedTitle = buildAnnotatedString {
@@ -674,6 +735,11 @@ private fun ListFlagsTopBar(
 
     /* Make top bar title visible when below search bar and when no search bar */
     val isTopBarTitle = if (scrollBehaviour.state.collapsedFraction < 0.5f) true else !isSearchBar
+
+    /* Other action properties */
+    val saveModeIcon = if (isSaveMode) Icons.Default.Close else Icons.Default.Add
+    val searchIconEndPadding = TextFieldDefaults.contentPaddingWithoutLabel()
+        .calculateRightPadding(layoutDirection = LocalLayoutDirection.current) - textFieldOffset
 
 
     MediumTopAppBar(
@@ -837,22 +903,22 @@ private fun ListFlagsTopBar(
                     )
                 }
             } else {
-                /* Search bar action button */
-                Box(modifier = Modifier
-                    .padding(
-                        end = TextFieldDefaults.contentPaddingWithoutLabel().calculateRightPadding(
-                            layoutDirection = LocalLayoutDirection.current
-                        ) - textFieldOffset
+                IconButton(onClick = onSaveAction) {
+                    Icon(
+                        imageVector = saveModeIcon,
+                        contentDescription = null,
                     )
+                }
+
+                /* Search bar action button */
+                IconButton(
+                    onClick = { onIsSearchBar(true) },
+                    modifier = Modifier.padding(end = searchIconEndPadding)
                 ) {
-                    IconButton(
-                        onClick = { onIsSearchBar(true) },
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "search",
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "search",
+                    )
                 }
             }
         },

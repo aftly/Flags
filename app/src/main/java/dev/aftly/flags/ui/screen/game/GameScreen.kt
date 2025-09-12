@@ -243,7 +243,7 @@ fun GameScreen(
 
     GameScreen(
         uiState = uiState,
-        savedFlags = savedFlags,
+        isSavedFlagsNotEmpty = savedFlags.isNotEmpty(),
         screen = screen,
         userGuess = viewModel.userGuess,
         onUserGuessChange = { viewModel.updateUserGuess(it) },
@@ -280,7 +280,7 @@ fun GameScreen(
 private fun GameScreen(
     modifier: Modifier = Modifier,
     uiState: GameUiState,
-    savedFlags: List<FlagView>,
+    isSavedFlagsNotEmpty: Boolean,
     screen: Screen,
     userGuess: String,
     onUserGuessChange: (String) -> Unit,
@@ -435,7 +435,7 @@ private fun GameScreen(
             isMenuEnabled = uiState.answerMode != AnswerMode.DATES,
             isMenuExpanded = isMenuExpanded,
             onMenuButtonClick = { isMenuExpanded = !isMenuExpanded },
-            isSavedFlagsNotEmpty = savedFlags.isNotEmpty(),
+            isSavedFlagsNotEmpty = isSavedFlagsNotEmpty,
             superCategories = uiState.currentSuperCategories,
             subCategories = uiState.currentSubCategories,
             onCategorySelectSingle = onCategorySelectSingle,

@@ -1,6 +1,7 @@
 package dev.aftly.flags.data.room.savedflags
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.toSet
 
 interface SavedFlagsRepository {
     fun getAllFlagsStream(): Flow<List<SavedFlag>>

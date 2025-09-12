@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.R
@@ -17,15 +18,17 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.SearchFlow
-import dev.aftly.flags.ui.util.getFlagView
-import dev.aftly.flags.ui.util.getFlagsFromCategory
+import dev.aftly.flags.ui.util.getFlagKey
 import dev.aftly.flags.ui.util.getFlagsFromCategories
+import dev.aftly.flags.ui.util.getFlagsFromCategory
 import dev.aftly.flags.ui.util.getFlagsFromKeys
+import dev.aftly.flags.ui.util.getSavedFlagViewSorted
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
 import dev.aftly.flags.ui.util.normalizeLower
 import dev.aftly.flags.ui.util.normalizeString
 import dev.aftly.flags.ui.util.sortFlagsAlphabetically
+import dev.aftly.flags.ui.util.toSavedFlag
 import dev.aftly.flags.ui.util.updateCategoriesFromSub
 import dev.aftly.flags.ui.util.updateCategoriesFromSuper
 import kotlinx.coroutines.flow.Flow
@@ -39,7 +42,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 
-class ListFlagsViewModel(application: Application) : AndroidViewModel(application) {
+class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app) {
     private val savedFlagsRepository =
         (application as FlagsApplication).container.savedFlagsRepository
     private val _uiState = MutableStateFlow(value = ListFlagsUiState())
@@ -50,17 +53,14 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val allFlagsFlow = uiState.map { SearchFlow.FlagsList(it.allFlags) }
     private val currentFlagsFlow = uiState.map { SearchFlow.FlagsList(it.currentFlags) }
-    private val savedFlagsFlow = uiState.map { SearchFlow.FlagsList(it.savedFlags) }
-    private var isSavedFlagsFlow = uiState.map { SearchFlow.Bool(it.isSavedFlags) }
+    private val savedFlagsFlow = uiState.map {
+        SearchFlow.FlagsList(
+            getSavedFlagViewSorted(application, it.savedFlags)
+        )
+    }
+    private var isSavedFlagsFlow = uiState.map { SearchFlow.Bool(it.isViewSavedFlags) }
     private val searchQueryFlow = snapshotFlow { searchQueryValue }
         .map { SearchFlow.Str(it.text) }
-    private val appResourcesFlow = snapshotFlow {
-        getApplication<Application>().applicationContext.resources
-    }.map { SearchFlow.AppResources(it) }
-    private val theStringFlow = snapshotFlow {
-        getApplication<Application>().applicationContext.resources
-            .getString(R.string.string_the_whitespace)
-    }.map { SearchFlow.Str(it) }
 
     /* Use sealed interface SearchFlow for safe casting in combine() transform lambda */
     val flows: List<Flow<SearchFlow>> = listOf(
@@ -69,8 +69,6 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         currentFlagsFlow,
         savedFlagsFlow,
         isSavedFlagsFlow,
-        appResourcesFlow,
-        theStringFlow
     )
 
     val searchResults = combine(flows) { flowArray ->
@@ -79,8 +77,9 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         val current = (flowArray[2] as SearchFlow.FlagsList).value
         val saved = (flowArray[3] as SearchFlow.FlagsList).value
         val isSaved = (flowArray[4] as SearchFlow.Bool).value
-        val res = (flowArray[5] as SearchFlow.AppResources).value
-        val the = (flowArray[6] as SearchFlow.Str).value
+
+        val res = application.resources
+        val the = res.getString(R.string.string_the_whitespace)
 
         val flags = if (isSaved) saved else current
         val search = normalizeString(
@@ -227,7 +226,12 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
     /* Initialise ListFlagsScreen() with a category not FlagSuperCategory.All
      * Also sort lists by readable name (alphabetically) */
     init {
-        sortFlagsAndUpdate()
+        _uiState.update {
+            it.copy(
+                allFlags = sortFlagsAlphabetically(application, it.allFlags),
+                currentFlags = sortFlagsAlphabetically(application, it.currentFlags),
+            )
+        }
         updateCurrentCategory(
             newSuperCategory = FlagSuperCategory.SovereignCountry,
             newSubCategory = null,
@@ -235,27 +239,13 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
 
         viewModelScope.launch {
             savedFlagsRepository.getAllFlagsStream().collect { savedFlags ->
-                _uiState.update { state ->
-                    state.copy(
-                        savedFlags = savedFlags.map { it.getFlagView() }
-                    )
-                }
+                _uiState.update { it.copy(savedFlags = savedFlags.toSet()) }
             }
         }
     }
 
-    /* Default allFlagsList derives from flagsMap key order, not readable name order
-     * This function updates state by readable order (of common name) from associated strings */
-    fun sortFlagsAndUpdate() {
-        val application = getApplication<Application>()
-
-        _uiState.update {
-            it.copy(
-                allFlags = sortFlagsAlphabetically(application, it.allFlags),
-                currentFlags = sortFlagsAlphabetically(application, it.currentFlags),
-            )
-        }
-    }
+    fun sortFlagsAlphabetically(flags: List<FlagView>): List<FlagView> =
+        sortFlagsAlphabetically(application, flags)
 
     /* Updates state with new currentFlags list derived from new super- or sub- category
      * Also updates currentSuperCategory and currentCategory title details for FilterFlagsButton UI
@@ -270,7 +260,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
             _uiState.update {
                 it.copy(
                     currentFlags = it.allFlags,
-                    isSavedFlags = false,
+                    isViewSavedFlags = false,
                     currentSuperCategories = listOf(All),
                     currentSubCategories = emptyList(),
                 )
@@ -283,7 +273,7 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
                         subCategory = newSubCategory,
                         allFlags = state.allFlags,
                     ),
-                    isSavedFlags = false,
+                    isViewSavedFlags = false,
                     currentSuperCategories = buildList {
                         newSuperCategory?.let { add(it) }
                     },
@@ -367,16 +357,31 @@ class ListFlagsViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun toggleSavedFlags(on: Boolean = true) {
+    fun selectSavedFlags(on: Boolean = true) {
         if (on) {
             _uiState.update {
                 it.copy(
-                    isSavedFlags = true,
+                    isViewSavedFlags = true,
                     currentSuperCategories = emptyList(),
                     currentSubCategories = emptyList(),
                 )
             }
-        } else _uiState.update { it.copy(isSavedFlags = false) }
+        } else _uiState.update { it.copy(isViewSavedFlags = false) }
+    }
+
+    fun onSaveFlag(flag: FlagView) {
+        val savedFlags = uiState.value.savedFlags
+        val savedFlag = savedFlags.find { savedFlag ->
+            savedFlag.flagKey == getFlagKey(flag)
+        }
+
+        viewModelScope.launch {
+            if (savedFlag != null) {
+                savedFlagsRepository.deleteFlag(savedFlag)
+            } else {
+                savedFlagsRepository.insertFlag(flag.toSavedFlag())
+            }
+        }
     }
 
     fun onSearchQueryValueChange(newValue: TextFieldValue) {

@@ -5,21 +5,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.nullFlag
+import dev.aftly.flags.data.room.savedflags.SavedFlag
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagView
-import dev.aftly.flags.model.game.ScoreData
 import dev.aftly.flags.model.game.AnswerMode
 import dev.aftly.flags.model.game.DifficultyMode
+import dev.aftly.flags.model.game.ScoreData
 import dev.aftly.flags.model.game.TimeMode
-import dev.aftly.flags.ui.util.getFlagView
-import dev.aftly.flags.ui.util.getFlagsFromCategory
 import dev.aftly.flags.ui.util.getFlagsFromCategories
+import dev.aftly.flags.ui.util.getFlagsFromCategory
+import dev.aftly.flags.ui.util.getSavedFlagView
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
 import dev.aftly.flags.ui.util.normalizeLower
@@ -37,7 +39,7 @@ import kotlinx.coroutines.launch
 import java.util.Calendar
 
 
-class GameViewModel(application: Application) : AndroidViewModel(application) {
+class GameViewModel(app: Application) : AndroidViewModel(application = app) {
     private val scoreItemsRepository =
         (application as FlagsApplication).container.scoreItemsRepository
     private val savedFlagsRepository =
@@ -45,7 +47,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(value = GameUiState())
     val uiState = _uiState.asStateFlow()
-    private val _savedFlagsState = MutableStateFlow(value = emptyList<FlagView>())
+    private val _savedFlagsState = MutableStateFlow(value = emptySet<SavedFlag>())
     val savedFlagsState = _savedFlagsState.asStateFlow()
 
     private var guessedFlags = mutableListOf<FlagView>()
@@ -77,7 +79,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         /* Initialize savedFlags list */
         viewModelScope.launch {
             savedFlagsRepository.getAllFlagsStream().first().let { savedFlags ->
-                _savedFlagsState.value = savedFlags.map { it.getFlagView() }
+                _savedFlagsState.value = savedFlags.toSet()
             }
         }
     }
@@ -312,7 +314,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun selectSavedFlags() {
         _uiState.update {
             it.copy(
-                currentFlags = savedFlagsState.value,
+                currentFlags = getSavedFlagView(savedFlags = savedFlagsState.value),
                 currentSuperCategories = emptyList(),
                 currentSubCategories = emptyList(),
             )
@@ -333,8 +335,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         cancelConfirmShowAnswer()
 
         val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-        val the = getApplication<Application>().applicationContext.resources
-            .getString(R.string.string_the_whitespace)
+        val the = application.resources.getString(R.string.string_the_whitespace)
         val normalizedUserGuess = normalizeString(
             string = userGuess.lowercase().removePrefix(the)
         )
@@ -646,21 +647,21 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
 
     private fun getStringsList(flag: FlagView): List<String> {
-        val appResources = getApplication<Application>().applicationContext.resources
+        val appRes = application.resources
         val mutableList: MutableList<String> = mutableListOf()
 
-        mutableList.add(appResources.getString(flag.flagOf))
-        mutableList.add(appResources.getString(flag.flagOfOfficial))
+        mutableList.add(appRes.getString(flag.flagOf))
+        mutableList.add(appRes.getString(flag.flagOfOfficial))
 
         flag.flagOfAlternate.forEach { resId ->
-            mutableList.add(appResources.getString(resId))
+            mutableList.add(appRes.getString(resId))
         }
         return mutableList.toList()
     }
 
 
     private fun sortFlags(flags: MutableList<FlagView>): List<FlagView> =
-        sortFlagsAlphabetically(getApplication(), flags)
+        sortFlagsAlphabetically(application, flags)
 
 
     private fun cancelTimers() {
