@@ -364,7 +364,11 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
                 }.map { normalizeLower(string = it) }
         }
 
-        if (normalizedUserGuess in normalizedAnswers) {
+        if (normalizedUserGuess.isEmpty()) {
+            /* If empty answer */
+            return
+
+        } else if (normalizedUserGuess in normalizedAnswers) {
             /* If correct answer */
             userGuess = ""
             _uiState.update {
