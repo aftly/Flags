@@ -20,6 +20,7 @@ data class GameUiState(
     val currentFlagStrings: List<String> = emptyList(),
 
     val isConfirmExitDialog: Boolean = false,
+    val isConfirmResetDialog: Boolean = false,
 
     val isTimeTrialDialog: Boolean = false,
     val isTimeTrial: Boolean = false,

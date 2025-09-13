@@ -12,8 +12,8 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
@@ -36,7 +36,8 @@ import dev.aftly.flags.ui.util.getFlagIdsString
 import kotlinx.coroutines.launch
 
 
-private val listRoute = "${Screen.List.route}?scrollToFlagId={scrollToFlagId}"
+private val listRoute =
+    "${Screen.List.route}?scrollToFlagId={scrollToFlagId}&isNavigateBack={isNavigateBack}"
 private val gameRoute = "${Screen.Game.route}?isGameOver={isGameOver}"
 
 private fun getScreen(
@@ -57,7 +58,10 @@ fun AppNavHost(
     val startDestination = listRoute
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    var onDrawerNavToListFromGame by rememberSaveable { mutableStateOf(value = false) }
+
+    var onDrawerNavToListFromGame by remember { mutableStateOf(value = false) }
+    var onDrawerNavToListFromList by remember { mutableStateOf(value = false) }
+    var onDrawerNavToGameFromGame by remember { mutableStateOf(value = false) }
 
     AppNavigationDrawer(
         drawerState = drawerState,
@@ -73,17 +77,27 @@ fun AppNavHost(
             screen.getMenuOrNull()?.let { menu ->
                 when (menu) {
                     Screen.Menu.LIST ->
-                        if (getScreen(currentBackStackEntry) == Screen.Game) {
+                        if (getScreen(currentBackStackEntry) == Screen.List) {
+                            onDrawerNavToListFromList = true
+
+                        } else if (getScreen(currentBackStackEntry) == Screen.Game) {
                             onDrawerNavToListFromGame = true
 
                         } else {
+                            /* Negate unintended LaunchedEffect()s from nav back */
+                            navController.getBackStackEntry(listRoute).savedStateHandle
+                                .set(key = "isNavigateBack", value = true)
+
                             navController.popBackStack(
                                 route = listRoute,
                                 inclusive = false,
                             )
                         }
                     Screen.Menu.GAME ->
-                        if (getScreen(navController.previousBackStackEntry) == Screen.Game) {
+                        if (getScreen(currentBackStackEntry) == Screen.Game) {
+                            onDrawerNavToGameFromGame = true
+
+                        } else if (getScreen(navController.previousBackStackEntry) == Screen.Game) {
                             navController.popBackStack(route = gameRoute, inclusive = false)
 
                         } else {
@@ -138,6 +152,10 @@ fun AppNavHost(
                     navArgument(name = "scrollToFlagId") {
                         type = NavType.IntType
                         defaultValue = 0
+                    },
+                    navArgument(name = "isNavigateBack") {
+                        type = NavType.BoolType
+                        defaultValue = false
                     }
                 ),
                 exitTransition = {
@@ -157,6 +175,8 @@ fun AppNavHost(
             ) {
                 ListFlagsScreen(
                     currentBackStackEntry = currentBackStackEntry,
+                    onDrawerNavigateToList = onDrawerNavToListFromList,
+                    onResetDrawerNavigateToList = { onDrawerNavToListFromList = false },
                     onNavigationDrawer = {
                         scope.launch {
                             if (drawerState.isClosed) drawerState.open() else drawerState.close()
@@ -203,6 +223,11 @@ fun AppNavHost(
                     onNavigateBack = { flagId ->
                         navController.previousBackStackEntry
                             ?.savedStateHandle?.set(key = "scrollToFlagId", value = flagId)
+
+                        /* Negate unintended LaunchedEffect()s from nav back */
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle?.set(key = "isNavigateBack", value = true)
+
                         navController.navigateUp()
                     },
                     onFullscreen = { flag, flagIds, isLandscape ->
@@ -255,15 +280,21 @@ fun AppNavHost(
                     currentBackStackEntry = currentBackStackEntry,
                     screen = Screen.Game,
                     isNavigationDrawerOpen = drawerState.isOpen,
-                    onNavigateToList = onDrawerNavToListFromGame,
-                    onResetNavigateToList = { onDrawerNavToListFromGame = false },
+                    onDrawerNavigateToList = onDrawerNavToListFromGame,
+                    onResetDrawerNavigateToList = { onDrawerNavToListFromGame = false },
+                    onDrawerNavigateToGame = onDrawerNavToGameFromGame,
+                    onResetDrawerNavigateToGame = { onDrawerNavToGameFromGame = false },
                     onNavigationDrawer = {
                         scope.launch {
                             if (drawerState.isClosed) drawerState.open() else drawerState.close()
                         }
                     },
-                    onExit = {
-                        navController.popBackStack()
+                    onNavigateUp = {
+                        /* Negate unintended LaunchedEffect()s from nav back */
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle?.set(key = "isNavigateBack", value = true)
+
+                        navController.navigateUp()
                         onDrawerNavToListFromGame = false
                     },
                     onScoreHistory = { isGameOver ->
@@ -292,6 +323,7 @@ fun AppNavHost(
                     onNavigateUp = { isGameOver ->
                         navController.previousBackStackEntry
                             ?.savedStateHandle?.set(key = "isGameOver", value = isGameOver)
+
                         navController.navigateUp()
                     },
                 )
@@ -341,6 +373,13 @@ fun AppNavHost(
                             if (drawerState.isClosed) drawerState.open() else drawerState.close()
                         }
                     },
+                    onNavigateUp = {
+                        /* Negate unintended LaunchedEffect()s from nav back */
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle?.set(key = "isNavigateBack", value = true)
+
+                        navController.navigateUp()
+                    }
                 )
             }
         }

@@ -93,9 +93,7 @@ fun AppNavigationDrawer(
                             )
                         },
                         onClick = {
-                            if (currentScreen != Screen.List) {
-                                onNavigateDetails(Screen.List)
-                            }
+                            onNavigateDetails(Screen.List)
                             onClose()
                         },
                     )
@@ -120,9 +118,7 @@ fun AppNavigationDrawer(
                                 )
                             },
                             onClick = {
-                                if (currentScreen != Screen.Game) {
-                                    onNavigateDetails(Screen.Game)
-                                }
+                                onNavigateDetails(Screen.Game)
                                 onClose()
                             },
                         )

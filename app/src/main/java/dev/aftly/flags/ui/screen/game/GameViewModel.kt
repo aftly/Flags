@@ -70,11 +70,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
 
     /* Initialise ViewModel & State with category and other game related info */
     init {
-        /* updateCurrentCategory also calls resetGame() */
-        updateCurrentCategory(
-            newSuperCategory = FlagSuperCategory.SovereignCountry,
-            newSubCategory = null,
-        )
+        resetScreen()
 
         /* Initialize savedFlags list */
         viewModelScope.launch {
@@ -84,6 +80,14 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         }
     }
 
+
+    fun resetScreen() {
+        /* updateCurrentCategory also calls resetGame() */
+        updateCurrentCategory(
+            superCategory = FlagSuperCategory.SovereignCountry,
+            subCategory = null,
+        )
+    }
 
     /* Reset game state with a new flag and necessary starting values */
     fun resetGame(
@@ -167,8 +171,8 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         if (answerMode != uiState.value.answerMode) {
             /* Reset game with default categories */
             updateCurrentCategory(
-                newSuperCategory = FlagSuperCategory.SovereignCountry,
-                newSubCategory = null,
+                superCategory = FlagSuperCategory.SovereignCountry,
+                subCategory = null,
                 answerModeNew = answerMode,
             )
         }
@@ -187,8 +191,8 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
 
 
     fun updateCurrentCategory(
-        newSuperCategory: FlagSuperCategory?,
-        newSubCategory: FlagCategory?,
+        superCategory: FlagSuperCategory?,
+        subCategory: FlagCategory?,
         answerModeNew: AnswerMode? = null,
     ) {
         val allFlags = uiState.value.allFlags
@@ -200,7 +204,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
 
         /* If the new category is the All super category set state with default values (which
          * includes allFlagsList), else dynamically generate flags list from category info */
-        if (newSuperCategory == All || isDatesMode) {
+        if (superCategory == All || isDatesMode) {
             _uiState.value = GameUiState(
                 currentFlags = if (isDatesMode) getDatesFlags(allFlags) else allFlags,
                 answerMode = answerMode,
@@ -210,15 +214,15 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         } else {
             _uiState.value = GameUiState(
                 currentFlags = getFlagsFromCategory(
-                    superCategory = newSuperCategory,
-                    subCategory = newSubCategory,
+                    superCategory = superCategory,
+                    subCategory = subCategory,
                     allFlags = allFlags,
                 ),
                 currentSuperCategories = buildList {
-                    newSuperCategory?.let { add(it) }
+                    superCategory?.let { add(it) }
                 },
                 currentSubCategories = buildList {
-                    newSubCategory?.let { add(it) }
+                    subCategory?.let { add(it) }
                 },
                 answerMode = answerMode,
                 difficultyMode = difficultyMode,
@@ -231,8 +235,8 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
 
 
     fun updateCurrentCategories(
-        newSuperCategory: FlagSuperCategory?,
-        newSubCategory: FlagCategory?,
+        superCategory: FlagSuperCategory?,
+        subCategory: FlagCategory?,
     ) {
         /* Controls whether flags are updated from current or all flags */
         var isDeselectSwitch = false to false
@@ -242,7 +246,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
 
         /* Exit function if new<*>Category is not selectable or mutually exclusive from current.
          * Else, add/remove category argument to/from categories lists */
-        newSuperCategory?.let { superCategory ->
+        superCategory?.let { superCategory ->
             if (isSuperCategoryExit(superCategory, newSuperCategories, newSubCategories)) return
 
             isDeselectSwitch = updateCategoriesFromSuper(
@@ -251,7 +255,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
                 subCategories = newSubCategories,
             ) to false
         }
-        newSubCategory?.let { subCategory ->
+        subCategory?.let { subCategory ->
             if (isSubCategoryExit(subCategory, newSubCategories, newSuperCategories)) return
 
             isDeselectSwitch = updateCategoriesFromSub(
@@ -263,19 +267,19 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         if (isDeselectSwitch.first) {
             when (newSuperCategories.size to newSubCategories.size) {
                 0 to 0 -> return updateCurrentCategory(
-                    newSuperCategory = All, newSubCategory = null
+                    superCategory = All, subCategory = null
                 )
                 1 to 0 -> return updateCurrentCategory(
-                    newSuperCategory = newSuperCategories.first(), newSubCategory = null
+                    superCategory = newSuperCategories.first(), subCategory = null
                 )
                 1 to 1 -> {
-                    val superCategory = newSuperCategories.first()
-                    val subCategory = newSubCategories.first()
+                    val onlySuperCategory = newSuperCategories.first()
+                    val onlySubCategory = newSubCategories.first()
 
-                    if (superCategory.subCategories.size == 1 &&
-                        superCategory.firstCategoryEnumOrNull() == subCategory) {
+                    if (onlySuperCategory.subCategories.size == 1 &&
+                        onlySuperCategory.firstCategoryEnumOrNull() == onlySubCategory) {
                         return updateCurrentCategory(
-                            newSuperCategory = superCategory, newSubCategory = null
+                            superCategory = onlySuperCategory, subCategory = null
                         )
                     }
                 }
@@ -296,7 +300,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
                 allFlags = allFlags,
                 currentFlags = currentFlags,
                 isDeselectSwitch = isDeselectSwitch,
-                superCategory = newSuperCategory,
+                superCategory = superCategory,
                 superCategories = newSuperCategories,
                 subCategories = newSubCategories,
             ),
@@ -405,6 +409,9 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
             }
         }
     }
+
+    fun resetGuessVeracity() =
+        _uiState.update { it.copy(isGuessCorrect = false, isGuessWrong = false) }
 
 
     fun skipFlag() {
@@ -515,25 +522,17 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
 
 
     /* Toggle game dialogs */
-    fun toggleTimeTrialDialog(on: Boolean) {
-        _uiState.update { it.copy(isTimeTrialDialog = on) }
-    }
+    fun onTimeTrialDialog(on: Boolean) = _uiState.update { it.copy(isTimeTrialDialog = on) }
 
-    fun toggleGameModesDialog(on: Boolean) {
-        _uiState.update { it.copy(isGameModesDialog = on) }
-    }
+    fun onGameModesDialog(on: Boolean) = _uiState.update { it.copy(isGameModesDialog = on) }
 
-    fun toggleGameOverDialog(on: Boolean) {
-        _uiState.update { it.copy(isGameOverDialog = on) }
-    }
+    fun onGameOverDialog(on: Boolean) = _uiState.update { it.copy(isGameOverDialog = on) }
 
-    fun toggleScoreDetails(on: Boolean) {
-        _uiState.update { it.copy(isScoreDetails = on) }
-    }
+    fun onScoreDetails(on: Boolean) = _uiState.update { it.copy(isScoreDetails = on) }
 
-    fun toggleConfirmExitDialog(on: Boolean) {
-        _uiState.update { it.copy(isConfirmExitDialog = on) }
-    }
+    fun onConfirmExitDialog(on: Boolean) = _uiState.update { it.copy(isConfirmExitDialog = on) }
+
+    fun onConfirmResetDialog(on: Boolean) = _uiState.update { it.copy(isConfirmResetDialog = on) }
 
 
     /* For LaunchedEffect() when language configuration changes */

@@ -100,6 +100,7 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.game.AnswerMode
 import dev.aftly.flags.model.game.DifficultyMode
+import dev.aftly.flags.model.game.GameConfirmDialog
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.CategoriesButtonMenu
 import dev.aftly.flags.ui.component.DialogActionButton
@@ -126,10 +127,12 @@ fun GameScreen(
     currentBackStackEntry: NavBackStackEntry?,
     screen: Screen,
     isNavigationDrawerOpen: Boolean,
-    onNavigateToList: Boolean,
-    onResetNavigateToList: () -> Unit,
+    onDrawerNavigateToList: Boolean,
+    onResetDrawerNavigateToList: () -> Unit,
+    onDrawerNavigateToGame: Boolean,
+    onResetDrawerNavigateToGame: () -> Unit,
     onNavigationDrawer: () -> Unit,
-    onExit: () -> Unit,
+    onNavigateUp: () -> Unit,
     onScoreHistory: (Boolean) -> Unit, // isGameOver Boolean
     onFullscreen: (FlagView, Boolean, Boolean) -> Unit,
 ) {
@@ -143,48 +146,73 @@ fun GameScreen(
     val systemUiController = remember { SystemUiController(view, window) }
     val isDarkTheme = LocalDarkTheme.current
 
-    LaunchedEffect(currentBackStackEntry) {
-        systemUiController.setLightStatusBar(light = !isDarkTheme)
-        systemUiController.setSystemBars(visible = true)
-
-        currentBackStackEntry?.savedStateHandle?.get<Boolean>("isGameOver")?.let { isGameOver ->
-            if (isGameOver) viewModel.toggleGameOverDialog(on = true)
-        }
-    }
-
     /* When language configuration changes, update strings in uiState */
     val configuration = LocalConfiguration.current
     val locale = configuration.locales[0]
     //LaunchedEffect(locale) { viewModel.setFlagStrings() }
 
 
+    LaunchedEffect(currentBackStackEntry) {
+        systemUiController.setLightStatusBar(light = !isDarkTheme)
+        systemUiController.setSystemBars(visible = true)
+
+        currentBackStackEntry?.savedStateHandle?.get<Boolean>("isGameOver")?.let { isGameOver ->
+            if (isGameOver) viewModel.onGameOverDialog(on = true)
+        }
+    }
+
     /* Handle if confirm exit from game progress when navigation back from NavigationDrawer or
      * system back action ------------------------------- */
-    LaunchedEffect(key1 = onNavigateToList) {
-        if (onNavigateToList) {
-            if (viewModel.isScoresEmpty()) onExit()
-            else viewModel.toggleConfirmExitDialog(on = true)
+    LaunchedEffect(key1 = onDrawerNavigateToList) {
+        if (onDrawerNavigateToList) {
+            if (viewModel.isScoresEmpty()) onNavigateUp()
+            else viewModel.onConfirmExitDialog(on = true)
+        }
+    }
+
+    /* Reset game when click from nav drawer */
+    LaunchedEffect(onDrawerNavigateToGame) {
+        if (onDrawerNavigateToGame) {
+            if (viewModel.isScoresEmpty()) viewModel.resetScreen()
+            else viewModel.onConfirmResetDialog(on = true)
+
+            onResetDrawerNavigateToGame()
         }
     }
 
     BackHandler {
         if (isNavigationDrawerOpen) onNavigationDrawer()
-        else if (viewModel.isScoresEmpty()) onExit()
-        else viewModel.toggleConfirmExitDialog(on = true)
+        else if (viewModel.isScoresEmpty()) onNavigateUp()
+        else viewModel.onConfirmExitDialog(on = true)
     }
 
+
     if (uiState.isConfirmExitDialog) {
-        ConfirmExitDialog(
-            onExit = {
-                viewModel.toggleConfirmExitDialog(on = false)
-                onExit()
+        ConfirmDialog(
+            type = GameConfirmDialog.EXIT,
+            onConfirm = {
+                viewModel.onConfirmExitDialog(on = false)
+                onNavigateUp()
             },
             onDismiss = {
-                viewModel.toggleConfirmExitDialog(on = false)
-                if (onNavigateToList) onResetNavigateToList()
+                viewModel.onConfirmExitDialog(on = false)
+                if (onDrawerNavigateToList) onResetDrawerNavigateToList()
             },
         )
     }
+    if (uiState.isConfirmResetDialog) {
+        ConfirmDialog(
+            type = GameConfirmDialog.RESET,
+            onConfirm = {
+                viewModel.resetScreen()
+                viewModel.onConfirmResetDialog(on = false)
+            },
+            onDismiss = {
+                viewModel.onConfirmResetDialog(on = false)
+            },
+        )
+    }
+
     /* -------------------------------------------------- */
 
     /* Show time trial dialog when timer action button pressed */
@@ -194,7 +222,7 @@ fun GameScreen(
             userSecondsInput = viewModel.userTimerInputSeconds,
             onUserMinutesInputChange = { viewModel.updateUserMinutesInput(it) },
             onUserSecondsInputChange = { viewModel.updateUserSecondsInput(it) },
-            onDismiss = { viewModel.toggleTimeTrialDialog(on = false) },
+            onDismiss = { viewModel.onTimeTrialDialog(on = false) },
             onTimeTrial = { viewModel.setTimeTrial(it) },
         )
     }
@@ -203,7 +231,7 @@ fun GameScreen(
         GameModesDialog(
             answerMode = uiState.answerMode,
             difficultyMode = uiState.difficultyMode,
-            onDismiss = { viewModel.toggleGameModesDialog(on = false) },
+            onDismiss = { viewModel.onGameModesDialog(on = false) },
             onGameModes = { answerMode, difficultyMode ->
                 viewModel.updateGameModes(answerMode, difficultyMode)
             }
@@ -218,11 +246,11 @@ fun GameScreen(
             maxScore = uiState.totalFlagCount,
             gameMode = "TODO", // TODO
             onDetails = {
-                viewModel.toggleGameOverDialog(on = false)
-                viewModel.toggleScoreDetails(on = true)
+                viewModel.onGameOverDialog(on = false)
+                viewModel.onScoreDetails(on = true)
             },
             onScoreHistory = {
-                viewModel.toggleGameOverDialog(on = false)
+                viewModel.onGameOverDialog(on = false)
                 onScoreHistory(uiState.isGameOver)
             },
             onShare = { text ->
@@ -233,10 +261,10 @@ fun GameScreen(
                 )
             },
             onExit = {
-                viewModel.toggleGameOverDialog(on = false)
-                onExit()
+                viewModel.onGameOverDialog(on = false)
+                onNavigateUp()
             },
-            onReplay = { viewModel.resetGame() },
+            onReplay = { viewModel.resetGame(isTimeTrial = uiState.isTimeTrial) },
         )
     }
 
@@ -247,29 +275,31 @@ fun GameScreen(
         screen = screen,
         userGuess = viewModel.userGuess,
         onUserGuessChange = { viewModel.updateUserGuess(it) },
-        onCloseScoreDetails = {
-            viewModel.toggleScoreDetails(on = false)
-            viewModel.endGame()
-        },
+        onResetGuessVeracityStates = { viewModel.resetGuessVeracity() },
         onSubmit = { viewModel.checkUserGuess() },
         onSkip = { viewModel.skipFlag() },
         onConfirmShowAnswer = { viewModel.confirmShowAnswer() },
         onShowAnswer = { viewModel.showAnswer() },
         onStartGame = { viewModel.startGame() },
         onEndGame = { viewModel.endGame() },
-        onResetGame = { viewModel.resetGame() },
+        onResetGameAndTimeMode = { viewModel.resetGame() },
+        onResetGame = { viewModel.resetGame(isTimeTrial = uiState.isTimeTrial) },
+        onCloseScoreDetails = {
+            viewModel.onScoreDetails(on = false)
+            viewModel.endGame()
+        },
         onNavigationDrawer = onNavigationDrawer,
-        onTimeTrialDialog = { viewModel.toggleTimeTrialDialog(on = true) },
-        onGameModesDialog = { viewModel.toggleGameModesDialog(on = true) },
+        onTimeTrialDialog = { viewModel.onTimeTrialDialog(on = true) },
+        onGameModesDialog = { viewModel.onGameModesDialog(on = true) },
         onScoreHistory = { onScoreHistory(uiState.isGameOver) },
         onFullscreen = { isFlagWide ->
             onFullscreen(uiState.currentFlag, isFlagWide, !uiState.isShowAnswer)
         },
-        onCategorySelectSingle = { newSuperCategory, newSubCategory ->
-            viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
+        onCategorySelectSingle = { superCategory, subCategory ->
+            viewModel.updateCurrentCategory(superCategory, subCategory)
         },
-        onCategorySelectMultiple = { newSuperCategory, newSubCategory ->
-            viewModel.updateCurrentCategories(newSuperCategory, newSubCategory)
+        onCategorySelectMultiple = { superCategory, subCategory ->
+            viewModel.updateCurrentCategories(superCategory, subCategory)
         },
         onSavedFlagsSelect = { viewModel.selectSavedFlags() },
     )
@@ -284,14 +314,16 @@ private fun GameScreen(
     screen: Screen,
     userGuess: String,
     onUserGuessChange: (String) -> Unit,
-    onCloseScoreDetails: () -> Unit,
+    onResetGuessVeracityStates: () -> Unit,
     onSubmit: () -> Unit,
     onSkip: () -> Unit,
     onConfirmShowAnswer: () -> Unit,
     onShowAnswer: () -> Unit,
     onStartGame: () -> Unit,
     onEndGame: () -> Unit,
+    onResetGameAndTimeMode: () -> Unit,
     onResetGame: () -> Unit,
+    onCloseScoreDetails: () -> Unit,
     onNavigationDrawer: () -> Unit,
     onTimeTrialDialog: () -> Unit,
     onGameModesDialog: () -> Unit,
@@ -365,9 +397,10 @@ private fun GameScreen(
                         focusManager.clearFocus()
                         onNavigationDrawer()
                     },
+                    onResetAction = onResetGame,
                     onTimeAction = {
                         if (uiState.isTimeTrial) {
-                            onResetGame()
+                            onResetGameAndTimeMode()
                         } else {
                             focusManager.clearFocus()
                             onTimeTrialDialog()
@@ -409,6 +442,7 @@ private fun GameScreen(
                 isGuessCorrectEvent = uiState.isGuessCorrectEvent,
                 isGuessWrong = uiState.isGuessWrong,
                 isGuessWrongEvent = uiState.isGuessWrongEvent,
+                onResetGuessVeracityStates = onResetGuessVeracityStates,
                 showAnswerResetTimer = uiState.timerShowAnswerReset,
                 isConfirmShowAnswer = uiState.isConfirmShowAnswer,
                 isShowAnswer = uiState.isShowAnswer,
@@ -480,6 +514,7 @@ private fun GameContent(
     isGuessCorrectEvent: Boolean,
     isGuessWrong: Boolean,
     isGuessWrongEvent: Boolean,
+    onResetGuessVeracityStates: () -> Unit,
     showAnswerResetTimer: Int,
     isConfirmShowAnswer: Boolean,
     isShowAnswer: Boolean,
@@ -581,6 +616,7 @@ private fun GameContent(
             isGuessCorrectEvent = isGuessCorrectEvent,
             isGuessWrong = isGuessWrong,
             isGuessWrongEvent = isGuessWrongEvent,
+            onResetGuessVeracityStates = onResetGuessVeracityStates,
             isShowAnswer = isShowAnswer,
             onSubmit = onSubmit,
             onEndGame = onEndGame,
@@ -663,6 +699,7 @@ private fun GameCard(
     isGuessCorrectEvent: Boolean,
     isGuessWrong: Boolean,
     isGuessWrongEvent: Boolean,
+    onResetGuessVeracityStates: () -> Unit,
     isShowAnswer: Boolean,
     onSubmit: () -> Unit,
     onEndGame: () -> Unit,
@@ -706,8 +743,9 @@ private fun GameCard(
 
     /* LaunchedEffects for triggering animations of above variables */
     LaunchedEffect(answerMode) {
-        if (labelState != labelSuccess && labelState != labelError)
+        if (labelState !in listOf(labelSuccess, labelError)) {
             labelState = labelDefault
+        }
     }
     LaunchedEffect(isGuessCorrectEvent) {
         if (isGuessCorrect) {
@@ -722,6 +760,7 @@ private fun GameCard(
             delay(timeMillis = Timing.GUESS_STATE_EXIT.toLong())
             /* If other LaunchedEffect is triggered before this one finishes, don't reset label */
             labelState = if (labelState == labelError) labelError else labelDefault
+            onResetGuessVeracityStates()
         }
     }
     LaunchedEffect(isGuessWrongEvent) {
@@ -737,6 +776,7 @@ private fun GameCard(
             delay(timeMillis = Timing.GUESS_STATE_EXIT.toLong())
             /* If other LaunchedEffect is triggered before this one finishes, don't reset label */
             labelState = if (labelState == labelSuccess) labelSuccess else labelDefault
+            onResetGuessVeracityStates()
         }
     }
 
@@ -1435,14 +1475,24 @@ private fun GameModesDialog(
 
 
 @Composable
-private fun ConfirmExitDialog(
+private fun ConfirmDialog(
+    type: GameConfirmDialog,
+    onConfirm: () -> Unit,
     onDismiss: () -> Unit,
-    onExit: () -> Unit,
 ) {
+    val title = when (type) {
+        GameConfirmDialog.EXIT -> R.string.game_confirm_exit_title
+        GameConfirmDialog.RESET -> R.string.game_confirm_reset_title
+    }
+    val description = when (type) {
+        GameConfirmDialog.EXIT -> R.string.game_confirm_exit_description
+        GameConfirmDialog.RESET -> R.string.game_confirm_reset_description
+    }
+
     GameDialog(
-        title = R.string.game_confirm_exit_title,
+        title = title,
         onDismiss = onDismiss,
-        onSubmit = onExit,
+        onSubmit = onConfirm,
     ) {
         /* Description */
         Row(
@@ -1452,7 +1502,7 @@ private fun ConfirmExitDialog(
             ),
         ) {
             Text(
-                text = stringResource(R.string.game_confirm_exit_description),
+                text = stringResource(description),
                 style = MaterialTheme.typography.bodyMedium,
             )
         }
@@ -1580,6 +1630,7 @@ private fun GameTopBar(
     isTimerPaused: Boolean,
     timer: String = "0:00",
     onNavigationDrawer: () -> Unit,
+    onResetAction: () -> Unit,
     onTimeAction: () -> Unit,
     onSettingsAction: () -> Unit,
     onHistoryAction: () -> Unit,
@@ -1604,6 +1655,14 @@ private fun GameTopBar(
             }
         },
         actions = {
+            IconButton(onClick = onResetAction) {
+                Icon(
+                    imageVector = Icons.Default.Replay,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                )
+            }
+
             Text(
                 text = timer,
                 modifier = Modifier.padding(end = Dimens.extraSmall4),

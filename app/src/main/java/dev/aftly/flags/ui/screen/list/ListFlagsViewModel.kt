@@ -232,16 +232,20 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
                 currentFlags = sortFlagsAlphabetically(application, it.currentFlags),
             )
         }
-        updateCurrentCategory(
-            newSuperCategory = FlagSuperCategory.SovereignCountry,
-            newSubCategory = null,
-        )
+        resetScreen()
 
         viewModelScope.launch {
             savedFlagsRepository.getAllFlagsStream().collect { savedFlags ->
                 _uiState.update { it.copy(savedFlags = savedFlags.toSet()) }
             }
         }
+    }
+
+    fun resetScreen() {
+        updateCurrentCategory(
+            superCategory = FlagSuperCategory.SovereignCountry,
+            subCategory = null,
+        )
     }
 
     fun sortFlagsAlphabetically(flags: List<FlagView>): List<FlagView> =
@@ -251,12 +255,12 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
      * Also updates currentSuperCategory and currentCategory title details for FilterFlagsButton UI
      * Is intended to be called with either a newSuperCategory OR newSubCategory, and a null value */
     fun updateCurrentCategory(
-        newSuperCategory: FlagSuperCategory?,
-        newSubCategory: FlagCategory?,
+        superCategory: FlagSuperCategory?,
+        subCategory: FlagCategory?,
     ) {
         /* If new category is All superCategory update flags with static allFlags source,
          * else dynamically generate flags list from category info */
-        if (newSuperCategory == All) {
+        if (superCategory == All) {
             _uiState.update {
                 it.copy(
                     currentFlags = it.allFlags,
@@ -269,16 +273,16 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
             _uiState.update { state ->
                 state.copy(
                     currentFlags = getFlagsFromCategory(
-                        superCategory = newSuperCategory,
-                        subCategory = newSubCategory,
+                        superCategory = superCategory,
+                        subCategory = subCategory,
                         allFlags = state.allFlags,
                     ),
                     isViewSavedFlags = false,
                     currentSuperCategories = buildList {
-                        newSuperCategory?.let { add(it) }
+                        superCategory?.let { add(it) }
                     },
                     currentSubCategories = buildList {
-                        newSubCategory?.let { add(it) }
+                        subCategory?.let { add(it) }
                     },
                 )
             }
@@ -287,8 +291,8 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
 
 
     fun updateCurrentCategories(
-        newSuperCategory: FlagSuperCategory?,
-        newSubCategory: FlagCategory?,
+        superCategory: FlagSuperCategory?,
+        subCategory: FlagCategory?,
     ) {
         /* Controls whether flags are updated from current or all flags */
         var isDeselectSwitch = false to false
@@ -298,7 +302,7 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
 
         /* Exit function if new<*>Category is not selectable or mutually exclusive from current.
          * Else, add/remove category argument to/from categories lists */
-        newSuperCategory?.let { superCategory ->
+        superCategory?.let { superCategory ->
             if (isSuperCategoryExit(superCategory, newSuperCategories, newSubCategories)) return
 
             isDeselectSwitch = updateCategoriesFromSuper(
@@ -307,7 +311,7 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
                 subCategories = newSubCategories,
             ) to false
         }
-        newSubCategory?.let { subCategory ->
+        subCategory?.let { subCategory ->
             if (isSubCategoryExit(subCategory, newSubCategories, newSuperCategories)) return
 
             isDeselectSwitch = updateCategoriesFromSub(
@@ -319,19 +323,19 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
         if (isDeselectSwitch.first) {
             when (newSuperCategories.size to newSubCategories.size) {
                 0 to 0 -> return updateCurrentCategory(
-                    newSuperCategory = All, newSubCategory = null
+                    superCategory = All, subCategory = null
                 )
                 1 to 0 -> return updateCurrentCategory(
-                    newSuperCategory = newSuperCategories.first(), newSubCategory = null
+                    superCategory = newSuperCategories.first(), subCategory = null
                 )
                 1 to 1 -> {
-                    val superCategory = newSuperCategories.first()
-                    val subCategory = newSubCategories.first()
+                    val onlySuperCategory = newSuperCategories.first()
+                    val onlySubCategory = newSubCategories.first()
 
-                    if (superCategory.subCategories.size == 1 &&
-                        superCategory.firstCategoryEnumOrNull() == subCategory) {
+                    if (onlySuperCategory.subCategories.size == 1 &&
+                        onlySuperCategory.firstCategoryEnumOrNull() == onlySubCategory) {
                         return updateCurrentCategory(
-                            newSuperCategory = superCategory, newSubCategory = null
+                            superCategory = onlySuperCategory, subCategory = null
                         )
                     }
                 }
@@ -347,7 +351,7 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
                     allFlags = it.allFlags,
                     currentFlags = it.currentFlags,
                     isDeselectSwitch = isDeselectSwitch,
-                    superCategory = newSuperCategory,
+                    superCategory = superCategory,
                     superCategories = newSuperCategories,
                     subCategories = newSubCategories,
                 ),
@@ -395,9 +399,5 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
 
     fun toggleIsSearchBarInitTopBar(isSearchBarInit: Boolean) {
         _uiState.update { it.copy(isSearchBarInitTopBar = isSearchBarInit) }
-    }
-
-    fun toggleNavigateAwayFlag(isAway: Boolean) {
-        _uiState.update { it.copy(isNavigatedAway = isAway) }
     }
 }

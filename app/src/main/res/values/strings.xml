@@ -222,6 +222,8 @@
     <string name="game_button_shown">Answer shown</string>
     <string name="game_confirm_exit_title">Exit game</string>
     <string name="game_confirm_exit_description">Game has progress. Confirm exit?</string>
+    <string name="game_confirm_reset_title">Reset game</string>
+    <string name="game_confirm_reset_description">Game has progress. Confirm reset?</string>
     <string name="game_end">End game</string>
     <string name="game_guess_field_names_label">Guess name(s)</string>
     <string name="game_guess_field_dates_label">Guess date(s)</string>

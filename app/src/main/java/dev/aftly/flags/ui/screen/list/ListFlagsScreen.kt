@@ -35,14 +35,12 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.SaveAs
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
@@ -52,7 +50,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -103,6 +100,7 @@ import dev.aftly.flags.R
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
+import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.ui.component.CategoriesButtonMenu
 import dev.aftly.flags.ui.component.NoResultsFound
@@ -121,6 +119,8 @@ import kotlinx.coroutines.launch
 fun ListFlagsScreen(
     viewModel: ListFlagsViewModel = viewModel(),
     currentBackStackEntry: NavBackStackEntry?,
+    onDrawerNavigateToList: Boolean,
+    onResetDrawerNavigateToList: () -> Unit,
     onNavigationDrawer: () -> Unit,
     onNavigateToFlagScreen: (FlagView, List<FlagView>) -> Unit,
 ) {
@@ -142,6 +142,8 @@ fun ListFlagsScreen(
     ListFlagsScreen(
         uiState = uiState,
         currentBackStackEntry = currentBackStackEntry,
+        onDrawerNavigateToList = onDrawerNavigateToList,
+        onResetDrawerNavigateToList = onResetDrawerNavigateToList,
         searchResults = searchResults,
         savedFlags = savedFlags,
         searchQueryValue = viewModel.searchQueryValue,
@@ -149,22 +151,21 @@ fun ListFlagsScreen(
         onIsSearchBarInit = { viewModel.toggleIsSearchBarInit(it) },
         onIsSearchBarInitTopBar = { viewModel.toggleIsSearchBarInitTopBar(it) },
         onNavigationDrawer = onNavigationDrawer,
-        unToggleNavigateAway = { viewModel.toggleNavigateAwayFlag(false) },
-        onCategorySelectSingle = { newSuperCategory, newSubCategory ->
-            viewModel.updateCurrentCategory(newSuperCategory, newSubCategory)
+        onCategorySelectSingle = { superCategory, subCategory ->
+            viewModel.updateCurrentCategory(superCategory, subCategory)
         },
-        onCategorySelectMultiple = { selectSuperCategory, selectSubCategory ->
-            viewModel.updateCurrentCategories(selectSuperCategory, selectSubCategory)
+        onCategorySelectMultiple = { superCategory, subCategory ->
+            viewModel.updateCurrentCategories(superCategory, subCategory)
         },
         onSavedFlagsSelect = { viewModel.selectSavedFlags(on = it) },
         onSaveFlag = { viewModel.onSaveFlag(flag = it) },
+        onResetScreen = { viewModel.resetScreen() },
         onFlagSelect = { flag ->
             val flags =
                 if (uiState.isSearchQuery) searchResults
                 else if (uiState.isViewSavedFlags) savedFlags
                 else uiState.currentFlags
 
-            viewModel.toggleNavigateAwayFlag(true)
             onNavigateToFlagScreen(flag, flags)
         },
     )
@@ -177,6 +178,8 @@ private fun ListFlagsScreen(
     modifier: Modifier = Modifier,
     uiState: ListFlagsUiState,
     currentBackStackEntry: NavBackStackEntry?,
+    onDrawerNavigateToList: Boolean,
+    onResetDrawerNavigateToList: () -> Unit,
     searchResults: List<FlagView>,
     savedFlags: List<FlagView>,
     containerColor1: Color = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -186,11 +189,11 @@ private fun ListFlagsScreen(
     onIsSearchBarInit: (Boolean) -> Unit,
     onIsSearchBarInitTopBar: (Boolean) -> Unit,
     onNavigationDrawer: () -> Unit,
-    unToggleNavigateAway: () -> Unit,
     onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onSavedFlagsSelect: (Boolean) -> Unit,
     onSaveFlag: (FlagView) -> Unit,
+    onResetScreen: () -> Unit,
     onFlagSelect: (FlagView) -> Unit,
 ) {
     /* Controls FilterFlagsButton menu expansion amd tracks current button height
@@ -198,7 +201,6 @@ private fun ListFlagsScreen(
     var isMenuExpanded by rememberSaveable { mutableStateOf(value = false) }
     var buttonHeight by remember { mutableStateOf(0.dp) }
     var scaffoldPaddingValues by remember { mutableStateOf(value = PaddingValues()) }
-
 
     /* Properties for ScrollToTopButton & reset scroll position when category changed in menu */
     val listState = rememberLazyListState()
@@ -213,6 +215,45 @@ private fun ListFlagsScreen(
     val focusManager = LocalFocusManager.current
     var isSearchBarFocused by rememberSaveable { mutableStateOf(value = false) }
     var isSearchBar by rememberSaveable { mutableStateOf(value = false) }
+
+    /* For expandable/collapsable Scaffold TopBar */
+    val scrollBehaviour = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
+    /* Properties for save item mode */
+    var isSaveMode by rememberSaveable { mutableStateOf(value = false) }
+
+
+    /* Trigger navigation effects (eg. scroll to flag from FlagScreen if present) */
+    LaunchedEffect(key1 = currentBackStackEntry) {
+        currentBackStackEntry?.savedStateHandle?.get<Int>(key = "scrollToFlagId")?.let { flagId ->
+            if (flagId > 0) {
+                val flag = getFlagFromId(flagId)
+                val flags =
+                    if (uiState.isSearchQuery) searchResults
+                    else if (uiState.isViewSavedFlags) savedFlags
+                    else uiState.currentFlags
+
+                /* If not returning to saved flags from a removed saved flag */
+                if (!(uiState.isViewSavedFlags && flag !in savedFlags)) {
+                    val index = flags.indexOf(flag)
+                    coroutineScope.launch { listState.scrollToItem(index = index) }
+                }
+            }
+            currentBackStackEntry.savedStateHandle.set(key = "scrollToFlagId", value = 0)
+        }
+    }
+
+    LaunchedEffect(onDrawerNavigateToList) {
+        if (onDrawerNavigateToList) {
+            val isOnlySovereign = uiState.currentSuperCategories
+                .none { it != SovereignCountry } && uiState.currentSubCategories.isEmpty()
+
+            if (!isOnlySovereign) onResetScreen()
+            else coroutineScope.launch { listState.animateScrollToItem(index = 0) }
+
+            onResetDrawerNavigateToList()
+        }
+    }
 
     LaunchedEffect(key1 = isMenuExpanded) {
         if (isMenuExpanded) focusManager.clearFocus()
@@ -235,7 +276,7 @@ private fun ListFlagsScreen(
         } else if (!uiState.isSearchBarInit) {
             /* If saved flags or not All super category */
             if (uiState.isViewSavedFlags || !(uiState.currentSuperCategories.all { it == All } &&
-                uiState.currentSubCategories.isEmpty())) {
+                        uiState.currentSubCategories.isEmpty())) {
                 onCategorySelectSingle(All, null)
                 onSavedFlagsSelect(false)
                 if (!isAtTop) {
@@ -254,39 +295,18 @@ private fun ListFlagsScreen(
     }
 
     LaunchedEffect(key1 = searchResults) {
-        if (!uiState.isNavigatedAway && uiState.isSearchQuery) {
+        /* Get value from savedStateHandle and reset it if present */
+        val isNavigatedBack =
+            currentBackStackEntry?.savedStateHandle?.get<Boolean>(key = "isNavigateBack") ?: false
+
+        if (uiState.isSearchQuery && !isNavigatedBack) {
             coroutineScope.launch { listState.scrollToItem(index = 0) }
-        } else if (!uiState.isNavigatedAway) {
+        } else if (!isNavigatedBack) {
             coroutineScope.launch { listState.animateScrollToItem(index = 0) }
+        } else {
+            currentBackStackEntry.savedStateHandle.set(key = "isNavigateBack", value = false)
         }
     }
-
-    /* Scroll to flag from flag screen in list (if valid and present) */
-    LaunchedEffect(key1 = currentBackStackEntry) {
-        currentBackStackEntry?.savedStateHandle?.get<Int>(key = "scrollToFlagId")?.let { flagId ->
-            if (flagId > 0) {
-                val flag = getFlagFromId(flagId)
-                val flags =
-                    if (uiState.isSearchQuery) searchResults
-                    else if (uiState.isViewSavedFlags) savedFlags
-                    else uiState.currentFlags
-
-                /* If not returning to saved flags from a removed saved flag */
-                if (!(uiState.isViewSavedFlags && flag !in savedFlags)) {
-                    val index = flags.indexOf(flag)
-                    coroutineScope.launch { listState.scrollToItem(index = index) }
-                }
-            }
-        }
-        unToggleNavigateAway()
-    }
-
-    /* For expandable/collapsable Scaffold TopBar */
-    val scrollBehaviour = TopAppBarDefaults
-        .exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-
-    /* Properties for save item mode */
-    var isSaveMode by rememberSaveable { mutableStateOf(value = false) }
 
 
     /* Scaffold within box so FilterFlagsButton & it's associated surface can overlay it */

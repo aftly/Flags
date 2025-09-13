@@ -57,6 +57,7 @@ fun getSingleCategoryPreviewTitleOrNull(
     }
 }
 
+
 /* Extension functions */
 fun ScoreItem.isCategoriesEmpty(): Boolean =
     gameSuperCategories.isEmpty() && gameSubCategories.isEmpty()

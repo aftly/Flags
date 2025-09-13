@@ -2,6 +2,7 @@ package dev.aftly.flags.ui.screen.settings
 
 import android.app.Activity
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -69,6 +70,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory),
     screen: Screen,
     onNavigationDrawer: () -> Unit,
+    onNavigateUp: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val view = LocalView.current
@@ -77,6 +79,8 @@ fun SettingsScreen(
     }
     val isSystemInDarkTheme by rememberUpdatedState(newValue = isSystemInDarkTheme())
     val coroutineScope = rememberCoroutineScope()
+
+    BackHandler { onNavigateUp() }
 
     SettingsScreen(
         uiState = uiState,
