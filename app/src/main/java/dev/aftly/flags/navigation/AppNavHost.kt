@@ -175,6 +175,7 @@ fun AppNavHost(
             ) {
                 ListFlagsScreen(
                     currentBackStackEntry = currentBackStackEntry,
+                    isNavigationDrawerOpen = drawerState.isOpen,
                     onDrawerNavigateToList = onDrawerNavToListFromList,
                     onResetDrawerNavigateToList = { onDrawerNavToListFromList = false },
                     onNavigationDrawer = {

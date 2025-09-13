@@ -59,6 +59,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -118,6 +119,7 @@ import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.SystemUiController
 import dev.aftly.flags.ui.util.flagDatesString
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 
@@ -151,8 +153,9 @@ fun GameScreen(
     val locale = configuration.locales[0]
     //LaunchedEffect(locale) { viewModel.setFlagStrings() }
 
+    val focusManager = LocalFocusManager.current
 
-    LaunchedEffect(currentBackStackEntry) {
+    LaunchedEffect(key1 = currentBackStackEntry) {
         systemUiController.setLightStatusBar(light = !isDarkTheme)
         systemUiController.setSystemBars(visible = true)
 
@@ -171,7 +174,7 @@ fun GameScreen(
     }
 
     /* Reset game when click from nav drawer */
-    LaunchedEffect(onDrawerNavigateToGame) {
+    LaunchedEffect(key1 = onDrawerNavigateToGame) {
         if (onDrawerNavigateToGame) {
             if (viewModel.isScoresEmpty()) viewModel.resetScreen()
             else viewModel.onConfirmResetDialog(on = true)
@@ -191,6 +194,7 @@ fun GameScreen(
         ConfirmDialog(
             type = GameConfirmDialog.EXIT,
             onConfirm = {
+                focusManager.clearFocus()
                 viewModel.onConfirmExitDialog(on = false)
                 onNavigateUp()
             },
@@ -271,8 +275,9 @@ fun GameScreen(
 
     GameScreen(
         uiState = uiState,
-        isSavedFlagsNotEmpty = savedFlags.isNotEmpty(),
         screen = screen,
+        isNavigationDrawerOpen = isNavigationDrawerOpen,
+        isSavedFlagsNotEmpty = savedFlags.isNotEmpty(),
         userGuess = viewModel.userGuess,
         onUserGuessChange = { viewModel.updateUserGuess(it) },
         onResetGuessVeracityStates = { viewModel.resetGuessVeracity() },
@@ -310,8 +315,9 @@ fun GameScreen(
 private fun GameScreen(
     modifier: Modifier = Modifier,
     uiState: GameUiState,
-    isSavedFlagsNotEmpty: Boolean,
     screen: Screen,
+    isNavigationDrawerOpen: Boolean,
+    isSavedFlagsNotEmpty: Boolean,
     userGuess: String,
     onUserGuessChange: (String) -> Unit,
     onResetGuessVeracityStates: () -> Unit,
@@ -346,11 +352,6 @@ private fun GameScreen(
     }
     var isFlagWide by rememberSaveable { mutableStateOf(value = true) }
 
-    /* Collapse menu when no flags */
-    LaunchedEffect(uiState.currentFlags) {
-        if (uiState.currentFlags.isEmpty()) isMenuExpanded = false
-    }
-
     /* Manage timer string */
     val timer = when (uiState.isTimeTrial) {
         true -> uiState.timerTimeTrial
@@ -362,15 +363,18 @@ private fun GameScreen(
         timer / 60, timer % 60
     )
 
+    /* Collapse menu when no flags */
+    LaunchedEffect(key1 = uiState.currentFlags) {
+        if (uiState.currentFlags.isEmpty()) isMenuExpanded = false
+    }
+
     /* Manage guess field focus and unpause game */
     var isGuessFieldFocused by rememberSaveable { mutableStateOf(value = false) }
     val focusManager = LocalFocusManager.current
-    LaunchedEffect(isMenuExpanded) {
-        when (isMenuExpanded) {
-            true -> focusManager.clearFocus()
-            false -> onStartGame()
-        }
+    LaunchedEffect(key1 = isMenuExpanded) {
+        if (isMenuExpanded) focusManager.clearFocus() else onStartGame()
     }
+    val coroutineScope = rememberCoroutineScope()
 
 
     /* Scaffold within box so that FilterFlagsButton & it's associated surface can overlay it */
@@ -394,22 +398,19 @@ private fun GameScreen(
                     isTimerPaused = uiState.isTimerPaused,
                     timer = timerString,
                     onNavigationDrawer = {
-                        focusManager.clearFocus()
                         onNavigationDrawer()
+                        focusManager.clearFocus()
                     },
                     onResetAction = onResetGame,
                     onTimeAction = {
                         if (uiState.isTimeTrial) {
+                            focusManager.clearFocus()
                             onResetGameAndTimeMode()
                         } else {
-                            focusManager.clearFocus()
                             onTimeTrialDialog()
                         }
                     },
-                    onSettingsAction = {
-                        focusManager.clearFocus()
-                        onGameModesDialog()
-                    },
+                    onSettingsAction = onGameModesDialog,
                     onHistoryAction = {
                         focusManager.clearFocus()
                         onScoreHistory()
@@ -421,6 +422,7 @@ private fun GameScreen(
 
             GameContent(
                 modifier = Modifier.padding(scaffoldPadding),
+                isNavigationDrawerOpen = isNavigationDrawerOpen,
                 answerMode = uiState.answerMode,
                 difficultyMode = uiState.difficultyMode,
                 isGame = uiState.isGame,
@@ -437,6 +439,7 @@ private fun GameScreen(
                 onFocusChanged = { isGuessFieldFocused = it },
                 isGuessFieldFocused = isGuessFieldFocused,
                 isTimeTrialDialog = uiState.isTimeTrialDialog,
+                isGameModesDialog = uiState.isGameModesDialog,
                 isMenuExpanded = isMenuExpanded,
                 isGuessCorrect = uiState.isGuessCorrect,
                 isGuessCorrectEvent = uiState.isGuessCorrectEvent,
@@ -493,6 +496,7 @@ private fun GameScreen(
 @Composable
 private fun GameContent(
     modifier: Modifier = Modifier,
+    isNavigationDrawerOpen: Boolean,
     answerMode: AnswerMode,
     difficultyMode: DifficultyMode,
     isGame: Boolean,
@@ -509,6 +513,7 @@ private fun GameContent(
     onFocusChanged: (Boolean) -> Unit,
     isGuessFieldFocused: Boolean,
     isTimeTrialDialog: Boolean,
+    isGameModesDialog: Boolean,
     isMenuExpanded: Boolean,
     isGuessCorrect: Boolean,
     isGuessCorrectEvent: Boolean,
@@ -580,14 +585,9 @@ private fun GameContent(
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        /* Spacer to make content start below FilterFlags button */
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(filterButtonHeight / 2 + aspectRatioTopPadding)
-        )
-
         GameCard(
+            modifier = Modifier.padding(top = filterButtonHeight / 2 + aspectRatioTopPadding),
+            isNavigationDrawerOpen = isNavigationDrawerOpen,
             answerMode = answerMode,
             difficultyMode = difficultyMode,
             isGame = isGame,
@@ -611,6 +611,7 @@ private fun GameContent(
             onFocusChanged = onFocusChanged,
             isGuessFieldFocused = isGuessFieldFocused,
             isTimeTrialDialog = isTimeTrialDialog,
+            isGameModesDialog = isGameModesDialog,
             isMenuExpanded = isMenuExpanded,
             isGuessCorrect = isGuessCorrect,
             isGuessCorrectEvent = isGuessCorrectEvent,
@@ -623,13 +624,12 @@ private fun GameContent(
             onImageWide = onImageWide,
             onFullscreen = onFullscreen,
         )
-        /* Something makes Submit button's top padding less than Skip button's  */
-        Spacer(modifier = Modifier.height(2.dp))
 
         /* Submit button */
         Button(
             onClick = onSubmit,
             modifier = Modifier
+                .padding(top = 2.dp)
                 .fillMaxWidth()
                 .padding(top = Dimens.medium16),
             enabled = isGame && !isGameOver && !isShowAnswer,
@@ -671,6 +671,7 @@ private fun GameContent(
 @Composable
 private fun GameCard(
     modifier: Modifier = Modifier,
+    isNavigationDrawerOpen: Boolean,
     answerMode: AnswerMode,
     difficultyMode: DifficultyMode,
     isGame: Boolean,
@@ -694,6 +695,7 @@ private fun GameCard(
     onFocusChanged: (Boolean) -> Unit,
     isGuessFieldFocused: Boolean,
     isTimeTrialDialog: Boolean,
+    isGameModesDialog: Boolean,
     isMenuExpanded: Boolean,
     isGuessCorrect: Boolean,
     isGuessCorrectEvent: Boolean,
@@ -732,54 +734,6 @@ private fun GameCard(
         animationSpec = animationSpecError,
     )
 
-    val gameModeLabelResId = when (answerMode) {
-        AnswerMode.NAMES -> R.string.game_guess_field_names_label
-        AnswerMode.DATES -> R.string.game_guess_field_dates_label
-    }
-    val labelDefault = stringResource(gameModeLabelResId)
-    val labelSuccess = stringResource(R.string.game_guess_field_label_success)
-    val labelError = stringResource(R.string.game_guess_field_label_error)
-    var labelState by remember { mutableStateOf(value = labelDefault) }
-
-    /* LaunchedEffects for triggering animations of above variables */
-    LaunchedEffect(answerMode) {
-        if (labelState !in listOf(labelSuccess, labelError)) {
-            labelState = labelDefault
-        }
-    }
-    LaunchedEffect(isGuessCorrectEvent) {
-        if (isGuessCorrect) {
-            animationSpecSuccess = animationSpecEnter
-            isSuccessColor = true
-            labelState = labelSuccess
-
-            delay(timeMillis = Timing.GUESS_STATE_DURATION.toLong())
-            animationSpecSuccess = animationSpecExit
-            isSuccessColor = false
-
-            delay(timeMillis = Timing.GUESS_STATE_EXIT.toLong())
-            /* If other LaunchedEffect is triggered before this one finishes, don't reset label */
-            labelState = if (labelState == labelError) labelError else labelDefault
-            onResetGuessVeracityStates()
-        }
-    }
-    LaunchedEffect(isGuessWrongEvent) {
-        if (isGuessWrong) {
-            animationSpecError = animationSpecEnter
-            isErrorColor = true
-            labelState = labelError
-
-            delay(timeMillis = Timing.GUESS_STATE_DURATION.toLong())
-            animationSpecError = animationSpecExit
-            isErrorColor = false
-
-            delay(timeMillis = Timing.GUESS_STATE_EXIT.toLong())
-            /* If other LaunchedEffect is triggered before this one finishes, don't reset label */
-            labelState = if (labelState == labelSuccess) labelSuccess else labelDefault
-            onResetGuessVeracityStates()
-        }
-    }
-
     var isFullScreenButton by rememberSaveable { mutableStateOf(value = false) }
 
     val density = LocalDensity.current
@@ -798,19 +752,82 @@ private fun GameCard(
         else -> null
     }
 
-    /* Manage FocusRequester */
+    /* Guess field label & effects */
+    val gameModeLabelResId = when (answerMode) {
+        AnswerMode.NAMES -> R.string.game_guess_field_names_label
+        AnswerMode.DATES -> R.string.game_guess_field_dates_label
+    }
+    val labelDefault = stringResource(gameModeLabelResId)
+    val labelSuccess = stringResource(R.string.game_guess_field_label_success)
+    val labelError = stringResource(R.string.game_guess_field_label_error)
+    var labelState by remember { mutableStateOf(value = labelDefault) }
+
+    /* LaunchedEffects for triggering animations of above variables */
+    LaunchedEffect(key1 = answerMode) {
+        if (labelState !in listOf(labelSuccess, labelError)) {
+            labelState = labelDefault
+        }
+    }
+    LaunchedEffect(key1 = isGuessCorrectEvent) {
+        if (isGuessCorrect) {
+            animationSpecSuccess = animationSpecEnter
+            isSuccessColor = true
+            labelState = labelSuccess
+
+            delay(timeMillis = Timing.GUESS_STATE_DURATION.toLong())
+            animationSpecSuccess = animationSpecExit
+            isSuccessColor = false
+
+            delay(timeMillis = Timing.GUESS_STATE_EXIT.toLong())
+            /* If other LaunchedEffect is triggered before this one finishes, don't reset label */
+            labelState = if (labelState == labelError) labelError else labelDefault
+            onResetGuessVeracityStates()
+        }
+    }
+    LaunchedEffect(key1 = isGuessWrongEvent) {
+        if (isGuessWrong) {
+            animationSpecError = animationSpecEnter
+            isErrorColor = true
+            labelState = labelError
+
+            delay(timeMillis = Timing.GUESS_STATE_DURATION.toLong())
+            animationSpecError = animationSpecExit
+            isErrorColor = false
+
+            delay(timeMillis = Timing.GUESS_STATE_EXIT.toLong())
+            /* If other LaunchedEffect is triggered before this one finishes, don't reset label */
+            labelState = if (labelState == labelSuccess) labelSuccess else labelDefault
+            onResetGuessVeracityStates()
+        }
+    }
+
+    /* Manage text field focus */
     val focusRequesterGuessField = remember { FocusRequester() }
-    /* Focus guess field on nav back if previously focused */
-    LaunchedEffect(Unit) {
+    val coroutineScope = rememberCoroutineScope()
+    LaunchedEffect(key1 = Unit) {
         if (isGuessFieldFocused) focusRequesterGuessField.requestFocus()
     }
-    /* Focus guess field on TimeTrialDialog close if previously focused */
-    LaunchedEffect(isTimeTrialDialog) {
-        if (!isTimeTrialDialog && isGuessFieldFocused) focusRequesterGuessField.requestFocus()
+    LaunchedEffect(key1 = isTimeTrialDialog) {
+        if (isTimeTrialDialog) coroutineScope.launch {
+            delay(timeMillis = Timing.DIALOG_DEFAULT.toLong())
+            focusManager.clearFocus()
+        }
+        else if (isGuessFieldFocused) focusRequesterGuessField.requestFocus()
     }
-    /* Focus guess field on menu collapse if previously focused */
-    LaunchedEffect(isMenuExpanded) {
-        if (!isMenuExpanded && isGuessFieldFocused) focusRequesterGuessField.requestFocus()
+    LaunchedEffect(key1 = isGameModesDialog) {
+        if (isGameModesDialog) coroutineScope.launch {
+            delay(timeMillis = Timing.DIALOG_DEFAULT.toLong())
+            focusManager.clearFocus()
+        }
+        else if (isGuessFieldFocused) focusRequesterGuessField.requestFocus()
+    }
+    LaunchedEffect(key1 = isMenuExpanded) {
+        if (isMenuExpanded) focusManager.clearFocus()
+        else if (isGuessFieldFocused) focusRequesterGuessField.requestFocus()
+    }
+    LaunchedEffect(key1 = isNavigationDrawerOpen) {
+        if (isNavigationDrawerOpen) focusManager.clearFocus()
+        else if (isGuessFieldFocused) focusRequesterGuessField.requestFocus()
     }
 
 
@@ -935,7 +952,10 @@ private fun GameCard(
                 Row {
                     /* Finish game button */
                     TextButton(
-                        onClick = onEndGame,
+                        onClick = {
+                            focusManager.clearFocus()
+                            onEndGame()
+                        },
                         modifier = Modifier.height(Dimens.extraLarge32),
                         enabled = isGame && !isGameOver,
                         shape = RoundedCornerShape(Dimens.small8),
@@ -1309,7 +1329,7 @@ private fun GameModesDialog(
     )
     val isEasyButtonEnabled = answerModeSelect != AnswerMode.DATES
 
-    LaunchedEffect(answerModeSelect) {
+    LaunchedEffect(key1 = answerModeSelect) {
         if (answerModeSelect == AnswerMode.DATES && difficultyModeSelect == DifficultyMode.EASY)
             difficultyModeSelect = DifficultyMode.MEDIUM
     }

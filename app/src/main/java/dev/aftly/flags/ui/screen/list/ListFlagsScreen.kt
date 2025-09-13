@@ -119,6 +119,7 @@ import kotlinx.coroutines.launch
 fun ListFlagsScreen(
     viewModel: ListFlagsViewModel = viewModel(),
     currentBackStackEntry: NavBackStackEntry?,
+    isNavigationDrawerOpen: Boolean,
     onDrawerNavigateToList: Boolean,
     onResetDrawerNavigateToList: () -> Unit,
     onNavigationDrawer: () -> Unit,
@@ -142,6 +143,8 @@ fun ListFlagsScreen(
     ListFlagsScreen(
         uiState = uiState,
         currentBackStackEntry = currentBackStackEntry,
+        isNavigationDrawerOpen = isNavigationDrawerOpen,
+        onNavigationDrawer = onNavigationDrawer,
         onDrawerNavigateToList = onDrawerNavigateToList,
         onResetDrawerNavigateToList = onResetDrawerNavigateToList,
         searchResults = searchResults,
@@ -150,7 +153,6 @@ fun ListFlagsScreen(
         onSearchQueryValueChange = { viewModel.onSearchQueryValueChange(it) },
         onIsSearchBarInit = { viewModel.toggleIsSearchBarInit(it) },
         onIsSearchBarInitTopBar = { viewModel.toggleIsSearchBarInitTopBar(it) },
-        onNavigationDrawer = onNavigationDrawer,
         onCategorySelectSingle = { superCategory, subCategory ->
             viewModel.updateCurrentCategory(superCategory, subCategory)
         },
@@ -178,6 +180,8 @@ private fun ListFlagsScreen(
     modifier: Modifier = Modifier,
     uiState: ListFlagsUiState,
     currentBackStackEntry: NavBackStackEntry?,
+    isNavigationDrawerOpen: Boolean,
+    onNavigationDrawer: () -> Unit,
     onDrawerNavigateToList: Boolean,
     onResetDrawerNavigateToList: () -> Unit,
     searchResults: List<FlagView>,
@@ -188,7 +192,6 @@ private fun ListFlagsScreen(
     onSearchQueryValueChange: (TextFieldValue) -> Unit,
     onIsSearchBarInit: (Boolean) -> Unit,
     onIsSearchBarInitTopBar: (Boolean) -> Unit,
-    onNavigationDrawer: () -> Unit,
     onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
     onSavedFlagsSelect: (Boolean) -> Unit,
@@ -253,10 +256,6 @@ private fun ListFlagsScreen(
 
             onResetDrawerNavigateToList()
         }
-    }
-
-    LaunchedEffect(key1 = isMenuExpanded) {
-        if (isMenuExpanded) focusManager.clearFocus()
     }
 
     LaunchedEffect(key1 = searchQueryValue.text) {
@@ -326,6 +325,7 @@ private fun ListFlagsScreen(
                 },
             topBar = {
                 ListFlagsTopBar(
+                    isNavigationDrawerOpen = isNavigationDrawerOpen,
                     scrollBehaviour = scrollBehaviour,
                     searchQuery = searchQueryValue,
                     isSearchQuery = uiState.isSearchQuery,
@@ -344,8 +344,8 @@ private fun ListFlagsScreen(
                     isSaveMode = isSaveMode,
                     onSaveAction = { isSaveMode = !isSaveMode },
                     onNavigationDrawer = {
-                        focusManager.clearFocus()
                         onNavigationDrawer()
+                        focusManager.clearFocus()
                     },
                 )
             },
@@ -698,6 +698,7 @@ private fun ListItem(
 @Composable
 private fun ListFlagsTopBar(
     modifier: Modifier = Modifier,
+    isNavigationDrawerOpen: Boolean,
     scrollBehaviour: TopAppBarScrollBehavior,
     searchQuery: TextFieldValue,
     isSearchQuery: Boolean,
@@ -748,6 +749,7 @@ private fun ListFlagsTopBar(
     )
 
     /* For search bar size to respect navigationIcon & other */
+    val focusManager = LocalFocusManager.current
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
     var navigationIconOffsetX by remember { mutableFloatStateOf(value = 0f) }
@@ -832,9 +834,12 @@ private fun ListFlagsTopBar(
                 }
                 /* Focus search bar on menu collapse if previously focused */
                 LaunchedEffect(isMenuExpanded) {
-                    if (!isMenuExpanded && isSearchBarFocused) {
-                        focusRequesterSearch.requestFocus()
-                    }
+                    if (isMenuExpanded) focusManager.clearFocus()
+                    else if (isSearchBarFocused) focusRequesterSearch.requestFocus()
+                }
+                LaunchedEffect(key1 = isNavigationDrawerOpen) {
+                    if (isNavigationDrawerOpen) focusManager.clearFocus()
+                    else if (isSearchBarFocused) focusRequesterSearch.requestFocus()
                 }
 
                 Box(modifier = Modifier.weight(1f)) {
