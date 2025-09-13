@@ -221,6 +221,7 @@ class FlagViewModel(
             it in categoriesHistorical || it in categoriesInstitutional || it in categoriesCultural
         }
 
+        val isInternational = INTERNATIONAL_ORGANIZATION in categories
         val isPolitical = categoriesPolitical.isNotEmpty()
         val isInstitutional = categoriesInstitutional.isNotEmpty()
         val isCultural = categoriesCultural.isNotEmpty()
@@ -258,6 +259,7 @@ class FlagViewModel(
                 categories = categoriesHistorical + categoriesPolitical,
                 stringIds = resIds,
                 whitespaceExceptions = whitespaceExceptionIndexes,
+                isInternational = isInternational,
                 isConstitutional = CONSTITUTIONAL in categories,
                 isNSGT = isNSGT,
                 isDependent = isDependent,
@@ -354,7 +356,7 @@ class FlagViewModel(
             }
 
             /* Append non-state irregular power information */
-            if (isIrregularPower) {
+            if (isIrregularPower && !isInternational) {
                 val irregularCategories = categories.filter { it in politicalSuperEnums }
 
                 resIds.add(R.string.string_comma)
@@ -444,6 +446,7 @@ class FlagViewModel(
         categories: List<FlagCategory>,
         stringIds: MutableList<Int>,
         whitespaceExceptions: MutableList<Int>,
+        isInternational: Boolean,
         isConstitutional: Boolean,
         isNSGT: Boolean,
         isDependent: Boolean,
@@ -461,7 +464,9 @@ class FlagViewModel(
             if (category in skipCategories) {
                 continue
 
-            } else if (category in politicalSuperEnums && (isNSGT || isDependent)) {
+            } else if (category in politicalSuperEnums &&
+                (isNSGT || isDependent) &&
+                !isInternational) {
                 continue
 
             } else if (category == AUTONOMOUS_REGION) {
