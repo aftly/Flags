@@ -93,6 +93,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
     fun resetGame(
         startGame: Boolean = true,
         isTimeTrial: Boolean = false,
+        startTime: Int = uiState.value.timeTrialStartTime,
     ) {
         guessedFlags = mutableListOf()
         skippedGuessedFlags = mutableListOf()
@@ -119,8 +120,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
                 shownAnswerCount = 0,
                 isGuessWrong = false,
                 nextFlagInSkipped = null,
-                isTimerPaused = false,
-                timerStandard = 0,
+                isGamePaused = false,
                 answersRemaining = it.difficultyMode.guessLimit,
                 isGame = if (it.currentFlags.isNotEmpty()) startGame else false,
                 isGameOver = false,
@@ -132,17 +132,9 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         }
 
         if (!isTimeTrial) {
-            _uiState.update {
-                it.copy(
-                    isTimeTrial = false,
-                    timerTimeTrial = 0,
-                    timeTrialStartTime = 0
-                )
-            }
-
-            if (uiState.value.isGame) {
-                timerStandardJob = viewModelScope.launch { startTimerStandard() }
-            }
+            setStandardTimer(isGame = uiState.value.isGame)
+        } else {
+            setTimeTrial(startTime = startTime, isGame = uiState.value.isGame)
         }
     }
 
@@ -181,11 +173,10 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
             _uiState.update { it.copy(difficultyMode = difficultyMode) }
 
             /* Reset game depending on time trial */
-            if (uiState.value.isTimeTrial) {
-                setTimeTrial(startTime = uiState.value.timeTrialStartTime)
-            } else {
-                resetGame()
-            }
+            resetGame(
+                isTimeTrial = uiState.value.isTimeTrial,
+                startTime = uiState.value.timeTrialStartTime,
+            )
         }
     }
 
@@ -194,6 +185,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         superCategory: FlagSuperCategory?,
         subCategory: FlagCategory?,
         answerModeNew: AnswerMode? = null,
+        startGame: Boolean = true,
     ) {
         val allFlags = uiState.value.allFlags
         val answerMode = answerModeNew ?: uiState.value.answerMode
@@ -229,8 +221,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
             )
         }
 
-        if (isTimeTrial) setTimeTrial(startTime = timeTrialStartTime)
-        else resetGame()
+        resetGame(startGame, isTimeTrial, timeTrialStartTime)
     }
 
 
@@ -267,10 +258,10 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         if (isDeselectSwitch.first) {
             when (newSuperCategories.size to newSubCategories.size) {
                 0 to 0 -> return updateCurrentCategory(
-                    superCategory = All, subCategory = null
+                    superCategory = All, subCategory = null, startGame = false,
                 )
                 1 to 0 -> return updateCurrentCategory(
-                    superCategory = newSuperCategories.first(), subCategory = null
+                    superCategory = newSuperCategories.first(), subCategory = null, startGame = false
                 )
                 1 to 1 -> {
                     val onlySuperCategory = newSuperCategories.first()
@@ -279,7 +270,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
                     if (onlySuperCategory.subCategories.size == 1 &&
                         onlySuperCategory.firstCategoryEnumOrNull() == onlySubCategory) {
                         return updateCurrentCategory(
-                            superCategory = onlySuperCategory, subCategory = null
+                            superCategory = onlySuperCategory, subCategory = null, startGame = false
                         )
                     }
                 }
@@ -310,8 +301,11 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
             difficultyMode = difficultyMode,
         )
 
-        if (isTimeTrial) setTimeTrial(startTime = timeTrialStartTime, startGame = false)
-        else resetGame(startGame = false)
+        resetGame(
+            startGame = false,
+            isTimeTrial = isTimeTrial,
+            startTime = timeTrialStartTime,
+        )
     }
 
 
@@ -418,7 +412,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         /* If from shown answer, manage related timer and button states and jobs */
         if (uiState.value.isShowAnswer) {
             _uiState.update {
-                it.copy(isTimerPaused = false, isShowAnswer = false)
+                it.copy(isGamePaused = false, isShowAnswer = false)
             }
 
             /* Start relevant timer, to unpause it from showAnswer()'s pause */
@@ -450,7 +444,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
             it.copy(
                 isShowAnswer = true,
                 shownAnswerCount = shownFlags.size,
-                isTimerPaused = true,
+                isGamePaused = true,
             )
         }
     }
@@ -483,28 +477,6 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         }
     }
 
-
-    fun setTimeTrial(
-        startTime: Int,
-        startGame: Boolean = true,
-    ) {
-        /* Cancel timers and reset game */
-        cancelTimers()
-        cancelConfirmShowAnswer()
-        resetGame(startGame = startGame, isTimeTrial = true)
-
-        _uiState.update {
-            it.copy(
-                isTimeTrial = true,
-                timerTimeTrial = startTime,
-                timeTrialStartTime = startTime,
-            )
-        }
-
-        if (uiState.value.isGame) {
-            timerTimeTrialJob = viewModelScope.launch { startTimerTimeTrial() }
-        }
-    }
 
     fun updateUserMinutesInput(newString: String) {
         /* Only update if 2 characters or less AND a number OR empty */
@@ -540,6 +512,38 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         val currentFlag = uiState.value.currentFlag
         val currentFlagStrings = getStringsList(flag = currentFlag)
         _uiState.update { it.copy(currentFlagStrings = currentFlagStrings) }
+    }
+
+
+    private fun setStandardTimer(isGame: Boolean) {
+        _uiState.update {
+            it.copy(
+                timerStandard = 0,
+                isTimeTrial = false,
+                timerTimeTrial = 0,
+                timeTrialStartTime = 0
+            )
+        }
+        if (isGame) {
+            timerStandardJob = viewModelScope.launch { startTimerStandard() }
+        }
+    }
+
+    private fun setTimeTrial(
+        startTime: Int,
+        isGame: Boolean,
+    ) {
+        _uiState.update {
+            it.copy(
+                timerStandard = 0,
+                isTimeTrial = true,
+                timerTimeTrial = startTime,
+                timeTrialStartTime = startTime,
+            )
+        }
+        if (isGame) {
+            timerTimeTrialJob = viewModelScope.launch { startTimerTimeTrial() }
+        }
     }
 
 

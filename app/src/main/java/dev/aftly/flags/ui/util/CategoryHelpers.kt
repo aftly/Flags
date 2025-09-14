@@ -3,6 +3,7 @@ package dev.aftly.flags.ui.util
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.data.DataSource.absenceCategoriesAddAnyMap
 import dev.aftly.flags.data.DataSource.absenceCategoriesMap
@@ -20,23 +21,34 @@ import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
 import dev.aftly.flags.model.FlagCategory.CONFEDERATION
 import dev.aftly.flags.model.FlagCategory.DEVOLVED_GOVERNMENT
+import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
 import dev.aftly.flags.model.FlagCategory.HISTORICAL
 import dev.aftly.flags.model.FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL
+import dev.aftly.flags.model.FlagCategory.ONE_PARTY
+import dev.aftly.flags.model.FlagCategory.PROVISIONAL_GOVERNMENT
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
 import dev.aftly.flags.model.FlagCategory.THEOCRATIC
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
+import dev.aftly.flags.model.FlagSuperCategory.AutonomousRegion
 import dev.aftly.flags.model.FlagSuperCategory.Cultural
+import dev.aftly.flags.model.FlagSuperCategory.ExecutiveStructure
 import dev.aftly.flags.model.FlagSuperCategory.Historical
+import dev.aftly.flags.model.FlagSuperCategory.IdeologicalOrientation
 import dev.aftly.flags.model.FlagSuperCategory.Institution
 import dev.aftly.flags.model.FlagSuperCategory.International
+import dev.aftly.flags.model.FlagSuperCategory.LegalConstraint
 import dev.aftly.flags.model.FlagSuperCategory.Political
+import dev.aftly.flags.model.FlagSuperCategory.PowerDerivation
+import dev.aftly.flags.model.FlagSuperCategory.Regional
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
+import dev.aftly.flags.model.FlagSuperCategory.TerritorialDistributionOfAuthority
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.relatedmenu.RelatedFlagsMenu
 import dev.aftly.flags.model.relatedmenu.RelatedFlagsMenu.CHRONOLOGICAL
 import dev.aftly.flags.model.relatedmenu.RelatedFlagsMenu.POLITICAL
+import kotlin.collections.plus
 
 
 /* ------ General category helpers ------ */
@@ -345,4 +357,204 @@ fun getFlagsFromCategories(
             isHistorical && isNotSuperExceptions && isNotSubExceptions
         }
     }
+}
+
+
+/* ------ For CategoriesMenuButton title and GameOver share text ------ */
+
+fun filterSuperCategories(
+    superCategories: List<FlagSuperCategory>,
+    subCategories: List<FlagCategory>,
+): List<FlagSuperCategory> = superCategories.filterNot { superCategory ->
+    /* Remove supers if any of it's categories in subcategories & remove All when other supers */
+    subCategories.any { it in superCategory.enums() } || superCategory == All && superCategories
+        .any { it != All }
+}
+
+
+fun getCategoriesTitleIds(
+    superCategories: List<FlagSuperCategory>,
+    subCategories: List<FlagCategory>,
+    isAppendFlags: Boolean = true,
+): List<Int> {
+    /* ---------- Early escape --------- */
+    if (superCategories.isEmpty() && subCategories.isEmpty()) {
+        return buildList {
+            add(R.string.saved_flags)
+            if (isAppendFlags) add(R.string.button_title_flags)
+        }
+    }
+
+
+    /* -------------------------------- GET PROPERTIES -------------------------------- */
+
+    /* Filter out supers when any of it's subs are selected and filter out All super when multiple
+     * and return mutable list for further filtering */
+    val superCategoriesFiltered = filterSuperCategories(
+        superCategories = superCategories,
+        subCategories = subCategories,
+    ).toMutableList()
+
+    /* For sorting political categories by their index in this list */
+    val politicalCategoriesSortOrder = listOf(
+        TerritorialDistributionOfAuthority.enums(),
+        ExecutiveStructure.enums(),
+        LegalConstraint.enums(),
+        IdeologicalOrientation.enums(),
+        PowerDerivation.enums()
+    ).flatten()
+
+
+    /* ------------------- Boolean exceptions ------------------- */
+    val isHistorical = Historical in superCategoriesFiltered
+
+    val isCultural = Cultural in superCategoriesFiltered
+
+    val isInternational =
+        International in superCategoriesFiltered &&
+                (Institution in superCategoriesFiltered || CONFEDERATION in subCategories)
+
+    /* For string exceptions when supers or subs mean associated countries */
+    val isAssociatedCountry = SovereignCountry in superCategoriesFiltered &&
+            (AutonomousRegion in superCategoriesFiltered || FREE_ASSOCIATION in subCategories)
+
+    /* For string exceptions when supers mean non-sovereign autonomous and associated regions */
+    val isAutonomousRegionalSupers = superCategoriesFiltered.containsAll(
+        elements = listOf(AutonomousRegion, Regional)
+    )
+
+    /* For string exceptions when regional super or subs are autonomous */
+    val isAutonomousRegion =
+        (AutonomousRegion in superCategoriesFiltered || AUTONOMOUS_REGION in subCategories) &&
+                (Regional in superCategoriesFiltered || subCategories.any { it in Regional.enums() })
+
+    /* For string exceptions when regional super or subs are devolved */
+    val isDevolvedRegion = DEVOLVED_GOVERNMENT in subCategories &&
+            (Regional in superCategoriesFiltered ||
+                    subCategories.any { it in Regional.enums() + AUTONOMOUS_REGION + DEVOLVED_GOVERNMENT })
+
+
+    /* ------------------- Category groups ------------------- */
+    val culturalCategories = subCategories.filter { it in Cultural.enums() }
+
+    /* Political categories, sorted semantically, and exceptions applied */
+    val polCats = subCategories.filter { it in Political.supersEnums() }
+
+    val isConfederationException = CONFEDERATION in subCategories && subCategories
+        .none { it in PowerDerivation.enums() } && polCats.size > 1 || isInternational
+
+    val politicalCategories = polCats.filterNot { it == CONFEDERATION && isConfederationException }
+        .sortedBy { politicalCategoriesSortOrder.indexOf(it) }
+
+    /* Subcategories not in other list derivatives, minus duplicates */
+    val remainingCategories = subCategories.filterNot { it in culturalCategories }
+        .filterNot { it in politicalCategories }.toMutableList()
+
+
+    /* -------------------------------- GET ITERATIONS -------------------------------- */
+    val strings = mutableListOf<Int>()
+
+    if (isHistorical) {
+        superCategoriesFiltered.remove(Historical)
+        strings.add(Historical.title)
+        strings.add(R.string.string_whitespace)
+    }
+
+    if (isCultural) {
+        superCategoriesFiltered.remove(Cultural)
+        strings.add(Cultural.title)
+        if (superCategoriesFiltered.isNotEmpty() || politicalCategories.isNotEmpty() ||
+            remainingCategories.isNotEmpty()) {
+            strings.add(R.string.string_whitespace)
+        }
+    }
+
+    culturalCategories.forEachIndexed { index, culturalCategory ->
+        strings.add(culturalCategory.title)
+
+        if (index != culturalCategories.lastIndex) strings.add(R.string.categories_and)
+        else strings.add(R.string.string_whitespace)
+    }
+
+    politicalCategories.forEachIndexed { index, politicalCategory ->
+        if (politicalCategory == CONFEDERATION && politicalCategories.size > 1) {
+            strings.add(R.string.category_confederal_title)
+        } else {
+            strings.add(politicalCategory.title)
+        }
+        strings.add(R.string.string_whitespace)
+
+        /* On last iteration, if not international, remove SovereignCountry super and
+         * append "State" if not exception */
+        if (index == politicalCategories.lastIndex && International !in superCategoriesFiltered) {
+            superCategoriesFiltered.remove(SovereignCountry)
+
+            if (politicalCategory !in PowerDerivation.enums()
+                    .filterNot { it in listOf(ONE_PARTY, PROVISIONAL_GOVERNMENT) } &&
+                politicalCategory != CONFEDERATION &&
+                AutonomousRegion !in superCategories &&
+                AutonomousRegion.enums().none { it in subCategories } &&
+                !isConfederationException) {
+                strings.add(R.string.category_state_title)
+            }
+        }
+    }
+
+    if (isInternational) {
+        superCategoriesFiltered.remove(International)
+        strings.add(International.title)
+        strings.add(R.string.string_whitespace)
+    }
+
+    if (isAssociatedCountry) {
+        superCategoriesFiltered.remove(SovereignCountry)
+        superCategoriesFiltered.remove(AutonomousRegion)
+        remainingCategories.remove(FREE_ASSOCIATION)
+        strings.add(R.string.categories_associated_country)
+        strings.add(R.string.string_whitespace)
+    }
+
+    if (isDevolvedRegion) {
+        remainingCategories.remove(DEVOLVED_GOVERNMENT)
+        strings.add(R.string.categories_devolved_title)
+        strings.add(R.string.string_whitespace)
+    }
+
+    if (isAutonomousRegionalSupers) {
+        superCategoriesFiltered.remove(AutonomousRegion)
+        superCategoriesFiltered.remove(Regional)
+        strings.add(R.string.categories_autonomous_regional)
+        strings.add(R.string.string_whitespace)
+
+    } else if (isAutonomousRegion) {
+        superCategoriesFiltered.remove(AutonomousRegion)
+        remainingCategories.remove(AUTONOMOUS_REGION)
+        strings.add(R.string.categories_autonomous_title)
+        strings.add(R.string.string_whitespace)
+    }
+
+    superCategoriesFiltered.forEachIndexed { index, superCategory ->
+        if (superCategory == Regional &&
+            (isHistorical || isCultural || isAutonomousRegion ||
+                    isDevolvedRegion || culturalCategories.isNotEmpty())) {
+            strings.add(R.string.category_region_title)
+            strings.add(R.string.string_whitespace)
+        } else {
+            superCategory.categoriesMenuButton?.let { strings.add(it) }
+            strings.add(R.string.string_whitespace)
+        }
+    }
+
+    remainingCategories.forEach { subCategory ->
+        strings.add(subCategory.title)
+        strings.add(R.string.string_whitespace)
+    }
+
+    if (strings.last() == R.string.string_comma_whitespace ||
+        strings.last() == R.string.string_whitespace) {
+        strings.removeLastOrNull()
+    }
+    if (isAppendFlags) strings.add(R.string.button_title_flags)
+
+    return strings
 }

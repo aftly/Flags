@@ -24,7 +24,6 @@ data class GameUiState(
 
     val isTimeTrialDialog: Boolean = false,
     val isTimeTrial: Boolean = false,
-    val isTimerPaused: Boolean = false,
     val timerStandard: Int = 0,
     val timerTimeTrial: Int = 0,
     val timeTrialStartTime: Int = 0,
@@ -48,6 +47,7 @@ data class GameUiState(
     val answersRemaining: Int? = null,
 
     val isGame: Boolean = true,
+    val isGamePaused: Boolean = false,
     val isGameOver: Boolean = false,
     val isGameOverDialog: Boolean = false,
     val isSaveScoreInit: Boolean = false,

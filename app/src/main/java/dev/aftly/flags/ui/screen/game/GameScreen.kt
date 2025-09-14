@@ -118,6 +118,7 @@ import dev.aftly.flags.ui.theme.surfaceLight
 import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.SystemUiController
 import dev.aftly.flags.ui.util.flagDatesString
+import dev.aftly.flags.ui.util.getCategoriesTitleIds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -184,7 +185,11 @@ fun GameScreen(
     }
 
     BackHandler {
-        if (isNavigationDrawerOpen) onNavigationDrawer()
+        if (uiState.isGameOver) {
+            viewModel.onScoreDetails(on = false)
+            viewModel.endGame()
+        }
+        else if (isNavigationDrawerOpen) onNavigationDrawer()
         else if (viewModel.isScoresEmpty()) onNavigateUp()
         else viewModel.onConfirmExitDialog(on = true)
     }
@@ -227,7 +232,7 @@ fun GameScreen(
             onUserMinutesInputChange = { viewModel.updateUserMinutesInput(it) },
             onUserSecondsInputChange = { viewModel.updateUserSecondsInput(it) },
             onDismiss = { viewModel.onTimeTrialDialog(on = false) },
-            onTimeTrial = { viewModel.setTimeTrial(it) },
+            onTimeTrial = { viewModel.resetGame(isTimeTrial = true, startTime = it) },
         )
     }
 
@@ -248,7 +253,9 @@ fun GameScreen(
         GameOverDialog(
             finalScore = uiState.correctGuessCount,
             maxScore = uiState.totalFlagCount,
-            gameMode = "TODO", // TODO
+            superCategories = uiState.currentSuperCategories,
+            subCategories = uiState.currentSubCategories,
+            answerMode = uiState.answerMode,
             onDetails = {
                 viewModel.onGameOverDialog(on = false)
                 viewModel.onScoreDetails(on = true)
@@ -392,10 +399,11 @@ private fun GameScreen(
             topBar = {
                 GameTopBar(
                     screen = screen,
-                    isGame = uiState.isGame,
                     isFlags = uiState.currentFlags.isNotEmpty(),
                     isTimeTrial = uiState.isTimeTrial,
-                    isTimerPaused = uiState.isTimerPaused,
+                    isGame = uiState.isGame,
+                    isGamePaused = uiState.isGamePaused,
+                    isGameOver = uiState.isGameOver,
                     timer = timerString,
                     onNavigationDrawer = {
                         onNavigationDrawer()
@@ -1537,21 +1545,33 @@ private fun GameOverDialog(
     modifier: Modifier = Modifier,
     finalScore: Int,
     maxScore: Int,
-    gameMode: String,
+    superCategories: List<FlagSuperCategory>,
+    subCategories: List<FlagCategory>,
+    answerMode: AnswerMode,
     onDetails: () -> Unit,
     onScoreHistory: () -> Unit,
     onShare: (String) -> Unit,
     onExit: () -> Unit,
     onReplay: () -> Unit,
 ) {
-    val scoreMessage = when (finalScore) {
-        maxScore -> stringResource(R.string.game_over_text_max_score)
-        0 -> stringResource(R.string.game_over_text_min_score)
-        else -> stringResource(R.string.game_over_text, finalScore, maxScore)
+    val categoriesString = buildString {
+        getCategoriesTitleIds(superCategories, subCategories, isAppendFlags = false)
+            .forEach { append(stringResource(it)) }
     }
 
+    val scoreMessage =
+        if (finalScore == 0) stringResource(R.string.game_over_text_min_score)
+        else when (answerMode) {
+            AnswerMode.NAMES -> stringResource(R.string.game_over_text_names, finalScore, maxScore)
+            AnswerMode.DATES -> stringResource(R.string.game_over_text_dates, finalScore, maxScore)
+        }
+
     val shareScoreMessage = stringResource(
-        R.string.game_over_share_text, finalScore, maxScore, gameMode
+        R.string.game_over_share_text,
+        finalScore,
+        maxScore,
+        categoriesString,
+        stringResource(answerMode.title),
     )
 
 
@@ -1644,10 +1664,11 @@ private fun GameOverDialog(
 private fun GameTopBar(
     modifier: Modifier = Modifier,
     screen: Screen,
-    isGame: Boolean,
     isFlags: Boolean,
     isTimeTrial: Boolean,
-    isTimerPaused: Boolean,
+    isGame: Boolean,
+    isGamePaused: Boolean,
+    isGameOver: Boolean,
     timer: String = "0:00",
     onNavigationDrawer: () -> Unit,
     onResetAction: () -> Unit,
@@ -1655,7 +1676,7 @@ private fun GameTopBar(
     onSettingsAction: () -> Unit,
     onHistoryAction: () -> Unit,
 ) {
-    val activeTimerColor = MaterialTheme.colorScheme.error
+    val activeColor = MaterialTheme.colorScheme.error
 
     TopAppBar(
         title = {
@@ -1679,17 +1700,16 @@ private fun GameTopBar(
                 Icon(
                     imageVector = Icons.Default.Replay,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error,
+                    tint = if (isGameOver) LocalContentColor.current else activeColor,
                 )
             }
 
             Text(
                 text = timer,
                 modifier = Modifier.padding(end = Dimens.extraSmall4),
-                color = when (isGame to isTimerPaused) {
-                    true to false -> activeTimerColor
-                    else -> MaterialTheme.colorScheme.outline
-                },
+                color =
+                    if (!isGame || isGamePaused || isGameOver) LocalContentColor.current
+                    else MaterialTheme.colorScheme.error,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
             )
@@ -1701,7 +1721,9 @@ private fun GameTopBar(
                 Icon(
                     imageVector = Icons.Default.Timer,
                     contentDescription = null,
-                    tint = if (isTimeTrial) activeTimerColor else LocalContentColor.current,
+                    tint =
+                        if (isTimeTrial && !isGameOver) MaterialTheme.colorScheme.error
+                        else LocalContentColor.current,
                 )
             }
 
