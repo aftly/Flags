@@ -3,9 +3,10 @@ package dev.aftly.flags.ui.theme
 /* Standardize animation timings */
 object Timing {
     const val SCREEN_NAV: Int = 512
-    const val DRAWER_NAV: Int = 256
-    const val MENU_EXPAND: Int = 384
-    const val MENU_COLLAPSE: Int = 256
+    const val APP_DRAWER: Int = 256
+    const val DRAWER_NAV: Int = APP_DRAWER * 3 / 2
+    const val MENU_EXPAND: Int = APP_DRAWER * 3 / 2
+    const val MENU_COLLAPSE: Int = APP_DRAWER * 3 / 2
     const val GUESS_STATE_DURATION: Int = 1300
     const val GUESS_STATE_EXIT: Int = 700
     const val SCALE_IN: Int = 275
