@@ -102,6 +102,7 @@ import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.game.AnswerMode
 import dev.aftly.flags.model.game.DifficultyMode
 import dev.aftly.flags.model.game.GameConfirmDialog
+import dev.aftly.flags.model.game.TimeMode
 import dev.aftly.flags.navigation.Screen
 import dev.aftly.flags.ui.component.CategoriesButtonMenu
 import dev.aftly.flags.ui.component.DialogActionButton
@@ -232,7 +233,7 @@ fun GameScreen(
             onUserMinutesInputChange = { viewModel.updateUserMinutesInput(it) },
             onUserSecondsInputChange = { viewModel.updateUserSecondsInput(it) },
             onDismiss = { viewModel.onTimeTrialDialog(on = false) },
-            onTimeTrial = { viewModel.resetGame(isTimeTrial = true, startTime = it) },
+            onTimeTrial = { viewModel.resetGame(timeMode = TimeMode.TIME_TRIAL, startTime = it) },
         )
     }
 
@@ -251,8 +252,8 @@ fun GameScreen(
     if (uiState.isGameOverDialog) {
         val context = LocalContext.current
         GameOverDialog(
-            finalScore = uiState.correctGuessCount,
-            maxScore = uiState.totalFlagCount,
+            finalScore = viewModel.guessedFlags.size,
+            maxScore = uiState.currentFlags.size,
             superCategories = uiState.currentSuperCategories,
             subCategories = uiState.currentSubCategories,
             answerMode = uiState.answerMode,
@@ -275,7 +276,7 @@ fun GameScreen(
                 viewModel.onGameOverDialog(on = false)
                 onNavigateUp()
             },
-            onReplay = { viewModel.resetGame(isTimeTrial = uiState.isTimeTrial) },
+            onReplay = { viewModel.resetGame() },
         )
     }
 
@@ -285,6 +286,8 @@ fun GameScreen(
         screen = screen,
         isNavigationDrawerOpen = isNavigationDrawerOpen,
         isSavedFlagsNotEmpty = savedFlags.isNotEmpty(),
+        correctGuessCount = viewModel.guessedFlags.size,
+        shownFailedAnswerCount = viewModel.shownFlags.size + viewModel.failedFlags.size,
         userGuess = viewModel.userGuess,
         onUserGuessChange = { viewModel.updateUserGuess(it) },
         onResetGuessVeracityStates = { viewModel.resetGuessVeracity() },
@@ -294,8 +297,8 @@ fun GameScreen(
         onShowAnswer = { viewModel.showAnswer() },
         onStartGame = { viewModel.startGame() },
         onEndGame = { viewModel.endGame() },
-        onResetGameAndTimeMode = { viewModel.resetGame() },
-        onResetGame = { viewModel.resetGame(isTimeTrial = uiState.isTimeTrial) },
+        onResetGameAndTimeMode = { viewModel.resetGame(timeMode = TimeMode.STANDARD) },
+        onResetGame = { viewModel.resetGame() },
         onCloseScoreDetails = {
             viewModel.onScoreDetails(on = false)
             viewModel.endGame()
@@ -325,6 +328,8 @@ private fun GameScreen(
     screen: Screen,
     isNavigationDrawerOpen: Boolean,
     isSavedFlagsNotEmpty: Boolean,
+    correctGuessCount: Int,
+    shownFailedAnswerCount: Int,
     userGuess: String,
     onUserGuessChange: (String) -> Unit,
     onResetGuessVeracityStates: () -> Unit,
@@ -360,9 +365,9 @@ private fun GameScreen(
     var isFlagWide by rememberSaveable { mutableStateOf(value = true) }
 
     /* Manage timer string */
-    val timer = when (uiState.isTimeTrial) {
-        true -> uiState.timerTimeTrial
-        false -> uiState.timerStandard
+    val timer = when (uiState.timeMode) {
+        TimeMode.STANDARD -> uiState.timerStandard
+        TimeMode.TIME_TRIAL -> uiState.timerTimeTrial
     }
     val timerString = String.format(
         locale = Locale.US,
@@ -400,7 +405,7 @@ private fun GameScreen(
                 GameTopBar(
                     screen = screen,
                     isFlags = uiState.currentFlags.isNotEmpty(),
-                    isTimeTrial = uiState.isTimeTrial,
+                    isTimeTrial = uiState.timeMode == TimeMode.TIME_TRIAL,
                     isGame = uiState.isGame,
                     isGamePaused = uiState.isGamePaused,
                     isGameOver = uiState.isGameOver,
@@ -411,11 +416,12 @@ private fun GameScreen(
                     },
                     onResetAction = onResetGame,
                     onTimeAction = {
-                        if (uiState.isTimeTrial) {
-                            focusManager.clearFocus()
-                            onResetGameAndTimeMode()
-                        } else {
-                            onTimeTrialDialog()
+                        when (uiState.timeMode) {
+                            TimeMode.TIME_TRIAL -> {
+                                focusManager.clearFocus()
+                                onResetGameAndTimeMode()
+                            }
+                            TimeMode.STANDARD -> onTimeTrialDialog()
                         }
                     },
                     onSettingsAction = onGameModesDialog,
@@ -437,9 +443,9 @@ private fun GameScreen(
                 isGameOver = uiState.isGameOver,
                 isWideScreen = isWideScreen,
                 filterButtonHeight = buttonHeight,
-                totalFlagCount = uiState.totalFlagCount,
-                correctGuessCount = uiState.correctGuessCount,
-                shownFailedAnswerCount = uiState.shownAnswerCount + uiState.failedAnswerCount,
+                totalFlagCount = uiState.currentFlags.size,
+                correctGuessCount = correctGuessCount,
+                shownFailedAnswerCount = shownFailedAnswerCount,
                 answersRemainingCount = uiState.answersRemaining,
                 currentFlag = uiState.currentFlag,
                 userGuess = userGuess,

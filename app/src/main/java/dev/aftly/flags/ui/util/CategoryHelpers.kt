@@ -362,13 +362,14 @@ fun getFlagsFromCategories(
 
 /* ------ For CategoriesMenuButton title and GameOver share text ------ */
 
-fun filterSuperCategories(
+
+fun filterRedundantSuperCategories(
     superCategories: List<FlagSuperCategory>,
     subCategories: List<FlagCategory>,
 ): List<FlagSuperCategory> = superCategories.filterNot { superCategory ->
-    /* Remove supers if any of it's categories in subcategories & remove All when other supers */
-    subCategories.any { it in superCategory.enums() } || superCategory == All && superCategories
-        .any { it != All }
+    /* Filter parent supercategories or All super if other categories */
+    subCategories.any { it in superCategory.enums() } &&
+            (superCategory != All || (superCategories.size > 1 || subCategories.isNotEmpty()))
 }
 
 
@@ -390,7 +391,7 @@ fun getCategoriesTitleIds(
 
     /* Filter out supers when any of it's subs are selected and filter out All super when multiple
      * and return mutable list for further filtering */
-    val superCategoriesFiltered = filterSuperCategories(
+    val superCategoriesFiltered = filterRedundantSuperCategories(
         superCategories = superCategories,
         subCategories = subCategories,
     ).toMutableList()

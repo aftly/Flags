@@ -19,6 +19,7 @@ import dev.aftly.flags.model.game.AnswerMode
 import dev.aftly.flags.model.game.DifficultyMode
 import dev.aftly.flags.model.game.ScoreData
 import dev.aftly.flags.model.game.TimeMode
+import dev.aftly.flags.ui.util.filterRedundantSuperCategories
 import dev.aftly.flags.ui.util.getFlagsFromCategories
 import dev.aftly.flags.ui.util.getFlagsFromCategory
 import dev.aftly.flags.ui.util.getSavedFlagView
@@ -50,11 +51,14 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
     private val _savedFlagsState = MutableStateFlow(value = emptySet<SavedFlag>())
     val savedFlagsState = _savedFlagsState.asStateFlow()
 
-    private var guessedFlags = mutableListOf<FlagView>()
-    private var skippedGuessedFlags = mutableListOf<FlagView>()
-    private var skippedFlags = mutableListOf<FlagView>()
-    private var shownFlags = mutableListOf<FlagView>()
-    private var failedFlags = mutableListOf<FlagView>()
+    private val _guessedFlags = mutableListOf<FlagView>()
+    val guessedFlags: List<FlagView> get() = _guessedFlags
+    private val _skippedGuessedFlags = mutableListOf<FlagView>()
+    private val _skippedFlags = mutableListOf<FlagView>()
+    private val _shownFlags = mutableListOf<FlagView>()
+    val shownFlags: List<FlagView> get() = _shownFlags
+    private val _failedFlags = mutableListOf<FlagView>()
+    val failedFlags: List<FlagView> get() = _failedFlags
 
     private var timerStandardJob: Job? = null
     private var timerTimeTrialJob: Job? = null
@@ -86,20 +90,25 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         updateCurrentCategory(
             superCategory = FlagSuperCategory.SovereignCountry,
             subCategory = null,
+            answerModeNew = AnswerMode.NAMES,
+            difficultyModeNew = DifficultyMode.EASY,
+            timeModeNew = TimeMode.STANDARD,
         )
     }
 
     /* Reset game state with a new flag and necessary starting values */
     fun resetGame(
         startGame: Boolean = true,
-        isTimeTrial: Boolean = false,
+        answerMode: AnswerMode = uiState.value.answerMode,
+        difficultyMode: DifficultyMode = uiState.value.difficultyMode,
+        timeMode: TimeMode = uiState.value.timeMode,
         startTime: Int = uiState.value.timeTrialStartTime,
     ) {
-        guessedFlags = mutableListOf()
-        skippedGuessedFlags = mutableListOf()
-        skippedFlags = mutableListOf()
-        shownFlags = mutableListOf()
-        failedFlags = mutableListOf()
+        _guessedFlags.clear()
+        _skippedGuessedFlags.clear()
+        _skippedFlags.clear()
+        _shownFlags.clear()
+        _failedFlags.clear()
         userGuess = ""
         cancelTimers()
         cancelConfirmShowAnswer()
@@ -113,13 +122,12 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
 
         _uiState.update {
             it.copy(
-                totalFlagCount = it.currentFlags.size,
                 currentFlag = newFlag,
                 currentFlagStrings = newFlagStrings,
-                correctGuessCount = 0,
-                shownAnswerCount = 0,
                 isGuessWrong = false,
                 nextFlagInSkipped = null,
+                answerMode = answerMode,
+                difficultyMode = difficultyMode,
                 isGamePaused = false,
                 answersRemaining = it.difficultyMode.guessLimit,
                 isGame = if (it.currentFlags.isNotEmpty()) startGame else false,
@@ -131,10 +139,9 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
             )
         }
 
-        if (!isTimeTrial) {
-            setStandardTimer(isGame = uiState.value.isGame)
-        } else {
-            setTimeTrial(startTime = startTime, isGame = uiState.value.isGame)
+        when (timeMode) {
+            TimeMode.STANDARD -> setStandardTimer(isGame = uiState.value.isGame)
+            TimeMode.TIME_TRIAL -> setTimeTrial(startTime = startTime, isGame = uiState.value.isGame)
         }
     }
 
@@ -142,7 +149,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
     /* To enable buttons, show flag and start timer after resetGame() without startGame = true */
     fun startGame() {
         if (!uiState.value.isGame && uiState.value.currentFlags.isNotEmpty()) {
-            val isTimeTrial = uiState.value.isTimeTrial
+            val isTimeTrial = uiState.value.timeMode == TimeMode.TIME_TRIAL
 
             _uiState.update { it.copy(isGame = true) }
 
@@ -161,22 +168,14 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         difficultyMode: DifficultyMode,
     ) {
         if (answerMode != uiState.value.answerMode) {
-            /* Reset game with default categories */
             updateCurrentCategory(
                 superCategory = FlagSuperCategory.SovereignCountry,
                 subCategory = null,
                 answerModeNew = answerMode,
+                difficultyModeNew = difficultyMode,
             )
-        }
-
-        if (difficultyMode != uiState.value.difficultyMode) {
-            _uiState.update { it.copy(difficultyMode = difficultyMode) }
-
-            /* Reset game depending on time trial */
-            resetGame(
-                isTimeTrial = uiState.value.isTimeTrial,
-                startTime = uiState.value.timeTrialStartTime,
-            )
+        } else if (difficultyMode != uiState.value.difficultyMode) {
+            resetGame(difficultyMode = difficultyMode)
         }
     }
 
@@ -185,12 +184,14 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         superCategory: FlagSuperCategory?,
         subCategory: FlagCategory?,
         answerModeNew: AnswerMode? = null,
+        difficultyModeNew: DifficultyMode? = null,
+        timeModeNew: TimeMode? = null,
         startGame: Boolean = true,
     ) {
         val allFlags = uiState.value.allFlags
         val answerMode = answerModeNew ?: uiState.value.answerMode
-        val difficultyMode = uiState.value.difficultyMode
-        val isTimeTrial = uiState.value.isTimeTrial
+        val difficultyMode = difficultyModeNew ?: uiState.value.difficultyMode
+        val timeMode = timeModeNew ?: uiState.value.timeMode
         val timeTrialStartTime = uiState.value.timeTrialStartTime
         val isDatesMode = answerMode == AnswerMode.DATES
 
@@ -198,9 +199,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
          * includes allFlagsList), else dynamically generate flags list from category info */
         if (superCategory == All || isDatesMode) {
             _uiState.value = GameUiState(
-                currentFlags = if (isDatesMode) getDatesFlags(allFlags) else allFlags,
-                answerMode = answerMode,
-                difficultyMode = difficultyMode,
+                currentFlags = if (isDatesMode) getDatesFlags(allFlags) else allFlags
             )
 
         } else {
@@ -216,12 +215,10 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
                 currentSubCategories = buildList {
                     subCategory?.let { add(it) }
                 },
-                answerMode = answerMode,
-                difficultyMode = difficultyMode,
             )
         }
 
-        resetGame(startGame, isTimeTrial, timeTrialStartTime)
+        resetGame(startGame, answerMode, difficultyMode, timeMode, timeTrialStartTime)
     }
 
 
@@ -282,7 +279,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         val currentFlags = uiState.value.currentFlags
         val answerMode = uiState.value.answerMode
         val difficultyMode = uiState.value.difficultyMode
-        val isTimeTrial = uiState.value.isTimeTrial
+        val timeMode = uiState.value.timeMode
         val timeTrialStartTime = uiState.value.timeTrialStartTime
         _uiState.value = GameUiState(
             /* Get new flags list from categories lists and either currentFlags or allFlags
@@ -303,7 +300,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
 
         resetGame(
             startGame = false,
-            isTimeTrial = isTimeTrial,
+            timeMode = timeMode,
             startTime = timeTrialStartTime,
         )
     }
@@ -322,7 +319,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
 
 
     fun isScoresEmpty(): Boolean =
-        guessedFlags.isEmpty() && skippedFlags.isEmpty() && shownFlags.isEmpty()
+        _guessedFlags.isEmpty() && _skippedFlags.isEmpty() && _shownFlags.isEmpty()
 
 
     fun updateUserGuess(newString: String) {
@@ -371,7 +368,6 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
             userGuess = ""
             _uiState.update {
                 it.copy(
-                    correctGuessCount = it.correctGuessCount.inc(),
                     isGuessCorrect = true,
                     isGuessCorrectEvent = !it.isGuessCorrectEvent,
                     isGuessWrong = false,
@@ -409,25 +405,25 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
 
 
     fun skipFlag() {
-        /* If from shown answer, manage related timer and button states and jobs */
         if (uiState.value.isShowAnswer) {
+            /* Unpause game */
             _uiState.update {
                 it.copy(isGamePaused = false, isShowAnswer = false)
             }
 
-            /* Start relevant timer, to unpause it from showAnswer()'s pause */
-            when (uiState.value.isTimeTrial) {
-                true -> if (isJobInactive(timerTimeTrialJob)) {
-                    timerTimeTrialJob = viewModelScope.launch { startTimerTimeTrial() }
-                }
-                false -> if (isJobInactive(timerStandardJob)) {
+            when (uiState.value.timeMode) {
+                TimeMode.STANDARD -> if (isJobInactive(timerStandardJob)) {
                     timerStandardJob = viewModelScope.launch { startTimerStandard() }
+                }
+                TimeMode.TIME_TRIAL -> if (isJobInactive(timerTimeTrialJob)) {
+                    timerTimeTrialJob = viewModelScope.launch { startTimerTimeTrial() }
                 }
             }
 
             updateCurrentFlag(isShowAnswer = true)
 
         } else {
+            /* Regular skip */
             cancelConfirmShowAnswer()
             updateCurrentFlag(isSkip = true)
         }
@@ -439,11 +435,10 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         cancelTimers()
         cancelConfirmShowAnswer()
 
-        shownFlags.add(uiState.value.currentFlag)
+        _shownFlags.add(uiState.value.currentFlag)
         _uiState.update {
             it.copy(
                 isShowAnswer = true,
-                shownAnswerCount = shownFlags.size,
                 isGamePaused = true,
             )
         }
@@ -519,7 +514,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         _uiState.update {
             it.copy(
                 timerStandard = 0,
-                isTimeTrial = false,
+                timeMode = TimeMode.STANDARD,
                 timerTimeTrial = 0,
                 timeTrialStartTime = 0
             )
@@ -536,7 +531,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         _uiState.update {
             it.copy(
                 timerStandard = 0,
-                isTimeTrial = true,
+                timeMode = TimeMode.TIME_TRIAL,
                 timerTimeTrial = startTime,
                 timeTrialStartTime = startTime,
             )
@@ -559,24 +554,23 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         val currentFlag: FlagView = uiState.value.currentFlag
 
         if (isSkip) { /* If user skip & un-skipped flags remain, add flag to skip list */
-            if (!isSkipMax()) skippedFlags.add(currentFlag)
+            if (!isSkipMax()) _skippedFlags.add(currentFlag)
 
         } else if (isFail) {
-            failedFlags.add(currentFlag)
-            _uiState.update { it.copy(failedAnswerCount = failedFlags.size) }
+            _failedFlags.add(currentFlag)
 
         } else { /* If user guess, add flag to guessed set */
-            if (!isShowAnswer) guessedFlags.add(currentFlag)
+            if (!isShowAnswer) _guessedFlags.add(currentFlag)
 
             /* If flag in skipped list, move it into skippedGuessed list */
-            if (currentFlag in skippedFlags) {
-                skippedFlags.remove(currentFlag)
-                if (!isShowAnswer) skippedGuessedFlags.add(currentFlag)
+            if (currentFlag in _skippedFlags) {
+                _skippedFlags.remove(currentFlag)
+                if (!isShowAnswer) _skippedGuessedFlags.add(currentFlag)
             }
         }
 
         /* If all flags guessed, end the game */
-        if (guessedFlags.size + shownFlags.size + failedFlags.size >=
+        if (_guessedFlags.size + _shownFlags.size + _failedFlags.size >=
             uiState.value.currentFlags.size) return endGame()
 
         /* If no un-skipped flags remain get skipped flag, else get random flag */
@@ -594,7 +588,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
 
 
     private fun isSkipMax(): Boolean {
-        return shownFlags.size + skippedFlags.size + guessedFlags.size ==
+        return _shownFlags.size + _skippedFlags.size + _guessedFlags.size ==
                 uiState.value.currentFlags.size
     }
 
@@ -613,7 +607,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
             val newFlagExclusions = buildList {
                 add(uiState.value.currentFlag)
                 addAll(elements =
-                    listOf(guessedFlags, skippedFlags, shownFlags, failedFlags).flatten()
+                    listOf(_guessedFlags, _skippedFlags, _shownFlags, _failedFlags).flatten()
                 )
             }
             /* Recurs until (random) newFlag not exclusive */
@@ -633,22 +627,22 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         val nextFlagInSkipped = uiState.value.nextFlagInSkipped
 
         return if (nextFlagInSkipped != null) { // Ie. After first time call to getSkippedFlag()
-            val nextFlagIndex = skippedFlags.indexOf(nextFlagInSkipped)
-            val isListEnd = nextFlagIndex == skippedFlags.size - 1
+            val nextFlagIndex = _skippedFlags.indexOf(nextFlagInSkipped)
+            val isListEnd = nextFlagIndex == _skippedFlags.size - 1
 
             if (isListEnd) {
-                _uiState.update { it.copy(nextFlagInSkipped = skippedFlags[0]) }
+                _uiState.update { it.copy(nextFlagInSkipped = _skippedFlags[0]) }
             } else {
-                _uiState.update { it.copy(nextFlagInSkipped = skippedFlags[nextFlagIndex + 1]) }
+                _uiState.update { it.copy(nextFlagInSkipped = _skippedFlags[nextFlagIndex + 1]) }
             }
 
             nextFlagInSkipped
 
         } else { // On first time call to getSkippedFlag()
-            val nextIndex = if (skippedFlags.size == 1) 0 else 1
-            _uiState.update { it.copy(nextFlagInSkipped = skippedFlags[nextIndex]) }
+            val nextIndex = if (_skippedFlags.size == 1) 0 else 1
+            _uiState.update { it.copy(nextFlagInSkipped = _skippedFlags[nextIndex]) }
 
-            skippedFlags[0]
+            _skippedFlags[0]
         }
     }
 
@@ -688,47 +682,37 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
             timestamp = System.currentTimeMillis(),
             answerMode = uiState.value.answerMode,
             difficultyMode = uiState.value.difficultyMode,
-            timeMode = when (uiState.value.isTimeTrial) {
-                true -> TimeMode.TIME_TRIAL
-                false -> TimeMode.STANDARD
+            timeMode = uiState.value.timeMode,
+            timerStart = when (uiState.value.timeMode) {
+                TimeMode.STANDARD -> null
+                TimeMode.TIME_TRIAL -> uiState.value.timeTrialStartTime
             },
-            timerStart = when (uiState.value.isTimeTrial) {
-                true -> uiState.value.timeTrialStartTime
-                else -> null
-            },
-            timerEnd = when (uiState.value.isTimeTrial) {
-                true -> uiState.value.timerTimeTrial
-                false -> uiState.value.timerStandard
+            timerEnd = when (uiState.value.timeMode) {
+                TimeMode.STANDARD -> uiState.value.timerStandard
+                TimeMode.TIME_TRIAL -> uiState.value.timerTimeTrial
             },
             gameSuperCategories = getScoreDataSupers(),
             gameSubCategories = getScoreDataSubs(),
             flagsAll = uiState.value.currentFlags,
-            flagsGuessed = guessedFlags.toList(),
-            flagsGuessedSorted = sortFlags(guessedFlags),
-            flagsSkippedGuessed = skippedGuessedFlags.toList(),
-            flagsSkippedGuessedSorted = sortFlags(skippedGuessedFlags),
-            flagsSkipped = skippedFlags.toList(),
-            flagsSkippedSorted = sortFlags(skippedFlags),
-            flagsShown = shownFlags.toList(),
-            flagsShownSorted = sortFlags(shownFlags),
-            flagsFailed = failedFlags.toList(),
-            flagsFailedSorted = sortFlags(failedFlags),
+            flagsGuessed = _guessedFlags.toList(),
+            flagsGuessedSorted = sortFlags(_guessedFlags),
+            flagsSkippedGuessed = _skippedGuessedFlags.toList(),
+            flagsSkippedGuessedSorted = sortFlags(_skippedGuessedFlags),
+            flagsSkipped = _skippedFlags.toList(),
+            flagsSkippedSorted = sortFlags(_skippedFlags),
+            flagsShown = _shownFlags.toList(),
+            flagsShownSorted = sortFlags(_shownFlags),
+            flagsFailed = _failedFlags.toList(),
+            flagsFailedSorted = sortFlags(_failedFlags),
         )
     }
 
 
     /* Remove redundant super categories for ScoreData */
-    private fun getScoreDataSupers(): List<FlagSuperCategory> {
-        val superCategories = uiState.value.currentSuperCategories
-        val subCategories = uiState.value.currentSubCategories
-        val isNonAllCategories =
-            superCategories.size > 1 || superCategories.isNotEmpty() && subCategories.isNotEmpty()
-
-        return superCategories.filterNot { superCategory ->
-            superCategory.enums().any { it in subCategories } &&
-                    (superCategory != All || isNonAllCategories)
-        }
-    }
+    private fun getScoreDataSupers(): List<FlagSuperCategory> = filterRedundantSuperCategories(
+        superCategories = uiState.value.currentSuperCategories,
+        subCategories = uiState.value.currentSubCategories
+    )
 
     /* Remove redundant sub categories for ScoreData */
     private fun getScoreDataSubs(): List<FlagCategory> {

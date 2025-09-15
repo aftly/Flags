@@ -8,6 +8,7 @@ import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.game.ScoreData
 import dev.aftly.flags.model.game.AnswerMode
 import dev.aftly.flags.model.game.DifficultyMode
+import dev.aftly.flags.model.game.TimeMode
 
 data class GameUiState(
     val allFlags: List<FlagView> = allFlagsList,
@@ -15,7 +16,6 @@ data class GameUiState(
     val currentSuperCategories: List<FlagSuperCategory> = listOf(FlagSuperCategory.All),
     val currentSubCategories: List<FlagCategory> = emptyList(),
 
-    val totalFlagCount: Int = 0,
     val currentFlag: FlagView = nullFlag,
     val currentFlagStrings: List<String> = emptyList(),
 
@@ -23,14 +23,11 @@ data class GameUiState(
     val isConfirmResetDialog: Boolean = false,
 
     val isTimeTrialDialog: Boolean = false,
-    val isTimeTrial: Boolean = false,
+    val timeMode: TimeMode = TimeMode.STANDARD,
     val timerStandard: Int = 0,
     val timerTimeTrial: Int = 0,
     val timeTrialStartTime: Int = 0,
 
-    val correctGuessCount: Int = 0,
-    val shownAnswerCount: Int = 0,
-    val failedAnswerCount: Int = 0,
     val isGuessCorrect: Boolean = false,
     val isGuessCorrectEvent: Boolean = false,
     val isGuessWrong: Boolean = false,
