@@ -248,7 +248,7 @@
     <string name="game_over_exit_button">Exit</string>
     <string name="game_over_replay_button">Replay</string>
     <string name="game_over_share_subject">Game score</string>
-    <string name="game_over_share_text">Flags game: https://github.com/aftly/Flags\nMy score: %s/%s\nCategory: %s\nMode: %s</string>
+    <string name="game_over_share_text">Flags game: https://github.com/aftly/Flags\nMy score: %s/%s\nCategory: %s\nAnswer mode: %s\nDifficulty mode: %s</string>
     <string name="game_paused">Game paused</string>
     <string name="game_unpause">Unpause game</string>
     <string name="game_score_details_title">Score details</string>

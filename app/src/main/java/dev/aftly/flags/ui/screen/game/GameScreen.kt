@@ -257,6 +257,7 @@ fun GameScreen(
             superCategories = uiState.currentSuperCategories,
             subCategories = uiState.currentSubCategories,
             answerMode = uiState.answerMode,
+            difficultyMode = uiState.difficultyMode,
             onDetails = {
                 viewModel.onGameOverDialog(on = false)
                 viewModel.onScoreDetails(on = true)
@@ -673,7 +674,8 @@ private fun GameContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = Dimens.medium16),
-            enabled = isGame && !isGameOver && !isShowAnswer,
+            enabled = isGame && !isGameOver && !isShowAnswer &&
+                    difficultyMode != DifficultyMode.SUDDEN_DEATH,
             colors = ButtonDefaults.outlinedButtonColors(contentColor = showAnswerColor),
         ) {
             Text(text = showAnswerText)
@@ -1554,6 +1556,7 @@ private fun GameOverDialog(
     superCategories: List<FlagSuperCategory>,
     subCategories: List<FlagCategory>,
     answerMode: AnswerMode,
+    difficultyMode: DifficultyMode,
     onDetails: () -> Unit,
     onScoreHistory: () -> Unit,
     onShare: (String) -> Unit,
@@ -1578,6 +1581,7 @@ private fun GameOverDialog(
         maxScore,
         categoriesString,
         stringResource(answerMode.title),
+        stringResource(difficultyMode.title)
     )
 
 
