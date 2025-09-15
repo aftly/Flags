@@ -83,6 +83,12 @@ fun RelatedFlagsMenu.color(): Color = when (this) {
     POLITICAL -> MaterialTheme.colorScheme.secondary
 }
 
+@Composable
+fun RelatedFlagsMenu.colorSelect(): Color = when (this) {
+    CHRONOLOGICAL -> MaterialTheme.colorScheme.onTertiaryContainer
+    POLITICAL -> MaterialTheme.colorScheme.onSecondaryContainer
+}
+
 
 /* ------ For updateCurrentCategory() in ViewModels ------ */
 

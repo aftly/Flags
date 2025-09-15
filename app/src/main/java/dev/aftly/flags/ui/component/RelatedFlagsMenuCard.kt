@@ -31,13 +31,13 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -65,25 +65,24 @@ import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Shapes
 import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.theme.surfaceLight
+import dev.aftly.flags.ui.util.color
+import dev.aftly.flags.ui.util.colorSelect
 import dev.aftly.flags.ui.util.flagDatesString
 
 
 @Composable
 fun RelatedFlagsMenuCard(
     modifier: Modifier = Modifier,
+    relatedFlagContent: RelatedFlagsContent,
     scaffoldPadding: PaddingValues,
     menuButtonOffset: Offset,
     menuButtonWidth: Int,
     isExpanded: Boolean,
     onExpand: () -> Unit,
-    containerColor1: Color = MaterialTheme.colorScheme.secondary,
-    containerColor2: Color = MaterialTheme.colorScheme.onSecondaryContainer,
-    cardColors: CardColors = CardDefaults.cardColors(containerColor = containerColor1),
-    buttonColors1: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor1),
-    buttonColors2: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor2),
+    containerColor: Color = relatedFlagContent.menu.color(),
+    containerColorSelect: Color = relatedFlagContent.menu.colorSelect(),
     currentFlag: FlagView,
     isOnlyButton: Boolean, /* For over-scrim button, is it full size or shared with other */
-    relatedFlagContent: RelatedFlagsContent,
     onFlagSelect: (FlagView) -> Unit,
 ) {
     val listState = rememberLazyListState()
@@ -123,6 +122,16 @@ fun RelatedFlagsMenuCard(
             }
         }
     }
+
+    val cardColors = CardDefaults.cardColors(containerColor = containerColor)
+    val buttonColors = ButtonDefaults.buttonColors(
+        containerColor = containerColor,
+        contentColor = contentColorFor(containerColor),
+    )
+    val buttonColorsSelect = ButtonDefaults.buttonColors(
+        containerColor = containerColorSelect,
+        contentColor = contentColorFor(containerColor),
+    )
 
     val showDatesHeaderTitles = listOf(
         RelatedFlagsCategory.PREVIOUS_ENTITIES.title,
@@ -248,8 +257,8 @@ fun RelatedFlagsMenuCard(
                                 currentFlag = currentFlag,
                                 menu = relatedFlagContent.menu,
                                 showDates = lastHeader?.title in showDatesHeaderTitles,
-                                buttonColors1 = buttonColors1,
-                                buttonColors2 = buttonColors2,
+                                buttonColors = buttonColors,
+                                buttonColorsSelect = buttonColorsSelect,
                                 onFlagSelect = onFlagSelect,
                             )
                         }
@@ -293,8 +302,8 @@ private fun RelatedItem(
     currentFlag: FlagView,
     menu: RelatedFlagsMenu,
     showDates: Boolean,
-    buttonColors1: ButtonColors,
-    buttonColors2: ButtonColors,
+    buttonColors: ButtonColors,
+    buttonColorsSelect: ButtonColors,
     onFlagSelect: (FlagView) -> Unit,
 ) {
     val configuration = LocalConfiguration.current
@@ -316,9 +325,7 @@ private fun RelatedItem(
         onClick = { onFlagSelect(flag) },
         modifier = modifier,
         shape = RoundedCornerShape(0.dp),
-        colors =
-            if (isFlagSelected) buttonColors2
-            else buttonColors1
+        colors = if (isFlagSelected) buttonColorsSelect else buttonColors
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -340,7 +347,7 @@ private fun RelatedItem(
                             text = it,
                             fontWeight = FontWeight.Light,
                             style = MaterialTheme.typography.titleSmall,
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.outlineVariant,
                         )
                     }
                 }

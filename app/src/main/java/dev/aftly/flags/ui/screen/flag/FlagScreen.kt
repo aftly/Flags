@@ -230,8 +230,6 @@ private fun FlagScreen(
                         else -> relatedFlags.menu
                     }
                 },
-                containerColor1 = MaterialTheme.colorScheme.tertiary,
-                containerColor2 = MaterialTheme.colorScheme.onTertiaryContainer,
                 currentFlag = uiState.flag,
                 isOnlyButton = !uiState.flag.isPoliticalRelatedFlags,
                 relatedFlagContent = relatedFlags,
