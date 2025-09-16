@@ -1,9 +1,15 @@
 package dev.aftly.flags.ui.screen.settings
 
 import android.app.Activity
+import android.content.ClipData
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,6 +38,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -44,8 +51,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -130,7 +143,7 @@ private fun SettingsScreen(
         },
     ) { scaffoldPadding ->
         SettingsContent(
-            modifier = Modifier.padding(scaffoldPadding),
+            modifier = Modifier.padding(paddingValues = scaffoldPadding),
             isDynamicColor = uiState.isDynamicColor,
             theme = uiState.theme,
             onCheckDynamicColor = onCheckDynamicColor,
@@ -151,7 +164,8 @@ private fun SettingsContent(
     val halfMarginPadding = Dimens.marginHorizontal16 / 2
 
     Column(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
             .padding(
                 horizontal = halfMarginPadding,
                 vertical = Dimens.medium16,
@@ -201,7 +215,8 @@ private fun ColorsSettings(
             shape = MaterialTheme.shapes.medium,
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(horizontal = halfMarginPadding),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
@@ -233,7 +248,8 @@ private fun ColorsSettings(
         shape = MaterialTheme.shapes.medium,
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(halfMarginPadding),
         ) {
             SettingsBody(
@@ -252,7 +268,13 @@ private fun AboutContent(
     halfMarginPadding: Dp,
 ) {
     val context = LocalContext.current
-    val versionName = context.packageManager.getPackageInfo(context.packageName, 0).versionName
+    val versionName =
+        context.packageManager.getPackageInfo(context.packageName, 0).versionName
+
+    val coroutineScope = rememberCoroutineScope()
+    val clipboard = LocalClipboard.current
+    val clipUrl = ClipData.newPlainText("sourceUrl", SOURCE_URL).toClipEntry()
+    val clipVersion = ClipData.newPlainText("version", versionName).toClipEntry()
 
     SettingsLabel(
         modifier = Modifier.padding(horizontal = halfMarginPadding),
@@ -261,11 +283,18 @@ private fun AboutContent(
 
     /* Source code button */
     Surface(
-        onClick = { openWebLink(context, SOURCE_URL) },
-        shape = MaterialTheme.shapes.medium,
+        modifier = Modifier
+            .clip(shape = MaterialTheme.shapes.medium)
+            .combinedClickable(
+                onClick = { openWebLink(context, SOURCE_URL) },
+                onLongClick = {
+                    coroutineScope.launch { clipboard.setClipEntry(clipUrl) }
+                }
+            ),
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(halfMarginPadding),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
@@ -291,7 +320,8 @@ private fun AboutContent(
         shape = MaterialTheme.shapes.medium,
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(halfMarginPadding),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -304,11 +334,18 @@ private fun AboutContent(
 
     /* App version button */
     Surface(
-        onClick = {},
-        shape = MaterialTheme.shapes.medium,
+        modifier = Modifier
+            .clip(shape = MaterialTheme.shapes.medium)
+            .combinedClickable(
+                onClick = {},
+                onLongClick = {
+                    coroutineScope.launch { clipboard.setClipEntry(clipVersion) }
+                }
+            ),
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(halfMarginPadding),
             verticalAlignment = Alignment.CenterVertically,
         ) {
