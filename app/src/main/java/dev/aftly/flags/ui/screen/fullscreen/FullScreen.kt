@@ -14,7 +14,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -62,7 +62,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
@@ -71,8 +74,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -238,9 +242,17 @@ private fun FullScreen(
     }
 
     /* To determine screen aspect ratio for image modifier so FullScreenButton can align with it */
-    val context = LocalContext.current
-    val displayMetrics = context.resources.displayMetrics
+    val displayMetrics = LocalResources.current.displayMetrics
     val isAspectRatioWide = displayMetrics.widthPixels >= displayMetrics.heightPixels
+
+    /* For transform gestures and graphics */
+    val haptics = LocalHapticFeedback.current
+    var imageScale by rememberSaveable { mutableFloatStateOf(1f) }
+    var imageOffset by remember { mutableStateOf(Offset.Zero) }
+    LaunchedEffect(uiState.flag) {
+        imageScale = 1f
+        imageOffset = Offset.Zero
+    }
 
 
     /* Parent box as surface to receive tap gestures */
@@ -256,6 +268,13 @@ private fun FullScreen(
                     },
                     onDoubleTap = {
                         onExitFullscreen()
+                    },
+                    onLongPress = {
+                        if (imageScale != 1f || imageOffset != Offset.Zero) {
+                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                            imageScale = 1f
+                            imageOffset = Offset.Zero
+                        }
                     },
                 )
             }
@@ -298,6 +317,14 @@ private fun FullScreen(
                 flags = uiState.flags,
                 isScreenPortrait = isScreenPortrait,
                 isLandscape = isLandscape,
+                imageScale = imageScale,
+                imageOffset = imageOffset,
+                onImageScale = { zoom ->
+                    imageScale = (imageScale * zoom).coerceIn(minimumValue = 1f, maximumValue = 5f)
+                },
+                onImageOffset = { pan ->
+                    imageOffset += pan
+                },
                 onLandscapeChange = { isLandscape = !isLandscape },
                 onExitFullScreen = onExitFullscreen,
                 onCarouselRotation = onCarouselRotation,
@@ -320,11 +347,15 @@ private fun FullscreenContent(
     flag: FlagView,
     flags: List<FlagView>,
     isLandscape: Boolean,
+    imageScale: Float,
+    imageOffset: Offset,
+    onImageScale: (Float) -> Unit,
+    onImageOffset: (Offset) -> Unit,
     onLandscapeChange: () -> Unit,
     onExitFullScreen: () -> Unit,
     onCarouselRotation: (FlagView) -> Unit,
 ) {
-    val displayMetrics = LocalContext.current.resources.displayMetrics
+    val displayMetrics = LocalResources.current.displayMetrics
     val density = LocalDensity.current
 
     val statusBarHeight = WindowInsets.statusBars.getTop(density = density)
@@ -358,7 +389,13 @@ private fun FullscreenContent(
         itemWidth = screenWidthDp,
         modifier = modifier
             .fillMaxSize()
-            .background(surfaceDark),
+            .background(surfaceDark)
+            .pointerInput(Unit) {
+                detectTransformGestures { _, pan, zoom, _ ->
+                    onImageOffset(pan)
+                    onImageScale(zoom)
+                }
+            },
         flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(
             state = carouselState,
             snapAnimationSpec = spring(stiffness = Spring.StiffnessMedium)
@@ -403,7 +440,12 @@ private fun FullscreenContent(
                         rightEdgeFromWindowRight =
                             screenWidthPx - (leftEdgeFromWindowLeft + layout.size.width.toFloat())
 
-                    },
+                    }.graphicsLayer(
+                        scaleX = imageScale,
+                        scaleY = imageScale,
+                        translationX = imageOffset.x,
+                        translationY = imageOffset.y,
+                    ),
                     contentScale = when (isAspectRatioWide) {
                         true -> ContentScale.FillHeight
                         false -> ContentScale.FillWidth
