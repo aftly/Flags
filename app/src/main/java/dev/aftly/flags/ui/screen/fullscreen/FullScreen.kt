@@ -80,8 +80,14 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.aftly.flags.R
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.ui.component.FullscreenButton
 import dev.aftly.flags.ui.theme.Dimens
@@ -91,6 +97,7 @@ import dev.aftly.flags.ui.theme.surfaceLight
 import dev.aftly.flags.ui.util.LocalOrientationController
 import dev.aftly.flags.ui.util.OrientationController
 import dev.aftly.flags.ui.util.SystemUiController
+import dev.aftly.flags.ui.util.flagDatesString
 import dev.aftly.flags.ui.util.isOrientationLandscape
 import dev.aftly.flags.ui.util.isOrientationPortrait
 import kotlinx.coroutines.delay
@@ -297,10 +304,10 @@ private fun FullScreen(
                     exit = fadeOut(animationSpec = tween(durationMillis = Timing.SYSTEM_BARS)),
                 ) {
                     FullscreenTopBar(
-                        topBarTitle = uiState.flag.flagOf,
                         isActionOn = isTopBarLocked,
                         isPortraitOrientation = isScreenPortrait,
                         isGame = isGame,
+                        flag = uiState.flag,
                         onNavigateUp = onExitFullscreen,
                         onAction = { isTopBarLocked = !isTopBarLocked },
                     )
@@ -643,16 +650,31 @@ private fun OrientationLockButton(
 @Composable
 private fun FullscreenTopBar(
     modifier: Modifier = Modifier,
-    @StringRes topBarTitle: Int?,
     isActionOn: Boolean, /* When multi-icon state */
     isPortraitOrientation: Boolean?,
     isGame: Boolean,
+    flag: FlagView,
     onNavigateUp: () -> Unit,
     onAction: () -> Unit,
 ) {
-    @StringRes val title = when (isGame) {
-        true -> null
-        false -> topBarTitle
+    val dateSpanStyle = SpanStyle(
+        fontWeight = FontWeight.Light,
+        fontStyle = FontStyle.Italic,
+        fontSize =
+            if (isPortraitOrientation == true)
+                MaterialTheme.typography.headlineSmall.fontSize * 0.75f
+            else MaterialTheme.typography.headlineLarge.fontSize * 0.75f,
+    )
+
+    val title = if (isGame) null else buildAnnotatedString {
+        append(stringResource(flag.flagOf))
+        append(stringResource(R.string.string_whitespace))
+
+        if (flag.previousFlagOfKey != null || flag.flagOfDescriptor != null) {
+            withStyle(style = dateSpanStyle) {
+                append(flagDatesString(flag))
+            }
+        }
     }
 
     TopAppBar(
@@ -663,12 +685,12 @@ private fun FullscreenTopBar(
                     horizontalArrangement = Arrangement.Center,
                 ) {
                     Text(
-                        text = stringResource(it),
+                        text = it,
                         textAlign = TextAlign.Center,
-                        style = when (isPortraitOrientation) {
-                            true -> MaterialTheme.typography.headlineSmall
-                            else -> MaterialTheme.typography.headlineLarge
-                        },
+                        style =
+                            if (isPortraitOrientation == true)
+                                MaterialTheme.typography.headlineSmall
+                            else MaterialTheme.typography.headlineLarge,
                     )
                 }
             }
@@ -677,12 +699,11 @@ private fun FullscreenTopBar(
         navigationIcon = {
             IconButton(
                 onClick = onNavigateUp,
-                colors = when (isGame) {
-                    true -> IconButtonDefaults.iconButtonColors(
+                colors =
+                    if (isGame) IconButtonDefaults.iconButtonColors(
                         containerColor = surfaceDark.copy(alpha = 0.5f)
                     )
-                    else -> IconButtonDefaults.iconButtonColors()
-                }
+                    else IconButtonDefaults.iconButtonColors(),
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
@@ -693,41 +714,39 @@ private fun FullscreenTopBar(
         actions = {
             IconButton(
                 onClick = onAction,
-                colors = when (isGame) {
-                    true -> IconButtonDefaults.iconButtonColors(
+                colors =
+                    if (isGame) IconButtonDefaults.iconButtonColors(
                         containerColor = surfaceDark.copy(alpha = 0.5f)
                     )
-                    false -> IconButtonDefaults.iconButtonColors()
-                },
+                    else IconButtonDefaults.iconButtonColors(),
             ) {
-                when(isActionOn) {
-                    true ->
-                        Icon(
-                            imageVector = Icons.Default.Lock,
-                            contentDescription = null,
-                        )
-                    false ->
-                        Icon(
-                            imageVector = Icons.Default.LockOpen,
-                            contentDescription = null,
-                        )
+                if (isActionOn) {
+                    Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = null,
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.LockOpen,
+                        contentDescription = null,
+                    )
                 }
             }
         },
-        colors = when (isGame) {
-            true ->
+        colors =
+            if (isGame) {
                 TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
                     navigationIconContentColor = surfaceLight,
                     actionIconContentColor = surfaceLight,
                 )
-            false ->
+            } else {
                 TopAppBarDefaults.topAppBarColors(
                     containerColor = surfaceDark.copy(alpha = 0.5f),
                     navigationIconContentColor = surfaceLight,
                     titleContentColor = surfaceLight,
                     actionIconContentColor = surfaceLight,
                 )
-        }
+            },
     )
 }
