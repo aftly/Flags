@@ -80,7 +80,7 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [x] Ease of use: Links in category descriptions, long click search items populates query
 - [x] **Game modes**: Add Dates answer mode and difficulty modes (for guess limit)
 - [x] **Multi-select** flags in List for save/unsave and scores in History to delete
-- [x] **(Partially Complete)** - Optimize app for different system Font sizes
+- [x] **(Partially done)** - Optimize app for different system Font sizes
 <br>
 
 - [ ] Add screenshots of app to **README**
