@@ -84,22 +84,27 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [x] **(Partially done)** - Optimize app for different system Font sizes
 <br>
 
+--- Priority ---
 - [ ] Add Python scripts to external repository
 - [ ] More flags
 - [ ] Info dialog in screen to describe game modes
 - [ ] Replace current fullscreen gesture transform with one that doesn't conflict with carousel gestures
 - [ ] **Map game mode**: Click on map to answer geographical location of flag
 - [ ] Add screenshots of app to **README**
+- [ ] Optimize app for different screen resolutions and aspect ratios
+- [ ] Implement production tests
 - [ ] **Submit app to F-Droid**
-- [ ] Publish to Google Play
+- [ ] **Publish to Google Play**
+
+--- Not priority ---
 - [ ] Add regime type categories (for political flags) from **OurWorldInData**
 - [ ] **More settings features**: *Eg.* Strictness of user guesses for game, disable animations for older devices
 - [ ] Download flag image to local files feature
 - [ ] Pop up warning messages when invalid/not allowed user action
 - [ ] Shareable score history
 - [ ] Add flag ISO codes?
-- [ ] Optimize app for different screen resolutions and aspect ratios
-- [ ] Implement production tests
+
+--- Community dependent ---
 - [ ] Language translations
 <br>
 
