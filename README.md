@@ -17,7 +17,7 @@
 ## ❔ About
 - **Flags** is a free and open source Android app for displaying various flags of the world with categorisation for descriptions and user sorting. Also includes a game.
 
-- *This app is currently in alpha and is feature incomplete. Feedback is welcome, please submit feature requests and issues via [GitHub Issues](https://github.com/aftly/Flags/issues).*
+- *This app is currently in beta and is missing production properties. Feedback is welcome, please submit feature requests and issues via [GitHub Issues](https://github.com/aftly/Flags/issues).*
 <br>
 
 ## 📸 Screenshots
@@ -40,10 +40,12 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 ## ⭐ Features
 - List flags and search with text
 - View flags and description of it's entity from it's categories
+- Fullscreen view for flag images with transform and carousel interaction
 - View & Search shows (politically) related flags
 - Flag knowledge game
 - View score history and details
 - Filter flags (in list and game) via a categories menu
+- Save flags to custom list
 - Settings for basic theme preferences
 <br>
 
@@ -76,10 +78,11 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [x] Expand related flags menus into Political and Chronological menus with sorting by group
 - [x] Sort exact match related flags by group
 - [x] Ease of use: Links in category descriptions, long click search items populates query
+- [x] **Game modes**: Add Dates answer mode and difficulty modes (for guess limit)
+- [x] Multi-select flags in List for save/unsave and scores in History to delete
 - [x] **(Partially Complete)** - Optimize app for different system Font sizes
 <br>
 
-- [ ] Date mode for Game
 - [ ] Add screenshots of app to **README**
 - [ ] **Submit app to F-Droid**
 - [ ] Add Python scripts to external repository
