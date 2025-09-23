@@ -45,22 +45,31 @@ enum class FlagCategory(
     PROVINCE (title = R.string.category_province_title, string = R.string.category_province_string),
     REGION (title = R.string.category_region_title, string = R.string.category_region_string),
     REPUBLIC_UNIT (title = R.string.category_republic_unit_title, string = R.string.category_republic_unit_string),
+    RIDING (title = R.string.category_riding_unit_title, string = R.string.category_riding_unit_string),
     STATE (title = R.string.category_state_title, string = R.string.category_state_string),
     TERRITORY (title = R.string.category_territory_title, string = R.string.category_territory_string),
-
-    /* Non-administrative/geographical region */
-    REGIONAL (title = R.string.category_regional_title, string = R.string.category_regional_string),
 
     /* Supranational & international polities */
     SUPRANATIONAL_UNION (title = R.string.category_supranational_union_title, string = R.string.category_supranational_union_string),
     INTERNATIONAL_ORGANIZATION (title = R.string.category_international_organization_title, string = R.string.category_international_organization_string),
 
     /* Institutional */
-    LOWER_HOUSE(title = R.string.category_lower_house_title, string = R.string.category_lower_house_string),
-    UPPER_HOUSE(title = R.string.category_upper_house_title, string = R.string.category_upper_house_string),
-    PARLIAMENT(title = R.string.category_parliament_title, string = R.string.category_parliament_string),
-    CONGRESS(title = R.string.category_congress_title, string = R.string.category_congress_string),
+    LOWER_HOUSE (title = R.string.category_lower_house_title, string = R.string.category_lower_house_string),
+    UPPER_HOUSE (title = R.string.category_upper_house_title, string = R.string.category_upper_house_string),
+    UNICAMERAL (title = R.string.category_unicameral_title, string = R.string.category_unicameral_string),
+    PARLIAMENT (title = R.string.category_parliament_title, string = R.string.category_parliament_string),
+    CONGRESS (title = R.string.category_congress_title, string = R.string.category_congress_string),
+    ASSEMBLY (title = R.string.category_assembly_title, string = R.string.category_assembly_string),
+    DEPARTMENT (title = R.string.category_department_title, string = R.string.category_department_string),
+    MILITARY (title = R.string.category_military_title, string = R.string.category_military_string),
+    POLICE (title = R.string.category_police_title, string = R.string.category_police_string),
+    UNIVERSITY (title = R.string.category_university_title, string = R.string.category_university_string),
 
+    /* Non-political categories */
+    CHARITY (title = R.string.category_charity_title, string = R.string.category_charity_string),
+    MARITIME (title = R.string.category_maritime_title, string = R.string.category_maritime_string),
+    REGIONAL (title = R.string.category_regional_title, string = R.string.category_regional_string),
+    VEXILLOLOGY (title = R.string.category_vexillology_title, string = R.string.category_vexillology_string),
 
     /* POLITICAL CATEGORIES: */
 
