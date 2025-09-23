@@ -29,6 +29,7 @@ enum class FlagCategory(
     COLLECTIVITY (title = R.string.category_collectivity_title, string = R.string.category_collectivity_string),
     COLONY(title = R.string.category_colony_title, string = R.string.category_colony_string),
     COMMUNITY (title = R.string.category_community_title, string = R.string.category_community_string),
+    COUNCIL_AREA (title = R.string.category_council_area_title, string = R.string.category_council_area_string),
     COUNTRY (title = R.string.category_country_title, string = R.string.category_country_string),
     COUNTY (title = R.string.category_county_title, string = R.string.category_county_string),
     CITY (title = R.string.category_city_title, string = R.string.category_city_string),

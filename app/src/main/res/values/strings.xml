@@ -70,6 +70,8 @@
     <string name="category_colony_string">colony</string>
     <string name="category_community_title">Community</string>
     <string name="category_community_string">community</string>
+    <string name="category_council_area_title">Council Area</string>
+    <string name="category_council_area_string">council area</string>
     <string name="category_country_title">Constituent Country</string>
     <string name="category_country_string">country</string>
     <string name="category_county_title">County</string>
