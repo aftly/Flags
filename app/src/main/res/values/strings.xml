@@ -1486,6 +1486,13 @@
     <string name="commonwealth_of_england_alt_3">Interregnum</string>
     <string name="commonwealth_of_england_alt_4">Protectorate</string>
     <string name="commonwealth_of_england_alt_5">Commonwealth of England, Scotland and Ireland</string>
+    <string name="commonwealth_of_nations">Commonwealth of Nations</string>
+    <string name="commonwealth_of_nations_official">Commonwealth of Nations</string>
+    <string name="commonwealth_of_nations_wikipedia_url_path">Commonwealth_of_Nations</string>
+    <string name="commonwealth_of_nations_alt_1">Commonwealth</string>
+    <string name="commonwealth_of_nations_alt_2">the Commonwealth</string>
+    <string name="commonwealth_of_nations_alt_3">British Commonwealth of Nations</string>
+    <string name="commonwealth_of_nations_alt_4">British Commonwealth</string>
     <string name="comoros">Comoros</string>
     <string name="comoros_official">Union of the Comoros</string>
     <string name="comoros_wikipedia_url_path">Comoros</string>
