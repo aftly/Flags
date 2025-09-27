@@ -92,6 +92,8 @@
     <string name="category_krai_string">krai</string>
     <string name="category_member_state_title">Member State</string>
     <string name="category_member_state_string">member state</string>
+    <string name="category_micronation_title">Micronation</string>
+    <string name="category_micronation_string">micronation</string>
     <string name="category_municipality_title">Municipality</string>
     <string name="category_municipality_string">municipality</string>
     <string name="category_oblast_title">Oblast</string>

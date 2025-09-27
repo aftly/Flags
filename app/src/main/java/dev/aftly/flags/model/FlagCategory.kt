@@ -40,6 +40,7 @@ enum class FlagCategory(
     ISLAND (title = R.string.category_island_title, string = R.string.category_island_string),
     KRAI (title = R.string.category_krai_title, string = R.string.category_krai_string),
     MEMBER_STATE (title = R.string.category_member_state_title, string = R.string.category_member_state_string),
+    MICRONATION (title = R.string.category_micronation_title, string = R.string.category_micronation_string),
     MUNICIPALITY (title = R.string.category_municipality_title, string = R.string.category_municipality_string),
     OBLAST (title = R.string.category_oblast_title, string = R.string.category_oblast_string),
     OKRUG (title = R.string.category_okrug_title, string = R.string.category_okrug_string),
