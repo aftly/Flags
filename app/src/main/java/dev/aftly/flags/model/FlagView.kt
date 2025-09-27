@@ -10,7 +10,9 @@ data class FlagView(
     @param:DrawableRes val image: Int,
     @param:DrawableRes val imagePreview: Int,
     val fromYear: Int?,
+    val fromYearCirca: Boolean?,
     val toYear: Int?,
+    val toYearCirca: Boolean?,
     @param:StringRes val flagOf: Int,
     @param:StringRes val flagOfDescriptor: Int?, // for annotating flagOf with additional info
     @param:StringRes val flagOfOfficial: Int,

@@ -12,7 +12,9 @@ data class FlagResources(
     val image: DrawableResName,
     val imagePreview: DrawableResName, // Smaller image for lists (if relevant)
     val fromYear: Int?, // Year flag was adopted
+    val fromYearCirca: Boolean?,
     val toYear: Int?, // Year flag was unadopted
+    val toYearCirca: Boolean?,
     val flagOf: StringResSource, // flagOf<> params are for common, official & alt names (of entity)
     val flagOfDescriptor: StringResSource?, // Additional description for flagOf name
     val flagOfOfficial: StringResSource,
