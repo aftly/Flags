@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -64,27 +65,11 @@ import androidx.compose.ui.unit.sp
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.menuSuperCategoryList
 import dev.aftly.flags.model.FlagCategory
-import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
-import dev.aftly.flags.model.FlagCategory.DEVOLVED_GOVERNMENT
-import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
-import dev.aftly.flags.model.FlagCategory.CONFEDERATION
-import dev.aftly.flags.model.FlagCategory.ONE_PARTY
-import dev.aftly.flags.model.FlagCategory.PROVISIONAL_GOVERNMENT
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
-import dev.aftly.flags.model.FlagSuperCategory.AutonomousRegion
-import dev.aftly.flags.model.FlagSuperCategory.Cultural
-import dev.aftly.flags.model.FlagSuperCategory.ExecutiveStructure
 import dev.aftly.flags.model.FlagSuperCategory.Historical
-import dev.aftly.flags.model.FlagSuperCategory.IdeologicalOrientation
 import dev.aftly.flags.model.FlagSuperCategory.Institution
-import dev.aftly.flags.model.FlagSuperCategory.International
-import dev.aftly.flags.model.FlagSuperCategory.LegalConstraint
 import dev.aftly.flags.model.FlagSuperCategory.Political
-import dev.aftly.flags.model.FlagSuperCategory.PowerDerivation
-import dev.aftly.flags.model.FlagSuperCategory.Regional
-import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
-import dev.aftly.flags.model.FlagSuperCategory.TerritorialDistributionOfAuthority
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Shapes
 import dev.aftly.flags.ui.theme.Timing
@@ -354,8 +339,7 @@ fun CategoriesButtonMenu(
                             }
 
 
-                            if (superCategory.subCategories.size == 1 ||
-                                superCategory in listOf(All, Institution)) {
+                            if (superCategory.subCategories.size == 1 || superCategory == All) {
                                 /* If superCategory has 1 sub category use 1 tier (static) menu item
                                  * (where superCategory is meant to represent a sub/FlagCategory) */
                                 MenuItemStatic(
@@ -386,7 +370,7 @@ fun CategoriesButtonMenu(
                                     isMenuExpandedParentState = superCategory == expandSubMenu,
                                     onSuperItemSelect = { expandSubMenu = it },
                                     onCategorySelectSingle = { newSuperCategory, newSubCategory ->
-                                        onCategorySelectSingle(newSuperCategory,newSubCategory)
+                                        onCategorySelectSingle(newSuperCategory, newSubCategory)
                                         onMenuButtonClick()
                                     },
                                     onCategorySelectMultiple = onCategorySelectMultiple,

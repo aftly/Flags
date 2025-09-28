@@ -117,11 +117,50 @@ sealed class FlagSuperCategory(
         categoriesMenuButton = R.string.category_super_institution_menu_button,
         gameScoreCategoryPreview = R.string.category_super_institution_score_preview,
         gameScoreCategoryDetailed = R.string.category_super_institution_score_detailed,
+        subCategories = listOf(Legislature, Executive, Civilian),
+    )
+
+    @Serializable
+    @SerialName(value = "legislature")
+    data object Legislature : FlagSuperCategory(
+        title = R.string.category_super_legislature,
+        categoriesMenuButton = R.string.category_super_legislature_menu_button,
+        gameScoreCategoryPreview = R.string.category_super_legislature_score_preview,
+        gameScoreCategoryDetailed = R.string.category_super_legislature_score_detailed,
         subCategories = listOf(
             FlagCategoryWrapper(enum = FlagCategory.LOWER_HOUSE),
             FlagCategoryWrapper(enum = FlagCategory.UPPER_HOUSE),
+            FlagCategoryWrapper(enum = FlagCategory.UNICAMERAL),
             FlagCategoryWrapper(enum = FlagCategory.PARLIAMENT),
-            FlagCategoryWrapper(enum = FlagCategory.CONGRESS)
+            FlagCategoryWrapper(enum = FlagCategory.CONGRESS),
+            FlagCategoryWrapper(enum = FlagCategory.ASSEMBLY)
+        ),
+    )
+
+    @Serializable
+    @SerialName(value = "executive")
+    data object Executive : FlagSuperCategory(
+        title = R.string.category_super_executive,
+        categoriesMenuButton = R.string.category_super_executive_menu_button,
+        gameScoreCategoryPreview = R.string.category_super_executive_score_preview,
+        gameScoreCategoryDetailed = R.string.category_super_executive_score_detailed,
+        subCategories = listOf(
+            FlagCategoryWrapper(enum = FlagCategory.DEPARTMENT),
+            FlagCategoryWrapper(enum = FlagCategory.MILITARY),
+            FlagCategoryWrapper(enum = FlagCategory.POLICE)
+        ),
+    )
+
+    @Serializable
+    @SerialName(value = "executive")
+    data object Civilian : FlagSuperCategory(
+        title = R.string.category_super_civilian,
+        categoriesMenuButton = R.string.category_super_civilian_menu_button,
+        gameScoreCategoryPreview = R.string.category_super_civilian_score_preview,
+        gameScoreCategoryDetailed = R.string.category_super_civilian_score_detailed,
+        subCategories = listOf(
+            FlagCategoryWrapper(enum = FlagCategory.CHARITY),
+            FlagCategoryWrapper(enum = FlagCategory.UNIVERSITY)
         ),
     )
 
