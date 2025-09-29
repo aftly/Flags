@@ -98,6 +98,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import dev.aftly.flags.R
 import dev.aftly.flags.model.FlagCategory
+import dev.aftly.flags.model.FlagCategoryBase
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
@@ -153,11 +154,11 @@ fun ListFlagsScreen(
         onSearchQueryValueChange = { viewModel.onSearchQueryValueChange(it) },
         onIsSearchBarInit = { viewModel.toggleIsSearchBarInit(it) },
         onIsSearchBarInitTopBar = { viewModel.toggleIsSearchBarInitTopBar(it) },
-        onCategorySelectSingle = { superCategory, subCategory ->
-            viewModel.updateCurrentCategory(superCategory, subCategory)
+        onCategorySelectSingle = {
+            viewModel.updateCurrentCategory(category = it)
         },
-        onCategorySelectMultiple = { superCategory, subCategory ->
-            viewModel.updateCurrentCategories(superCategory, subCategory)
+        onCategorySelectMultiple = {
+            viewModel.updateCurrentCategories(category = it)
         },
         onSavedFlagsSelect = { viewModel.selectSavedFlags(on = it) },
         onSaveFlag = { viewModel.onSaveFlag(flag = it) },
@@ -192,8 +193,8 @@ private fun ListFlagsScreen(
     onSearchQueryValueChange: (TextFieldValue) -> Unit,
     onIsSearchBarInit: (Boolean) -> Unit,
     onIsSearchBarInitTopBar: (Boolean) -> Unit,
-    onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
-    onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onCategorySelectSingle: (FlagCategoryBase) -> Unit,
+    onCategorySelectMultiple: (FlagCategoryBase) -> Unit,
     onSavedFlagsSelect: (Boolean) -> Unit,
     onSaveFlag: (FlagView) -> Unit,
     onResetScreen: () -> Unit,
@@ -276,7 +277,7 @@ private fun ListFlagsScreen(
             /* If saved flags or not All super category */
             if (uiState.isViewSavedFlags || !(uiState.currentSuperCategories.all { it == All } &&
                         uiState.currentSubCategories.isEmpty())) {
-                onCategorySelectSingle(All, null)
+                onCategorySelectSingle(All)
                 onSavedFlagsSelect(false)
                 if (!isAtTop) {
                     coroutineScope.launch { listState.animateScrollToItem(index = 0) }
@@ -289,7 +290,7 @@ private fun ListFlagsScreen(
     /* If returning from FlagScreen to SavedFlags and SavedFlags isEmpty() select All category */
     LaunchedEffect(key1 = uiState.savedFlags) {
         if (uiState.isViewSavedFlags && uiState.savedFlags.isEmpty()) {
-            onCategorySelectSingle(All, null)
+            onCategorySelectSingle(All)
         }
     }
 
@@ -416,12 +417,12 @@ private fun ListFlagsScreen(
             isSavedFlagsNotEmpty = uiState.savedFlags.isNotEmpty(),
             superCategories = uiState.currentSuperCategories,
             subCategories = uiState.currentSubCategories,
-            onCategorySelectSingle = { flagSuperCategory, flagSubCategory ->
-                onCategorySelectSingle(flagSuperCategory, flagSubCategory)
+            onCategorySelectSingle = {
+                onCategorySelectSingle(it)
                 coroutineScope.launch { listState.animateScrollToItem(index = 0) }
             },
-            onCategorySelectMultiple = { flagSuperCategory, flagSubCategory ->
-                onCategorySelectMultiple(flagSuperCategory, flagSubCategory)
+            onCategorySelectMultiple = {
+                onCategorySelectMultiple(it)
                 coroutineScope.launch { listState.animateScrollToItem(index = 0) }
             },
             onSavedFlagsSelect = {

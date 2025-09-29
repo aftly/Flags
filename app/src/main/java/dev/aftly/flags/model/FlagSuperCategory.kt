@@ -20,7 +20,14 @@ sealed class FlagSuperCategory(
     fun enums(): List<FlagCategory> =
         subCategories.filterIsInstance<FlagCategoryWrapper>().map { it.enum }
 
-    fun supersEnums(): List<FlagCategory> = supers().flatMap { it.enums() }
+    fun allEnums(categories: List<FlagCategoryBase> = subCategories): List<FlagCategory> {
+        return categories.flatMap { category ->
+            when (category) {
+                is FlagCategoryWrapper -> listOf(category.enum)
+                is FlagSuperCategory -> allEnums(category.subCategories)
+            }
+        }
+    }
 
     fun firstCategoryEnumOrNull(): FlagCategory? = when (val first = subCategories.first()) {
         is FlagCategoryWrapper -> first.enum

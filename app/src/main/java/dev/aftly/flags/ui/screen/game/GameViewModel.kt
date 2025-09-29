@@ -12,8 +12,11 @@ import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.nullFlag
 import dev.aftly.flags.data.room.savedflags.SavedFlag
 import dev.aftly.flags.model.FlagCategory
+import dev.aftly.flags.model.FlagCategoryBase
+import dev.aftly.flags.model.FlagCategoryWrapper
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
+import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.game.AnswerMode
 import dev.aftly.flags.model.game.DifficultyMode
@@ -88,8 +91,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
     fun resetScreen() {
         /* updateCurrentCategory also calls resetGame() */
         updateCurrentCategory(
-            superCategory = FlagSuperCategory.SovereignCountry,
-            subCategory = null,
+            category = SovereignCountry,
             answerModeNew = AnswerMode.NAMES,
             difficultyModeNew = DifficultyMode.EASY,
             timeModeNew = TimeMode.STANDARD,
@@ -169,8 +171,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
     ) {
         if (answerMode != uiState.value.answerMode) {
             updateCurrentCategory(
-                superCategory = FlagSuperCategory.SovereignCountry,
-                subCategory = null,
+                category = SovereignCountry,
                 answerModeNew = answerMode,
                 difficultyModeNew = difficultyMode,
             )
@@ -181,8 +182,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
 
 
     fun updateCurrentCategory(
-        superCategory: FlagSuperCategory?,
-        subCategory: FlagCategory?,
+        category: FlagCategoryBase,
         answerModeNew: AnswerMode? = null,
         difficultyModeNew: DifficultyMode? = null,
         timeModeNew: TimeMode? = null,
@@ -197,7 +197,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
 
         /* If the new category is the All super category set state with default values (which
          * includes allFlagsList), else dynamically generate flags list from category info */
-        if (superCategory == All || isDatesMode) {
+        if (category == All || isDatesMode) {
             _uiState.value = GameUiState(
                 currentFlags = if (isDatesMode) getDatesFlags(allFlags) else allFlags
             )
@@ -205,15 +205,14 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         } else {
             _uiState.value = GameUiState(
                 currentFlags = getFlagsFromCategory(
-                    superCategory = superCategory,
-                    subCategory = subCategory,
+                    category = category,
                     allFlags = allFlags,
                 ),
                 currentSuperCategories = buildList {
-                    superCategory?.let { add(it) }
+                    if (category is FlagSuperCategory) add(category)
                 },
                 currentSubCategories = buildList {
-                    subCategory?.let { add(it) }
+                    if (category is FlagCategoryWrapper) add(category.enum)
                 },
             )
         }
@@ -222,53 +221,51 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
     }
 
 
-    fun updateCurrentCategories(
-        superCategory: FlagSuperCategory?,
-        subCategory: FlagCategory?,
-    ) {
+    fun updateCurrentCategories(category: FlagCategoryBase) {
         /* Controls whether flags are updated from current or all flags */
         var isDeselectSwitch = false to false
 
-        val newSuperCategories = uiState.value.currentSuperCategories.toMutableList()
-        val newSubCategories = uiState.value.currentSubCategories.toMutableList()
+        val superCategories = uiState.value.currentSuperCategories.toMutableList()
+        val subCategories = uiState.value.currentSubCategories.toMutableList()
 
         /* Exit function if new<*>Category is not selectable or mutually exclusive from current.
          * Else, add/remove category argument to/from categories lists */
-        superCategory?.let { superCategory ->
-            if (isSuperCategoryExit(superCategory, newSuperCategories, newSubCategories)) return
+        when (category) {
+            is FlagSuperCategory -> {
+                if (isSuperCategoryExit(category, superCategories, subCategories))
+                    return
 
-            isDeselectSwitch = updateCategoriesFromSuper(
-                superCategory = superCategory,
-                superCategories = newSuperCategories,
-                subCategories = newSubCategories,
-            ) to false
-        }
-        subCategory?.let { subCategory ->
-            if (isSubCategoryExit(subCategory, newSubCategories, newSuperCategories)) return
+                isDeselectSwitch = updateCategoriesFromSuper(
+                    superCategory = category,
+                    superCategories = superCategories,
+                    subCategories = subCategories,
+                ) to false
+            }
+            is FlagCategoryWrapper -> {
+                if (isSubCategoryExit(category.enum, subCategories, superCategories))
+                    return
 
-            isDeselectSwitch = updateCategoriesFromSub(
-                subCategory = subCategory,
-                subCategories = newSubCategories,
-            )
+                isDeselectSwitch = updateCategoriesFromSub(
+                    subCategory = category.enum,
+                    subCategories = subCategories,
+                )
+            }
         }
         /* Return updateCurrentCategory() if deselection to only 1 super category */
         if (isDeselectSwitch.first) {
-            when (newSuperCategories.size to newSubCategories.size) {
-                0 to 0 -> return updateCurrentCategory(
-                    superCategory = All, subCategory = null, startGame = false,
-                )
+            when (superCategories.size to subCategories.size) {
+                0 to 0 -> return updateCurrentCategory(category = All, startGame = false)
                 1 to 0 -> return updateCurrentCategory(
-                    superCategory = newSuperCategories.first(), subCategory = null, startGame = false
+                    category = superCategories.first(),
+                    startGame = false,
                 )
                 1 to 1 -> {
-                    val onlySuperCategory = newSuperCategories.first()
-                    val onlySubCategory = newSubCategories.first()
+                    val onlySuperCategory = superCategories.first()
+                    val onlySubCategory = subCategories.first()
 
                     if (onlySuperCategory.subCategories.size == 1 &&
                         onlySuperCategory.firstCategoryEnumOrNull() == onlySubCategory) {
-                        return updateCurrentCategory(
-                            superCategory = onlySuperCategory, subCategory = null, startGame = false
-                        )
+                        return updateCurrentCategory(category = onlySuperCategory, startGame = false)
                     }
                 }
             }
@@ -288,12 +285,12 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
                 allFlags = allFlags,
                 currentFlags = currentFlags,
                 isDeselectSwitch = isDeselectSwitch,
-                superCategory = superCategory,
-                superCategories = newSuperCategories,
-                subCategories = newSubCategories,
+                superCategory = category as? FlagSuperCategory,
+                superCategories = superCategories,
+                subCategories = subCategories,
             ),
-            currentSuperCategories = newSuperCategories,
-            currentSubCategories = newSubCategories,
+            currentSuperCategories = superCategories,
+            currentSubCategories = subCategories,
             answerMode = answerMode,
             difficultyMode = difficultyMode,
         )

@@ -13,9 +13,11 @@ import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.data.DataSource.inverseFlagViewMap
-import dev.aftly.flags.model.FlagCategory
+import dev.aftly.flags.model.FlagCategoryBase
+import dev.aftly.flags.model.FlagCategoryWrapper
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
+import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.SearchFlow
 import dev.aftly.flags.ui.util.getFlagKey
@@ -242,10 +244,7 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
     }
 
     fun resetScreen() {
-        updateCurrentCategory(
-            superCategory = FlagSuperCategory.SovereignCountry,
-            subCategory = null,
-        )
+        updateCurrentCategory(category = SovereignCountry)
     }
 
     fun sortFlagsAlphabetically(flags: List<FlagView>): List<FlagView> =
@@ -254,13 +253,10 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
     /* Updates state with new currentFlags list derived from new super- or sub- category
      * Also updates currentSuperCategory and currentCategory title details for FilterFlagsButton UI
      * Is intended to be called with either a newSuperCategory OR newSubCategory, and a null value */
-    fun updateCurrentCategory(
-        superCategory: FlagSuperCategory?,
-        subCategory: FlagCategory?,
-    ) {
+    fun updateCurrentCategory(category: FlagCategoryBase) {
         /* If new category is All superCategory update flags with static allFlags source,
          * else dynamically generate flags list from category info */
-        if (superCategory == All) {
+        if (category == All) {
             _uiState.update {
                 it.copy(
                     currentFlags = it.allFlags,
@@ -273,16 +269,15 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
             _uiState.update { state ->
                 state.copy(
                     currentFlags = getFlagsFromCategory(
-                        superCategory = superCategory,
-                        subCategory = subCategory,
+                        category = category,
                         allFlags = state.allFlags,
                     ),
                     isViewSavedFlags = false,
                     currentSuperCategories = buildList {
-                        superCategory?.let { add(it) }
+                        if (category is FlagSuperCategory) add(category)
                     },
                     currentSubCategories = buildList {
-                        subCategory?.let { add(it) }
+                        if (category is FlagCategoryWrapper) add(category.enum)
                     },
                 )
             }
@@ -290,53 +285,49 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
     }
 
 
-    fun updateCurrentCategories(
-        superCategory: FlagSuperCategory?,
-        subCategory: FlagCategory?,
-    ) {
+    fun updateCurrentCategories(category: FlagCategoryBase) {
         /* Controls whether flags are updated from current or all flags */
         var isDeselectSwitch = false to false
 
-        val newSuperCategories = uiState.value.currentSuperCategories.toMutableList()
-        val newSubCategories = uiState.value.currentSubCategories.toMutableList()
+        val superCategories = uiState.value.currentSuperCategories.toMutableList()
+        val subCategories = uiState.value.currentSubCategories.toMutableList()
 
         /* Exit function if new<*>Category is not selectable or mutually exclusive from current.
          * Else, add/remove category argument to/from categories lists */
-        superCategory?.let { superCategory ->
-            if (isSuperCategoryExit(superCategory, newSuperCategories, newSubCategories)) return
+        when (category) {
+            is FlagSuperCategory -> {
+                if (isSuperCategoryExit(category, superCategories, subCategories))
+                    return
 
-            isDeselectSwitch = updateCategoriesFromSuper(
-                superCategory = superCategory,
-                superCategories = newSuperCategories,
-                subCategories = newSubCategories,
-            ) to false
-        }
-        subCategory?.let { subCategory ->
-            if (isSubCategoryExit(subCategory, newSubCategories, newSuperCategories)) return
+                isDeselectSwitch = updateCategoriesFromSuper(
+                    superCategory = category,
+                    superCategories = superCategories,
+                    subCategories = subCategories,
+                ) to false
+            }
+            is FlagCategoryWrapper -> {
+                if (isSubCategoryExit(category.enum, subCategories, superCategories))
+                    return
 
-            isDeselectSwitch = updateCategoriesFromSub(
-                subCategory = subCategory,
-                subCategories = newSubCategories,
-            )
+                isDeselectSwitch = updateCategoriesFromSub(
+                    subCategory = category.enum,
+                    subCategories = subCategories,
+                )
+            }
         }
+
         /* Return updateCurrentCategory() if deselection to only 1 super category */
         if (isDeselectSwitch.first) {
-            when (newSuperCategories.size to newSubCategories.size) {
-                0 to 0 -> return updateCurrentCategory(
-                    superCategory = All, subCategory = null
-                )
-                1 to 0 -> return updateCurrentCategory(
-                    superCategory = newSuperCategories.first(), subCategory = null
-                )
+            when (superCategories.size to subCategories.size) {
+                0 to 0 -> return updateCurrentCategory(category = All)
+                1 to 0 -> return updateCurrentCategory(category = superCategories.first())
                 1 to 1 -> {
-                    val onlySuperCategory = newSuperCategories.first()
-                    val onlySubCategory = newSubCategories.first()
+                    val onlySuperCategory = superCategories.first()
+                    val onlySubCategory = subCategories.first()
 
                     if (onlySuperCategory.subCategories.size == 1 &&
                         onlySuperCategory.firstCategoryEnumOrNull() == onlySubCategory) {
-                        return updateCurrentCategory(
-                            superCategory = onlySuperCategory, subCategory = null
-                        )
+                        return updateCurrentCategory(category = onlySuperCategory)
                     }
                 }
             }
@@ -351,12 +342,12 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
                     allFlags = it.allFlags,
                     currentFlags = it.currentFlags,
                     isDeselectSwitch = isDeselectSwitch,
-                    superCategory = superCategory,
-                    superCategories = newSuperCategories,
-                    subCategories = newSubCategories,
+                    superCategory = category as? FlagSuperCategory,
+                    superCategories = superCategories,
+                    subCategories = subCategories,
                 ),
-                currentSuperCategories = newSuperCategories,
-                currentSubCategories = newSubCategories,
+                currentSuperCategories = superCategories,
+                currentSubCategories = subCategories,
             )
         }
     }

@@ -194,7 +194,7 @@ class FlagViewModel(
                 flagViewMap[key]?.let { add(it) }
             }
         }
-        val politicalSuperEnums = Political.supersEnums()
+        val politicalSuperEnums = Political.allEnums()
 
         val clickableFlags = buildList {
             previousFlagOf?.let { add(it) }
@@ -457,7 +457,7 @@ class FlagViewModel(
         val regionCategories = categories.filter { it in Regional.enums() }
             .toMutableList()
         regionCategories.removeFirstOrNull()
-        val politicalSuperEnums = Political.supersEnums()
+        val politicalSuperEnums = Political.allEnums()
 
         /* ----- ITERATIONS ----- */
         for (category in categories) {

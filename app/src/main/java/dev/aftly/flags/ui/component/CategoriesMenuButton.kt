@@ -51,7 +51,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
@@ -99,8 +98,8 @@ fun CategoriesButtonMenu(
     isSavedFlagsNotEmpty: Boolean,
     superCategories: List<FlagSuperCategory>,
     subCategories: List<FlagCategory>,
-    onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
-    onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onCategorySelectSingle: (FlagCategoryBase) -> Unit,
+    onCategorySelectMultiple: (FlagCategoryBase) -> Unit,
     onSavedFlagsSelect: () -> Unit,
 ) {
     /* Expand single sub-menu at a time when it's category's are not selected. State represented by
@@ -349,14 +348,12 @@ fun CategoriesButtonMenu(
                                     textButtonStyle = textButtonStyle,
                                     buttonColors = buttonColors,
                                     superCategory = superCategory,
-                                    onSuperSelectSingle = { newSuperCategory ->
+                                    onCategorySelectSingle = { superCategory ->
                                         expandSubMenu = null
-                                        onCategorySelectSingle(newSuperCategory, null)
+                                        onCategorySelectSingle(superCategory)
                                         onMenuButtonClick()
                                     },
-                                    onSuperSelectMultiple = { selectSuperCategory ->
-                                        onCategorySelectMultiple(selectSuperCategory, null)
-                                    },
+                                    onCategorySelectMultiple = onCategorySelectMultiple,
                                 )
                             } else if (superCategory.enums().isNotEmpty()) {
                                 /* If superCategory has any FlagCategories (ie. sub-categories)
@@ -372,8 +369,8 @@ fun CategoriesButtonMenu(
                                     selectedSubCategories = subCategories,
                                     isMenuExpandedParentState = superCategory == expandSubMenu,
                                     onSuperItemSelect = { expandSubMenu = it },
-                                    onCategorySelectSingle = { newSuperCategory, newSubCategory ->
-                                        onCategorySelectSingle(newSuperCategory, newSubCategory)
+                                    onCategorySelectSingle = {
+                                        onCategorySelectSingle(it)
                                         onMenuButtonClick()
                                     },
                                     onCategorySelectMultiple = onCategorySelectMultiple,
@@ -388,12 +385,12 @@ fun CategoriesButtonMenu(
                                     cardColors2 = cardColors2,
                                     isCategoriesMenuExpanded = isMenuExpanded,
                                     isParentCardStyle = superCategory != Institution,
-                                    itemSuperCategory = superCategory,
+                                    topSuperCategory = superCategory,
                                     selectedSubCategories = subCategories,
                                     isMenuExpandedParentState = expandSubMenu,
-                                    onSuperItemSelect = { expandSubMenu = it },
-                                    onCategorySelectSingle = { newSuperCategory, newSubCategory ->
-                                        onCategorySelectSingle(newSuperCategory,newSubCategory)
+                                    onSuperItemExpand = { expandSubMenu = it },
+                                    onCategorySelectSingle = {
+                                        onCategorySelectSingle(it)
                                         onMenuButtonClick()
                                     },
                                     onCategorySelectMultiple = onCategorySelectMultiple,
@@ -487,8 +484,8 @@ private fun SubItem(
     fontWeight: FontWeight? = null,
     subCategory: FlagCategory,
     selectedSubCategories: List<FlagCategory>,
-    onSubSelectSingle: (FlagCategory) -> Unit,
-    onSubSelectMultiple: (FlagCategory) -> Unit,
+    onCategorySelectSingle: (FlagCategoryBase) -> Unit,
+    onCategorySelectMultiple: (FlagCategoryBase) -> Unit,
 ) {
     val fontScale = LocalConfiguration.current.fontScale
 
@@ -498,12 +495,8 @@ private fun SubItem(
         buttonColors = buttonColors,
         fontWeight = fontWeight,
         category = subCategory.toWrapper(),
-        onCategorySelectSingle = { category ->
-            if (category is FlagCategoryWrapper) onSubSelectSingle(category.enum)
-        },
-        onCategorySelectMultiple = { category ->
-            if (category is FlagCategoryWrapper) onSubSelectMultiple(category.enum)
-        },
+        onCategorySelectSingle = onCategorySelectSingle,
+        onCategorySelectMultiple = onCategorySelectMultiple,
     ) {
         if (subCategory in selectedSubCategories) {
             Icon(
@@ -524,8 +517,8 @@ private fun SuperItemStatic(
     textButtonStyle: TextStyle,
     buttonColors: ButtonColors,
     superCategory: FlagSuperCategory,
-    onSuperSelectSingle: (FlagSuperCategory) -> Unit,
-    onSuperSelectMultiple: (FlagSuperCategory) -> Unit,
+    onCategorySelectSingle: (FlagCategoryBase) -> Unit,
+    onCategorySelectMultiple: (FlagCategoryBase) -> Unit,
 ) {
     val fontWeight = when (superCategory) {
         All -> FontWeight.ExtraBold
@@ -538,12 +531,8 @@ private fun SuperItemStatic(
         buttonColors = buttonColors,
         fontWeight = fontWeight,
         category = superCategory,
-        onCategorySelectSingle = { category ->
-            if (category is FlagSuperCategory) onSuperSelectSingle(category)
-        },
-        onCategorySelectMultiple = { category ->
-            if (category is FlagSuperCategory) onSuperSelectMultiple(category)
-        },
+        onCategorySelectSingle = onCategorySelectSingle,
+        onCategorySelectMultiple = onCategorySelectMultiple,
     )
 }
 
@@ -560,8 +549,8 @@ private fun SuperItemExpandable(
     selectedSubCategories: List<FlagCategory>,
     isMenuExpandedParentState: Boolean,
     onSuperItemSelect: (FlagSuperCategory?) -> Unit,
-    onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
-    onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onCategorySelectSingle: (FlagCategoryBase) -> Unit,
+    onCategorySelectMultiple: (FlagCategoryBase) -> Unit,
 ) {
     val subCategories = itemSuperCategory.enums()
 
@@ -631,7 +620,7 @@ private fun SuperItemExpandable(
                             /* If super is selectable make expandMenu null and select super
                              * as category */
                             onSuperItemSelect(null)
-                            onCategorySelectSingle(itemSuperCategory, null)
+                            onCategorySelectSingle(itemSuperCategory)
 
                         } else if (isMenuExpandedLocalState != null) {
                             /* If (priority) local state not null, flip it's state */
@@ -657,7 +646,7 @@ private fun SuperItemExpandable(
                     },
                     onLongClick = {
                         if (isSuperCategorySelectable) {
-                            onCategorySelectMultiple(itemSuperCategory, null)
+                            onCategorySelectMultiple(itemSuperCategory)
                         }
                     },
                 ),
@@ -734,12 +723,8 @@ private fun SuperItemExpandable(
                         fontWeight = FontWeight.Normal,
                         subCategory = subCategory,
                         selectedSubCategories = selectedSubCategories,
-                        onSubSelectSingle = {
-                            onCategorySelectSingle(null, it)
-                        },
-                        onSubSelectMultiple = {
-                            onCategorySelectMultiple(null, it)
-                        },
+                        onCategorySelectSingle = onCategorySelectSingle,
+                        onCategorySelectMultiple = onCategorySelectMultiple,
                     )
                 }
             }
@@ -777,15 +762,15 @@ private fun SuperItemOfSupers(
     cardColors2: CardColors,
     isCategoriesMenuExpanded: Boolean,
     isParentCardStyle: Boolean,
-    itemSuperCategory: FlagSuperCategory,
+    topSuperCategory: FlagSuperCategory,
     selectedSubCategories: List<FlagCategory>,
     isMenuExpandedParentState: FlagSuperCategory?,
-    onSuperItemSelect: (FlagSuperCategory?) -> Unit,
-    onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
-    onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onSuperItemExpand: (FlagSuperCategory?) -> Unit,
+    onCategorySelectSingle: (FlagCategoryBase) -> Unit,
+    onCategorySelectMultiple: (FlagCategoryBase) -> Unit,
 ) {
     /* If parent expand menu state is the super or a subcategory of the super -> true */
-    val isSuperItemExpanded = itemSuperCategory == isMenuExpandedParentState || itemSuperCategory
+    val isSuperItemExpanded = topSuperCategory == isMenuExpandedParentState || topSuperCategory
         .supers().contains(element = isMenuExpandedParentState)
 
     /* Per-item boolean for holding menu expansion state, eg. when any of it's subs are selected */
@@ -799,7 +784,7 @@ private fun SuperItemOfSupers(
     ) {
         if (isCategoriesMenuExpanded) {
             isMenuExpandedLocalState =
-                if (selectedSubCategories.any { subCat -> itemSuperCategory.supers().any {
+                if (selectedSubCategories.any { subCat -> topSuperCategory.supers().any {
                     superCat -> subCat in superCat.enums() } }) true else null
         }
     }
@@ -821,20 +806,20 @@ private fun SuperItemOfSupers(
                  * (as only non-null when a subcategory is selected, allows for menu to remain
                  * open upon other menu expansions since independent from parent state's single
                  * expansion) */
-                /*
-                if (itemSuperCategory == Institution) {
-                    onCategorySelectSingle(itemSuperCategory, null)
-                } else {}
-                 */
-                isMenuExpandedLocalState?.let {
-                    isMenuExpandedLocalState = !isMenuExpandedLocalState!!
-                }
+                if (topSuperCategory == Institution) {
+                    onCategorySelectSingle(topSuperCategory)
 
-                /* Manage parent expansion state */
-                when (isMenuExpandedParentState) {
-                    in itemSuperCategory.supers() -> onSuperItemSelect(null)
-                    itemSuperCategory -> onSuperItemSelect(null)
-                    else -> onSuperItemSelect(itemSuperCategory)
+                } else {
+                    isMenuExpandedLocalState?.let {
+                        isMenuExpandedLocalState = !isMenuExpandedLocalState!!
+                    }
+
+                    /* Manage parent expansion state */
+                    when (isMenuExpandedParentState) {
+                        in topSuperCategory.supers() -> onSuperItemExpand(null)
+                        topSuperCategory -> onSuperItemExpand(null)
+                        else -> onSuperItemExpand(topSuperCategory)
+                    }
                 }
             },
             shape = RoundedCornerShape(0.dp),
@@ -867,7 +852,7 @@ private fun SuperItemOfSupers(
                     }
 
                     Text(
-                        text = stringResource(itemSuperCategory.title),
+                        text = stringResource(topSuperCategory.title),
                         modifier = Modifier.weight(weight = 1f, fill = false),
                         fontWeight = if (isParentCardStyle) FontWeight.ExtraBold else null,
                         textAlign = if (isParentCardStyle) TextAlign.Center else null,
@@ -915,18 +900,18 @@ private fun SuperItemOfSupers(
                 shape = if (isParentCardStyle) RoundedCornerShape(0.dp) else Shapes.large,
                 colors = cardColors2
             ) {
-                itemSuperCategory.supers().forEach { superCategory ->
+                topSuperCategory.supers().forEach { superCategory ->
                     SuperItemExpandable(
                         textButtonStyle = textButtonStyle,
                         buttonColors1 = buttonColors2,
                         buttonColors2 = buttonColors1,
                         cardColors2 = cardColors1,
                         isCategoriesMenuExpanded = isCategoriesMenuExpanded,
-                        isSuperCategorySelectable = itemSuperCategory != Political,
+                        isSuperCategorySelectable = topSuperCategory != Political,
                         itemSuperCategory = superCategory,
                         selectedSubCategories = selectedSubCategories,
                         isMenuExpandedParentState = superCategory == isMenuExpandedParentState,
-                        onSuperItemSelect = onSuperItemSelect,
+                        onSuperItemSelect = onSuperItemExpand,
                         onCategorySelectSingle = onCategorySelectSingle,
                         onCategorySelectMultiple = onCategorySelectMultiple,
                     )

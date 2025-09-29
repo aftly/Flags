@@ -97,6 +97,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import dev.aftly.flags.R
 import dev.aftly.flags.model.FlagCategory
+import dev.aftly.flags.model.FlagCategoryBase
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.game.AnswerMode
@@ -311,11 +312,11 @@ fun GameScreen(
         onFullscreen = { isFlagWide ->
             onFullscreen(uiState.currentFlag, isFlagWide, !uiState.isShowAnswer)
         },
-        onCategorySelectSingle = { superCategory, subCategory ->
-            viewModel.updateCurrentCategory(superCategory, subCategory)
+        onCategorySelectSingle = {
+            viewModel.updateCurrentCategory(category = it)
         },
-        onCategorySelectMultiple = { superCategory, subCategory ->
-            viewModel.updateCurrentCategories(superCategory, subCategory)
+        onCategorySelectMultiple = {
+            viewModel.updateCurrentCategories(category = it)
         },
         onSavedFlagsSelect = { viewModel.selectSavedFlags() },
     )
@@ -348,8 +349,8 @@ private fun GameScreen(
     onGameModesDialog: () -> Unit,
     onScoreHistory: () -> Unit,
     onFullscreen: (Boolean) -> Unit,
-    onCategorySelectSingle: (FlagSuperCategory?, FlagCategory?) -> Unit,
-    onCategorySelectMultiple: (FlagSuperCategory?, FlagCategory?) -> Unit,
+    onCategorySelectSingle: (FlagCategoryBase) -> Unit,
+    onCategorySelectMultiple: (FlagCategoryBase) -> Unit,
     onSavedFlagsSelect: () -> Unit,
 ) {
     /* Controls FilterFlagsButton menu expansion and tracks button height */

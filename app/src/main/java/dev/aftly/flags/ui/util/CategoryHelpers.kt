@@ -29,6 +29,7 @@ import dev.aftly.flags.model.FlagCategory.PROVISIONAL_GOVERNMENT
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
 import dev.aftly.flags.model.FlagCategory.THEOCRATIC
+import dev.aftly.flags.model.FlagCategoryBase
 import dev.aftly.flags.model.FlagCategoryWrapper
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
@@ -96,26 +97,30 @@ fun RelatedFlagsMenu.colorSelect(): Color = when (this) {
 /* ------ For updateCurrentCategory() in ViewModels ------ */
 
 fun getFlagsFromCategory(
-    superCategory: FlagSuperCategory?,
-    subCategory: FlagCategory?,
+    category: FlagCategoryBase,
     allFlags: List<FlagView>,
-    exceptionCategories: List<FlagCategory> = SovereignCountry.enums(),
 ): List<FlagView> {
     /* Exclude flags if they have a particular category/categories */
-    val categoriesNot = absenceCategoriesMap[subCategory] ?: emptyList()
+    val categoriesNot = when (category) {
+        is FlagCategoryWrapper -> absenceCategoriesMap[category.enum] ?: emptyList()
+        else -> emptyList()
+    }
 
     /* Generate list of categories to iterate over (for flags list) from params */
-    val categories = when (subCategory) {
-        null -> superCategory?.enums() ?: exceptionCategories
-        NOMINAL_EXTRA_CONSTITUTIONAL -> listOf(SOVEREIGN_STATE)
-        THEOCRATIC -> listOf(subCategory, THEOCRACY)
-        else -> listOf(subCategory)
+    val categories = when (category) {
+        is FlagSuperCategory -> category.allEnums()
+        is FlagCategoryWrapper -> {
+            if (category.enum == NOMINAL_EXTRA_CONSTITUTIONAL) listOf(SOVEREIGN_STATE)
+            else if (category.enum == THEOCRATIC) listOf(category.enum, THEOCRACY)
+            else listOf(category.enum)
+        }
     }
 
     /* For skipping historical flags when category in exception */
-    val parentCategory = getParentSuperCategory(superCategory, subCategory)
+    val parentCategory = getParentSuperCategory(category)
     val isHistoricalException = parentCategory in DataSource.historicalSuperCategoryExceptions &&
-            subCategory !in historicalSubCategoryWhitelist
+            if (category is FlagCategoryWrapper) category.enum !in historicalSubCategoryWhitelist
+            else true
 
     return allFlags.filter { flag ->
         when {
@@ -128,13 +133,11 @@ fun getFlagsFromCategory(
 }
 
 fun getParentSuperCategory(
-    superCategory: FlagSuperCategory?,
-    subCategory: FlagCategory?,
-    exceptionCategory: FlagSuperCategory = SovereignCountry,
-): FlagSuperCategory = when (subCategory) {
-    null -> superCategory ?: exceptionCategory
-    else -> menuSuperCategoryList.filterNot { it in listOf(All, Political) }
-        .find { subCategory in it.enums() } ?: Political
+    category: FlagCategoryBase
+): FlagSuperCategory = when (category) {
+    is FlagSuperCategory -> category
+    is FlagCategoryWrapper -> menuSuperCategoryList.filterNot { it == All || it == Political }
+        .find { category.enum in it.enums() } ?: Political
 }
 
 
@@ -152,7 +155,7 @@ fun isSuperCategoryExit(
     val instExclusiveSupers = supersExclusiveOfInstitution
     val instExclusiveSubs = instExclusiveSupers.flatMap { it.enums() }
     val polExclusiveSupers = supersExclusiveOfPolitical
-    val polSubs = Political.supersEnums()
+    val polSubs = Political.allEnums()
     val intExclusiveSupers = supersExclusiveOfInternational
     val intExclusiveSubs = intExclusiveSupers.flatMap { it.enums() }
         .filterNot { it == CONFEDERATION }
@@ -224,7 +227,7 @@ fun isSubCategoryExit(
     val polExclusiveSupers = supersExclusiveOfPolitical
     val polExclusiveSubs = polExclusiveSupers.flatMap { it.enums() } +
             AUTONOMOUS_REGION + DEVOLVED_GOVERNMENT
-    val polSubs = Political.supersEnums()
+    val polSubs = Political.allEnums()
     val intExclusiveSubs = supersExclusiveOfInternational.flatMap { it.enums() }
         .filterNot { it == CONFEDERATION }
     val countryExclusiveSubs = subsExclusiveOfCountry
@@ -448,7 +451,7 @@ fun getCategoriesTitleIds(
     val culturalCategories = subCategories.filter { it in Cultural.enums() }
 
     /* Political categories, sorted semantically, and exceptions applied */
-    val polCats = subCategories.filter { it in Political.supersEnums() }
+    val polCats = subCategories.filter { it in Political.allEnums() }
 
     val isConfederationException = CONFEDERATION in subCategories && subCategories
         .none { it in PowerDerivation.enums() } && polCats.size > 1 || isInternational
