@@ -29,6 +29,7 @@ import dev.aftly.flags.model.FlagCategory.PROVISIONAL_GOVERNMENT
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
 import dev.aftly.flags.model.FlagCategory.THEOCRATIC
+import dev.aftly.flags.model.FlagCategoryWrapper
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagSuperCategory.AutonomousRegion
@@ -71,6 +72,8 @@ fun getSingleCategoryPreviewTitleOrNull(
 
 
 /* Extension functions */
+fun FlagCategory.toWrapper(): FlagCategoryWrapper = FlagCategoryWrapper(enum = this)
+
 fun ScoreItem.isCategoriesEmpty(): Boolean =
     gameSuperCategories.isEmpty() && gameSubCategories.isEmpty()
 
