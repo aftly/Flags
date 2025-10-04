@@ -89,12 +89,8 @@ fun CategoriesButtonMenu(
     isMenuEnabled: Boolean = true,
     isMenuExpanded: Boolean,
     onMenuButtonClick: () -> Unit,
-    containerColor1: Color = MaterialTheme.colorScheme.onSecondaryContainer,
-    containerColor2: Color = MaterialTheme.colorScheme.secondary,
-    cardColors1: CardColors = CardDefaults.cardColors(containerColor = containerColor1),
-    cardColors2: CardColors = CardDefaults.cardColors(containerColor = containerColor2),
-    buttonColors1: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor1),
-    buttonColors2: ButtonColors = ButtonDefaults.buttonColors(containerColor = containerColor2),
+    containerColorDark: Color = MaterialTheme.colorScheme.onSecondaryContainer,
+    containerColorLight: Color = MaterialTheme.colorScheme.secondary,
     isSavedFlagsNotEmpty: Boolean,
     superCategories: List<FlagSuperCategory>,
     subCategories: List<FlagCategory>,
@@ -111,7 +107,28 @@ fun CategoriesButtonMenu(
         if (!isMenuExpanded) expandSubMenu = null
     }
 
-    /* Manage button height */
+    /* Color properties */
+    val cardColorsDark: CardColors = CardDefaults.cardColors(containerColor = containerColorDark)
+    val cardColorsLight: CardColors = CardDefaults.cardColors(containerColor = containerColorLight)
+    val buttonColorsDark: ButtonColors =
+        ButtonDefaults.buttonColors(containerColor = containerColorDark)
+    val buttonColorsLight: ButtonColors =
+        ButtonDefaults.buttonColors(containerColor = containerColorLight)
+
+    val isDarkTheme = LocalDarkTheme.current
+    val containerColorSubSelected = when (isDarkTheme) {
+        true -> Color.White
+        false -> Color.Black
+    }
+    val buttonColorsSubSelected = ButtonDefaults.buttonColors(
+        containerColor = lerp(
+            start = buttonColorsDark.containerColor,
+            stop = containerColorSubSelected,
+            fraction = if (isDarkTheme) 0.25f else 0.165f,
+        )
+    )
+
+    /* Button height properties */
     val configuration = LocalConfiguration.current
     val fontScale = configuration.fontScale
     val oneLineButtonHeight = Dimens.defaultFilterButtonHeight30 * fontScale
@@ -146,18 +163,6 @@ fun CategoriesButtonMenu(
     }
 
     val density = LocalDensity.current
-    val isDarkTheme = LocalDarkTheme.current
-    val containerColor3 = when (isDarkTheme) {
-        true -> Color.White
-        false -> Color.Black
-    }
-    val buttonColors3 = ButtonDefaults.buttonColors(
-        containerColor = lerp(
-            start = buttonColors1.containerColor,
-            stop = containerColor3,
-            fraction = if (isDarkTheme) 0.25f else 0.165f,
-        )
-    )
 
     /* Icon properties */
     val iconSize = Dimens.standardIconSize24 * fontScale
@@ -205,14 +210,14 @@ fun CategoriesButtonMenu(
                     .height(buttonHeight),
                 enabled = isMenuEnabled,
                 shape = MaterialTheme.shapes.large,
-                colors = buttonColors2,
+                colors = buttonColorsLight,
                 contentPadding = PaddingValues(horizontal = Dimens.medium16),
             ) {
                 MenuItemCentred(
                     isMenuButton = true,
                     buttonTitle = buttonTitle,
                     textButtonStyle = MaterialTheme.typography.titleMedium,
-                    buttonColors = buttonColors2,
+                    buttonColors = buttonColorsLight,
                     category = null,
                     iconPaddingButton = iconPaddingButton,
                     iconSizePadding = iconSizePaddingButton,
@@ -240,13 +245,13 @@ fun CategoriesButtonMenu(
                                     modifier = Modifier
                                         .requiredWidthIn(min = Dimens.standardIconSize24)
                                         .clip(flagCountShape)
-                                        .background(buttonColors2.contentColor)
+                                        .background(buttonColorsLight.contentColor)
                                         .padding(
                                             vertical = 2.dp * fontScale,
                                             horizontal = 6.dp * fontScale,
                                         ),
                                     textAlign = TextAlign.Center,
-                                    color = buttonColors2.containerColor,
+                                    color = buttonColorsLight.containerColor,
                                     style = MaterialTheme.typography.titleSmall,
                                 )
                             }
@@ -262,7 +267,7 @@ fun CategoriesButtonMenu(
                                 isMenuButton = true,
                                 iconSize = iconSize,
                                 iconPadding = iconPaddingButton,
-                                tint = buttonColors2.contentColor
+                                tint = buttonColorsLight.contentColor
                             )
                         }
                     },
@@ -275,7 +280,7 @@ fun CategoriesButtonMenu(
             ) {
                 Card(
                     shape = Shapes.large,
-                    colors = cardColors1,
+                    colors = cardColorsDark,
                 ) {
                     LazyColumn(
                         modifier = Modifier.fillMaxWidth(),
@@ -298,9 +303,9 @@ fun CategoriesButtonMenu(
                                     textButtonStyle = textButtonStyle,
                                     buttonColors =
                                         if (superCategories.isEmpty() && subCategories.isEmpty()) {
-                                            buttonColors2
+                                            buttonColorsLight
                                         } else {
-                                            buttonColors1
+                                            buttonColorsDark
                                         },
                                     category = null,
                                 )
@@ -310,13 +315,13 @@ fun CategoriesButtonMenu(
                         /* Flag category items */
                         items(items = menuSuperCategoryList) { superCategory ->
                             val buttonColors = if (superCategory in superCategories) {
-                                buttonColors2
+                                buttonColorsLight
                             } else if (superCategory != All &&
                                 (superCategory.allEnums().any { it in subCategories } ||
                                         superCategory.supers().any { it in superCategories })) {
-                                buttonColors3
+                                buttonColorsSubSelected
                             } else {
-                                buttonColors1
+                                buttonColorsDark
                             }
 
 
@@ -339,8 +344,8 @@ fun CategoriesButtonMenu(
                                 SuperItemExpandable(
                                     textButtonStyle = textButtonStyle,
                                     buttonColors = buttonColors,
-                                    buttonColorsChild = buttonColors2,
-                                    cardColors = cardColors2,
+                                    buttonColorsChild = buttonColorsLight,
+                                    cardColors = cardColorsLight,
                                     iconSize = iconSize,
                                     iconPadding = iconPaddingMenu,
                                     iconsTotalSize = iconsTotalSizeMenu,
@@ -360,16 +365,18 @@ fun CategoriesButtonMenu(
                                 /* If superCategory only contains superCategories use 3 tier menu */
                                 SuperItemOfSupers(
                                     textButtonStyle = textButtonStyle,
-                                    buttonColors1 = buttonColors1,
-                                    buttonColors2 = buttonColors2,
-                                    cardColors1 = cardColors1,
-                                    cardColors2 = cardColors2,
+                                    buttonColorsSelectable = buttonColors,
+                                    buttonColorsDark = buttonColorsDark,
+                                    buttonColorsLight = buttonColorsLight,
+                                    cardColorsDark = cardColorsDark,
+                                    cardColorsLight = cardColorsLight,
                                     iconSize = iconSize,
                                     iconPadding = iconPaddingMenu,
                                     iconsTotalSize = iconsTotalSizeMenu,
                                     isCategoriesMenuExpanded = isMenuExpanded,
                                     isSuperItemCardStyle = superCategory != Institution,
                                     itemSuperCategory = superCategory,
+                                    selectedSuperCategories = superCategories,
                                     selectedSubCategories = subCategories,
                                     isMenuExpandedParentState = expandSubMenu,
                                     onSuperItemExpand = { expandSubMenu = it },
@@ -665,10 +672,36 @@ private fun SuperItemExpandable(
     }
 
     /* Bottom padding when last item is expandable and expanded */
-    val lastItemPadding = if (itemSuperCategory == Political.subCategories.last() &&
+    val lastItems = listOf(Political.subCategories.last(), Institution.subCategories.last())
+    val lastItemPadding = if (itemSuperCategory in lastItems &&
         (isMenuExpandedParentState || isMenuExpandedLocalState == true)) 9.dp else 0.dp
 
     val fontScale = LocalConfiguration.current.fontScale
+
+    val expandSuperClickableModifier = Modifier.clickable(
+        onClick = {
+            if (isMenuExpandedLocalState != null) {
+                /* If (priority) local state not null, flip it's state */
+                isMenuExpandedLocalState = !isMenuExpandedLocalState!!
+
+            } else if (!isMenuExpandedParentState) {
+                /* If current menu is not expanded, update parent expand menu state with
+                 * it's category */
+                onSuperItemSelect(itemSuperCategory)
+
+            } else if (menuSuperCategoryList
+                    .any { itemSuperCategory in it.subCategories }) {
+                /* If item's category is in a menu superCategory, update parent expand
+                 * menu state with the super (keeps super open upon item collapse) */
+                onSuperItemSelect(
+                    menuSuperCategoryList.find { itemSuperCategory in it.subCategories }
+                )
+            } else {
+                /* Else, make expandMenu state null */
+                onSuperItemSelect(null)
+            }
+        }
+    )
 
 
     /* Parent content */
@@ -689,17 +722,7 @@ private fun SuperItemExpandable(
         ) {
             /* Local state takes priority for icon shown */
             MenuItemExpandableArrowIcon(
-                modifier = Modifier.clickable {
-                    isMenuExpandedLocalState?.let {
-                        isMenuExpandedLocalState = !isMenuExpandedLocalState!!
-                    }
-
-                    /* Manage parent expansion state */
-                    when (isMenuExpandedParentState) {
-                        true -> onSuperItemSelect(null)
-                        false -> onSuperItemSelect(itemSuperCategory)
-                    }
-                },
+                modifier = expandSuperClickableModifier,
                 isExpanded = isMenuExpandedLocalState ?: isMenuExpandedParentState,
                 iconSize = iconSize,
                 iconPadding = iconPadding,
@@ -708,31 +731,7 @@ private fun SuperItemExpandable(
         }
     } else {
         MenuItemCentred(
-            modifier = Modifier.clickable(
-                onClick = {
-                    if (isMenuExpandedLocalState != null) {
-                        /* If (priority) local state not null, flip it's state */
-                        isMenuExpandedLocalState = !isMenuExpandedLocalState!!
-
-                    } else if (!isMenuExpandedParentState) {
-                        /* If current menu is not expanded, update parent expand menu state with
-                         * it's category */
-                        onSuperItemSelect(itemSuperCategory)
-
-                    } else if (menuSuperCategoryList
-                            .any { itemSuperCategory in it.subCategories }
-                    ) {
-                        /* If item's category is in a menu superCategory, update parent expand
-                         * menu state with the super (keeps super open upon item collapse) */
-                        onSuperItemSelect(
-                            menuSuperCategoryList.find { itemSuperCategory in it.subCategories }
-                        )
-                    } else {
-                        /* Else, make expandMenu state null */
-                        onSuperItemSelect(null)
-                    }
-                }
-            ),
+            modifier = expandSuperClickableModifier,
             textButtonStyle = textButtonStyle,
             buttonColors = buttonColors,
             category = itemSuperCategory,
@@ -799,16 +798,18 @@ private fun SuperItemsContainer(
 @Composable
 private fun SuperItemOfSupers(
     textButtonStyle: TextStyle,
-    buttonColors1: ButtonColors,
-    buttonColors2: ButtonColors,
-    cardColors1: CardColors,
-    cardColors2: CardColors,
+    buttonColorsSelectable: ButtonColors,
+    buttonColorsDark: ButtonColors,
+    buttonColorsLight: ButtonColors,
+    cardColorsDark: CardColors,
+    cardColorsLight: CardColors,
     iconSize: Dp,
     iconPadding: Dp,
     iconsTotalSize: Dp,
     isCategoriesMenuExpanded: Boolean,
     isSuperItemCardStyle: Boolean,
     itemSuperCategory: FlagSuperCategory,
+    selectedSuperCategories: List<FlagSuperCategory>,
     selectedSubCategories: List<FlagCategory>,
     isMenuExpandedParentState: FlagSuperCategory?,
     onSuperItemExpand: (FlagSuperCategory?) -> Unit,
@@ -830,36 +831,40 @@ private fun SuperItemOfSupers(
     ) {
         if (isCategoriesMenuExpanded) {
             isMenuExpandedLocalState =
-                if (selectedSubCategories.any { subCat ->
+                if ((selectedSubCategories.any { subCat ->
                     itemSuperCategory.supers().any { superCat ->
-                        subCat in superCat.enums() } }) true else null
+                        subCat in superCat.enums() } }) ||
+                    itemSuperCategory.supers().any { it in selectedSuperCategories })
+                    true else null
         }
     }
+
+    val expandSuperClickableModifier = Modifier.clickable(
+        onClick = {
+            isMenuExpandedLocalState?.let {
+                isMenuExpandedLocalState = !isMenuExpandedLocalState!!
+            }
+
+            /* Manage parent expansion state */
+            when (isMenuExpandedParentState) {
+                in itemSuperCategory.supers() -> onSuperItemExpand(null)
+                itemSuperCategory -> onSuperItemExpand(null)
+                else -> onSuperItemExpand(itemSuperCategory)
+            }
+        }
+    )
 
     /* Content */
     SuperItemsContainer(
         isCard = isSuperItemCardStyle,
-        cardColors = cardColors2,
+        cardColors = cardColorsLight,
     ) {
         /* Parent content */
         if (isSuperItemCardStyle) {
             MenuItemCentred(
-                modifier = Modifier.clickable(
-                    onClick = {
-                        isMenuExpandedLocalState?.let {
-                            isMenuExpandedLocalState = !isMenuExpandedLocalState!!
-                        }
-
-                        /* Manage parent expansion state */
-                        when (isMenuExpandedParentState) {
-                            in itemSuperCategory.supers() -> onSuperItemExpand(null)
-                            itemSuperCategory -> onSuperItemExpand(null)
-                            else -> onSuperItemExpand(itemSuperCategory)
-                        }
-                    }
-                ),
+                modifier = expandSuperClickableModifier,
                 textButtonStyle = textButtonStyle,
-                buttonColors = buttonColors2,
+                buttonColors = buttonColorsLight,
                 fontWeight = FontWeight.ExtraBold,
                 category = itemSuperCategory,
                 iconSizePadding = iconSize + iconPadding,
@@ -869,7 +874,7 @@ private fun SuperItemOfSupers(
                     isExpanded = isMenuExpandedLocalState ?: isSuperItemExpanded,
                     iconSize = iconSize,
                     iconPadding = iconPadding,
-                    tint = buttonColors1.contentColor,
+                    tint = buttonColorsLight.contentColor,
                 )
             }
         } else {
@@ -879,21 +884,17 @@ private fun SuperItemOfSupers(
                     onLongClick = { onCategorySelectMultiple(itemSuperCategory) },
                 ),
                 textButtonStyle = textButtonStyle,
-                buttonColors = buttonColors1,
+                buttonColors = buttonColorsSelectable,
                 category = itemSuperCategory,
 
             ) {
                 /* Local state takes priority for icon shown */
                 MenuItemExpandableArrowIcon(
-                    modifier = Modifier.clickable {
-                        isMenuExpandedLocalState?.let {
-                            isMenuExpandedLocalState = !isMenuExpandedLocalState!!
-                        }
-                    },
-                    isExpanded = isMenuExpandedLocalState ?: false,
+                    modifier = expandSuperClickableModifier,
+                    isExpanded = isMenuExpandedLocalState ?: isSuperItemExpanded,
                     iconSize = iconSize,
                     iconPadding = iconPadding,
-                    tint = buttonColors1.contentColor,
+                    tint = buttonColorsSelectable.contentColor,
                 )
             }
         }
@@ -907,15 +908,23 @@ private fun SuperItemOfSupers(
                     if (isSuperItemCardStyle) Modifier
                     else Modifier.padding(horizontal = Dimens.small10),
                 shape = if (isSuperItemCardStyle) RoundedCornerShape(0.dp) else Shapes.large,
-                colors = cardColors2
+                colors = cardColorsLight
             ) {
                 itemSuperCategory.supers().forEach { superCategory ->
+                    val buttonColors =
+                        if (superCategory in selectedSuperCategories) {
+                            buttonColorsLight.copy(
+                                containerColor = Color.White.copy(alpha = 0.175f)
+                            )
+                        } else {
+                            buttonColorsLight
+                        }
+
                     SuperItemExpandable(
                         textButtonStyle = textButtonStyle,
-                        buttonColors = if (isSuperItemCardStyle) buttonColors2 else buttonColors1,
-                        buttonColorsChild =
-                            if (isSuperItemCardStyle) buttonColors1 else buttonColors2,
-                        cardColors = cardColors1,
+                        buttonColors = buttonColors,
+                        buttonColorsChild = buttonColorsDark,
+                        cardColors = cardColorsDark,
                         iconSize = iconSize,
                         iconPadding = iconPadding,
                         iconsTotalSize = iconsTotalSize,

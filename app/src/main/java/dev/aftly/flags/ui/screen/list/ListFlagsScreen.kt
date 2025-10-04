@@ -97,9 +97,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import dev.aftly.flags.R
-import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategoryBase
-import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 import dev.aftly.flags.model.FlagView
@@ -412,8 +410,8 @@ private fun ListFlagsScreen(
             onButtonHeightChange = { buttonHeight = it },
             isMenuExpanded = isMenuExpanded,
             onMenuButtonClick = { isMenuExpanded = !isMenuExpanded },
-            containerColor1 = containerColor1,
-            containerColor2 = containerColor2,
+            containerColorDark = containerColor1,
+            containerColorLight = containerColor2,
             isSavedFlagsNotEmpty = uiState.savedFlags.isNotEmpty(),
             superCategories = uiState.currentSuperCategories,
             subCategories = uiState.currentSubCategories,
