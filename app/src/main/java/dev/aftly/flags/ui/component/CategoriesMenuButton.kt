@@ -1,6 +1,7 @@
 package dev.aftly.flags.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -185,8 +186,7 @@ fun CategoriesButtonMenu(
             )
         }
 
-
-        /* Filter button content */
+        /* Content */
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -197,6 +197,7 @@ fun CategoriesButtonMenu(
                     end = buttonHorizontalPadding,
                 ),
         ) {
+            /* Parent content */
             Button(
                 onClick = onMenuButtonClick,
                 modifier = Modifier
@@ -268,16 +269,9 @@ fun CategoriesButtonMenu(
                 )
             }
 
-            AnimatedVisibility(
-                visible = isMenuExpanded,
-                enter = expandVertically(
-                    animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
-                    expandFrom = Alignment.Top,
-                ),
-                exit = shrinkVertically(
-                    animationSpec = tween(durationMillis = Timing.MENU_COLLAPSE),
-                    shrinkTowards = Alignment.Top,
-                ),
+            /* Child content */
+            MenuAnimatedVisibility(
+                visible = isMenuExpanded
             ) {
                 Card(
                     shape = Shapes.large,
@@ -326,9 +320,8 @@ fun CategoriesButtonMenu(
                             }
 
 
-                            if (superCategory.subCategories.size == 1 || superCategory == All) {
-                                /* If superCategory has 1 sub category use 1 tier (static) menu item
-                                 * (where superCategory is meant to represent a sub/FlagCategory) */
+                            if (superCategory.enums().size == 1 || superCategory == All) {
+                                /* If superCategory has 1 subcategory use 1 tier (static) menu item */
                                 SuperItemStatic(
                                     textButtonStyle = textButtonStyle,
                                     buttonColors = buttonColors,
@@ -341,8 +334,8 @@ fun CategoriesButtonMenu(
                                     onCategorySelectMultiple = onCategorySelectMultiple,
                                 )
                             } else if (superCategory.enums().isNotEmpty()) {
-                                /* If superCategory has any FlagCategories (ie. sub-categories)
-                                 * use 2 tier expandable menu */
+                                /* If superCategory has multiple subcategories
+                                 * use 2 tier (expandable) menu item */
                                 SuperItemExpandable(
                                     textButtonStyle = textButtonStyle,
                                     buttonColors = buttonColors,
@@ -467,12 +460,6 @@ private fun MenuItem(
 ) {
     Box(
         modifier = modifier.padding(vertical = Dimens.textButtonVertPad)
-        /*
-        .indication(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = LocalIndication.current
-        ),
-         */
     ) {
         MenuItemContent(
             textButtonStyle = textButtonStyle,
@@ -509,15 +496,7 @@ private fun MenuItemCentred(
         )
 
     @Suppress("UnusedBoxWithConstraintsScope")
-    BoxWithConstraints(
-        modifier = boxModifier
-            /*
-            .indication(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = LocalIndication.current
-            ),
-             */
-    ) {
+    BoxWithConstraints(modifier = boxModifier) {
         /* Manage dynamic spacer size for button title center alignment */
         val buttonWidth = maxWidth /* (BoxWithConstraintsScope usage) */
         var textWidth by remember { mutableStateOf(value = 0.dp) }
@@ -564,6 +543,25 @@ private fun MenuItemCard(
             content()
         }
     }
+}
+
+@Composable
+private fun MenuAnimatedVisibility(
+    visible: Boolean,
+    content: @Composable (AnimatedVisibilityScope.() -> Unit),
+) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = expandVertically(
+            animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
+            expandFrom = Alignment.Top,
+        ),
+        exit = shrinkVertically(
+            animationSpec = tween(durationMillis = Timing.MENU_COLLAPSE),
+            shrinkTowards = Alignment.Top,
+        ),
+        content = content,
+    )
 }
 
 
@@ -673,7 +671,7 @@ private fun SuperItemExpandable(
     val fontScale = LocalConfiguration.current.fontScale
 
 
-    /* Header content */
+    /* Parent content */
     if (isSuperCategorySelectable) {
         MenuItem(
             modifier = Modifier.combinedClickable(
@@ -752,18 +750,9 @@ private fun SuperItemExpandable(
         }
     }
 
-
-    /* Sub-menu content */
-    AnimatedVisibility(
-        visible = isMenuExpandedLocalState ?: isMenuExpandedParentState,
-        enter = expandVertically(
-            animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
-            expandFrom = Alignment.Top,
-        ),
-        exit = shrinkVertically(
-            animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
-            shrinkTowards = Alignment.Top,
-        )
+    /* Child content */
+    MenuAnimatedVisibility(
+        visible = isMenuExpandedLocalState ?: isMenuExpandedParentState
     ) {
         MenuItemCard(
             modifier = Modifier.padding(vertical = 2.25.dp * fontScale),
@@ -847,13 +836,12 @@ private fun SuperItemOfSupers(
         }
     }
 
-
-    /* Menu item content */
+    /* Content */
     SuperItemsContainer(
         isCard = isSuperItemCardStyle,
         cardColors = cardColors2,
     ) {
-        /* Header content */
+        /* Parent content */
         if (isSuperItemCardStyle) {
             MenuItemCentred(
                 modifier = Modifier.clickable(
@@ -884,7 +872,6 @@ private fun SuperItemOfSupers(
                     tint = buttonColors1.contentColor,
                 )
             }
-
         } else {
             MenuItem(
                 modifier = Modifier.combinedClickable(
@@ -911,18 +898,9 @@ private fun SuperItemOfSupers(
             }
         }
 
-
-        /* Sub-menu content */
-        AnimatedVisibility(
-            visible = isMenuExpandedLocalState ?: isSuperItemExpanded,
-            enter = expandVertically(
-                animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
-                expandFrom = Alignment.Top,
-            ),
-            exit = shrinkVertically(
-                animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
-                shrinkTowards = Alignment.Top,
-            )
+        /* Child content */
+        MenuAnimatedVisibility(
+            visible = isMenuExpandedLocalState ?: isSuperItemExpanded
         ) {
             Card(
                 modifier =
