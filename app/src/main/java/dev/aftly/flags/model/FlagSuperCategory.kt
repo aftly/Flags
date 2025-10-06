@@ -193,7 +193,7 @@ sealed class FlagSuperCategory(
     )
 
     @Serializable
-    @SerialName(value = "executive")
+    @SerialName(value = "civilian")
     data object Civilian : FlagSuperCategory(
         title = R.string.category_super_civilian,
         categoriesMenuButton = R.string.category_super_civilian_menu_button,

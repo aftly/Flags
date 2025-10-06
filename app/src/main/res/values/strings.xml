@@ -37,7 +37,7 @@
     <string name="category_super_executive_score_preview">Executive</string>
     <string name="category_super_executive_score_detailed">Executive</string>
     <string name="category_super_civilian">Civilian</string>
-    <string name="category_super_civilian_menu_button">Civilian</string>
+    <string name="category_super_civilian_menu_button">Civilian Institution</string>
     <string name="category_super_civilian_score_preview">Civilian</string>
     <string name="category_super_civilian_score_detailed">Civilian</string>
     <string name="category_super_cultural">Cultural</string>

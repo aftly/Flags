@@ -13,6 +13,7 @@ import dev.aftly.flags.data.DataSource.switchSubsSuperCategories
 import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories1
 import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories2
 import dev.aftly.flags.data.DataSource.subsExclusiveOfCountry
+import dev.aftly.flags.data.DataSource.supersExclusiveOfCultural
 import dev.aftly.flags.data.DataSource.supersExclusiveOfInstitution
 import dev.aftly.flags.data.DataSource.supersExclusiveOfInternational
 import dev.aftly.flags.data.DataSource.supersExclusiveOfPolitical
@@ -153,13 +154,16 @@ fun isSuperCategoryExit(
     val exclusive1Subs = exclusive1Supers.flatMap { it.enums() }
     val exclusive2Supers = mutuallyExclusiveSuperCategories2
     val exclusive2Subs = exclusive2Supers.flatMap { it.enums() }
-    val instExclusiveSupers = supersExclusiveOfInstitution
-    val instExclusiveSubs = instExclusiveSupers.flatMap { it.enums() }
-    val polExclusiveSupers = supersExclusiveOfPolitical
-    val polSubs = Political.allEnums()
     val intExclusiveSupers = supersExclusiveOfInternational
     val intExclusiveSubs = intExclusiveSupers.flatMap { it.enums() }
         .filterNot { it == CONFEDERATION }
+    val instExclusiveSupers = supersExclusiveOfInstitution
+    val instExclusiveSubs = instExclusiveSupers.flatMap { it.enums() }
+    val cultExclusiveSupers = supersExclusiveOfCultural
+    val cultExclusiveSubs = cultExclusiveSupers.flatMap { it.enums() }
+    val cultSubs = Cultural.enums()
+    val polExclusiveSupers = supersExclusiveOfPolitical
+    val polSubs = Political.allEnums()
     val countryExclusiveSubs = subsExclusiveOfCountry
 
     return if (superCategories.isEmpty() && subCategories.isEmpty()) {
@@ -208,6 +212,16 @@ fun isSuperCategoryExit(
         International in superCategories) {
         true
 
+    } else if (superCategory == Cultural &&
+        (superCategories.any { it in cultExclusiveSupers } ||
+        subCategories.any { it in cultExclusiveSubs })) {
+        true
+
+    } else if (superCategory in cultExclusiveSupers &&
+        (Cultural in superCategories ||
+        cultSubs.any { it in subCategories })) {
+        true
+
     } else if (superCategory == SovereignCountry &&
         subCategories.any { it in countryExclusiveSubs }) {
         true
@@ -228,14 +242,17 @@ fun isSubCategoryExit(
     val exclusive2Supers = mutuallyExclusiveSuperCategories2.filterNot { subCategory in it.enums() }
     val exclusive2Subs = mutuallyExclusiveSuperCategories2.flatMap { it.enums() }
     val exclusive2SubsSansSuper = exclusive2Supers.flatMap { it.enums() }
+    val intExclusiveSubs = supersExclusiveOfInternational.flatMap { it.enums() }
+        .filterNot { it == CONFEDERATION }
     val instExclusiveSupers = supersExclusiveOfInstitution
     val instExclusiveSubs = supersExclusiveOfInstitution.flatMap { it.enums() }
+    val cultExclusiveSupers = supersExclusiveOfCultural
+    val cultExclusiveSubs = cultExclusiveSupers.flatMap { it.enums() }
+    val cultSubs = Cultural.enums()
     val polExclusiveSupers = supersExclusiveOfPolitical
     val polExclusiveSubs = polExclusiveSupers.flatMap { it.enums() } +
             AUTONOMOUS_REGION + DEVOLVED_GOVERNMENT
     val polSubs = Political.allEnums()
-    val intExclusiveSubs = supersExclusiveOfInternational.flatMap { it.enums() }
-        .filterNot { it == CONFEDERATION }
     val countryExclusiveSubs = subsExclusiveOfCountry
 
     return if (subCategories.isEmpty() && superCategories.isEmpty()) {
@@ -280,6 +297,16 @@ fun isSubCategoryExit(
 
     } else if (subCategory in intExclusiveSubs &&
         International in superCategories) {
+        true
+
+    } else if (subCategory in cultSubs &&
+        (cultExclusiveSupers.any { it in superCategories } ||
+        cultExclusiveSubs.any { it in subCategories })) {
+        true
+
+    } else if (subCategory in cultExclusiveSubs &&
+        (Cultural in superCategories ||
+        cultSubs.any { it in subCategories })) {
         true
 
     } else if (subCategory in countryExclusiveSubs &&

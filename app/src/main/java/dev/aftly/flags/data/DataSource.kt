@@ -66,22 +66,27 @@ data object DataSource {
         FlagSuperCategory.SovereignCountry,
         FlagSuperCategory.International
     )
+    val supersExclusiveOfInternational = listOf(
+        FlagSuperCategory.AutonomousRegion,
+        FlagSuperCategory.TerritorialDistributionOfAuthority,
+        FlagSuperCategory.PowerDerivation,
+        FlagSuperCategory.IdeologicalOrientation,
+
+    )
     val supersExclusiveOfInstitution = listOf(
         FlagSuperCategory.SovereignCountry,
         FlagSuperCategory.AutonomousRegion,
         FlagSuperCategory.Regional
+    )
+    val supersExclusiveOfCultural = listOf(
+        FlagSuperCategory.Legislature,
+        FlagSuperCategory.Executive
     )
     val supersExclusiveOfPolitical = buildList {
         add(FlagSuperCategory.Regional)
         addAll(elements = FlagSuperCategory.Institution.allSupers())
         add(FlagSuperCategory.Cultural)
     }
-    val supersExclusiveOfInternational = listOf(
-        FlagSuperCategory.AutonomousRegion,
-        FlagSuperCategory.TerritorialDistributionOfAuthority,
-        FlagSuperCategory.PowerDerivation,
-        FlagSuperCategory.IdeologicalOrientation
-    )
     val subsExclusiveOfCountry = listOf(
         FlagCategory.AUTONOMOUS_REGION,
         FlagCategory.DEVOLVED_GOVERNMENT
