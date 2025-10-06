@@ -116,15 +116,28 @@ fun CategoriesButtonMenu(
         ButtonDefaults.buttonColors(containerColor = containerColorLight)
 
     val isDarkTheme = LocalDarkTheme.current
-    val containerColorSubSelected = when (isDarkTheme) {
-        true -> Color.White
-        false -> Color.Black
-    }
+    val containerColorSubSelected = if (isDarkTheme) Color.White else Color.Black
     val buttonColorsSubSelected = ButtonDefaults.buttonColors(
         containerColor = lerp(
             start = buttonColorsDark.containerColor,
             stop = containerColorSubSelected,
             fraction = if (isDarkTheme) 0.25f else 0.165f,
+        )
+    )
+    val containerColorInCardSubSelected = if (isDarkTheme) Color.White else Color.Black
+    val buttonColorsInCardSubSelected = ButtonDefaults.buttonColors(
+        containerColor = lerp(
+            start = buttonColorsLight.containerColor,
+            stop = containerColorInCardSubSelected,
+            fraction = if (isDarkTheme) 0.275f else 0.12f,
+        )
+    )
+    val containerColorSuperInCardSelected = if (isDarkTheme) Color.Black else Color.White
+    val buttonColorsSuperInCardSelected = ButtonDefaults.buttonColors(
+        containerColor = lerp(
+            start = buttonColorsLight.containerColor,
+            stop = containerColorSuperInCardSelected,
+            fraction = if (isDarkTheme) 0.13f else 0.175f,
         )
     )
 
@@ -318,7 +331,7 @@ fun CategoriesButtonMenu(
                                 buttonColorsLight
                             } else if (superCategory != All &&
                                 (superCategory.allEnums().any { it in subCategories } ||
-                                        superCategory.supers().any { it in superCategories })) {
+                                superCategory.supers().any { it in superCategories })) {
                                 buttonColorsSubSelected
                             } else {
                                 buttonColorsDark
@@ -368,6 +381,9 @@ fun CategoriesButtonMenu(
                                     buttonColorsSelectable = buttonColors,
                                     buttonColorsDark = buttonColorsDark,
                                     buttonColorsLight = buttonColorsLight,
+                                    buttonColorsInCardSubSelected = buttonColorsInCardSubSelected,
+                                    buttonColorsSuperInCardSelected =
+                                        buttonColorsSuperInCardSelected,
                                     cardColorsDark = cardColorsDark,
                                     cardColorsLight = cardColorsLight,
                                     iconSize = iconSize,
@@ -801,6 +817,8 @@ private fun SuperItemOfSupers(
     buttonColorsSelectable: ButtonColors,
     buttonColorsDark: ButtonColors,
     buttonColorsLight: ButtonColors,
+    buttonColorsInCardSubSelected: ButtonColors,
+    buttonColorsSuperInCardSelected: ButtonColors,
     cardColorsDark: CardColors,
     cardColorsLight: CardColors,
     iconSize: Dp,
@@ -913,9 +931,9 @@ private fun SuperItemOfSupers(
                 itemSuperCategory.supers().forEach { superCategory ->
                     val buttonColors =
                         if (superCategory in selectedSuperCategories) {
-                            buttonColorsLight.copy(
-                                containerColor = Color.White.copy(alpha = 0.175f)
-                            )
+                            buttonColorsSuperInCardSelected
+                        } else if (superCategory.enums().any { it in selectedSubCategories }) {
+                            buttonColorsInCardSubSelected
                         } else {
                             buttonColorsLight
                         }
