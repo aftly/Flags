@@ -239,7 +239,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
                     superCategory = category,
                     superCategories = superCategories,
                     subCategories = subCategories,
-                ) to false
+                )
             }
             is FlagCategoryWrapper -> {
                 if (isSubCategoryExit(category.enum, subCategories, superCategories))

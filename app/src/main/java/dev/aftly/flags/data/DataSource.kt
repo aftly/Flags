@@ -86,7 +86,13 @@ data object DataSource {
         FlagCategory.AUTONOMOUS_REGION,
         FlagCategory.DEVOLVED_GOVERNMENT
     )
-    val mutuallyExclusiveSubsSuperCategories = listOf(
+    val switchSupersSuperCategories = listOf(
+        FlagSuperCategory.Institution
+    )
+    val switchSubsSuperCategories = listOf(
+        FlagSuperCategory.LegislatureDivision,
+        FlagSuperCategory.LegislatureBody,
+        FlagSuperCategory.Executive,
         FlagSuperCategory.Regional,
         FlagSuperCategory.TerritorialDistributionOfAuthority,
         FlagSuperCategory.ExecutiveStructure,

@@ -30,6 +30,8 @@
     <string name="category_super_legislature_menu_button">Legislature</string>
     <string name="category_super_legislature_score_preview">Legislature</string>
     <string name="category_super_legislature_score_detailed">Legislature</string>
+    <string name="category_super_legislature_division">Legislature Division</string>
+    <string name="category_super_legislature_body">Legislature Body</string>
     <string name="category_super_executive">Executive</string>
     <string name="category_super_executive_menu_button">Executive</string>
     <string name="category_super_executive_score_preview">Executive</string>

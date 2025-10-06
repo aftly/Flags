@@ -9,13 +9,14 @@ import dev.aftly.flags.data.DataSource.absenceCategoriesAddAnyMap
 import dev.aftly.flags.data.DataSource.absenceCategoriesMap
 import dev.aftly.flags.data.DataSource.historicalSubCategoryWhitelist
 import dev.aftly.flags.data.DataSource.menuSuperCategoryList
-import dev.aftly.flags.data.DataSource.mutuallyExclusiveSubsSuperCategories
+import dev.aftly.flags.data.DataSource.switchSubsSuperCategories
 import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories1
 import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories2
 import dev.aftly.flags.data.DataSource.subsExclusiveOfCountry
 import dev.aftly.flags.data.DataSource.supersExclusiveOfInstitution
 import dev.aftly.flags.data.DataSource.supersExclusiveOfInternational
 import dev.aftly.flags.data.DataSource.supersExclusiveOfPolitical
+import dev.aftly.flags.data.DataSource.switchSupersSuperCategories
 import dev.aftly.flags.data.room.scorehistory.ScoreItem
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
@@ -181,14 +182,18 @@ fun isSuperCategoryExit(
         exclusive2Subs.any { it in subCategories })) {
         true
 
-    } else if (superCategory == Institution &&
+    } else if (superCategory in Institution.allSupers() &&
         (superCategories.any { it in instExclusiveSupers } ||
         subCategories.any { it in instExclusiveSubs })) {
         true
 
     } else if (superCategory in instExclusiveSupers &&
-        Institution in superCategories) {
+        Institution.allSupers().any { it in superCategories }) {
         true
+
+    } else if (superCategory in Institution.supers() &&
+        Institution.allEnums().any { it in subCategories }) {
+        true /* Make Institution supers mutually exclusive of each other's subs */
 
     } else if (superCategory in polExclusiveSupers &&
         subCategories.any { it in polSubs }) {
@@ -223,6 +228,7 @@ fun isSubCategoryExit(
     val exclusive2Supers = mutuallyExclusiveSuperCategories2.filterNot { subCategory in it.enums() }
     val exclusive2Subs = mutuallyExclusiveSuperCategories2.flatMap { it.enums() }
     val exclusive2SubsSansSuper = exclusive2Supers.flatMap { it.enums() }
+    val instExclusiveSupers = supersExclusiveOfInstitution
     val instExclusiveSubs = supersExclusiveOfInstitution.flatMap { it.enums() }
     val polExclusiveSupers = supersExclusiveOfPolitical
     val polExclusiveSubs = polExclusiveSupers.flatMap { it.enums() } +
@@ -249,7 +255,18 @@ fun isSubCategoryExit(
         true
 
     } else if (subCategory in instExclusiveSubs &&
-        Institution in superCategories) {
+        (Institution.allSupers().any { it in superCategories } ||
+        Institution.allEnums().any { it in subCategories })) {
+        true
+
+    } else if (subCategory in Institution.allEnums() &&
+        (instExclusiveSupers.any { it in superCategories } ||
+        instExclusiveSubs.any { it in subCategories } ||
+        Institution.supers().filterNot { subCategory in it.enums() }.any { it in superCategories } ||
+        Institution.allEnums().filterNot { enum ->
+            Institution.supers().find { subCategory in it.enums() }
+                ?.enums()?.contains(enum) == true
+        }.any { it in subCategories })) {
         true
 
     } else if (subCategory in polSubs &&
@@ -274,26 +291,33 @@ fun isSubCategoryExit(
     }
 }
 
-/* Returns true if update deselects a category, else false */
+/* Returns bool pair, first if update deselects a category, second if update replaces a category */
 fun updateCategoriesFromSuper(
     superCategory: FlagSuperCategory,
     superCategories: MutableList<FlagSuperCategory>,
     subCategories: MutableList<FlagCategory>,
-): Boolean {
+): Pair<Boolean, Boolean> {
+    val isSwitchSuper = switchSupersSuperCategories.find { superCategory in it.supers() }
+
     return if (superCategory in superCategories) {
         /* Handle removal from superCategories */
         superCategories.remove(superCategory)
-        true
+        true to false // isDeselect
 
     } else if (subCategories.isNotEmpty() && superCategory.subCategories.size == 1 &&
         superCategory.firstCategoryEnumOrNull() in subCategories) {
         /* Handle removal from subCategories (not mutually exclusive from above) */
         subCategories.remove(superCategory.firstCategoryEnumOrNull())
-        true
+        true to false // isDeselect
+
+    } else if (isSwitchSuper != null) {
+        superCategories.removeAll(elements = isSwitchSuper.supers())
+        superCategories.add(superCategory)
+        false to true // isSwitch
 
     } else {
         superCategories.add(superCategory)
-        false
+        false to false
     }
 }
 
@@ -303,8 +327,7 @@ fun updateCategoriesFromSub(
     subCategories: MutableList<FlagCategory>,
 ): Pair<Boolean, Boolean> {
     val isDeselect = subCategory in subCategories
-    val isSwitchSuper = if (isDeselect) null else
-        mutuallyExclusiveSubsSuperCategories.find { subCategory in it.enums() }
+    val isSwitchSuper = switchSubsSuperCategories.find { subCategory in it.enums() }
 
     return if (isDeselect) {
         subCategories.remove(subCategory)
@@ -339,7 +362,7 @@ fun getFlagsFromCategories(
         /* Filter flags from not empty superCategories */
         if (!isSuperCategories) true
         else superCategories.all { superCategory ->
-            flag.categories.any { it in superCategory.enums() }
+            flag.categories.any { it in superCategory.allEnums() }
         }
     }.filter { flag ->
         /* Filter flags from not empty subCategories */

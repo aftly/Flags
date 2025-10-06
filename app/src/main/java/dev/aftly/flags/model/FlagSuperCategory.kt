@@ -12,10 +12,21 @@ sealed class FlagSuperCategory(
     @param:StringRes val title: Int,
     @param:StringRes val categoriesMenuButton: Int?,
     @param:StringRes val gameScoreCategoryPreview: Int?,
-    @param:StringRes val gameScoreCategoryDetailed: Int? = R.string.string_whitespace,
+    @param:StringRes val gameScoreCategoryDetailed: Int?,
     @Polymorphic val subCategories: List<FlagCategoryBase>,
 ) : FlagCategoryBase() {
     fun supers(): List<FlagSuperCategory> = subCategories.filterIsInstance<FlagSuperCategory>()
+
+    fun allSupers(categories: List<FlagSuperCategory> = supers() + this): List<FlagSuperCategory> {
+        return categories.flatMap { superCategory ->
+            val childSupers = superCategory.supers()
+
+            when (childSupers.size) {
+                0 -> listOf(superCategory)
+                else -> listOf(superCategory) + childSupers + allSupers(categories = childSupers)
+            }
+        }.distinct()
+    }
 
     fun enums(): List<FlagCategory> =
         subCategories.filterIsInstance<FlagCategoryWrapper>().map { it.enum }
@@ -142,6 +153,29 @@ sealed class FlagSuperCategory(
             FlagCategoryWrapper(enum = FlagCategory.CONGRESS),
             FlagCategoryWrapper(enum = FlagCategory.ASSEMBLY)
         ),
+    )
+
+    data object LegislatureDivision : FlagSuperCategory(
+        title = R.string.category_super_legislature_division,
+        categoriesMenuButton = null,
+        gameScoreCategoryPreview = null,
+        gameScoreCategoryDetailed = null,
+        subCategories = listOf(
+            FlagCategoryWrapper(enum = FlagCategory.LOWER_HOUSE),
+            FlagCategoryWrapper(enum = FlagCategory.UPPER_HOUSE),
+            FlagCategoryWrapper(enum = FlagCategory.UNICAMERAL)
+        )
+    )
+    data object LegislatureBody : FlagSuperCategory(
+        title = R.string.category_super_legislature_body,
+        categoriesMenuButton = null,
+        gameScoreCategoryPreview = null,
+        gameScoreCategoryDetailed = null,
+        subCategories = listOf(
+            FlagCategoryWrapper(enum = FlagCategory.PARLIAMENT),
+            FlagCategoryWrapper(enum = FlagCategory.CONGRESS),
+            FlagCategoryWrapper(enum = FlagCategory.ASSEMBLY)
+        )
     )
 
     @Serializable
