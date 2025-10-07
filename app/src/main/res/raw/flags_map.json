@@ -12483,8 +12483,55 @@
             "DEVOLVED_GOVERNMENT"
         ]
     },
-    "falklandIslands": {
+    "fiav": {
         "id": 208,
+        "wikipediaUrlPath": {
+            "type": "StringResSource.Explicit",
+            "resName": "fiav_wikipedia_url_path"
+        },
+        "image": "flag_of_fiav",
+        "imagePreview": "flag_of_fiav",
+        "fromYear": 1967,
+        "fromYearCirca": false,
+        "toYear": 0,
+        "toYearCirca": false,
+        "flagOf": {
+            "type": "StringResSource.Explicit",
+            "resName": "fiav"
+        },
+        "flagOfDescriptor": null,
+        "flagOfOfficial": {
+            "type": "StringResSource.Explicit",
+            "resName": "fiav_official"
+        },
+        "flagOfAlternate": [
+            {
+                "type": "StringResSource.Explicit",
+                "resName": "fiav_alt"
+            }
+        ],
+        "isFlagOfThe": {
+            "type": "BooleanSource.Explicit",
+            "bool": true
+        },
+        "isFlagOfOfficialThe": {
+            "type": "BooleanSource.Explicit",
+            "bool": true
+        },
+        "internationalOrganisations": [],
+        "associatedState": null,
+        "sovereignState": null,
+        "parentUnit": null,
+        "latestEntities": [],
+        "previousFlagOf": null,
+        "categories": [
+            "VEXILLOLOGY",
+            "INTERNATIONAL_ORGANIZATION",
+            "FEDERAL"
+        ]
+    },
+    "falklandIslands": {
+        "id": 209,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "falkland_islands_wikipedia_url_path"
@@ -12550,7 +12597,7 @@
         ]
     },
     "faroeIslands": {
-        "id": 209,
+        "id": 210,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "faroe_islands_wikipedia_url_path"
@@ -12737,7 +12784,7 @@
         ]
     },
     "fiji": {
-        "id": 210,
+        "id": 211,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "fiji_wikipedia_url_path"
@@ -12816,7 +12863,7 @@
         ]
     },
     "finland": {
-        "id": 211,
+        "id": 212,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "finland_wikipedia_url_path"
@@ -12901,7 +12948,7 @@
         ]
     },
     "flagInstitute": {
-        "id": 212,
+        "id": 213,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "flag_institute_wikipedia_url_path"
@@ -12942,7 +12989,7 @@
         ]
     },
     "flagInstitute(1971)": {
-        "id": 213,
+        "id": 214,
         "wikipediaUrlPath": {
             "type": "StringResSource.Inherit"
         },
@@ -12983,7 +13030,7 @@
         ]
     },
     "flintshire": {
-        "id": 214,
+        "id": 215,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "flintshire_wikipedia_url_path"
@@ -13032,7 +13079,7 @@
         ]
     },
     "florida": {
-        "id": 215,
+        "id": 216,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "florida_wikipedia_url_path"
@@ -13109,7 +13156,7 @@
         ]
     },
     "france": {
-        "id": 216,
+        "id": 217,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "france_wikipedia_url_path"
@@ -13170,7 +13217,7 @@
         ]
     },
     "frenchGuiana": {
-        "id": 217,
+        "id": 218,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "french_guiana_wikipedia_url_path"
@@ -13235,7 +13282,7 @@
         ]
     },
     "frenchPolynesia": {
-        "id": 218,
+        "id": 219,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "french_polynesia_wikipedia_url_path"
@@ -13301,7 +13348,7 @@
         ]
     },
     "frenchSouthernAndAntarcticLands": {
-        "id": 219,
+        "id": 220,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "french_southern_and_antarctic_lands_wikipedia_url_path"
@@ -13354,7 +13401,7 @@
         ]
     },
     "fribourg(Canton)": {
-        "id": 220,
+        "id": 221,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "fribourg_canton_wikipedia_url_path"
@@ -13422,7 +13469,7 @@
         ]
     },
     "friuli-VeneziaGiulia": {
-        "id": 221,
+        "id": 222,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "friuli_venezia_giulia_wikipedia_url_path"
@@ -13477,7 +13524,7 @@
         ]
     },
     "gabon": {
-        "id": 222,
+        "id": 223,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "gabon_wikipedia_url_path"
@@ -13548,7 +13595,7 @@
         ]
     },
     "gagauzia": {
-        "id": 223,
+        "id": 224,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "gagauzia_wikipedia_url_path"
@@ -13600,7 +13647,7 @@
         ]
     },
     "galicia(Spain)": {
-        "id": 224,
+        "id": 225,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "galicia_spain_wikipedia_url_path"
@@ -13651,7 +13698,7 @@
         ]
     },
     "galmudug": {
-        "id": 225,
+        "id": 226,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "galmudug_wikipedia_url_path"
@@ -13696,7 +13743,7 @@
         ]
     },
     "geneva(Canton)": {
-        "id": 226,
+        "id": 227,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "geneva_canton_wikipedia_url_path"
@@ -13764,7 +13811,7 @@
         ]
     },
     "georgia(Country)": {
-        "id": 227,
+        "id": 228,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "georgia_country_wikipedia_url_path"
@@ -13823,7 +13870,7 @@
         ]
     },
     "georgia(State)": {
-        "id": 228,
+        "id": 229,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "georgia_state_wikipedia_url_path"
@@ -13895,7 +13942,7 @@
         ]
     },
     "germany": {
-        "id": 229,
+        "id": 230,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "germany_wikipedia_url_path"
@@ -13960,7 +14007,7 @@
         ]
     },
     "ghana": {
-        "id": 230,
+        "id": 231,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "ghana_wikipedia_url_path"
@@ -14020,7 +14067,7 @@
         ]
     },
     "gibraltar": {
-        "id": 231,
+        "id": 232,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "gibraltar_wikipedia_url_path"
@@ -14078,7 +14125,7 @@
         ]
     },
     "girona(Province)": {
-        "id": 232,
+        "id": 233,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "girona_province_wikipedia_url_path"
@@ -14130,7 +14177,7 @@
         ]
     },
     "glamorgan": {
-        "id": 233,
+        "id": 234,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "glamorgan_wikipedia_url_path"
@@ -14188,7 +14235,7 @@
         ]
     },
     "glarus(Canton)": {
-        "id": 234,
+        "id": 235,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "glarus_canton_wikipedia_url_path"
@@ -14244,7 +14291,7 @@
         ]
     },
     "glasgow": {
-        "id": 235,
+        "id": 236,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "glasgow_wikipedia_url_path"
@@ -14294,7 +14341,7 @@
         ]
     },
     "gloucestershire": {
-        "id": 236,
+        "id": 237,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "gloucestershire_wikipedia_url_path"
@@ -14334,7 +14381,7 @@
         ]
     },
     "granada(Province)": {
-        "id": 237,
+        "id": 238,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "granada_province_wikipedia_url_path"
@@ -14382,7 +14429,7 @@
         ]
     },
     "greatBritain": {
-        "id": 238,
+        "id": 239,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "great_britain_wikipedia_url_path"
@@ -14450,7 +14497,7 @@
         ]
     },
     "greece": {
-        "id": 239,
+        "id": 240,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "greece_wikipedia_url_path"
@@ -14527,7 +14574,7 @@
         ]
     },
     "greenland": {
-        "id": 240,
+        "id": 241,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "greenland_wikipedia_url_path"
@@ -14582,7 +14629,7 @@
         ]
     },
     "grenada": {
-        "id": 241,
+        "id": 242,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "grenada_wikipedia_url_path"
@@ -14637,7 +14684,7 @@
         ]
     },
     "grisons": {
-        "id": 242,
+        "id": 243,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "grisons_wikipedia_url_path"
@@ -14714,7 +14761,7 @@
         ]
     },
     "guadalajara(Province)": {
-        "id": 243,
+        "id": 244,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "guadalajara_province_wikipedia_url_path"
@@ -14766,7 +14813,7 @@
         ]
     },
     "guadeloupe": {
-        "id": 244,
+        "id": 245,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "guadeloupe_wikipedia_url_path"
@@ -14831,7 +14878,7 @@
         ]
     },
     "guam": {
-        "id": 245,
+        "id": 246,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "guam_wikipedia_url_path"
@@ -14917,7 +14964,7 @@
         ]
     },
     "guatemala": {
-        "id": 246,
+        "id": 247,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "guatemala_wikipedia_url_path"
@@ -14976,7 +15023,7 @@
         ]
     },
     "guernsey": {
-        "id": 247,
+        "id": 248,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "guernsey_wikipedia_url_path"
@@ -15062,7 +15109,7 @@
         ]
     },
     "guinea": {
-        "id": 248,
+        "id": 249,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "guinea_wikipedia_url_path"
@@ -15125,7 +15172,7 @@
         ]
     },
     "guineaBissau": {
-        "id": 249,
+        "id": 250,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "guinea_bissau_wikipedia_url_path"
@@ -15185,7 +15232,7 @@
         ]
     },
     "guipuzcoa": {
-        "id": 250,
+        "id": 251,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "guipuzcoa_wikipedia_url_path"
@@ -15250,7 +15297,7 @@
         ]
     },
     "guyana": {
-        "id": 251,
+        "id": 252,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "guyana_wikipedia_url_path"
@@ -15313,7 +15360,7 @@
         ]
     },
     "hmCoastguard": {
-        "id": 252,
+        "id": 253,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "hm_coastguard_wikipedia_url_path"
@@ -15395,7 +15442,7 @@
         ]
     },
     "hmRevenueAndCustoms": {
-        "id": 253,
+        "id": 254,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "hm_revenue_and_customs_wikipedia_url_path"
@@ -15448,7 +15495,7 @@
         ]
     },
     "haiti": {
-        "id": 254,
+        "id": 255,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "haiti_wikipedia_url_path"
@@ -15522,7 +15569,7 @@
         ]
     },
     "hamburg": {
-        "id": 255,
+        "id": 256,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "hamburg_wikipedia_url_path"
@@ -15575,7 +15622,7 @@
         ]
     },
     "hampshire": {
-        "id": 256,
+        "id": 257,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "hampshire_wikipedia_url_path"
@@ -15624,7 +15671,7 @@
         ]
     },
     "hawaii": {
-        "id": 257,
+        "id": 258,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "hawaii_wikipedia_url_path"
@@ -15685,7 +15732,7 @@
         ]
     },
     "herefordshire": {
-        "id": 258,
+        "id": 259,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "herefordshire_wikipedia_url_path"
@@ -15730,7 +15777,7 @@
         ]
     },
     "herm": {
-        "id": 259,
+        "id": 260,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "herm_wikipedia_url_path"
@@ -15775,7 +15822,7 @@
         ]
     },
     "hertfordshire": {
-        "id": 260,
+        "id": 261,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "hertfordshire_wikipedia_url_path"
@@ -15820,7 +15867,7 @@
         ]
     },
     "hesse": {
-        "id": 261,
+        "id": 262,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "hesse_wikipedia_url_path"
@@ -15885,7 +15932,7 @@
         ]
     },
     "hirshabelle": {
-        "id": 262,
+        "id": 263,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "hirshabelle_wikipedia_url_path"
@@ -15925,7 +15972,7 @@
         ]
     },
     "hisMajestysNavalService": {
-        "id": 263,
+        "id": 264,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "his_majestys_naval_service_wikipedia_url_path"
@@ -15966,7 +16013,7 @@
         ]
     },
     "holyRomanEmpire": {
-        "id": 264,
+        "id": 265,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "holy_roman_empire_wikipedia_url_path"
@@ -16044,7 +16091,7 @@
         ]
     },
     "honduras": {
-        "id": 265,
+        "id": 266,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "honduras_wikipedia_url_path"
@@ -16115,7 +16162,7 @@
         ]
     },
     "hongKong": {
-        "id": 266,
+        "id": 267,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "hong_kong_wikipedia_url_path"
@@ -16200,7 +16247,7 @@
         ]
     },
     "houseOfCommons(UnitedKingdom)": {
-        "id": 267,
+        "id": 268,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "house_of_commons_united_kingdom_wikipedia_url_path"
@@ -16281,7 +16328,7 @@
         ]
     },
     "huelva(Province)": {
-        "id": 268,
+        "id": 269,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "huelva_province_wikipedia_url_path"
@@ -16329,7 +16376,7 @@
         ]
     },
     "huesca(Province)": {
-        "id": 269,
+        "id": 270,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "huesca_province_wikipedia_url_path"
@@ -16377,7 +16424,7 @@
         ]
     },
     "hungary": {
-        "id": 270,
+        "id": 271,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "hungary_wikipedia_url_path"
@@ -16438,7 +16485,7 @@
         ]
     },
     "huntingdonshire": {
-        "id": 271,
+        "id": 272,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "huntingdonshire_wikipedia_url_path"
@@ -16491,7 +16538,7 @@
         ]
     },
     "iceland": {
-        "id": 272,
+        "id": 273,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "iceland_wikipedia_url_path"
@@ -16547,7 +16594,7 @@
         ]
     },
     "idaho": {
-        "id": 273,
+        "id": 274,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "idaho_wikipedia_url_path"
@@ -16612,7 +16659,7 @@
         ]
     },
     "illinois": {
-        "id": 274,
+        "id": 275,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "illinois_wikipedia_url_path"
@@ -16697,7 +16744,7 @@
         ]
     },
     "india": {
-        "id": 275,
+        "id": 276,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "india_wikipedia_url_path"
@@ -16784,7 +16831,7 @@
         ]
     },
     "indiana": {
-        "id": 276,
+        "id": 277,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "indiana_wikipedia_url_path"
@@ -16849,7 +16896,7 @@
         ]
     },
     "indonesia": {
-        "id": 277,
+        "id": 278,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "indonesia_wikipedia_url_path"
@@ -16916,7 +16963,7 @@
         ]
     },
     "ingushetia": {
-        "id": 278,
+        "id": 279,
         "wikipediaUrlPath": {
             "type": "StringResSource.Explicit",
             "resName": "ingushetia_wikipedia_url_path"
@@ -16962,53 +17009,6 @@
         "previousFlagOf": null,
         "categories": [
             "REPUBLIC_UNIT"
-        ]
-    },
-    "internationalFederationOfVexillologicalAssociations": {
-        "id": 279,
-        "wikipediaUrlPath": {
-            "type": "StringResSource.Explicit",
-            "resName": "international_federation_of_vexillological_associations_wikipedia_url_path"
-        },
-        "image": "flag_of_fiav",
-        "imagePreview": "flag_of_fiav",
-        "fromYear": 1967,
-        "fromYearCirca": false,
-        "toYear": 0,
-        "toYearCirca": false,
-        "flagOf": {
-            "type": "StringResSource.Explicit",
-            "resName": "international_federation_of_vexillological_associations"
-        },
-        "flagOfDescriptor": null,
-        "flagOfOfficial": {
-            "type": "StringResSource.Explicit",
-            "resName": "international_federation_of_vexillological_associations_official"
-        },
-        "flagOfAlternate": [
-            {
-                "type": "StringResSource.Explicit",
-                "resName": "international_federation_of_vexillological_associations_alt"
-            }
-        ],
-        "isFlagOfThe": {
-            "type": "BooleanSource.Explicit",
-            "bool": false
-        },
-        "isFlagOfOfficialThe": {
-            "type": "BooleanSource.Explicit",
-            "bool": false
-        },
-        "internationalOrganisations": [],
-        "associatedState": null,
-        "sovereignState": null,
-        "parentUnit": null,
-        "latestEntities": [],
-        "previousFlagOf": null,
-        "categories": [
-            "VEXILLOLOGY",
-            "INTERNATIONAL_ORGANIZATION",
-            "FEDERAL"
         ]
     },
     "iowa": {
@@ -25851,7 +25851,8 @@
         "previousFlagOf": null,
         "categories": [
             "DIRECTORIAL",
-            "INTERNATIONAL_ORGANIZATION"
+            "INTERNATIONAL_ORGANIZATION",
+            "MILITARY"
         ]
     },
     "namibia": {
@@ -32590,6 +32591,7 @@
         "latestEntities": [],
         "previousFlagOf": null,
         "categories": [
+            "MARITIME",
             "CHARITY"
         ]
     },

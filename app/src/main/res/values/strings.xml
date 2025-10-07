@@ -1903,6 +1903,10 @@
     <string name="extremadura_official">Extremadura</string>
     <string name="extremadura_wikipedia_url_path">Extremadura</string>
     <string name="extremadura_alt">Estremadura</string>
+    <string name="fiav">FIAV</string>
+    <string name="fiav_official">International Federation of Vexillological Associations</string>
+    <string name="fiav_wikipedia_url_path">International_Federation_of_Vexillological_Associations</string>
+    <string name="fiav_alt">IFoVA</string>
     <string name="falkland_islands">Falkland Islands</string>
     <string name="falkland_islands_official">Falkland Islands</string>
     <string name="falkland_islands_wikipedia_url_path">Falkland_Islands</string>
@@ -2466,10 +2470,6 @@
     <string name="ingushetia_wikipedia_url_path">Ingushetia</string>
     <string name="ingushetia_alt_1">Ingushetiya</string>
     <string name="ingushetia_alt_2">Republic of Ingushetia</string>
-    <string name="international_federation_of_vexillological_associations">FIAV</string>
-    <string name="international_federation_of_vexillological_associations_official">International Federation of Vexillological Associations</string>
-    <string name="international_federation_of_vexillological_associations_wikipedia_url_path">International_Federation_of_Vexillological_Associations</string>
-    <string name="international_federation_of_vexillological_associations_alt">IFoVA</string>
     <string name="iowa">Iowa</string>
     <string name="iowa_official">Iowa</string>
     <string name="iowa_wikipedia_url_path">Iowa</string>
