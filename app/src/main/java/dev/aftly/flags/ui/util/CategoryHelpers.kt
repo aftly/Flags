@@ -508,10 +508,19 @@ fun getFlagsFromCategories(
 fun filterRedundantSuperCategories(
     superCategories: List<FlagSuperCategory>,
     subCategories: List<FlagCategory>,
-): List<FlagSuperCategory> = superCategories.filterNot { superCategory ->
-    /* Filter parent supercategories or All super if other categories */
-    subCategories.any { it in superCategory.enums() } &&
-            (superCategory != All || (superCategories.size > 1 || subCategories.isNotEmpty()))
+): List<FlagSuperCategory> {
+    return if (superCategories.size <= 1 && subCategories.isEmpty()) {
+        /* Skip filtering when redundant */
+        superCategories
+    } else {
+        superCategories.filterNot { superCategory ->
+            val isSuperOverlap = superCategories.any { it in superCategory.allChildSupers() }
+            val isSubOverlap = subCategories.any { it in superCategory.allEnums() }
+
+            /* Filter super when children in supers or subs */
+            superCategory == All || isSuperOverlap || isSubOverlap
+        }
+    }
 }
 
 fun getCategoriesTitleIds(
