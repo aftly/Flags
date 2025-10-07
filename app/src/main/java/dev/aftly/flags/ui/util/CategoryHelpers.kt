@@ -561,9 +561,10 @@ fun getCategoriesTitleIds(
 
     val isCultural = Cultural in superCategoriesFiltered
 
-    val isInternational =
-        International in superCategoriesFiltered &&
-                (Institution in superCategoriesFiltered || CONFEDERATION in subCategories)
+    val isInternational = International in superCategoriesFiltered &&
+            (Institution.allSupers().any { it in superCategoriesFiltered } ||
+                    Institution.allEnums().any { it in subCategories } ||
+                    CONFEDERATION in subCategories)
 
     /* For string exceptions when supers or subs mean associated countries */
     val isAssociatedCountry = SovereignCountry in superCategoriesFiltered &&
