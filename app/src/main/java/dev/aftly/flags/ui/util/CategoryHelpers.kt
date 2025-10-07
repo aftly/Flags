@@ -73,7 +73,6 @@ fun getSingleCategoryPreviewTitleOrNull(
     }
 }
 
-
 /* Extension functions */
 fun FlagCategory.toWrapper(): FlagCategoryWrapper = FlagCategoryWrapper(enum = this)
 
@@ -261,61 +260,110 @@ fun isSubCategoryExit(
     } else if (subCategory in subCategories) {
         false /* Escape function if subcategory already selected (so it can be deselected) */
 
-    } else if (subCategory in exclusive1Subs &&
-        (superCategories.any { it in exclusive1Supers } ||
-        subCategories.any { it in exclusive1SubsSansSuper })) {
-        true
-
-    } else if (subCategory in exclusive2Subs &&
-        (superCategories.any { it in exclusive2Supers } ||
-        subCategories.any { it in exclusive2SubsSansSuper })) {
-        true
-
-    } else if (subCategory in instExclusiveSubs &&
-        (Institution.allSupers().any { it in superCategories } ||
-        Institution.allEnums().any { it in subCategories })) {
-        true
-
-    } else if (subCategory in Institution.allEnums() &&
-        (instExclusiveSupers.any { it in superCategories } ||
-        instExclusiveSubs.any { it in subCategories } ||
-        Institution.supers().filterNot { subCategory in it.enums() }.any { it in superCategories } ||
-        Institution.allEnums().filterNot { enum ->
-            Institution.supers().find { subCategory in it.enums() }
-                ?.enums()?.contains(enum) == true
-        }.any { it in subCategories })) {
-        true
-
-    } else if (subCategory in polSubs &&
-        (superCategories.any { it in polExclusiveSupers } ||
-        subCategories.any { it in polExclusiveSubs })) {
-        true
-
-    } else if (subCategory in polExclusiveSubs &&
-        subCategories.any { it in polSubs }) {
-        true
-
-    } else if (subCategory in intExclusiveSubs &&
-        International in superCategories) {
-        true
-
-    } else if (subCategory in cultSubs &&
-        (cultExclusiveSupers.any { it in superCategories } ||
-        cultExclusiveSubs.any { it in subCategories })) {
-        true
-
-    } else if (subCategory in cultExclusiveSubs &&
-        (Cultural in superCategories ||
-        cultSubs.any { it in subCategories })) {
-        true
-
-    } else if (subCategory in countryExclusiveSubs &&
-        SovereignCountry in superCategories) {
-        true
-
     } else {
-        false
+        isSubExclusive(
+            subCategory = subCategory,
+            subCategoryExclusives = exclusive1Subs,
+            selectedSuperCategories = superCategories,
+            selectedSupersExclusives = exclusive1Supers,
+            selectedSubCategories = subCategories,
+            selectedSubsExclusives = exclusive1SubsSansSuper,
+
+        ) || isSubExclusive(
+            subCategory = subCategory,
+            subCategoryExclusives = exclusive2Subs,
+            selectedSuperCategories = superCategories,
+            selectedSupersExclusives = exclusive2Supers,
+            selectedSubCategories = subCategories,
+            selectedSubsExclusives = exclusive2SubsSansSuper,
+
+        ) || isSubExclusive(
+            subCategory = subCategory,
+            subCategoryExclusives = intExclusiveSubs,
+            selectedSuperCategories = superCategories,
+            selectedSupersExclusives = listOf(International),
+
+        ) || isSubExclusive(
+            subCategory = subCategory,
+            subCategoryExclusives = instExclusiveSubs,
+            selectedSuperCategories = superCategories,
+            selectedSupersExclusives = Institution.allSupers(),
+            selectedSubCategories = subCategories,
+            selectedSubsExclusives = Institution.allEnums(),
+
+        ) || isSubExclusive(
+            subCategory = subCategory,
+            subCategoryExclusives = Institution.allEnums(),
+            selectedSuperCategories = superCategories,
+            selectedSupersExclusives = instExclusiveSupers,
+            selectedSupersExclusives2 =
+                Institution.supers().filterNot { subCategory in it.enums() },
+            selectedSubCategories = subCategories,
+            selectedSubsExclusives = instExclusiveSubs,
+            selectedSubsExclusives2 = Institution.allEnums().filterNot { enum ->
+                Institution.supers().find { subCategory in it.enums() }
+                    ?.enums()?.contains(enum) == true
+            },
+
+        ) || isSubExclusive(
+            subCategory = subCategory,
+            subCategoryExclusives = cultSubs,
+            selectedSuperCategories = superCategories,
+            selectedSupersExclusives = cultExclusiveSupers,
+            selectedSubCategories = subCategories,
+            selectedSubsExclusives = cultExclusiveSubs,
+
+        ) || isSubExclusive(
+            subCategory = subCategory,
+            subCategoryExclusives = cultExclusiveSubs,
+            selectedSuperCategories = superCategories,
+            selectedSupersExclusives = listOf(Cultural),
+            selectedSubCategories = subCategories,
+            selectedSubsExclusives = cultSubs,
+
+        ) || isSubExclusive(
+            subCategory = subCategory,
+            subCategoryExclusives = countryExclusiveSubs,
+            selectedSuperCategories = superCategories,
+            selectedSupersExclusives = listOf(SovereignCountry),
+
+        ) || isSubExclusive(
+            subCategory = subCategory,
+            subCategoryExclusives = polSubs,
+            selectedSuperCategories = superCategories,
+            selectedSupersExclusives = polExclusiveSupers,
+            selectedSubCategories = subCategories,
+            selectedSubsExclusives = polExclusiveSubs,
+
+        ) || isSubExclusive(
+            subCategory = subCategory,
+            subCategoryExclusives = polExclusiveSubs,
+            selectedSubCategories = subCategories,
+            selectedSubsExclusives = polSubs,
+        )
     }
+}
+
+private fun isSubExclusive(
+    subCategory: FlagCategory, /* Eg. New selection */
+    subCategoryExclusives: List<FlagCategory>, /* Eg. Exclusion group */
+    selectedSuperCategories: List<FlagSuperCategory>? = null, /* Eg. Currently selected */
+    selectedSupersExclusives: List<FlagSuperCategory>? = null, /* Eg. Exclusion group */
+    selectedSupersExclusives2: List<FlagSuperCategory>? = null, /* Eg. Exclusion group */
+    selectedSubCategories: List<FlagCategory>? = null, /* Eg. Currently selected */
+    selectedSubsExclusives: List<FlagCategory>? = null, /* Eg. Exclusion group */
+    selectedSubsExclusives2: List<FlagCategory>? = null, /* Eg. Exclusion group */
+): Boolean {
+    val isSub = subCategory in subCategoryExclusives
+
+    val anySelected = buildList {
+        add(selectedSupersExclusives?.any { selectedSuperCategories?.contains(it) == true })
+        add(selectedSupersExclusives2?.any { selectedSuperCategories?.contains(it) == true })
+        add(selectedSubsExclusives?.any { selectedSubCategories?.contains(it) == true })
+        add(selectedSubsExclusives2?.any { selectedSubCategories?.contains(it) == true })
+    }
+    
+    return isSub && anySelected.any { it == true }
 }
 
 /* Returns bool pair, first if update deselects a category, second if update replaces a category */
@@ -424,7 +472,6 @@ fun getFlagsFromCategories(
 
 /* ------ For CategoriesMenuButton title and GameOver share text ------ */
 
-
 fun filterRedundantSuperCategories(
     superCategories: List<FlagSuperCategory>,
     subCategories: List<FlagCategory>,
@@ -433,7 +480,6 @@ fun filterRedundantSuperCategories(
     subCategories.any { it in superCategory.enums() } &&
             (superCategory != All || (superCategories.size > 1 || subCategories.isNotEmpty()))
 }
-
 
 fun getCategoriesTitleIds(
     superCategories: List<FlagSuperCategory>,
