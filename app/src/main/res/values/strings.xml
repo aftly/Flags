@@ -160,6 +160,8 @@
     <string name="category_regional_string">geographical region</string>
     <string name="category_vexillology_title">Vexillology</string>
     <string name="category_vexillology_string">vexillology</string>
+    <string name="category_vexillology_category_button_title">Vexillological Institution</string>
+    <string name="category_vexillology_description_title">Vexillological</string>
     <string name="category_unitary_title">Unitary</string>
     <string name="category_unitary_string">unitary</string>
     <string name="category_federal_title">Federal</string>

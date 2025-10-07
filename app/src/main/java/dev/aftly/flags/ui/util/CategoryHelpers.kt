@@ -31,6 +31,7 @@ import dev.aftly.flags.model.FlagCategory.PROVISIONAL_GOVERNMENT
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
 import dev.aftly.flags.model.FlagCategory.THEOCRATIC
+import dev.aftly.flags.model.FlagCategory.VEXILLOLOGY
 import dev.aftly.flags.model.FlagCategoryBase
 import dev.aftly.flags.model.FlagCategoryWrapper
 import dev.aftly.flags.model.FlagSuperCategory
@@ -583,7 +584,8 @@ fun getCategoriesTitleIds(
     /* For string exceptions when regional super or subs are devolved */
     val isDevolvedRegion = DEVOLVED_GOVERNMENT in subCategories &&
             (Regional in superCategoriesFiltered ||
-                    subCategories.any { it in Regional.enums() + AUTONOMOUS_REGION + DEVOLVED_GOVERNMENT })
+                    subCategories
+                        .any { it in Regional.enums() + AUTONOMOUS_REGION + DEVOLVED_GOVERNMENT })
 
 
     /* ------------------- Category groups ------------------- */
@@ -599,8 +601,9 @@ fun getCategoriesTitleIds(
         .sortedBy { politicalCategoriesSortOrder.indexOf(it) }
 
     /* Subcategories not in other list derivatives, minus duplicates */
-    val remainingCategories = subCategories.filterNot { it in culturalCategories }
-        .filterNot { it in politicalCategories }.toMutableList()
+    val remainingCategories = subCategories.filterNot { subCategory ->
+        subCategory in culturalCategories || subCategory in politicalCategories
+    }.toMutableList()
 
 
     /* -------------------------------- GET ITERATIONS -------------------------------- */
@@ -697,8 +700,18 @@ fun getCategoriesTitleIds(
         }
     }
 
+    if (VEXILLOLOGY in remainingCategories && remainingCategories.size > 1) {
+        remainingCategories.remove(VEXILLOLOGY)
+        strings.add(R.string.category_vexillology_description_title)
+        strings.add(R.string.string_whitespace)
+    }
+
     remainingCategories.forEach { subCategory ->
-        strings.add(subCategory.title)
+        if (subCategory == VEXILLOLOGY) {
+            strings.add(R.string.category_vexillology_category_button_title)
+        } else {
+            strings.add(subCategory.title)
+        }
         strings.add(R.string.string_whitespace)
     }
 

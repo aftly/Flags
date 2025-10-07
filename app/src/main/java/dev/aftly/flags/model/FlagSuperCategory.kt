@@ -204,7 +204,8 @@ sealed class FlagSuperCategory(
         gameScoreCategoryDetailed = R.string.category_super_civilian_score_detailed,
         subCategories = listOf(
             FlagCategoryWrapper(enum = FlagCategory.CHARITY),
-            FlagCategoryWrapper(enum = FlagCategory.UNIVERSITY)
+            FlagCategoryWrapper(enum = FlagCategory.UNIVERSITY),
+            FlagCategoryWrapper(enum = FlagCategory.VEXILLOLOGY)
         ),
     )
 
