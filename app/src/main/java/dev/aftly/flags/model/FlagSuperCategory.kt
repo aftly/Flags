@@ -22,25 +22,24 @@ sealed class FlagSuperCategory(
     ): List<FlagSuperCategory> = categories.flatMap { superCategory ->
         val childSupers = superCategory.supers()
 
-        when (childSupers.size) {
-            0 -> listOf(superCategory)
-            else ->
-                listOf(superCategory) + childSupers + allChildSupers(categories = childSupers)
+        if (childSupers.isEmpty()) {
+            listOf(superCategory)
+        } else {
+            listOf(superCategory) + childSupers + allChildSupers(categories = childSupers)
         }
     }
 
-    fun allSupers(): List<FlagSuperCategory> =
-        allChildSupers(categories = supers() + this).distinct()
+    fun allSupers(): List<FlagSuperCategory> = listOf(this) + allChildSupers()
 
     fun enums(): List<FlagCategory> =
         subCategories.filterIsInstance<FlagCategoryWrapper>().map { it.enum }
 
-    fun allEnums(categories: List<FlagCategoryBase> = subCategories): List<FlagCategory> {
-        return categories.flatMap { category ->
-            when (category) {
-                is FlagCategoryWrapper -> listOf(category.enum)
-                is FlagSuperCategory -> allEnums(category.subCategories)
-            }
+    fun allEnums(
+        categories: List<FlagCategoryBase> = subCategories
+    ): List<FlagCategory> = categories.flatMap { category ->
+        when (category) {
+            is FlagCategoryWrapper -> listOf(category.enum)
+            is FlagSuperCategory -> allEnums(category.subCategories)
         }
     }
 
