@@ -17,18 +17,20 @@ sealed class FlagSuperCategory(
 ) : FlagCategoryBase() {
     fun supers(): List<FlagSuperCategory> = subCategories.filterIsInstance<FlagSuperCategory>()
 
-    fun allSupers(): List<FlagSuperCategory> = allChildSupers(categories = supers() + this).distinct()
-    fun allChildSupers(categories: List<FlagSuperCategory> = supers()): List<FlagSuperCategory> {
-        return categories.flatMap { superCategory ->
-            val childSupers = superCategory.supers()
+    fun allChildSupers(
+        categories: List<FlagSuperCategory> = supers()
+    ): List<FlagSuperCategory> = categories.flatMap { superCategory ->
+        val childSupers = superCategory.supers()
 
-            when (childSupers.size) {
-                0 -> listOf(superCategory)
-                else ->
-                    listOf(superCategory) + childSupers + allChildSupers(categories = childSupers)
-            }
+        when (childSupers.size) {
+            0 -> listOf(superCategory)
+            else ->
+                listOf(superCategory) + childSupers + allChildSupers(categories = childSupers)
         }
     }
+
+    fun allSupers(): List<FlagSuperCategory> =
+        allChildSupers(categories = supers() + this).distinct()
 
     fun enums(): List<FlagCategory> =
         subCategories.filterIsInstance<FlagCategoryWrapper>().map { it.enum }
