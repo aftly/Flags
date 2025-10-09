@@ -46,6 +46,7 @@ enum class FlagCategory(
     OKRUG (title = R.string.category_okrug_title, string = R.string.category_okrug_string),
     PROVINCE (title = R.string.category_province_title, string = R.string.category_province_string),
     REGION (title = R.string.category_region_title, string = R.string.category_region_string),
+    REGIONAL (title = R.string.category_regional_title, string = R.string.category_regional_string),
     REPUBLIC_UNIT (title = R.string.category_republic_unit_title, string = R.string.category_republic_unit_string),
     RIDING (title = R.string.category_riding_unit_title, string = R.string.category_riding_unit_string),
     STATE (title = R.string.category_state_title, string = R.string.category_state_string),
@@ -71,7 +72,6 @@ enum class FlagCategory(
     /* Non-political categories */
     CHARITY (title = R.string.category_charity_title, string = R.string.category_charity_string),
     MARITIME (title = R.string.category_maritime_title, string = R.string.category_maritime_string),
-    REGIONAL (title = R.string.category_regional_title, string = R.string.category_regional_string),
 
     /* POLITICAL CATEGORIES: */
 

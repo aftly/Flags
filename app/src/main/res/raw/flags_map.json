@@ -8642,7 +8642,7 @@
         "imagePreview": "cinque_ports_flag_preview",
         "fromYear": 1200,
         "fromYearCirca": true,
-        "toYear": 0,
+        "toYear": 2017,
         "toYearCirca": false,
         "flagOf": {
             "type": "StringResSource.Inherit"
@@ -11912,7 +11912,7 @@
         "sovereignState": null,
         "parentUnit": null,
         "latestEntities": [],
-        "previousFlagOf": "commonwealthOfNations",
+        "previousFlagOf": "england(Kingdom)",
         "categories": [
             "HISTORICAL"
         ]

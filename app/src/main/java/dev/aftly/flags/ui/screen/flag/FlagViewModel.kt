@@ -232,6 +232,7 @@ class FlagViewModel(
         val isInternational = categories.any { it in International.enums() }
         val isInstitutional = categoriesInstitutional.isNotEmpty()
         val isLegislature = categories.any { it in Legislature.enums() }
+        val isCultural = categoriesCultural.isNotEmpty()
         val isPoliticalSuperEnums = categories.any { it in politicalSuperEnums }
         val isNSGT = SOVEREIGN_STATE !in categories && flag.sovereignStateKey == null
         val isDependent = sovereignState != null
@@ -354,6 +355,9 @@ class FlagViewModel(
 
                     resIds.add(R.string.string_in_the)
 
+                    if (HISTORICAL in parentUnit.categories)
+                        resIds.add(R.string.string_defunct)
+
                     if (AUTONOMOUS_REGION in parentUnit.categories)
                         resIds.add(R.string.categories_autonomous_string)
 
@@ -391,13 +395,13 @@ class FlagViewModel(
                 .filterNot { it == UNICAMERAL }
 
             /* Add CULTURAL description */
-            /*
-            iterateOverCulturalCategories(
-                categories = categoriesCultural,
-                stringIds = resIds,
-                whitespaceExceptions = whitespaceExceptionIndexes,
-            )
-             */
+            if (isCultural) {
+                iterateOverCulturalCategories(
+                    categories = categoriesCultural,
+                    stringIds = resIds,
+                    whitespaceExceptions = whitespaceExceptionIndexes,
+                )
+            }
 
             /* Add INSTITUTIONAL description */
             categoriesNonCultural.forEachIndexed { index, category ->
@@ -411,11 +415,29 @@ class FlagViewModel(
                 }
             }
 
-            if (sovereignState != null) {
-                when (resIds.lastOrNull()) {
-                    R.string.category_political_in_description -> resIds.add(R.string.string_in)
-                    else -> resIds.add(R.string.string_of)
+            if (parentUnit != null) {
+                resIds.add(R.string.string_of)
+
+                /* Historical name and placement of descriptor varies */
+                if (HISTORICAL in parentUnit.categories) {
+                    if (parentUnit.isFlagOfOfficialThe) resIds.add(R.string.string_the)
+                    resIds.add(R.string.string_defunct) /* DESCRIPTOR */
+                    resIds.add(parentUnit.flagOfOfficial) /* FLAG NAME */
+
+                } else {
+                    if (parentUnit.isFlagOfThe) resIds.add(R.string.string_the)
+                    resIds.add(parentUnit.flagOf) /* FLAG NAME */
                 }
+
+                resIds.add(R.string.string_comma)
+                whitespaceExceptionIndexes.add(resIds.lastIndex)
+            }
+
+            if (sovereignState != null) {
+                if (parentUnit != null || categories.lastOrNull() == POLITICAL)
+                    resIds.add(R.string.string_in)
+                else
+                    resIds.add(R.string.string_of)
 
                 if (HISTORICAL in sovereignState.categories) {
                     if (sovereignState.isFlagOfOfficialThe) resIds.add(R.string.string_the)
