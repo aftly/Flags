@@ -34,6 +34,9 @@ import dev.aftly.flags.model.FlagCategory.STATE
 import dev.aftly.flags.model.FlagCategory.TERRITORY
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory.Institution
+import dev.aftly.flags.model.FlagSuperCategory.Legislature
+import dev.aftly.flags.model.FlagSuperCategory.Executive
+import dev.aftly.flags.model.FlagSuperCategory.Civilian
 import dev.aftly.flags.model.FlagSuperCategory.International
 import dev.aftly.flags.model.FlagSuperCategory.Regional
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
@@ -153,7 +156,7 @@ enum class ExternalCategoryExceptions(val key: String) {
 }
 val extCatExceptions = ExternalCategoryExceptions.entries.map { it.key }
 val externalCategories = listOf(TERRITORY, REGION, COLONY)
-val internalCategories = listOf(SovereignCountry.enums(), Regional.enums(), Institution.enums())
+val internalCategories = listOf(SovereignCountry.enums(), Regional.enums(), Institution.allEnums())
     .flatten().filterNot { it in externalCategories }
 
 fun getPoliticalInternalRelatedFlagKeys(
@@ -406,7 +409,17 @@ fun getPoliticalRelatedFlagsContentOrNull(
         }
 
         val institutions = internalRelatedFlags.filter { internalFlag ->
-            internalFlag.categories.any { it in Institution.enums() }
+            internalFlag.categories.any { it in Institution.allEnums() }
+        }
+
+        val legislatureInstitutions = institutions.filter { internalFlag ->
+            internalFlag.categories.any { it in Legislature.enums() }
+        }
+        val executiveInstitutions = institutions.filter { internalFlag ->
+            internalFlag.categories.any { it in Executive.enums() }
+        }
+        val civilianInstitutions = institutions.filter { internalFlag ->
+            internalFlag.categories.any { it in Civilian.enums() }
         }
 
         val associatedStates = externalRelatedFlags.filter { relatedFlag ->
@@ -493,12 +506,34 @@ fun getPoliticalRelatedFlagsContentOrNull(
                     categoryKey = category.name,
                 )
             },
-            institutions = if (institutions.isEmpty()) null else {
-                RelatedFlagGroup.Multiple(
-                    flags = institutions,
-                    category = Institution.title,
-                    categoryKey = "INSTITUTION",
-                )
+            institutions = if (institutions.isEmpty()) null else buildList {
+                if (legislatureInstitutions.isNotEmpty()) {
+                    add(
+                        RelatedFlagGroup.Multiple(
+                            flags = legislatureInstitutions,
+                            category = Legislature.title,
+                            categoryKey = "LEGISLATURE_INSTITUTIONS",
+                        )
+                    )
+                }
+                if (executiveInstitutions.isNotEmpty()) {
+                    add(
+                        RelatedFlagGroup.Multiple(
+                            flags = executiveInstitutions,
+                            category = Executive.title,
+                            categoryKey = "EXECUTIVE_INSTITUTIONS",
+                        )
+                    )
+                }
+                if (civilianInstitutions.isNotEmpty()) {
+                    add(
+                        RelatedFlagGroup.Multiple(
+                            flags = civilianInstitutions,
+                            category = Civilian.title,
+                            categoryKey = "CIVILIAN_INSTITUTIONS",
+                        )
+                    )
+                }
             },
             associatedStates = if (associatedStates.isEmpty()) null else {
                 RelatedFlagGroup.Multiple(
