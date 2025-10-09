@@ -242,6 +242,7 @@
     <string name="categories_autonomous_string">autonomous</string>
     <string name="categories_autonomous_regional">Autonomous or (Non-Sovereign) Associated Region</string>
     <string name="categories_devolved_title">Devolved</string>
+    <string name="categories_devolved_string">devolved</string>
     <string name="categories_non_self_governing_territory_string">non-self-governing territory</string>
     <string name="categories_non_self_governing_territory_descriptor">(NSGT)</string>
     <string name="categories_under_a">under a</string>
