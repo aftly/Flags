@@ -28369,8 +28369,8 @@
         },
         "internationalOrganisations": [],
         "associatedState": null,
-        "sovereignState": "northernIreland",
-        "parentUnit": null,
+        "sovereignState": "unitedKingdom",
+        "parentUnit": "northernIreland",
         "latestEntities": [],
         "previousFlagOf": null,
         "categories": [
