@@ -37,6 +37,7 @@ import dev.aftly.flags.model.FlagCategory.THEOCRACY
 import dev.aftly.flags.model.FlagCategory.THEOCRATIC
 import dev.aftly.flags.model.FlagCategory.UNICAMERAL
 import dev.aftly.flags.model.FlagScreenContent
+import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.AutonomousRegion
 import dev.aftly.flags.model.FlagSuperCategory.Cultural
 import dev.aftly.flags.model.FlagSuperCategory.ExecutiveStructure
@@ -46,6 +47,7 @@ import dev.aftly.flags.model.FlagSuperCategory.International
 import dev.aftly.flags.model.FlagSuperCategory.Legislature
 import dev.aftly.flags.model.FlagSuperCategory.LegislatureDivision
 import dev.aftly.flags.model.FlagSuperCategory.Political
+import dev.aftly.flags.model.FlagSuperCategory.PowerDerivation
 import dev.aftly.flags.model.FlagSuperCategory.Regional
 import dev.aftly.flags.model.FlagSuperCategory.TerritorialDistributionOfAuthority
 import dev.aftly.flags.model.FlagView
@@ -235,11 +237,10 @@ class FlagViewModel(
         val isInstitutional = categoriesInstitutional.isNotEmpty()
         val isLegislature = categories.any { it in Legislature.enums() }
         val isCultural = categoriesCultural.isNotEmpty()
-        val isPoliticalSuperEnums = categories.any { it in politicalSuperEnums }
         val isNSGT = SOVEREIGN_STATE !in categories && flag.sovereignStateKey == null
         val isDependent = sovereignState != null
-        val isIrregularPower =
-            (isNSGT && isPoliticalSuperEnums) || (isDependent && isPoliticalSuperEnums)
+        val isPowerEnums = categories.any { it in PowerDerivation.enums() }
+        val isIrregularPower = (isNSGT && isPowerEnums) || (isDependent && isPowerEnums)
 
         /* ----------------------- Description START ----------------------- */
 
@@ -270,9 +271,11 @@ class FlagViewModel(
                 categories = categoriesPolity,
                 stringIds = resIds,
                 whitespaceExceptions = whitespaceExceptionIndexes,
+                politicalSuperEnums = politicalSuperEnums,
                 isInternational = isInternational,
                 isConstitutional = CONSTITUTIONAL in categories,
                 isNSGT = isNSGT,
+                isIrregularPower = isIrregularPower,
                 isDependent = isDependent,
             )
 
@@ -371,16 +374,16 @@ class FlagViewModel(
 
             /* Append non-state irregular power information */
             if (isIrregularPower && !isInternational) {
-                val irregularCategories = categories.filter { it in politicalSuperEnums }
+                val categoriesPolitical = categories.filter { it in politicalSuperEnums }
 
                 resIds.add(R.string.string_comma)
                 whitespaceExceptionIndexes.add(resIds.lastIndex)
 
                 resIds.add(R.string.categories_under_a)
 
-                irregularCategories.forEach { category ->
+                categoriesPolitical.forEach { category ->
                     if (category in ExecutiveStructure.enums() &&
-                        CONSTITUTIONAL !in irregularCategories) {
+                        CONSTITUTIONAL !in categoriesPolitical) {
                         resIds.add(R.string.category_nominal_extra_constitutional_in_description)
                         resIds.add(category.string)
                     } else if (category == ONE_PARTY) {
@@ -498,9 +501,11 @@ class FlagViewModel(
         categories: List<FlagCategory>,
         stringIds: MutableList<Int>,
         whitespaceExceptions: MutableList<Int>,
+        politicalSuperEnums: List<FlagCategory>,
         isInternational: Boolean,
         isConstitutional: Boolean,
         isNSGT: Boolean,
+        isIrregularPower: Boolean,
         isDependent: Boolean,
     ) {
         val skipCategories =
@@ -509,15 +514,14 @@ class FlagViewModel(
         val regionCategories = categories.filter { it in Regional.enums() }
             .toMutableList()
         regionCategories.removeFirstOrNull()
-        val politicalSuperEnums = Political.allEnums()
 
         /* ----- ITERATIONS ----- */
         for (category in categories) {
             if (category in skipCategories) {
                 continue
 
-            } else if (category in politicalSuperEnums &&
-                (isNSGT || isDependent) &&
+            } else if (isIrregularPower &&
+                category in politicalSuperEnums &&
                 !isInternational) {
                 continue
 
@@ -568,7 +572,8 @@ class FlagViewModel(
                     stringIds.add(category.string)
                 }
 
-            } else if (category == CONFEDERATION && INTERNATIONAL_ORGANIZATION !in categories) {
+            } else if (category == CONFEDERATION &&
+                INTERNATIONAL_ORGANIZATION !in categories && !isDependent) {
                 stringIds.add(R.string.category_confederal_string)
 
             } else if (category in IdeologicalOrientation.enums() &&
