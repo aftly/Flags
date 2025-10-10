@@ -18,10 +18,12 @@ import dev.aftly.flags.model.FlagCategory.FASCIST
 import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
 import dev.aftly.flags.model.FlagCategory.HISTORICAL
 import dev.aftly.flags.model.FlagCategory.INTERNATIONAL_ORGANIZATION
+import dev.aftly.flags.model.FlagCategory.MILITARY
 import dev.aftly.flags.model.FlagCategory.MILITARY_JUNTA
 import dev.aftly.flags.model.FlagCategory.MONARCHY
 import dev.aftly.flags.model.FlagCategory.OBLAST
 import dev.aftly.flags.model.FlagCategory.ONE_PARTY
+import dev.aftly.flags.model.FlagCategory.POLICE
 import dev.aftly.flags.model.FlagCategory.POLITICAL
 import dev.aftly.flags.model.FlagCategory.PROVISIONAL_GOVERNMENT
 import dev.aftly.flags.model.FlagCategory.REGIONAL
@@ -411,6 +413,10 @@ class FlagViewModel(
                         resIds.add(category.string)
                         resIds.add(R.string.string_of_the)
                     }
+                    MILITARY ->
+                        if (parentUnit != null) resIds.add(R.string.category_military_child_string)
+                        else resIds.add(category.string)
+                    POLICE -> resIds.add(R.string.category_police_in_description_string)
                     else -> resIds.add(category.string)
                 }
             }

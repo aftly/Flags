@@ -148,8 +148,10 @@
     <string name="category_department_string">department</string>
     <string name="category_military_title">Military</string>
     <string name="category_military_string">military</string>
+    <string name="category_military_child_string">military division</string>
     <string name="category_police_title">Police</string>
     <string name="category_police_string">police</string>
+    <string name="category_police_in_description_string">police force</string>
     <string name="category_university_title">University</string>
     <string name="category_university_string">university</string>
     <string name="category_charity_title">Charity</string>
@@ -2156,6 +2158,10 @@
     <string name="great_britain_alt_3">UK</string>
     <string name="great_britain_alt_4">GB</string>
     <string name="great_britain_alt_5">Great Britain</string>
+    <string name="greater_london">Greater London</string>
+    <string name="greater_london_official">Greater London</string>
+    <string name="greater_london_wikipedia_url_path">Greater_London</string>
+    <string name="greater_london_alt">London Region</string>
     <string name="greece">Greece</string>
     <string name="greece_official">Hellenic Republic</string>
     <string name="greece_wikipedia_url_path">Greece</string>
