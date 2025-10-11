@@ -150,9 +150,11 @@
     <string name="category_assembly_string">assembly</string>
     <string name="category_department_title">Department</string>
     <string name="category_department_string">department</string>
+    <string name="category_department_in_description">government department</string>
     <string name="category_military_title">Military</string>
     <string name="category_military_string">military</string>
     <string name="category_military_child_string">military division</string>
+    <string name="category_military_alliance_string">military alliance</string>
     <string name="category_police_title">Police</string>
     <string name="category_police_string">police</string>
     <string name="category_police_in_description_string">police force</string>
@@ -167,12 +169,14 @@
     <string name="category_vexillology_string">vexillology</string>
     <string name="category_vexillology_category_button_title">Vexillological Institution</string>
     <string name="category_vexillology_description_title">Vexillological</string>
+    <string name="category_vexillology_description_string">vexillological</string>
     <string name="category_maritime_title">Maritime</string>
     <string name="category_maritime_string">maritime</string>
     <string name="category_unitary_title">Unitary</string>
     <string name="category_unitary_string">unitary</string>
     <string name="category_federal_title">Federal</string>
     <string name="category_federal_string">federal</string>
+    <string name="category_federal_federation_string">federation</string>
     <string name="category_confederation_title">Confederation</string>
     <string name="category_confederation_string">confederation</string>
     <string name="category_confederal_title">Confederal</string>

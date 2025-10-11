@@ -12,9 +12,11 @@ import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
 import dev.aftly.flags.model.FlagCategory.CONFEDERATION
 import dev.aftly.flags.model.FlagCategory.CONSTITUTIONAL
+import dev.aftly.flags.model.FlagCategory.DEPARTMENT
 import dev.aftly.flags.model.FlagCategory.DEVOLVED_GOVERNMENT
 import dev.aftly.flags.model.FlagCategory.ETHNIC
 import dev.aftly.flags.model.FlagCategory.FASCIST
+import dev.aftly.flags.model.FlagCategory.FEDERAL
 import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
 import dev.aftly.flags.model.FlagCategory.HISTORICAL
 import dev.aftly.flags.model.FlagCategory.INTERNATIONAL_ORGANIZATION
@@ -36,6 +38,7 @@ import dev.aftly.flags.model.FlagCategory.TERRITORY
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
 import dev.aftly.flags.model.FlagCategory.THEOCRATIC
 import dev.aftly.flags.model.FlagCategory.UNICAMERAL
+import dev.aftly.flags.model.FlagCategory.VEXILLOLOGY
 import dev.aftly.flags.model.FlagScreenContent
 import dev.aftly.flags.model.FlagSuperCategory.AutonomousRegion
 import dev.aftly.flags.model.FlagSuperCategory.Cultural
@@ -45,6 +48,7 @@ import dev.aftly.flags.model.FlagSuperCategory.Institution
 import dev.aftly.flags.model.FlagSuperCategory.International
 import dev.aftly.flags.model.FlagSuperCategory.Legislature
 import dev.aftly.flags.model.FlagSuperCategory.LegislatureDivision
+import dev.aftly.flags.model.FlagSuperCategory.Civilian
 import dev.aftly.flags.model.FlagSuperCategory.Political
 import dev.aftly.flags.model.FlagSuperCategory.PowerDerivation
 import dev.aftly.flags.model.FlagSuperCategory.Regional
@@ -398,41 +402,15 @@ class FlagViewModel(
                 categories = categories,
                 stringIds = resIds,
                 whitespaceExceptions = whitespaceExceptionIndexes,
+                isInternational = isInternational,
                 isChild = parentUnit != null,
             )
-            /*
-            val categoriesNonCultural = categories.filterNot { it in categoriesCultural }
-            val legislatureDivisionsOfThe = LegislatureDivision.enums()
-                .filterNot { it == UNICAMERAL }
-
-            /* Add CULTURAL description */
-            if (isCultural) {
-                iterateOverCulturalCategories(
-                    categories = categoriesCultural,
-                    stringIds = resIds,
-                    whitespaceExceptions = whitespaceExceptionIndexes,
-                )
-            }
-
-            /* Add INSTITUTIONAL description */
-            categoriesNonCultural.forEachIndexed { index, category ->
-                when (category) {
-                    DEVOLVED_GOVERNMENT -> resIds.add(R.string.categories_devolved_string)
-                    in legislatureDivisionsOfThe -> {
-                        resIds.add(category.string)
-                        resIds.add(R.string.string_of_the)
-                    }
-                    MILITARY ->
-                        if (parentUnit != null) resIds.add(R.string.category_military_child_string)
-                        else resIds.add(category.string)
-                    POLICE -> resIds.add(R.string.category_police_in_description_string)
-                    else -> resIds.add(category.string)
-                }
-            }
-             */
 
             if (parentUnit != null) {
-                resIds.add(R.string.string_of)
+                if (categories.lastOrNull() in Civilian.enums())
+                    resIds.add(R.string.string_in)
+                else
+                    resIds.add(R.string.string_of)
 
                 /* Historical name and placement of descriptor varies */
                 if (HISTORICAL in parentUnit.categories) {
@@ -450,7 +428,7 @@ class FlagViewModel(
             }
 
             if (sovereignState != null) {
-                if (parentUnit != null || categories.lastOrNull() == POLITICAL)
+                if (parentUnit != null || categories.lastOrNull() in Civilian.enums() + POLITICAL)
                     resIds.add(R.string.string_in)
                 else
                     resIds.add(R.string.string_of)
@@ -622,94 +600,65 @@ class FlagViewModel(
         categories: List<FlagCategory>,
         stringIds: MutableList<Int>,
         whitespaceExceptions: MutableList<Int>,
+        isInternational: Boolean,
         isChild: Boolean,
     ) {
-        val size = categories.size
         val firstCategory = categories[0]
-        val penultimateCategory = if (size > 2) categories[size - 2] else firstCategory
-        val lastCategory = categories[size - 1]
+        val lastCategory = categories[categories.size - 1]
         val legislatureDivisionsOfThe = LegislatureDivision.enums().filterNot { it == UNICAMERAL }
 
         for (category in categories) {
             when (category) {
-                INTERNATIONAL_ORGANIZATION ->
-                    if (firstCategory == INTERNATIONAL_ORGANIZATION) {
+                DEVOLVED_GOVERNMENT -> stringIds.add(R.string.categories_devolved_string)
+                INTERNATIONAL_ORGANIZATION -> {
+                    if (category == firstCategory && category != lastCategory) {
                         stringIds.add(
                             R.string.category_international_organization_in_description_short
                         )
                         addLastIndex(from = stringIds, to = whitespaceExceptions)
-                    } else {
+
+                    } else if (category == firstCategory) {
+                        stringIds.add(R.string.category_international_organization_in_description)
+                        addLastIndex(from = stringIds, to = whitespaceExceptions)
+
+                    } else if (category != lastCategory) {
                         stringIds.add(R.string.category_international_organization_string_short)
+
+                    } else {
+                        stringIds.add(category.string)
                     }
+                }
                 REGIONAL -> stringIds.add(R.string.category_regional_string)
                 SOCIAL -> stringIds.add(R.string.category_social_in_description)
                 POLITICAL -> stringIds.add(R.string.category_political_in_description)
-                RELIGIOUS -> stringIds.add(R.string.category_religious_in_description)
-                ETHNIC ->
-                    if (firstCategory == ETHNIC) {
+                RELIGIOUS -> {
+                    if (category == lastCategory)
+                        stringIds.add(R.string.category_religious_in_description)
+                    else
+                        stringIds.add(R.string.category_religious_string)
+                }
+                ETHNIC -> {
+                    if (category == firstCategory) {
                         stringIds.add(R.string.category_ethnic_in_description_2)
                         addLastIndex(from = stringIds, to = whitespaceExceptions)
-                    }
-                    else {
+                    } else {
                         stringIds.add(R.string.category_ethnic_in_description_1)
                     }
-                DEVOLVED_GOVERNMENT -> stringIds.add(R.string.categories_devolved_string)
+                }
                 in legislatureDivisionsOfThe -> {
                     stringIds.add(category.string)
                     stringIds.add(R.string.string_of_the)
                 }
-                MILITARY ->
+                DEPARTMENT -> stringIds.add(R.string.category_department_in_description)
+                MILITARY -> {
                     if (isChild) stringIds.add(R.string.category_military_child_string)
+                    else if (isInternational) stringIds.add(R.string.category_military_alliance_string)
                     else stringIds.add(category.string)
-                POLICE -> stringIds.add(R.string.category_police_in_description_string)
-                else -> stringIds.add(category.string)
-            }
-
-            /*
-            if (size > 2 && category !in listOf(penultimateCategory, lastCategory)) {
-                stringIds.add(R.string.string_comma)
-                addLastIndex(from = stringIds, to = whitespaceExceptions)
-                stringIds.add(R.string.string_a)
-
-            } else if (category != lastCategory) {
-                stringIds.add(R.string.string_and)
-            }
-             */
-        }
-    }
-    private fun iterateOverCulturalCategories(
-        categories: List<FlagCategory>,
-        stringIds: MutableList<Int>,
-        whitespaceExceptions: MutableList<Int>,
-    ) {
-        val size = categories.size
-        val firstCategory = categories[0]
-        val penultimateCategory = if (size > 2) categories[size - 2] else firstCategory
-        val lastCategory = categories[size - 1]
-
-        for (category in categories) {
-            when (category) {
-                REGIONAL -> stringIds.add(R.string.category_regional_string)
-                SOCIAL -> stringIds.add(R.string.category_social_in_description)
-                POLITICAL -> stringIds.add(R.string.category_political_in_description)
-                RELIGIOUS -> stringIds.add(R.string.category_religious_in_description)
-                ETHNIC -> when (firstCategory) {
-                    ETHNIC -> {
-                        stringIds.add(R.string.category_ethnic_in_description_2)
-                        addLastIndex(from = stringIds, to = whitespaceExceptions)
-                    }
-                    else -> stringIds.add(R.string.category_ethnic_in_description_1)
                 }
-                else -> continue
-            }
-
-            if (size > 2 && category !in listOf(penultimateCategory, lastCategory)) {
-                stringIds.add(R.string.string_comma)
-                addLastIndex(from = stringIds, to = whitespaceExceptions)
-                stringIds.add(R.string.string_a)
-
-            } else if (category != lastCategory) {
-                stringIds.add(R.string.string_and)
+                POLICE -> stringIds.add(R.string.category_police_in_description_string)
+                VEXILLOLOGY -> stringIds.add(R.string.category_vexillology_description_string)
+                FEDERAL -> stringIds.add(R.string.category_federal_federation_string)
+                else -> stringIds.add(category.string)
             }
         }
     }
