@@ -16,19 +16,24 @@ import dev.aftly.flags.model.FlagCategory.CITY
 import dev.aftly.flags.model.FlagCategory.COLLECTIVITY
 import dev.aftly.flags.model.FlagCategory.COLONY
 import dev.aftly.flags.model.FlagCategory.COMMUNITY
+import dev.aftly.flags.model.FlagCategory.COUNCIL_AREA
 import dev.aftly.flags.model.FlagCategory.COUNTRY
 import dev.aftly.flags.model.FlagCategory.COUNTY
 import dev.aftly.flags.model.FlagCategory.DISTRICT
 import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
 import dev.aftly.flags.model.FlagCategory.INTERNATIONAL_ORGANIZATION
+import dev.aftly.flags.model.FlagCategory.ISLAND
 import dev.aftly.flags.model.FlagCategory.KRAI
 import dev.aftly.flags.model.FlagCategory.MEMBER_STATE
+import dev.aftly.flags.model.FlagCategory.MICRONATION
 import dev.aftly.flags.model.FlagCategory.MUNICIPALITY
 import dev.aftly.flags.model.FlagCategory.OBLAST
 import dev.aftly.flags.model.FlagCategory.OKRUG
 import dev.aftly.flags.model.FlagCategory.PROVINCE
 import dev.aftly.flags.model.FlagCategory.REGION
+import dev.aftly.flags.model.FlagCategory.REGIONAL
 import dev.aftly.flags.model.FlagCategory.REPUBLIC_UNIT
+import dev.aftly.flags.model.FlagCategory.RIDING
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.STATE
 import dev.aftly.flags.model.FlagCategory.TERRITORY
@@ -342,6 +347,8 @@ val perLevelAdminDivisionOrder = listOf(
     COMMUNITY,
     PROVINCE,
     TERRITORY,
+    REGIONAL,
+    ISLAND,
     CANTON,
     DISTRICT,
     OBLAST,
@@ -350,8 +357,11 @@ val perLevelAdminDivisionOrder = listOf(
     OKRUG,
     REPUBLIC_UNIT,
     COUNTY,
+    COUNCIL_AREA,
     MUNICIPALITY,
-    COLONY
+    COLONY,
+    RIDING,
+    MICRONATION
     //EMIRATE,
     //ENTITY,
     //GOVERNORATE,

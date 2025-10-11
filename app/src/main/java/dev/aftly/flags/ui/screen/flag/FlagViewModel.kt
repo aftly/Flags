@@ -20,6 +20,7 @@ import dev.aftly.flags.model.FlagCategory.FEDERAL
 import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
 import dev.aftly.flags.model.FlagCategory.HISTORICAL
 import dev.aftly.flags.model.FlagCategory.INTERNATIONAL_ORGANIZATION
+import dev.aftly.flags.model.FlagCategory.MICRONATION
 import dev.aftly.flags.model.FlagCategory.MILITARY
 import dev.aftly.flags.model.FlagCategory.MILITARY_JUNTA
 import dev.aftly.flags.model.FlagCategory.MONARCHY
@@ -300,9 +301,12 @@ class FlagViewModel(
 
             } else if (sovereignState != null) {
                 val isSovHistorical = HISTORICAL in sovereignState.categories
+                val isInCategories = listOf(MICRONATION, REGIONAL)
 
-                if (REGIONAL in categories || isIrregularPower) resIds.add(R.string.string_in)
-                else resIds.add(R.string.string_of)
+                if (isIrregularPower || categories.any { it in isInCategories })
+                    resIds.add(R.string.string_in)
+                else
+                    resIds.add(R.string.string_of)
 
                 /* Historical name and placement of descriptor varies */
                 if (isSovHistorical && sovereignState.flagOfDescriptor != null) {
@@ -320,8 +324,7 @@ class FlagViewModel(
                         resIds.add(R.string.string_defunct_bracketed) /* DESCRIPTOR */
                 }
             } else if (latestEntities.isNotEmpty() && SOVEREIGN_STATE !in categories) {
-                if (latestEntities.size == 1) resIds.add(R.string.string_of)
-                else resIds.add(R.string.string_in)
+                resIds.add(R.string.string_in)
 
                 latestEntities.forEachIndexed { index, flag ->
                     if (index > 0 && index == latestEntities.lastIndex) {
