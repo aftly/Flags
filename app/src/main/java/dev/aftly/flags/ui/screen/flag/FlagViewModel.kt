@@ -37,7 +37,6 @@ import dev.aftly.flags.model.FlagCategory.THEOCRACY
 import dev.aftly.flags.model.FlagCategory.THEOCRATIC
 import dev.aftly.flags.model.FlagCategory.UNICAMERAL
 import dev.aftly.flags.model.FlagScreenContent
-import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.AutonomousRegion
 import dev.aftly.flags.model.FlagSuperCategory.Cultural
 import dev.aftly.flags.model.FlagSuperCategory.ExecutiveStructure
@@ -283,7 +282,7 @@ class FlagViewModel(
             if (associatedState != null) {
                 if (SOVEREIGN_STATE in categories) {
                     resIds.add(R.string.string_comma)
-                    whitespaceExceptionIndexes.add(resIds.lastIndex)
+                    addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
                 }
                 resIds.add(R.string.category_free_association_in_description)
 
@@ -325,7 +324,7 @@ class FlagViewModel(
                         resIds.add(R.string.string_and)
                     } else if (index > 0) {
                         resIds.add(R.string.string_comma)
-                        whitespaceExceptionIndexes.add(resIds.lastIndex)
+                        addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
                     }
 
                     if (flag.isFlagOfThe) resIds.add(R.string.string_the)
@@ -336,7 +335,7 @@ class FlagViewModel(
             /* Append devolved government information */
             if (DEVOLVED_GOVERNMENT in categories) {
                 resIds.add(R.string.string_comma)
-                whitespaceExceptionIndexes.add(resIds.lastIndex)
+                addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
 
                 if (THEOCRATIC in categories) {
                     resIds.add(R.string.category_devolved_government_in_description_theocratic)
@@ -356,7 +355,7 @@ class FlagViewModel(
 
                 regionalCat?.let {
                     resIds.add(R.string.string_comma)
-                    whitespaceExceptionIndexes.add(resIds.lastIndex)
+                    addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
 
                     resIds.add(R.string.string_in_the)
 
@@ -377,7 +376,7 @@ class FlagViewModel(
                 val categoriesPolitical = categories.filter { it in politicalSuperEnums }
 
                 resIds.add(R.string.string_comma)
-                whitespaceExceptionIndexes.add(resIds.lastIndex)
+                addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
 
                 resIds.add(R.string.categories_under_a)
 
@@ -394,7 +393,14 @@ class FlagViewModel(
                 }
             }
 
-        } else {
+        } else { /* If cultural or institutional */
+            iterateOverCulturalInstitutionalCategories(
+                categories = categories,
+                stringIds = resIds,
+                whitespaceExceptions = whitespaceExceptionIndexes,
+                isChild = parentUnit != null,
+            )
+            /*
             val categoriesNonCultural = categories.filterNot { it in categoriesCultural }
             val legislatureDivisionsOfThe = LegislatureDivision.enums()
                 .filterNot { it == UNICAMERAL }
@@ -423,6 +429,7 @@ class FlagViewModel(
                     else -> resIds.add(category.string)
                 }
             }
+             */
 
             if (parentUnit != null) {
                 resIds.add(R.string.string_of)
@@ -439,7 +446,7 @@ class FlagViewModel(
                 }
 
                 resIds.add(R.string.string_comma)
-                whitespaceExceptionIndexes.add(resIds.lastIndex)
+                addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
             }
 
             if (sovereignState != null) {
@@ -460,7 +467,7 @@ class FlagViewModel(
         }
 
         resIds.add(R.string.string_period)
-        whitespaceExceptionIndexes.add(resIds.lastIndex)
+        addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
         /* ------------------------------- Description END ------------------------------- */
 
 
@@ -528,7 +535,7 @@ class FlagViewModel(
             } else if (category == AUTONOMOUS_REGION) {
                 if (HISTORICAL !in categories) {
                     stringIds.add(R.string.category_autonomous_region_in_description_an)
-                    whitespaceExceptions.add(stringIds.lastIndex)
+                    addLastIndex(from = stringIds, to = whitespaceExceptions)
                 } else {
                     stringIds.add(R.string.category_autonomous_region_in_description)
                 }
@@ -539,7 +546,7 @@ class FlagViewModel(
 
             } else if (category == OBLAST && AUTONOMOUS_REGION !in categories) {
                 stringIds.add(R.string.category_oblast_string_in_description_an)
-                whitespaceExceptions.add(stringIds.lastIndex)
+                addLastIndex(from = stringIds, to = whitespaceExceptions)
 
             } else if (category in regionCategories) {
                 stringIds.add(R.string.string_and)
@@ -558,12 +565,12 @@ class FlagViewModel(
 
                 } else if (SUPRANATIONAL_UNION !in categories) {
                     stringIds.add(R.string.category_international_organization_in_description)
-                    whitespaceExceptions.add(stringIds.lastIndex)
+                    addLastIndex(from = stringIds, to = whitespaceExceptions)
                     stringIds.add(R.string.string_and)
 
                 } else if (categories.any { it in TerritorialDistributionOfAuthority.enums() }) {
                     stringIds.add(R.string.string_comma)
-                    whitespaceExceptions.add(stringIds.lastIndex)
+                    addLastIndex(from = stringIds, to = whitespaceExceptions)
                     stringIds.add(category.string)
                     stringIds.add(R.string.string_and)
 
@@ -611,6 +618,65 @@ class FlagViewModel(
 
     /* Loop over cultural categories and add it's string or alternate strings depending on
      * legibility to resIds list */
+    private fun iterateOverCulturalInstitutionalCategories(
+        categories: List<FlagCategory>,
+        stringIds: MutableList<Int>,
+        whitespaceExceptions: MutableList<Int>,
+        isChild: Boolean,
+    ) {
+        val size = categories.size
+        val firstCategory = categories[0]
+        val penultimateCategory = if (size > 2) categories[size - 2] else firstCategory
+        val lastCategory = categories[size - 1]
+        val legislatureDivisionsOfThe = LegislatureDivision.enums().filterNot { it == UNICAMERAL }
+
+        for (category in categories) {
+            when (category) {
+                INTERNATIONAL_ORGANIZATION ->
+                    if (firstCategory == INTERNATIONAL_ORGANIZATION) {
+                        stringIds.add(
+                            R.string.category_international_organization_in_description_short
+                        )
+                        addLastIndex(from = stringIds, to = whitespaceExceptions)
+                    } else {
+                        stringIds.add(R.string.category_international_organization_string_short)
+                    }
+                REGIONAL -> stringIds.add(R.string.category_regional_string)
+                SOCIAL -> stringIds.add(R.string.category_social_in_description)
+                POLITICAL -> stringIds.add(R.string.category_political_in_description)
+                RELIGIOUS -> stringIds.add(R.string.category_religious_in_description)
+                ETHNIC ->
+                    if (firstCategory == ETHNIC) {
+                        stringIds.add(R.string.category_ethnic_in_description_2)
+                        addLastIndex(from = stringIds, to = whitespaceExceptions)
+                    }
+                    else {
+                        stringIds.add(R.string.category_ethnic_in_description_1)
+                    }
+                DEVOLVED_GOVERNMENT -> stringIds.add(R.string.categories_devolved_string)
+                in legislatureDivisionsOfThe -> {
+                    stringIds.add(category.string)
+                    stringIds.add(R.string.string_of_the)
+                }
+                MILITARY ->
+                    if (isChild) stringIds.add(R.string.category_military_child_string)
+                    else stringIds.add(category.string)
+                POLICE -> stringIds.add(R.string.category_police_in_description_string)
+                else -> stringIds.add(category.string)
+            }
+
+            /*
+            if (size > 2 && category !in listOf(penultimateCategory, lastCategory)) {
+                stringIds.add(R.string.string_comma)
+                addLastIndex(from = stringIds, to = whitespaceExceptions)
+                stringIds.add(R.string.string_a)
+
+            } else if (category != lastCategory) {
+                stringIds.add(R.string.string_and)
+            }
+             */
+        }
+    }
     private fun iterateOverCulturalCategories(
         categories: List<FlagCategory>,
         stringIds: MutableList<Int>,
@@ -630,7 +696,7 @@ class FlagViewModel(
                 ETHNIC -> when (firstCategory) {
                     ETHNIC -> {
                         stringIds.add(R.string.category_ethnic_in_description_2)
-                        whitespaceExceptions.add(stringIds.lastIndex)
+                        addLastIndex(from = stringIds, to = whitespaceExceptions)
                     }
                     else -> stringIds.add(R.string.category_ethnic_in_description_1)
                 }
@@ -639,12 +705,19 @@ class FlagViewModel(
 
             if (size > 2 && category !in listOf(penultimateCategory, lastCategory)) {
                 stringIds.add(R.string.string_comma)
-                whitespaceExceptions.add(stringIds.lastIndex)
+                addLastIndex(from = stringIds, to = whitespaceExceptions)
                 stringIds.add(R.string.string_a)
 
             } else if (category != lastCategory) {
                 stringIds.add(R.string.string_and)
             }
         }
+    }
+
+    private fun addLastIndex(
+        from: MutableList<Int>,
+        to: MutableList<Int>,
+    ) {
+        to.add(from.lastIndex)
     }
 }
