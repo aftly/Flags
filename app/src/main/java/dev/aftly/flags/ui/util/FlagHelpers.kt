@@ -21,6 +21,7 @@ import dev.aftly.flags.model.FlagCategory.COUNTRY
 import dev.aftly.flags.model.FlagCategory.COUNTY
 import dev.aftly.flags.model.FlagCategory.DISTRICT
 import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
+import dev.aftly.flags.model.FlagCategory.HISTORICAL
 import dev.aftly.flags.model.FlagCategory.INTERNATIONAL_ORGANIZATION
 import dev.aftly.flags.model.FlagCategory.ISLAND
 import dev.aftly.flags.model.FlagCategory.KRAI
@@ -350,22 +351,21 @@ val perLevelAdminDivisionOrder = listOf(
     REGIONAL,
     ISLAND,
     CANTON,
+    COUNCIL_AREA,
     DISTRICT,
     OBLAST,
     KRAI,
-    CITY,
     OKRUG,
     REPUBLIC_UNIT,
     COUNTY,
-    COUNCIL_AREA,
     MUNICIPALITY,
     COLONY,
     RIDING,
+    CITY,
     MICRONATION
     //EMIRATE,
     //ENTITY,
     //GOVERNORATE,
-    //ISLAND,
     //MEMBER_STATE,
 )
 fun getPoliticalRelatedFlagsContentOrNull(
@@ -478,21 +478,12 @@ fun getPoliticalRelatedFlagsContentOrNull(
                         val divisionUnits = adminUnits.filter { flag ->
                             division in flag.categories
                         }
-                        val divisionUnitLevel = divisionUnits.let { units ->
-                            var maxUnitLevel = 1
-                            units.forEach { unit ->
-                                var unitLevel = 1
-                                var parentUnit = unit
-
-                                while (parentUnit.parentUnitKey != null) {
-                                    unitLevel++
-                                    parentUnit =
-                                        flagViewMap.getValue(parentUnit.parentUnitKey)
-                                }
-                                if (unitLevel > maxUnitLevel) maxUnitLevel = unitLevel
-                            }
-                            return@let maxUnitLevel
+                        val divisionExclusiveUnits = divisionUnits.filter { flag ->
+                            flag.categories.all { it in listOf(division, HISTORICAL) }
                         }
+                        val divisionUnitLevel = getAdminDivisionUnitLevelFromUnits(
+                            units = divisionExclusiveUnits.ifEmpty { divisionUnits }
+                        )
 
                         add(
                             RelatedFlagGroup.AdminUnits(
@@ -561,6 +552,35 @@ fun getPoliticalRelatedFlagsContentOrNull(
             },
             internationalOrgMembers = null,
         )
+    }
+}
+
+private fun getAdminDivisionUnitLevelFromUnits(units: List<FlagView>): Int {
+    var maxUnitLevel = 1
+
+    units.forEach { unit ->
+        val unitLevel = getAdminDivisionUnitLevel(unit)
+        if (unitLevel > maxUnitLevel) maxUnitLevel = unitLevel
+    }
+
+    return maxUnitLevel
+}
+
+private fun getAdminDivisionUnitLevel(
+    unit: FlagView,
+    unitLevel: Int = 1,
+): Int {
+    return when (unit.parentUnitKey) {
+        null -> unitLevel
+        else -> {
+            val newUnitLevel = unitLevel.inc()
+            val parentUnit = flagViewMap.getValue(unit.parentUnitKey)
+
+            when (parentUnit.parentUnitKey) {
+                null -> newUnitLevel
+                else -> getAdminDivisionUnitLevel(parentUnit, newUnitLevel)
+            }
+        }
     }
 }
 
