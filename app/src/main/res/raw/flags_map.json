@@ -1859,6 +1859,7 @@
             "bool": false
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -2872,6 +2873,7 @@
             "bool": true
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -3522,6 +3524,7 @@
             "bool": true
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -3661,6 +3664,7 @@
             "bool": false
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -4526,6 +4530,7 @@
             "bool": false
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -5352,6 +5357,7 @@
         },
         "internationalOrganisations": [
             "africanUnion",
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -5976,6 +5982,7 @@
             "bool": false
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -6907,6 +6914,7 @@
         },
         "internationalOrganisations": [
             "africanUnion",
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -7019,6 +7027,7 @@
             "bool": false
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "nato",
             "unitedNations"
         ],
@@ -10167,6 +10176,7 @@
             "bool": true
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "europeanUnion",
             "unitedNations"
         ],
@@ -10837,6 +10847,7 @@
             "bool": true
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -12259,6 +12270,7 @@
         },
         "internationalOrganisations": [
             "africanUnion",
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -12884,6 +12896,7 @@
             "bool": true
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -13617,6 +13630,7 @@
         },
         "internationalOrganisations": [
             "africanUnion",
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -14088,6 +14102,7 @@
         },
         "internationalOrganisations": [
             "africanUnion",
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -14792,6 +14807,7 @@
             "bool": false
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -15468,6 +15484,7 @@
             "bool": true
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -16939,6 +16956,7 @@
             "bool": true
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -18249,6 +18267,7 @@
             "bool": false
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -19479,6 +19498,7 @@
         },
         "internationalOrganisations": [
             "africanUnion",
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -19889,6 +19909,7 @@
             "bool": true
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -21663,6 +21684,7 @@
         },
         "internationalOrganisations": [
             "africanUnion",
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -23112,6 +23134,7 @@
         },
         "internationalOrganisations": [
             "africanUnion",
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -23179,6 +23202,7 @@
             "bool": false
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -23239,6 +23263,7 @@
             "bool": true
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -23358,6 +23383,7 @@
             "bool": true
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "europeanUnion",
             "unitedNations"
         ],
@@ -23987,6 +24013,7 @@
         },
         "internationalOrganisations": [
             "africanUnion",
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -25663,6 +25690,7 @@
         },
         "internationalOrganisations": [
             "africanUnion",
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -26026,6 +26054,7 @@
         },
         "internationalOrganisations": [
             "africanUnion",
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -26089,6 +26118,7 @@
             "bool": true
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -27218,6 +27248,7 @@
             "bool": false
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -27558,6 +27589,7 @@
         },
         "internationalOrganisations": [
             "africanUnion",
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -30079,6 +30111,7 @@
             "bool": true
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -30389,6 +30422,7 @@
             "bool": true
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -32882,6 +32916,7 @@
         },
         "internationalOrganisations": [
             "africanUnion",
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -33408,6 +33443,7 @@
             "bool": true
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -33479,6 +33515,7 @@
             "bool": false
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -33721,6 +33758,7 @@
             "bool": false
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -33989,6 +34027,7 @@
             "bool": true
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -35246,6 +35285,7 @@
         },
         "internationalOrganisations": [
             "africanUnion",
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -35497,6 +35537,7 @@
         },
         "internationalOrganisations": [
             "africanUnion",
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -35580,6 +35621,7 @@
             "bool": true
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -35964,6 +36006,7 @@
             "bool": false
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -36297,6 +36340,7 @@
         },
         "internationalOrganisations": [
             "africanUnion",
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -37180,6 +37224,7 @@
             "bool": true
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -38266,6 +38311,7 @@
         },
         "internationalOrganisations": [
             "africanUnion",
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -38804,6 +38850,7 @@
             "bool": true
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -38876,6 +38923,7 @@
         },
         "internationalOrganisations": [
             "africanUnion",
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -39444,6 +39492,7 @@
         },
         "internationalOrganisations": [
             "africanUnion",
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -39660,6 +39709,7 @@
             "bool": true
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -39993,6 +40043,7 @@
             "bool": true
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -40513,6 +40564,7 @@
             "bool": false
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -40725,6 +40777,7 @@
         },
         "internationalOrganisations": [
             "africanUnion",
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -41119,6 +41172,7 @@
             "bool": true
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "nato",
             "unitedNations"
         ],
@@ -44231,6 +44285,7 @@
             "bool": true
         },
         "internationalOrganisations": [
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,
@@ -46546,6 +46601,7 @@
         },
         "internationalOrganisations": [
             "africanUnion",
+            "commonwealthOfNations",
             "unitedNations"
         ],
         "associatedState": null,

@@ -368,6 +368,7 @@ val perLevelAdminDivisionOrder = listOf(
     //GOVERNORATE,
     //MEMBER_STATE,
 )
+
 fun getPoliticalRelatedFlagsContentOrNull(
     flag: FlagView,
     application: Application,
