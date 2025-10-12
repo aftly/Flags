@@ -1509,8 +1509,7 @@
     <string name="commonwealth_of_england_alt_1">English Republic</string>
     <string name="commonwealth_of_england_alt_2">Commonwealth</string>
     <string name="commonwealth_of_england_alt_3">Interregnum</string>
-    <string name="commonwealth_of_england_alt_4">Protectorate</string>
-    <string name="commonwealth_of_england_alt_5">Commonwealth of England, Scotland and Ireland</string>
+    <string name="commonwealth_of_england_alt_4">Commonwealth of England, Scotland and Ireland</string>
     <string name="commonwealth_of_nations">Commonwealth of Nations</string>
     <string name="commonwealth_of_nations_official">Commonwealth of Nations</string>
     <string name="commonwealth_of_nations_wikipedia_url_path">Commonwealth_of_Nations</string>
@@ -5210,6 +5209,10 @@
     <string name="the_gambia_alt_4">Republic of the Gambia</string>
     <string name="the_gambia_alt_5">GM</string>
     <string name="the_gambia_alt_6">Gambia</string>
+    <string name="the_protectorate">The Protectorate</string>
+    <string name="the_protectorate_official">Commonwealth of England, Scotland and Ireland</string>
+    <string name="the_protectorate_wikipedia_url_path">The_Protectorate</string>
+    <string name="the_protectorate_alt">Interregnum</string>
     <string name="the_salvation_army">The Salvation Army</string>
     <string name="the_salvation_army_official">The Salvation Army</string>
     <string name="the_salvation_army_wikipedia_url_path">The_Salvation_Army</string>
