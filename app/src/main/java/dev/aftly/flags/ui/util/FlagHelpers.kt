@@ -97,62 +97,46 @@ fun getFlagFromId(id: Int): FlagView = flagViewMapId.getValue(key = id)
 
 
 /* ---------- For flagViewMap ---------- */
+
 fun getChronologicalDirectRelatedFlagKeys(
     flagKey: String,
     flagRes: FlagResources,
 ): List<String> {
-    val latestParentKeys = buildList {
-        add(flagKey)
-        flagRes.previousFlagOf?.let { add(it) }
-        addAll(elements = flagRes.latestEntities)
-    }
+    return if (flagRes.previousFlagOf != null) {
+        emptyList()
 
-    val previousParentKeys = buildList {
-        add(flagKey)
-        flagRes.previousFlagOf?.let { add(it) }
-    }
+    } else {
+        val latestKeys = buildList {
+            add(flagKey)
+            addAll(elements = flagRes.latestEntities)
+        }
 
-    val childKeys = flagResMap.values.filter { flag ->
-         flag.latestEntities.any { it in latestParentKeys } || flag
-             .previousFlagOf in previousParentKeys
-    }.map { flag ->
-        inverseFlagResMap.getValue(flag)
-    }
+        val childKeys = flagResMap.values.filter { flag ->
+            flag.latestEntities.any { it in latestKeys } || flag.previousFlagOf == flagKey
+        }.map { flag ->
+            inverseFlagResMap.getValue(flag)
+        }
 
-    return buildList {
-        addAll(elements = latestParentKeys)
-        addAll(elements = previousParentKeys)
-        addAll(elements = childKeys)
-    }.distinct()
+        /* Return expression */
+        buildList {
+            addAll(elements = latestKeys)
+            addAll(elements = childKeys)
+        }.distinct()
+    }
 }
 
-fun getChronologicalIndirectRelatedFlagKeys(
-    flagRes: FlagResources,
-): List<String> {
-    val latestFilterKeys = buildList {
-        /* For all (direct & primary) historical admin flags of the sovereign */
-        flagRes.sovereignState?.let { add(it) }
-        /* For pre-admin keys of parent's sovereign (eg. USA for historical flag of a state) */
-        flagRes.previousFlagOf?.let { flagOfKey ->
-            flagResMap.getValue(flagOfKey).sovereignState?.let { add(it) }
-        }
-    }
+fun getChronologicalIndirectRelatedFlagKeys(flagRes: FlagResources): List<String> {
+    return if (flagRes.previousFlagOf != null) {
+        emptyList()
 
-    val sovereignFilterKeys = buildList {
-        /* For all dependents of latest entity */
-        addAll(elements = flagRes.latestEntities)
-        /* For post-admin keys of parent entity (eg. primary USA for historical USA flags) */
-        flagRes.previousFlagOf?.let { flagOfKey ->
-            addAll(elements = flagResMap.getValue(flagOfKey).latestEntities)
-        }
+    } else {
+        flagResMap.values.filter { flag ->
+            flagRes.sovereignState in flag.latestEntities ||
+                    flag.sovereignState in flagRes.latestEntities
+        }.map { flag ->
+            inverseFlagResMap.getValue(flag)
+        }.distinct()
     }
-
-    return flagResMap.values.filter { flag ->
-        flag.latestEntities.any { it in latestFilterKeys } || flag
-            .sovereignState in sovereignFilterKeys
-    }.map { flag ->
-        inverseFlagResMap.getValue(flag)
-    }.distinct()
 }
 
 enum class ExternalCategoryExceptions(val key: String) {
@@ -169,66 +153,69 @@ fun getPoliticalInternalRelatedFlagKeys(
     flagKey: String,
     flagRes: FlagResources,
 ): List<String> {
-    val parentKeys = buildList {
-        add(flagKey)
-        flagRes.sovereignState?.let { add(it) }
-        flagRes.previousFlagOf?.let { add(it) }
-    }
+    return if (flagRes.previousFlagOf != null) {
+        emptyList()
 
-    val childKeys = flagResMap.values.filter { flag ->
-        flag.sovereignState in parentKeys || flagKey in flag.internationalOrganisations
-    }.filterNot { flag ->
-        flag.categories.none { it in internalCategories } && flag.sovereignState !in extCatExceptions
-    }.map { flag ->
-        inverseFlagResMap.getValue(flag)
-    }
+    } else {
+        val parentKeys = buildList {
+            add(flagKey)
+            flagRes.sovereignState?.let { add(it) }
+        }
 
-    return buildList {
-        addAll(
-            elements = parentKeys.filterNot { key ->
-                /* Exclude non-internal regional flags (some flags are both int and ext) */
-                key == flagKey && flagRes.categories.none { it in internalCategories }
-            }
-        )
-        addAll(elements = childKeys)
-    }.distinct()
+        val childKeys = flagResMap.values.filter { flag ->
+            flag.sovereignState in parentKeys || flagKey in flag.internationalOrganisations
+        }.filterNot { flag ->
+            flag.categories.none { it in internalCategories } &&
+                    flag.sovereignState !in extCatExceptions
+        }.map { flag ->
+            inverseFlagResMap.getValue(flag)
+        }
+
+        /* Return expression */
+        buildList {
+            addAll(
+                elements = parentKeys.filterNot { key ->
+                    /* Exclude non-internal regional flags (some flags are both int and ext) */
+                    key == flagKey && flagRes.categories.none { it in internalCategories }
+                }
+            )
+            addAll(elements = childKeys)
+        }.distinct()
+    }
 }
 
 fun getPoliticalExternalRelatedFlagKeys(
     flagKey: String,
     flagRes: FlagResources,
 ): List<String> {
-    val associatedKeys = buildList {
-        add(flagKey)
-        flagRes.previousFlagOf?.let { add(it) }
-    }
+    return if (flagRes.previousFlagOf != null) {
+        emptyList()
 
-    val sovereignKeys = buildList {
-        add(flagKey)
-        flagRes.sovereignState?.let { add(it) }
-        flagRes.previousFlagOf?.let { add(it) }
-    }
-
-    val internationalOrgKeys = buildList {
-        addAll(flagRes.internationalOrganisations)
-    }
-
-    val childKeys = flagResMap.values.filter { flag ->
-        flag.associatedState in associatedKeys || (flag.sovereignState in sovereignKeys &&
-                externalCategories.any { it in flag.categories } &&
-                flag.sovereignState !in extCatExceptions)
-    }.map { flag ->
-        inverseFlagResMap.getValue(flag)
-    }
-
-    return buildList {
-        flagRes.associatedState?.let { add(it) }
-        flagRes.previousFlagOf?.let { flagOfKey ->
-            flagResMap.getValue(flagOfKey).associatedState?.let { add(it) }
+    } else {
+        val sovereignKeys = buildList {
+            add(flagKey)
+            flagRes.sovereignState?.let { add(it) }
         }
-        addAll(internationalOrgKeys)
-        addAll(childKeys)
-    }.distinct()
+
+        val internationalOrgKeys = buildList {
+            addAll(elements = flagRes.internationalOrganisations)
+        }
+
+        val childKeys = flagResMap.values.filter { flag ->
+            flag.associatedState == flagKey || (flag.sovereignState in sovereignKeys &&
+                    externalCategories.any { it in flag.categories } &&
+                    flag.sovereignState !in extCatExceptions)
+        }.map { flag ->
+            inverseFlagResMap.getValue(flag)
+        }
+
+        /* Return expression */
+        buildList {
+            flagRes.associatedState?.let { add(it) }
+            addAll(elements = internationalOrgKeys)
+            addAll(elements = childKeys)
+        }.distinct()
+    }
 }
 
 fun <T> getBooleanExplicitOrInherit(
@@ -340,6 +327,7 @@ fun getFlagOfAlternativeResIds(
 
 
 /* ---------- For RelatedFlagsMenu ---------- */
+
 val perLevelAdminDivisionOrder = listOf(
     STATE,
     REGION,
@@ -369,11 +357,43 @@ val perLevelAdminDivisionOrder = listOf(
     //MEMBER_STATE,
 )
 
+private fun getAdminDivisionUnitLevelFromUnits(units: List<FlagView>): Int {
+    var maxUnitLevel = 1
+
+    units.forEach { unit ->
+        val unitLevel = getAdminDivisionUnitLevel(unit)
+        if (unitLevel > maxUnitLevel) maxUnitLevel = unitLevel
+    }
+
+    return maxUnitLevel
+}
+
+private fun getAdminDivisionUnitLevel(
+    unit: FlagView,
+    unitLevel: Int = 1,
+): Int {
+    return when (unit.parentUnitKey) {
+        null -> unitLevel
+        else -> {
+            val newUnitLevel = unitLevel.inc()
+            val parentUnit = flagViewMap.getValue(unit.parentUnitKey)
+
+            when (parentUnit.parentUnitKey) {
+                null -> newUnitLevel
+                else -> getAdminDivisionUnitLevel(parentUnit, newUnitLevel)
+            }
+        }
+    }
+}
+
 fun getPoliticalRelatedFlagsContentOrNull(
-    flag: FlagView,
+    sourceFlag: FlagView,
     application: Application,
 ): RelatedFlagsContent.Political? {
-    return if (!flag.isPoliticalRelatedFlags) {
+    val flag = sourceFlag.previousFlagOfKey?.let { flagViewMap.getValue(it) } ?: sourceFlag
+    val flagKey = sourceFlag.previousFlagOfKey ?: inverseFlagViewMap.getValue(sourceFlag)
+
+    return if (!flag.isPoliticalRelatedFlags()) {
         null
 
     } else if (flag.categories.any { it in International.enums() }) {
@@ -381,7 +401,6 @@ fun getPoliticalRelatedFlagsContentOrNull(
             application = application,
             flags = getFlagsFromKeys(flag.politicalInternalRelatedFlagKeys)
         )
-
         val internationalOrgMembers = internalRelatedFlags.filterNot { it == flag }
 
         RelatedFlagsContent.Political(
@@ -404,8 +423,6 @@ fun getPoliticalRelatedFlagsContentOrNull(
             },
         )
     } else {
-        val flagKey = flag.previousFlagOfKey ?: inverseFlagViewMap.getValue(flag)
-
         val internalRelatedFlags = sortFlagsAlphabetically(
             application = application,
             flags = getFlagsFromKeys(flag.politicalInternalRelatedFlagKeys)
@@ -556,41 +573,15 @@ fun getPoliticalRelatedFlagsContentOrNull(
     }
 }
 
-private fun getAdminDivisionUnitLevelFromUnits(units: List<FlagView>): Int {
-    var maxUnitLevel = 1
-
-    units.forEach { unit ->
-        val unitLevel = getAdminDivisionUnitLevel(unit)
-        if (unitLevel > maxUnitLevel) maxUnitLevel = unitLevel
-    }
-
-    return maxUnitLevel
-}
-
-private fun getAdminDivisionUnitLevel(
-    unit: FlagView,
-    unitLevel: Int = 1,
-): Int {
-    return when (unit.parentUnitKey) {
-        null -> unitLevel
-        else -> {
-            val newUnitLevel = unitLevel.inc()
-            val parentUnit = flagViewMap.getValue(unit.parentUnitKey)
-
-            when (parentUnit.parentUnitKey) {
-                null -> newUnitLevel
-                else -> getAdminDivisionUnitLevel(parentUnit, newUnitLevel)
-            }
-        }
-    }
-}
-
 fun getChronologicalRelatedFlagsContentOrNull(
-    flag: FlagView,
+    sourceFlag: FlagView,
     application: Application,
 ): RelatedFlagsContent.Chronological? {
-    return if (!flag.isChronologicalRelatedFlags) {
+    val flag = sourceFlag.previousFlagOfKey?.let { flagViewMap.getValue(it) } ?: sourceFlag
+
+    return if (!flag.isChronologicalRelatedFlags()) {
         null
+
     } else {
         val directRelatedFlags = sortFlagsAlphabetically(
             application = application,
@@ -618,7 +609,7 @@ fun getChronologicalRelatedFlagsContentOrNull(
         }
 
         val previousEntitiesOfSovereign = indirectRelatedFlags.filterNot {
-            indirectFlag -> indirectFlag in dependentsOfLatest
+                indirectFlag -> indirectFlag in dependentsOfLatest
         }.sortedByDescending { it.fromYear }
 
         RelatedFlagsContent.Chronological(

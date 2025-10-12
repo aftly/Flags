@@ -2,6 +2,8 @@ package dev.aftly.flags.model
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import dev.aftly.flags.data.DataSource.flagViewMap
+import dev.aftly.flags.data.DataSource.inverseFlagViewMap
 
 /* Launch process class from flagsMap FlagResources for complete information for view and search */
 data class FlagView(
@@ -30,9 +32,24 @@ data class FlagView(
     val politicalExternalRelatedFlagKeys: List<String>, /* flagsMap keys search results and lists */
     val chronologicalDirectRelatedFlagKeys: List<String>, /* flagsMap keys for search results and lists */
     val chronologicalIndirectRelatedFlagKeys: List<String>, /* flagsMap keys for search and lists */
-    val isPoliticalRelatedFlags: Boolean, /* flag has */
-    val isChronologicalRelatedFlags: Boolean, /* flag has */
+    //val isChronologicalRelatedFlags: Boolean, /* flag has */
     val categories: List<FlagCategory>,
 ) {
     val isDated = fromYear != null || (toYear != null && toYear != 0)
+
+    fun isPoliticalRelatedFlags(): Boolean {
+        val primaryFlag = previousFlagOfKey?.let { flagViewMap.getValue(it) } ?: this
+        val primaryKey = previousFlagOfKey ?: inverseFlagViewMap.getValue(this)
+
+        return (primaryFlag.politicalInternalRelatedFlagKeys +
+                primaryFlag.politicalExternalRelatedFlagKeys).any { it != primaryKey }
+    }
+
+    fun isChronologicalRelatedFlags(): Boolean {
+        val primaryFlag = previousFlagOfKey?.let { flagViewMap.getValue(it) } ?: this
+        val primaryKey = previousFlagOfKey ?: inverseFlagViewMap.getValue(this)
+
+        return (primaryFlag.chronologicalDirectRelatedFlagKeys +
+                primaryFlag.chronologicalIndirectRelatedFlagKeys).any { it != primaryKey }
+    }
 }

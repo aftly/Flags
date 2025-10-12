@@ -133,8 +133,6 @@ data object DataSource {
         politicalExternalRelatedFlagKeys = emptyList(),
         chronologicalDirectRelatedFlagKeys = emptyList(),
         chronologicalIndirectRelatedFlagKeys = emptyList(),
-        isPoliticalRelatedFlags = false,
-        isChronologicalRelatedFlags = false,
         categories = emptyList(),
     )
 
@@ -255,9 +253,6 @@ data object DataSource {
             politicalExternalRelatedFlagKeys = polExtRelFlagKeys,
             chronologicalDirectRelatedFlagKeys = chronDirRelFlagKeys,
             chronologicalIndirectRelatedFlagKeys = chronIndirRelFlagKeys,
-            isPoliticalRelatedFlags = (polIntRelFlagKeys + polExtRelFlagKeys).any { it != flagKey },
-            isChronologicalRelatedFlags =
-                (chronDirRelFlagKeys + chronIndirRelFlagKeys).any { it != flagKey },
             categories = flagRes.categories,
         )
     }
