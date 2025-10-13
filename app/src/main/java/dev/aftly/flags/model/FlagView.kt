@@ -32,7 +32,6 @@ data class FlagView(
     val politicalExternalRelatedFlagKeys: List<String>, /* flagsMap keys search results and lists */
     val chronologicalDirectRelatedFlagKeys: List<String>, /* flagsMap keys for search results and lists */
     val chronologicalIndirectRelatedFlagKeys: List<String>, /* flagsMap keys for search and lists */
-    //val isChronologicalRelatedFlags: Boolean, /* flag has */
     val categories: List<FlagCategory>,
 ) {
     val isDated = fromYear != null || (toYear != null && toYear != 0)
