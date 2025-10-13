@@ -240,9 +240,10 @@ class FlagViewModel(
         val isInternational = categories.any { it in International.enums() }
         val isInstitutional = categoriesInstitutional.isNotEmpty()
         val isLegislature = categories.any { it in Legislature.enums() }
-        val isCultural = categoriesCultural.isNotEmpty()
+        val isMilitary = MILITARY in categories
         val isNSGT = SOVEREIGN_STATE !in categories && flag.sovereignStateKey == null
         val isDependent = sovereignState != null
+        val isChild = parentUnit != null
         val isPowerEnums = categories.any { it in PowerDerivation.enums() }
         val isIrregularPower = (isNSGT && isPowerEnums) || (isDependent && isPowerEnums)
 
@@ -299,7 +300,7 @@ class FlagViewModel(
                     resIds.add(associatedState.flagOf) /* FLAG NAME */
                 }
 
-            } else if (sovereignState != null) {
+            } else if (isDependent) {
                 val isSovHistorical = HISTORICAL in sovereignState.categories
                 val isInCategories = listOf(MICRONATION, REGIONAL)
 
@@ -356,7 +357,7 @@ class FlagViewModel(
             }
 
             /* Append info about the parent unit */
-            if (parentUnit != null) {
+            if (isChild) {
                 val regionalCat =
                     parentUnit.categories.firstOrNull { it in Regional.enums() }
 
@@ -409,7 +410,8 @@ class FlagViewModel(
                 isChild = parentUnit != null,
             )
 
-            if (parentUnit != null) {
+            /* Add parent unit info */
+            if (isChild) {
                 if (categories.lastOrNull() in Civilian.enums())
                     resIds.add(R.string.string_in)
                 else
@@ -430,18 +432,22 @@ class FlagViewModel(
                 addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
             }
 
-            if (sovereignState != null) {
-                if (parentUnit != null || categories.lastOrNull() in Civilian.enums() + POLITICAL)
-                    resIds.add(R.string.string_in)
-                else
-                    resIds.add(R.string.string_of)
+            /* Add sovereign state info */
+            if (isDependent) {
+                if (!isChild) {
+                    if (categories.lastOrNull() in Civilian.enums() + POLITICAL)
+                        resIds.add(R.string.string_in)
+                    else
+                        resIds.add(R.string.string_of)
+                }
 
                 if (HISTORICAL in sovereignState.categories) {
-                    if (sovereignState.isFlagOfOfficialThe) resIds.add(R.string.string_the)
+                    if (sovereignState.isFlagOfOfficialThe && !isChild)
+                        resIds.add(R.string.string_the)
                     resIds.add(R.string.string_defunct) /* DESCRIPTOR */
                     resIds.add(sovereignState.flagOfOfficial) /* FLAG NAME */
                 } else {
-                    if (sovereignState.isFlagOfThe) resIds.add(R.string.string_the)
+                    if (sovereignState.isFlagOfThe && !isChild) resIds.add(R.string.string_the)
                     resIds.add(sovereignState.flagOf) /* FLAG NAME */
                 }
             }

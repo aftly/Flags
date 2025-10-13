@@ -319,8 +319,8 @@ fun getFlagOfAlternativeResIds(
         else -> emptyList()
     }
 
-    addAll(explicitList)
-    addAll(inheritList)
+    addAll(elements = explicitList)
+    addAll(elements = inheritList)
 }
 
 /* ------------------------------------------ */
