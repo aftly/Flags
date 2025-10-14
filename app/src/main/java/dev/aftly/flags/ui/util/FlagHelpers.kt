@@ -209,8 +209,10 @@ fun getPoliticalExternalRelatedFlagKeys(
                     externalCategories.any { it in flag.categories } &&
                     flag.sovereignState !in extCatExceptions)
         }.filterNot { flag ->
-            /* Exclude historical units when child */
-            HISTORICAL in flag.categories && flag.sovereignState == flagKey
+            /* Exclude historical children when parent is not historical */
+            HISTORICAL in flag.categories &&
+                    HISTORICAL !in flagRes.categories &&
+                    flag.sovereignState == flagKey
         }.map { flag ->
             inverseFlagResMap.getValue(flag)
         }
