@@ -42,6 +42,7 @@ import dev.aftly.flags.model.FlagCategory.UNICAMERAL
 import dev.aftly.flags.model.FlagCategory.VEXILLOLOGY
 import dev.aftly.flags.model.FlagScreenContent
 import dev.aftly.flags.model.FlagSuperCategory.AutonomousRegion
+import dev.aftly.flags.model.FlagSuperCategory.Civilian
 import dev.aftly.flags.model.FlagSuperCategory.Cultural
 import dev.aftly.flags.model.FlagSuperCategory.ExecutiveStructure
 import dev.aftly.flags.model.FlagSuperCategory.IdeologicalOrientation
@@ -49,7 +50,6 @@ import dev.aftly.flags.model.FlagSuperCategory.Institution
 import dev.aftly.flags.model.FlagSuperCategory.International
 import dev.aftly.flags.model.FlagSuperCategory.Legislature
 import dev.aftly.flags.model.FlagSuperCategory.LegislatureDivision
-import dev.aftly.flags.model.FlagSuperCategory.Civilian
 import dev.aftly.flags.model.FlagSuperCategory.Political
 import dev.aftly.flags.model.FlagSuperCategory.PowerDerivation
 import dev.aftly.flags.model.FlagSuperCategory.Regional
@@ -240,7 +240,6 @@ class FlagViewModel(
         val isInternational = categories.any { it in International.enums() }
         val isInstitutional = categoriesInstitutional.isNotEmpty()
         val isLegislature = categories.any { it in Legislature.enums() }
-        val isMilitary = MILITARY in categories
         val isNSGT = SOVEREIGN_STATE !in categories && flag.sovereignStateKey == null
         val isDependent = sovereignState != null
         val isChild = parentUnit != null
@@ -272,10 +271,10 @@ class FlagViewModel(
 
 
         if (isPolity && !isInstitutional) { /* Add POLITY description */
-            iterateOverPoliticalCategories(
+            addPolCatDescription(
                 categories = categoriesPolity,
-                stringIds = resIds,
-                whitespaceExceptions = whitespaceExceptionIndexes,
+                resIds = resIds,
+                whitespaceExceptionIndexes = whitespaceExceptionIndexes,
                 politicalSuperEnums = politicalSuperEnums,
                 isInternational = isInternational,
                 isConstitutional = CONSTITUTIONAL in categories,
@@ -300,30 +299,15 @@ class FlagViewModel(
                     resIds.add(associatedState.flagOf) /* FLAG NAME */
                 }
 
-            } else if (isDependent) {
-                val isSovHistorical = HISTORICAL in sovereignState.categories
-                val isInCategories = listOf(MICRONATION, REGIONAL)
+            } else if (isChild || isDependent) {
+                addParentSovereignDescription(
+                    parentUnit = parentUnit,
+                    sovereignState = sovereignState,
+                    resIds = resIds,
+                    whitespaceExceptionIndexes = whitespaceExceptionIndexes,
+                    categories = categories,
+                )
 
-                if (isIrregularPower || categories.any { it in isInCategories })
-                    resIds.add(R.string.string_in)
-                else
-                    resIds.add(R.string.string_of)
-
-                /* Historical name and placement of descriptor varies */
-                if (isSovHistorical && sovereignState.flagOfDescriptor != null) {
-                    if (sovereignState.isFlagOfOfficialThe) resIds.add(R.string.string_the)
-                    resIds.add(R.string.string_defunct) /* DESCRIPTOR */
-                    resIds.add(sovereignState.flagOfOfficial) /* FLAG NAME */
-                } else {
-                    if (sovereignState.isFlagOfThe) {
-                        resIds.add(R.string.string_the)
-                        if (isSovHistorical) resIds.add(R.string.string_defunct) /* DESCRIPTOR */
-                    }
-                    resIds.add(sovereignState.flagOf) /* FLAG NAME */
-
-                    if (!sovereignState.isFlagOfThe && isSovHistorical)
-                        resIds.add(R.string.string_defunct_bracketed) /* DESCRIPTOR */
-                }
             } else if (latestEntities.isNotEmpty() && SOVEREIGN_STATE !in categories) {
                 resIds.add(R.string.string_in)
 
@@ -356,29 +340,6 @@ class FlagViewModel(
                 }
             }
 
-            /* Append info about the parent unit */
-            if (isChild) {
-                val regionalCat =
-                    parentUnit.categories.firstOrNull { it in Regional.enums() }
-
-                regionalCat?.let {
-                    resIds.add(R.string.string_comma)
-                    addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
-
-                    resIds.add(R.string.string_in_the)
-
-                    if (HISTORICAL in parentUnit.categories)
-                        resIds.add(R.string.string_defunct)
-
-                    if (AUTONOMOUS_REGION in parentUnit.categories)
-                        resIds.add(R.string.categories_autonomous_string)
-
-                    resIds.add(regionalCat.string)
-                    resIds.add(R.string.string_of)
-                    resIds.add(parentUnit.flagOf)
-                }
-            }
-
             /* Append non-state irregular power information */
             if (isIrregularPower && !isInternational) {
                 val categoriesPolitical = categories.filter { it in politicalSuperEnums }
@@ -401,56 +362,22 @@ class FlagViewModel(
                 }
             }
 
-        } else { /* If cultural or institutional */
-            iterateOverCulturalInstitutionalCategories(
+        } else { /* Add CULTURAL/INSTITUTIONAL description */
+            addCultInstCatDescription(
                 categories = categories,
-                stringIds = resIds,
-                whitespaceExceptions = whitespaceExceptionIndexes,
+                resIds = resIds,
+                whitespaceExceptionIndexes = whitespaceExceptionIndexes,
                 isInternational = isInternational,
                 isChild = parentUnit != null,
             )
 
-            /* Add parent unit info */
-            if (isChild) {
-                if (categories.lastOrNull() in Civilian.enums())
-                    resIds.add(R.string.string_in)
-                else
-                    resIds.add(R.string.string_of)
-
-                /* Historical name and placement of descriptor varies */
-                if (HISTORICAL in parentUnit.categories) {
-                    if (parentUnit.isFlagOfOfficialThe) resIds.add(R.string.string_the)
-                    resIds.add(R.string.string_defunct) /* DESCRIPTOR */
-                    resIds.add(parentUnit.flagOfOfficial) /* FLAG NAME */
-
-                } else {
-                    if (parentUnit.isFlagOfThe) resIds.add(R.string.string_the)
-                    resIds.add(parentUnit.flagOf) /* FLAG NAME */
-                }
-
-                resIds.add(R.string.string_comma)
-                addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
-            }
-
-            /* Add sovereign state info */
-            if (isDependent) {
-                if (!isChild) {
-                    if (categories.lastOrNull() in Civilian.enums() + POLITICAL)
-                        resIds.add(R.string.string_in)
-                    else
-                        resIds.add(R.string.string_of)
-                }
-
-                if (HISTORICAL in sovereignState.categories) {
-                    if (sovereignState.isFlagOfOfficialThe && !isChild)
-                        resIds.add(R.string.string_the)
-                    resIds.add(R.string.string_defunct) /* DESCRIPTOR */
-                    resIds.add(sovereignState.flagOfOfficial) /* FLAG NAME */
-                } else {
-                    if (sovereignState.isFlagOfThe && !isChild) resIds.add(R.string.string_the)
-                    resIds.add(sovereignState.flagOf) /* FLAG NAME */
-                }
-            }
+            addParentSovereignDescription(
+                parentUnit = parentUnit,
+                sovereignState = sovereignState,
+                resIds = resIds,
+                whitespaceExceptionIndexes = whitespaceExceptionIndexes,
+                categories = categories,
+            )
         }
 
         resIds.add(R.string.string_period)
@@ -491,10 +418,10 @@ class FlagViewModel(
 
     /* Loop over non-cultural categories and add it's string or alternate strings depending on
      * legibility to resIds list */
-    private fun iterateOverPoliticalCategories(
+    private fun addPolCatDescription(
         categories: List<FlagCategory>,
-        stringIds: MutableList<Int>,
-        whitespaceExceptions: MutableList<Int>,
+        resIds: MutableList<Int>,
+        whitespaceExceptionIndexes: MutableList<Int>,
         politicalSuperEnums: List<FlagCategory>,
         isInternational: Boolean,
         isConstitutional: Boolean,
@@ -521,23 +448,23 @@ class FlagViewModel(
 
             } else if (category == AUTONOMOUS_REGION) {
                 if (HISTORICAL !in categories) {
-                    stringIds.add(R.string.category_autonomous_region_in_description_an)
-                    addLastIndex(from = stringIds, to = whitespaceExceptions)
+                    resIds.add(R.string.category_autonomous_region_in_description_an)
+                    addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
                 } else {
-                    stringIds.add(R.string.category_autonomous_region_in_description)
+                    resIds.add(R.string.category_autonomous_region_in_description)
                 }
 
             } else if (category == TERRITORY && isNSGT) {
-                stringIds.add(R.string.categories_non_self_governing_territory_string)
-                stringIds.add(R.string.categories_non_self_governing_territory_descriptor)
+                resIds.add(R.string.categories_non_self_governing_territory_string)
+                resIds.add(R.string.categories_non_self_governing_territory_descriptor)
 
             } else if (category == OBLAST && AUTONOMOUS_REGION !in categories) {
-                stringIds.add(R.string.category_oblast_string_in_description_an)
-                addLastIndex(from = stringIds, to = whitespaceExceptions)
+                resIds.add(R.string.category_oblast_string_in_description_an)
+                addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
 
             } else if (category in regionCategories) {
-                stringIds.add(R.string.string_and)
-                stringIds.add(category.string)
+                resIds.add(R.string.string_and)
+                resIds.add(category.string)
                 regionCategories.remove(category)
 
             } else if (category == INTERNATIONAL_ORGANIZATION) {
@@ -546,29 +473,29 @@ class FlagViewModel(
                         it in TerritorialDistributionOfAuthority.enums()
                     }) {
                     if (SUPRANATIONAL_UNION in categories) {
-                        stringIds.add(R.string.string_and)
+                        resIds.add(R.string.string_and)
                     }
-                    stringIds.add(category.string)
+                    resIds.add(category.string)
 
                 } else if (SUPRANATIONAL_UNION !in categories) {
-                    stringIds.add(R.string.category_international_organization_in_description)
-                    addLastIndex(from = stringIds, to = whitespaceExceptions)
-                    stringIds.add(R.string.string_and)
+                    resIds.add(R.string.category_international_organization_in_description)
+                    addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
+                    resIds.add(R.string.string_and)
 
                 } else if (categories.any { it in TerritorialDistributionOfAuthority.enums() }) {
-                    stringIds.add(R.string.string_comma)
-                    addLastIndex(from = stringIds, to = whitespaceExceptions)
-                    stringIds.add(category.string)
-                    stringIds.add(R.string.string_and)
+                    resIds.add(R.string.string_comma)
+                    addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
+                    resIds.add(category.string)
+                    resIds.add(R.string.string_and)
 
                 } else {
-                    stringIds.add(R.string.string_and)
-                    stringIds.add(category.string)
+                    resIds.add(R.string.string_and)
+                    resIds.add(category.string)
                 }
 
             } else if (category == CONFEDERATION &&
                 INTERNATIONAL_ORGANIZATION !in categories && !isDependent) {
-                stringIds.add(R.string.category_confederal_string)
+                resIds.add(R.string.category_confederal_string)
 
             } else if (category in IdeologicalOrientation.enums() &&
                 AUTONOMOUS_REGION in categories) {
@@ -577,27 +504,27 @@ class FlagViewModel(
             } else if (category in ExecutiveStructure.enums() &&
                 !categories.any { it in International.enums() } &&
                 !isConstitutional) {
-                stringIds.add(R.string.category_nominal_extra_constitutional_in_description)
-                stringIds.add(category.string)
+                resIds.add(R.string.category_nominal_extra_constitutional_in_description)
+                resIds.add(category.string)
 
             } else if (category == CONSTITUTIONAL && MONARCHY !in categories) {
                 continue
 
             } else if (category == THEOCRACY && MONARCHY in categories) {
-                stringIds.add(R.string.string_and)
-                stringIds.add(category.string)
+                resIds.add(R.string.string_and)
+                resIds.add(category.string)
 
             } else if (category == ONE_PARTY) {
-                stringIds.add(R.string.category_one_party_in_description)
+                resIds.add(R.string.category_one_party_in_description)
 
             } else if (category == MILITARY_JUNTA) {
-                stringIds.add(R.string.category_military_junta_in_description)
+                resIds.add(R.string.category_military_junta_in_description)
 
             } else if (category == PROVISIONAL_GOVERNMENT) {
-                stringIds.add(R.string.category_provisional_government_in_description)
+                resIds.add(R.string.category_provisional_government_in_description)
 
             } else {
-                stringIds.add(category.string)
+                resIds.add(category.string)
             }
         }
     }
@@ -605,10 +532,10 @@ class FlagViewModel(
 
     /* Loop over cultural categories and add it's string or alternate strings depending on
      * legibility to resIds list */
-    private fun iterateOverCulturalInstitutionalCategories(
+    private fun addCultInstCatDescription(
         categories: List<FlagCategory>,
-        stringIds: MutableList<Int>,
-        whitespaceExceptions: MutableList<Int>,
+        resIds: MutableList<Int>,
+        whitespaceExceptionIndexes: MutableList<Int>,
         isInternational: Boolean,
         isChild: Boolean,
     ) {
@@ -618,57 +545,120 @@ class FlagViewModel(
 
         for (category in categories) {
             when (category) {
-                DEVOLVED_GOVERNMENT -> stringIds.add(R.string.categories_devolved_string)
+                DEVOLVED_GOVERNMENT -> resIds.add(R.string.categories_devolved_string)
                 INTERNATIONAL_ORGANIZATION -> {
                     if (category == firstCategory && category != lastCategory) {
-                        stringIds.add(
+                        resIds.add(
                             R.string.category_international_organization_in_description_short
                         )
-                        addLastIndex(from = stringIds, to = whitespaceExceptions)
+                        addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
 
                     } else if (category == firstCategory) {
-                        stringIds.add(R.string.category_international_organization_in_description)
-                        addLastIndex(from = stringIds, to = whitespaceExceptions)
+                        resIds.add(R.string.category_international_organization_in_description)
+                        addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
 
                     } else if (category != lastCategory) {
-                        stringIds.add(R.string.category_international_organization_string_short)
+                        resIds.add(R.string.category_international_organization_string_short)
 
                     } else {
-                        stringIds.add(category.string)
+                        resIds.add(category.string)
                     }
                 }
-                REGIONAL -> stringIds.add(R.string.category_regional_string)
-                SOCIAL -> stringIds.add(R.string.category_social_in_description)
-                POLITICAL -> stringIds.add(R.string.category_political_in_description)
+                REGIONAL -> resIds.add(R.string.category_regional_string)
+                SOCIAL -> resIds.add(R.string.category_social_in_description)
+                POLITICAL -> resIds.add(R.string.category_political_in_description)
                 RELIGIOUS -> {
                     if (category == lastCategory)
-                        stringIds.add(R.string.category_religious_in_description)
+                        resIds.add(R.string.category_religious_in_description)
                     else
-                        stringIds.add(R.string.category_religious_string)
+                        resIds.add(R.string.category_religious_string)
                 }
                 ETHNIC -> {
                     if (category == firstCategory) {
-                        stringIds.add(R.string.category_ethnic_in_description_2)
-                        addLastIndex(from = stringIds, to = whitespaceExceptions)
+                        resIds.add(R.string.category_ethnic_in_description_2)
+                        addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
                     } else {
-                        stringIds.add(R.string.category_ethnic_in_description_1)
+                        resIds.add(R.string.category_ethnic_in_description_1)
                     }
                 }
                 in legislatureDivisionsOfThe -> {
-                    stringIds.add(category.string)
-                    stringIds.add(R.string.string_of_the)
+                    resIds.add(category.string)
+                    resIds.add(R.string.string_of_the)
                 }
-                DEPARTMENT -> stringIds.add(R.string.category_department_in_description)
+                DEPARTMENT -> resIds.add(R.string.category_department_in_description)
                 MILITARY -> {
-                    if (isChild) stringIds.add(R.string.category_military_child_string)
-                    else if (isInternational) stringIds.add(R.string.category_military_alliance_string)
-                    else stringIds.add(category.string)
+                    if (isChild) resIds.add(R.string.category_military_child_string)
+                    else if (isInternational) resIds.add(R.string.category_military_alliance_string)
+                    else resIds.add(category.string)
                 }
-                POLICE -> stringIds.add(R.string.category_police_in_description_string)
-                VEXILLOLOGY -> stringIds.add(R.string.category_vexillology_description_string)
-                FEDERAL -> stringIds.add(R.string.category_federal_federation_string)
-                else -> stringIds.add(category.string)
+                POLICE -> resIds.add(R.string.category_police_in_description_string)
+                VEXILLOLOGY -> resIds.add(R.string.category_vexillology_description_string)
+                FEDERAL -> resIds.add(R.string.category_federal_federation_string)
+                else -> resIds.add(category.string)
             }
+        }
+    }
+
+    private fun addParentSovereignDescription(
+        parentUnit: FlagView?,
+        sovereignState: FlagView?,
+        resIds: MutableList<Int>,
+        whitespaceExceptionIndexes: MutableList<Int>,
+        categories: List<FlagCategory>,
+        isIrregularPower: Boolean = false,
+    ) {
+        val isChild = parentUnit != null
+        val isDependent = sovereignState != null
+
+        if (isChild) {
+            val isParentHistorical = HISTORICAL in parentUnit.categories
+
+            if (categories.lastOrNull() in Civilian.enums())
+                resIds.add(R.string.string_in)
+            else
+                resIds.add(R.string.string_of)
+
+            /* Historical name and placement of descriptor varies */
+            if (isParentHistorical && parentUnit.flagOfDescriptor != null) {
+                if (parentUnit.isFlagOfOfficialThe) resIds.add(R.string.string_the)
+                resIds.add(parentUnit.flagOfOfficial) /* FLAG NAME */
+
+            } else {
+                if (parentUnit.isFlagOfThe) resIds.add(R.string.string_the)
+                resIds.add(parentUnit.flagOf) /* FLAG NAME */
+            }
+
+            if (isParentHistorical) resIds.add(R.string.string_defunct_bracketed) /* DESCRIPTOR */
+
+            resIds.add(R.string.string_comma)
+            addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
+        }
+
+        if (isDependent) {
+            val isSovHistorical = HISTORICAL in sovereignState.categories
+            val isInCategories = listOf(MICRONATION, REGIONAL)
+
+            if (!isChild) {
+                if (isIrregularPower ||
+                    categories.any { it in isInCategories } ||
+                    categories.lastOrNull() in Civilian.enums() + POLITICAL) {
+                    resIds.add(R.string.string_in)
+                }
+                else {
+                    resIds.add(R.string.string_of)
+                }
+            }
+
+            if (isSovHistorical && sovereignState.flagOfDescriptor != null) {
+                if (sovereignState.isFlagOfOfficialThe && !isChild) resIds.add(R.string.string_the)
+                resIds.add(sovereignState.flagOfOfficial) /* FLAG NAME */
+
+            } else {
+                if (sovereignState.isFlagOfThe && !isChild) resIds.add(R.string.string_the)
+                resIds.add(sovereignState.flagOf) /* FLAG NAME */
+            }
+
+            if (isSovHistorical) resIds.add(R.string.string_defunct_bracketed) /* DESCRIPTOR */
         }
     }
 
