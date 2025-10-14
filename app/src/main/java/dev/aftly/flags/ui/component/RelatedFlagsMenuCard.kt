@@ -40,11 +40,17 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -53,7 +59,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import dev.aftly.flags.R
-import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.data.DataSource.inverseFlagViewMap
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.relatedmenu.LazyColumnItem
@@ -68,6 +73,7 @@ import dev.aftly.flags.ui.theme.surfaceLight
 import dev.aftly.flags.ui.util.color
 import dev.aftly.flags.ui.util.colorSelect
 import dev.aftly.flags.ui.util.flagDatesString
+import kotlinx.coroutines.delay
 
 
 @Composable
@@ -87,6 +93,10 @@ fun RelatedFlagsMenuCard(
 ) {
     val listState = rememberLazyListState()
     val density = LocalDensity.current
+    var isExpandedDelay by remember { mutableStateOf(value = false) }
+    var itemHeight by remember { mutableIntStateOf(value = 0) }
+    var cardHeight by remember { mutableIntStateOf(value = 0) }
+    val bottomItemOffset = cardHeight - (itemHeight * 5 / 4)
 
     val relatedFlagItems: List<LazyColumnItem> = relatedFlagContent.groups.flatMap { group ->
         buildList {
@@ -138,26 +148,32 @@ fun RelatedFlagsMenuCard(
         RelatedFlagsCategory.PREVIOUS_ENTITIES_OF_SOVEREIGN.title
     )
 
-    /* On menu expand scroll to current item or immediately preceding header */
+    val firstItemModifier = Modifier.fillMaxWidth()
+        .onSizeChanged { itemHeight = it.height }
+
+    /* On menu expand scroll to current to beginning */
     LaunchedEffect(isExpanded) {
         if (isExpanded) {
-            val flag = when (currentFlag.previousFlagOfKey) {
-                null -> currentFlag
-                else -> flagViewMap.getValue(currentFlag.previousFlagOfKey)
-            }
-
-            listState.scrollToItem(
+            listState.scrollToItem(index = 0)
+            delay(timeMillis = Timing.MENU_EXPAND.toLong() * 2)
+            isExpandedDelay = true
+        } else {
+            isExpandedDelay = false
+        }
+    }
+    /* After delay animate scroll to current item offset to bottom of card
+     * (in a separate LaunchedEffect because bottomItemOffset is calculated late and
+     * LaunchedEffect takes a snapshot of state too early) */
+    LaunchedEffect(isExpandedDelay) {
+        if (isExpandedDelay) {
+            listState.animateScrollToItem(
                 index = relatedFlagItems.indexOfFirst { lazyColumnItem ->
                     when (lazyColumnItem) {
-                        is LazyColumnItem.Flag -> lazyColumnItem.flag.id == flag.id
+                        is LazyColumnItem.Flag -> lazyColumnItem.flag.id == currentFlag.id
                         else -> false
                     }
-                }.let { index ->
-                    when (relatedFlagItems[index.dec()]) {
-                        is LazyColumnItem.Header -> index.dec()
-                        else -> index
-                    }
-                }
+                },
+                scrollOffset = -bottomItemOffset
             )
         }
     }
@@ -225,7 +241,8 @@ fun RelatedFlagsMenuCard(
                         bottom = scaffoldPadding.calculateBottomPadding(),
                         start = Dimens.marginHorizontal16,
                         end = Dimens.marginHorizontal16,
-                    ),
+                    )
+                    .onSizeChanged { cardHeight = it.height },
                 shape = Shapes.large,
                 colors = cardColors,
             ) {
@@ -243,6 +260,8 @@ fun RelatedFlagsMenuCard(
                         contentType = { it.type }
                     ) { item ->
                         val index = relatedFlagItems.indexOf(item)
+                        val firstFlag = relatedFlagItems.first { it is LazyColumnItem.Flag }
+                        val firstFlagIndex = relatedFlagItems.indexOf(firstFlag)
                         val lastHeader = relatedFlagItems.subList(0, index)
                             .lastOrNull { it is LazyColumnItem.Header } as? LazyColumnItem.Header
 
@@ -252,7 +271,9 @@ fun RelatedFlagsMenuCard(
                                 title = item.title,
                             )
                             is LazyColumnItem.Flag -> RelatedItem(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier =
+                                    if (index == firstFlagIndex) firstItemModifier
+                                    else Modifier.fillMaxWidth(),
                                 flag = item.flag,
                                 currentFlag = currentFlag,
                                 menu = relatedFlagContent.menu,
