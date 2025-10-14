@@ -127,13 +127,14 @@ fun getChronologicalDirectRelatedFlagKeys(
 }
 
 fun getChronologicalIndirectRelatedFlagKeys(flagRes: FlagResources): List<String> {
-    return if (flagRes.previousFlagOf != null) {
+    return if (flagRes.previousFlagOf != null ||
+        flagRes.sovereignState in flagRes.latestEntities) {
         emptyList()
 
     } else {
         flagResMap.values.filter { flag ->
-            flagRes.sovereignState in flag.latestEntities ||
-                    flag.sovereignState in flagRes.latestEntities
+             flagRes.sovereignState in flag.latestEntities ||
+                     flag.sovereignState in flagRes.latestEntities
         }.map { flag ->
             inverseFlagResMap.getValue(flag)
         }.distinct()
@@ -203,9 +204,13 @@ fun getPoliticalExternalRelatedFlagKeys(
         }
 
         val childKeys = flagResMap.values.filter { flag ->
-            flag.associatedState == flagKey || (flag.sovereignState in sovereignKeys &&
+            flag.associatedState == flagKey ||
+                    (flag.sovereignState in sovereignKeys &&
                     externalCategories.any { it in flag.categories } &&
                     flag.sovereignState !in extCatExceptions)
+        }.filterNot { flag ->
+            /* Exclude historical units when child */
+            HISTORICAL in flag.categories && flag.sovereignState == flagKey
         }.map { flag ->
             inverseFlagResMap.getValue(flag)
         }
