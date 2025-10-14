@@ -603,14 +603,13 @@ class FlagViewModel(
     ) {
         val isChild = parentUnit != null
         val isDependent = sovereignState != null
+        val inCategories = Civilian.enums() + POLITICAL + CONFEDERATION
 
         if (isChild) {
             val isParentHistorical = HISTORICAL in parentUnit.categories
 
-            if (categories.lastOrNull() in Civilian.enums())
-                resIds.add(R.string.string_in)
-            else
-                resIds.add(R.string.string_of)
+            if (categories.lastOrNull() in inCategories) resIds.add(R.string.string_in)
+            else resIds.add(R.string.string_of)
 
             /* Historical name and placement of descriptor varies */
             if (isParentHistorical && parentUnit.flagOfDescriptor != null) {
@@ -636,10 +635,9 @@ class FlagViewModel(
                 if (isIrregularPower ||
                     isLimitedRecognition ||
                     categories.any { it in isInCategories } ||
-                    categories.lastOrNull() in Civilian.enums() + POLITICAL) {
+                    categories.lastOrNull() in inCategories) {
                     resIds.add(R.string.string_in)
-                }
-                else {
+                } else {
                     resIds.add(R.string.string_of)
                 }
             }
