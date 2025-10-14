@@ -243,7 +243,7 @@
         "previousFlagOf": null,
         "categories": [
             "AUTONOMOUS_REGION",
-            "REGION"
+            "STATE_WITH_LIMITED_RECOGNITION"
         ]
     },
     "abruzzo": {
@@ -2563,7 +2563,7 @@
         },
         "internationalOrganisations": [],
         "associatedState": null,
-        "sovereignState": null,
+        "sovereignState": "azerbaijan",
         "parentUnit": null,
         "latestEntities": [
             "azerbaijan"
@@ -2572,7 +2572,7 @@
         "categories": [
             "HISTORICAL",
             "AUTONOMOUS_REGION",
-            "REGION"
+            "STATE_WITH_LIMITED_RECOGNITION"
         ]
     },
     "aruba": {
@@ -3042,7 +3042,7 @@
         "categories": [
             "HISTORICAL",
             "AUTONOMOUS_REGION",
-            "REGION",
+            "STATE_WITH_LIMITED_RECOGNITION",
             "THEOCRATIC",
             "PROVISIONAL_GOVERNMENT"
         ]
@@ -28413,7 +28413,7 @@
         "previousFlagOf": null,
         "categories": [
             "AUTONOMOUS_REGION",
-            "REGION"
+            "STATE_WITH_LIMITED_RECOGNITION"
         ]
     },
     "northernIreland": {
@@ -30317,7 +30317,7 @@
         "previousFlagOf": null,
         "categories": [
             "AUTONOMOUS_REGION",
-            "STATE",
+            "STATE_WITH_LIMITED_RECOGNITION",
             "UNITARY",
             "SEMI_PRESIDENTIAL",
             "PROVISIONAL_GOVERNMENT"
@@ -33118,6 +33118,7 @@
         "previousFlagOf": null,
         "categories": [
             "TERRITORY",
+            "STATE_WITH_LIMITED_RECOGNITION",
             "UNITARY",
             "PRESIDENTIAL",
             "ONE_PARTY"
@@ -36178,8 +36179,7 @@
         "previousFlagOf": null,
         "categories": [
             "AUTONOMOUS_REGION",
-            "REGION",
-            "STATE"
+            "STATE_WITH_LIMITED_RECOGNITION"
         ]
     },
     "somerset": {
@@ -36761,7 +36761,7 @@
         "previousFlagOf": null,
         "categories": [
             "AUTONOMOUS_REGION",
-            "REGION"
+            "STATE_WITH_LIMITED_RECOGNITION"
         ]
     },
     "southSudan": {
@@ -39925,7 +39925,7 @@
         "previousFlagOf": null,
         "categories": [
             "AUTONOMOUS_REGION",
-            "REGION"
+            "STATE_WITH_LIMITED_RECOGNITION"
         ]
     },
     "trentino-AltoAdigeSudtirol": {

@@ -37,6 +37,7 @@ import dev.aftly.flags.model.FlagCategory.REPUBLIC_UNIT
 import dev.aftly.flags.model.FlagCategory.RIDING
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.STATE
+import dev.aftly.flags.model.FlagCategory.STATE_WITH_LIMITED_RECOGNITION
 import dev.aftly.flags.model.FlagCategory.TERRITORY
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory.Institution
@@ -145,7 +146,7 @@ enum class ExternalCategoryExceptions(val key: String) {
     FRANCE (key = "france")
 }
 val extCatExceptions = ExternalCategoryExceptions.entries.map { it.key }
-val externalCategories = listOf(TERRITORY, REGION, COLONY)
+val externalCategories = listOf(TERRITORY, REGION, COLONY, STATE_WITH_LIMITED_RECOGNITION)
 val internalCategories = listOf(SovereignCountry.enums(), Regional.enums(), Institution.allEnums())
     .flatten().filterNot { it in externalCategories }
 
@@ -407,6 +408,7 @@ fun getPoliticalRelatedFlagsContentOrNull(
             sovereign = null,
             adminUnits = null,
             externalTerritories = null,
+            statesLimitedRecognition = null,
             institutions = null,
             associatedStates = null,
             internationalOrgs = RelatedFlagGroup.Multiple(
@@ -459,8 +461,13 @@ fun getPoliticalRelatedFlagsContentOrNull(
             relatedFlag.categories.any { it in International.enums() }
         }
 
+        val statesLimitedRecognition = externalRelatedFlags.filter { flag ->
+            STATE_WITH_LIMITED_RECOGNITION in flag.categories
+        }
         val externalTerritories = externalRelatedFlags.filterNot { relatedFlag ->
-            relatedFlag in listOf(associatedStates, internationalOrgs, institutions).flatten()
+            relatedFlag in listOf(
+                associatedStates, internationalOrgs, institutions, statesLimitedRecognition
+            ).flatten()
         }.sortedWith { p1, p2 ->
             when {
                 AUTONOMOUS_REGION in p1.categories && AUTONOMOUS_REGION !in p2.categories -> -1
@@ -523,6 +530,13 @@ fun getPoliticalRelatedFlagsContentOrNull(
                     flags = externalTerritories,
                     category = category.title,
                     categoryKey = category.name,
+                )
+            },
+            statesLimitedRecognition = if (statesLimitedRecognition.isEmpty()) null else {
+                RelatedFlagGroup.Multiple(
+                    flags = statesLimitedRecognition,
+                    category = STATE_WITH_LIMITED_RECOGNITION.title,
+                    categoryKey = STATE_WITH_LIMITED_RECOGNITION.name,
                 )
             },
             institutions = if (institutions.isEmpty()) null else buildList {

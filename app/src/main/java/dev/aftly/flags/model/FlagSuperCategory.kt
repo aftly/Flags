@@ -80,8 +80,9 @@ sealed class FlagSuperCategory(
         subCategories = listOf(
             FlagCategoryWrapper(enum = FlagCategory.FREE_ASSOCIATION),
             FlagCategoryWrapper(enum = FlagCategory.AUTONOMOUS_REGION),
-            FlagCategoryWrapper(enum = FlagCategory.DEVOLVED_GOVERNMENT)
-            //FlagCategoryWrapper(enum = FlagCategory.INDIGENOUS_TERRITORY)
+            FlagCategoryWrapper(enum = FlagCategory.DEVOLVED_GOVERNMENT),
+            //FlagCategoryWrapper(enum = FlagCategory.INDIGENOUS_TERRITORY),
+            FlagCategoryWrapper(enum = FlagCategory.STATE_WITH_LIMITED_RECOGNITION)
         ),
     )
 

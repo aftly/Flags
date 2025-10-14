@@ -34,6 +34,7 @@ import dev.aftly.flags.model.FlagCategory.RELIGIOUS
 import dev.aftly.flags.model.FlagCategory.SOCIAL
 import dev.aftly.flags.model.FlagCategory.SOCIALIST
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
+import dev.aftly.flags.model.FlagCategory.STATE_WITH_LIMITED_RECOGNITION
 import dev.aftly.flags.model.FlagCategory.SUPRANATIONAL_UNION
 import dev.aftly.flags.model.FlagCategory.TERRITORY
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
@@ -245,6 +246,7 @@ class FlagViewModel(
         val isChild = parentUnit != null
         val isPowerEnums = categories.any { it in PowerDerivation.enums() }
         val isIrregularPower = (isNSGT && isPowerEnums) || (isDependent && isPowerEnums)
+        val isLimitedRecognition = STATE_WITH_LIMITED_RECOGNITION in categories
 
         /* ----------------------- Description START ----------------------- */
 
@@ -280,6 +282,7 @@ class FlagViewModel(
                 isConstitutional = CONSTITUTIONAL in categories,
                 isNSGT = isNSGT,
                 isIrregularPower = isIrregularPower,
+                isLimitedRecognition = isLimitedRecognition,
                 isDependent = isDependent,
             )
 
@@ -306,22 +309,9 @@ class FlagViewModel(
                     resIds = resIds,
                     whitespaceExceptionIndexes = whitespaceExceptionIndexes,
                     categories = categories,
+                    isIrregularPower = isIrregularPower,
+                    isLimitedRecognition = isLimitedRecognition,
                 )
-
-            } else if (latestEntities.isNotEmpty() && SOVEREIGN_STATE !in categories) {
-                resIds.add(R.string.string_in)
-
-                latestEntities.forEachIndexed { index, flag ->
-                    if (index > 0 && index == latestEntities.lastIndex) {
-                        resIds.add(R.string.string_and)
-                    } else if (index > 0) {
-                        resIds.add(R.string.string_comma)
-                        addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
-                    }
-
-                    if (flag.isFlagOfThe) resIds.add(R.string.string_the)
-                    resIds.add(flag.flagOf)
-                }
             }
 
             /* Append devolved government information */
@@ -427,6 +417,7 @@ class FlagViewModel(
         isConstitutional: Boolean,
         isNSGT: Boolean,
         isIrregularPower: Boolean,
+        isLimitedRecognition: Boolean,
         isDependent: Boolean,
     ) {
         val skipCategories =
@@ -447,7 +438,9 @@ class FlagViewModel(
                 continue
 
             } else if (category == AUTONOMOUS_REGION) {
-                if (HISTORICAL !in categories) {
+                if (isLimitedRecognition) {
+                    continue
+                } else if (HISTORICAL !in categories) {
                     resIds.add(R.string.category_autonomous_region_in_description_an)
                     addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
                 } else {
@@ -606,6 +599,7 @@ class FlagViewModel(
         whitespaceExceptionIndexes: MutableList<Int>,
         categories: List<FlagCategory>,
         isIrregularPower: Boolean = false,
+        isLimitedRecognition: Boolean = false,
     ) {
         val isChild = parentUnit != null
         val isDependent = sovereignState != null
@@ -640,6 +634,7 @@ class FlagViewModel(
 
             if (!isChild) {
                 if (isIrregularPower ||
+                    isLimitedRecognition ||
                     categories.any { it in isInCategories } ||
                     categories.lastOrNull() in Civilian.enums() + POLITICAL) {
                     resIds.add(R.string.string_in)

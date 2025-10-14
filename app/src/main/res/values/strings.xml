@@ -127,6 +127,8 @@
     <string name="category_riding_unit_string">riding</string>
     <string name="category_state_title">State</string>
     <string name="category_state_string">state</string>
+    <string name="category_state_with_limited_recognition_title">State (limited recognition)</string>
+    <string name="category_state_with_limited_recognition_string">state with limited recognition</string>
     <string name="category_territory_title">Territory</string>
     <string name="category_territory_string">territory</string>
     <string name="category_supranational_union_title">Supranational Union</string>

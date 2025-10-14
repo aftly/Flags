@@ -16,6 +16,7 @@ sealed interface RelatedFlagsContent {
         val sovereign: RelatedFlagGroup.Single?,
         val adminUnits: List<RelatedFlagGroup.AdminUnits>?,
         val externalTerritories: RelatedFlagGroup.Multiple?,
+        val statesLimitedRecognition: RelatedFlagGroup.Multiple?,
         val institutions: List<RelatedFlagGroup.Multiple>?,
         val associatedStates: RelatedFlagGroup.Multiple?,
         val internationalOrgs: RelatedFlagGroup.Multiple?,
@@ -29,6 +30,7 @@ sealed interface RelatedFlagsContent {
                 it.forEach { group -> add(group) }
             }
             externalTerritories?.let { add(it) }
+            statesLimitedRecognition?.let { add(it) }
             institutions?.let {
                 it.forEach { group -> add(group) }
             }
