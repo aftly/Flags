@@ -224,26 +224,9 @@ private fun ListFlagsScreen(
     /* Properties for save item mode */
     var isSaveMode by rememberSaveable { mutableStateOf(value = false) }
 
+    /* For preventing unintended LaunchedEffects */
+    var isCompInit by remember { mutableStateOf(value = false) }
 
-    /* Trigger navigation effects (eg. scroll to flag from FlagScreen if present) */
-    LaunchedEffect(key1 = currentBackStackEntry) {
-        currentBackStackEntry?.savedStateHandle?.get<Int>(key = "scrollToFlagId")?.let { flagId ->
-            if (flagId > 0) {
-                val flag = getFlagFromId(flagId)
-                val flags =
-                    if (uiState.isSearchQuery) searchResults
-                    else if (uiState.isViewSavedFlags) savedFlags
-                    else uiState.currentFlags
-
-                /* If not returning to saved flags from a removed saved flag */
-                if (!(uiState.isViewSavedFlags && flag !in savedFlags)) {
-                    val index = flags.indexOf(flag)
-                    coroutineScope.launch { listState.scrollToItem(index = index) }
-                }
-            }
-            currentBackStackEntry.savedStateHandle.set(key = "scrollToFlagId", value = 0)
-        }
-    }
 
     LaunchedEffect(onDrawerNavigateToList) {
         if (onDrawerNavigateToList) {
@@ -299,10 +282,34 @@ private fun ListFlagsScreen(
 
         if (uiState.isSearchQuery && !isNavigatedBack) {
             coroutineScope.launch { listState.scrollToItem(index = 0) }
-        } else if (!isNavigatedBack) {
+
+        } else if (!isNavigatedBack && isCompInit) {
             coroutineScope.launch { listState.animateScrollToItem(index = 0) }
-        } else {
+
+        } else if (isNavigatedBack) {
             currentBackStackEntry.savedStateHandle.set(key = "isNavigateBack", value = false)
+        }
+
+        isCompInit = true
+    }
+
+    /* Trigger navigation effects (eg. scroll to flag from FlagScreen if present) */
+    LaunchedEffect(key1 = currentBackStackEntry) {
+        currentBackStackEntry?.savedStateHandle?.get<Int>(key = "scrollToFlagId")?.let { flagId ->
+            if (flagId > 0) {
+                val flag = getFlagFromId(flagId)
+                val flags =
+                    if (uiState.isSearchQuery) searchResults
+                    else if (uiState.isViewSavedFlags) savedFlags
+                    else uiState.currentFlags
+
+                /* If not returning to saved flags from a removed saved flag */
+                if (!(uiState.isViewSavedFlags && flag !in savedFlags)) {
+                    val index = flags.indexOf(flag)
+                    coroutineScope.launch { listState.scrollToItem(index = index) }
+                }
+            }
+            currentBackStackEntry.savedStateHandle.set(key = "scrollToFlagId", value = 0)
         }
     }
 
