@@ -104,7 +104,6 @@ class FlagViewModel(
         }
     }
 
-
     fun updateFlag(
         flagId: Int,
         flagIdsFromList: List<Int>? = null,
@@ -140,7 +139,6 @@ class FlagViewModel(
         }
     }
 
-
     fun updateFlagRelated(
         flag: FlagView,
         relatedMenu: RelatedFlagsMenu?,
@@ -151,7 +149,6 @@ class FlagViewModel(
         }
         updateFlag(flagId = flag.id, isLink = isLink)
     }
-
 
     fun updateSavedFlag() {
         val savedFlag = uiState.value.savedFlag

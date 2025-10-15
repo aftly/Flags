@@ -18,7 +18,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -98,20 +97,22 @@ fun AppNavHost(
                             )
                         }
                     Screen.Menu.GAME ->
-                        if (getScreen(currentBackStackEntry) == Screen.Game) {
-                            onDrawerNavToGameFromGame = true
+                        when (Screen.Game) {
+                            getScreen(currentBackStackEntry) ->
+                                onDrawerNavToGameFromGame = true
 
-                        } else if (getScreen(navController.previousBackStackEntry) == Screen.Game) {
-                            navController.popBackStack(route = gameRoute, inclusive = false)
+                            getScreen(navController.previousBackStackEntry) ->
+                                navController.popBackStack(route = gameRoute, inclusive = false)
 
-                        } else {
-                            /* Pop settings if current screen to prevent screen duplication when
-                             * navigating forwards to settings from game */
-                            if (getScreen(currentBackStackEntry) == Screen.Settings) {
-                                navController.popBackStack()
-                            }
-                            navController.navigate(route = screen.route) {
-                                launchSingleTop = true
+                            else -> {
+                                /* Pop settings if current screen to prevent screen duplication when
+                                 * navigating forwards to settings from game */
+                                if (getScreen(currentBackStackEntry) == Screen.Settings) {
+                                    navController.popBackStack()
+                                }
+                                navController.navigate(route = screen.route) {
+                                    launchSingleTop = true
+                                }
                             }
                         }
                     Screen.Menu.SETTINGS -> navController.navigate(route = screen.route) {
