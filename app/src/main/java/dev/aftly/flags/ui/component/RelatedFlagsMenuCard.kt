@@ -59,6 +59,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import dev.aftly.flags.R
+import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.data.DataSource.inverseFlagViewMap
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.relatedmenu.LazyColumnItem
@@ -133,6 +134,12 @@ fun RelatedFlagsMenuCard(
         }
     }
 
+    val currentMenuFlag = when (relatedFlagContent.menu) {
+        RelatedFlagsMenu.CHRONOLOGICAL -> currentFlag
+        RelatedFlagsMenu.POLITICAL ->
+            currentFlag.previousFlagOfKey?.let { flagViewMap.getValue(it) } ?: currentFlag
+    }
+
     val cardColors = CardDefaults.cardColors(containerColor = containerColor)
     val buttonColors = ButtonDefaults.buttonColors(
         containerColor = containerColor,
@@ -169,7 +176,7 @@ fun RelatedFlagsMenuCard(
             listState.animateScrollToItem(
                 index = relatedFlagItems.indexOfFirst { lazyColumnItem ->
                     when (lazyColumnItem) {
-                        is LazyColumnItem.Flag -> lazyColumnItem.flag.id == currentFlag.id
+                        is LazyColumnItem.Flag -> lazyColumnItem.flag.id == currentMenuFlag.id
                         else -> false
                     }
                 },
