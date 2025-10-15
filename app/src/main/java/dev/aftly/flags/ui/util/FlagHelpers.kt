@@ -16,6 +16,7 @@ import dev.aftly.flags.model.FlagCategory.CITY
 import dev.aftly.flags.model.FlagCategory.COLLECTIVITY
 import dev.aftly.flags.model.FlagCategory.COLONY
 import dev.aftly.flags.model.FlagCategory.COMMUNITY
+import dev.aftly.flags.model.FlagCategory.CONFEDERATION
 import dev.aftly.flags.model.FlagCategory.COUNCIL_AREA
 import dev.aftly.flags.model.FlagCategory.COUNTRY
 import dev.aftly.flags.model.FlagCategory.COUNTY
@@ -153,7 +154,7 @@ enum class ExternalCategoryExceptions(val key: String) {
 val extCatExceptions = ExternalCategoryExceptions.entries.map { it.key }
 val externalCategories = listOf(TERRITORY, REGION, COLONY, STATE_WITH_LIMITED_RECOGNITION)
 val internalCategories = listOf(SovereignCountry.enums(), Regional.enums(), Institution.allEnums())
-    .flatten().filterNot { it in externalCategories }
+    .flatten().filterNot { it in externalCategories } + CONFEDERATION
 
 fun getPoliticalInternalRelatedFlagKeys(
     flagKey: String,
@@ -362,6 +363,7 @@ val perLevelAdminDivisionOrder = listOf(
     COLONY,
     RIDING,
     CITY,
+    CONFEDERATION,
     MICRONATION
     //EMIRATE,
     //ENTITY,
