@@ -65,7 +65,6 @@ import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import dev.aftly.flags.R
@@ -82,7 +81,6 @@ import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.SystemUiController
 import dev.aftly.flags.ui.util.flagDatesString
-import androidx.lifecycle.compose.currentStateAsState
 
 
 @Composable
@@ -104,7 +102,6 @@ fun FlagScreen(
     val window = (view.context as Activity).window
     val systemUiController = remember { SystemUiController(view, window) }
     val isDarkTheme = LocalDarkTheme.current
-    var lastFlagHandledId by rememberSaveable { mutableIntStateOf(value = 0) }
 
     /* For nav back from fullscreen */
     LaunchedEffect(key1 = Unit) {
@@ -114,10 +111,9 @@ fun FlagScreen(
 
     LaunchedEffect(key1 = currentBackStackEntry) {
         currentBackStackEntry?.savedStateHandle?.get<Int>("flagId")?.let { flagId ->
-            if (uiState.flag.id != flagId && lastFlagHandledId != flagId) {
+            if (uiState.flag.id != flagId) {
                 viewModel.updateFlag(flagId = flagId, isAnimated = false)
             }
-            lastFlagHandledId = flagId
         }
     }
 
@@ -127,6 +123,8 @@ fun FlagScreen(
         onFlagSave = { viewModel.updateSavedFlag() },
         onRelatedFlag = { flag, relatedMenu, isLink ->
             viewModel.updateFlagRelated(flag, relatedMenu, isLink)
+            /* To prevent unintended updates from LaunchedEffect() */
+            currentBackStackEntry?.savedStateHandle?.set(key = "flagId", value = flag.id)
         },
         onFullscreen = { isLandscape ->
             val flagIds = viewModel.getFlagIds()
