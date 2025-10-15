@@ -280,7 +280,7 @@ private fun ListFlagsScreen(
         val isNavigatedBack =
             currentBackStackEntry?.savedStateHandle?.get<Boolean>(key = "isNavigateBack") ?: false
 
-        if (uiState.isSearchQuery && !isNavigatedBack) {
+        if (uiState.isSearchQuery && !isNavigatedBack && isCompInit) {
             coroutineScope.launch { listState.scrollToItem(index = 0) }
 
         } else if (!isNavigatedBack && isCompInit) {
