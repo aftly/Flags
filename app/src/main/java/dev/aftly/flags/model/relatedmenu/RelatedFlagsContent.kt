@@ -56,6 +56,7 @@ sealed interface RelatedFlagsContent {
         val historicalFlags: RelatedFlagGroup.Multiple?,
         val latestEntities: RelatedFlagGroup.Multiple?,
         val previousEntities: RelatedFlagGroup.Multiple?,
+        val historicalUnits: RelatedFlagGroup.Multiple?,
         val previousEntitiesOfSovereign: RelatedFlagGroup.Multiple?,
         val dependentsOfLatest: RelatedFlagGroup.Multiple?,
     ) : RelatedFlagsContent {
@@ -65,6 +66,7 @@ sealed interface RelatedFlagsContent {
             historicalFlags?.let { add(it) }
             latestEntities?.let { add(it) }
             previousEntities?.let { add(it) }
+            historicalUnits?.let { add(it) }
             previousEntitiesOfSovereign?.let { add(it) }
             dependentsOfLatest?.let { add(it) }
         }
