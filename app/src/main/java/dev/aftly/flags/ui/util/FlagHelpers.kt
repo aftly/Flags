@@ -119,6 +119,7 @@ fun getChronologicalDirectRelatedFlagKeys(
                     /* Historical unit expression */
                     ((flag.sovereignState == flagKey || flag.parentUnit == flagKey) &&
                     HISTORICAL in flag.categories &&
+                    HISTORICAL !in flagRes.categories &&
                     STATE_WITH_LIMITED_RECOGNITION !in flag.categories)
         }.map { flag ->
             inverseFlagResMap.getValue(flag)
