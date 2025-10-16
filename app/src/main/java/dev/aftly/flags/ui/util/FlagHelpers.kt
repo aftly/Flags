@@ -9,7 +9,6 @@ import dev.aftly.flags.data.DataSource.flagViewMapId
 import dev.aftly.flags.data.DataSource.inverseFlagResMap
 import dev.aftly.flags.data.DataSource.inverseFlagViewMap
 import dev.aftly.flags.data.room.savedflags.SavedFlag
-import dev.aftly.flags.model.serialization.BooleanSource
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
 import dev.aftly.flags.model.FlagCategory.CANTON
 import dev.aftly.flags.model.FlagCategory.CITY
@@ -41,17 +40,19 @@ import dev.aftly.flags.model.FlagCategory.STATE
 import dev.aftly.flags.model.FlagCategory.STATE_WITH_LIMITED_RECOGNITION
 import dev.aftly.flags.model.FlagCategory.TERRITORY
 import dev.aftly.flags.model.FlagResources
-import dev.aftly.flags.model.FlagSuperCategory.Institution
-import dev.aftly.flags.model.FlagSuperCategory.Legislature
-import dev.aftly.flags.model.FlagSuperCategory.Executive
 import dev.aftly.flags.model.FlagSuperCategory.Civilian
+import dev.aftly.flags.model.FlagSuperCategory.Cultural
+import dev.aftly.flags.model.FlagSuperCategory.Executive
+import dev.aftly.flags.model.FlagSuperCategory.Institution
 import dev.aftly.flags.model.FlagSuperCategory.International
+import dev.aftly.flags.model.FlagSuperCategory.Legislature
 import dev.aftly.flags.model.FlagSuperCategory.Regional
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.relatedmenu.RelatedFlagGroup
 import dev.aftly.flags.model.relatedmenu.RelatedFlagsCategory
 import dev.aftly.flags.model.relatedmenu.RelatedFlagsContent
+import dev.aftly.flags.model.serialization.BooleanSource
 import dev.aftly.flags.model.serialization.StringResSource
 
 fun getFlagKey(flag: FlagView): String = inverseFlagViewMap.getValue(key = flag)
@@ -658,18 +659,53 @@ fun getChronologicalRelatedFlagsContentOrNull(
                     categoryKey = RelatedFlagsCategory.HISTORICAL_FLAGS.name
                 )
             },
-            latestEntities = if (latestEntities.isEmpty()) null else {
-                RelatedFlagGroup.Multiple(
-                    flags = latestEntities,
-                    category = RelatedFlagsCategory.LATEST_ENTITIES.title,
-                    categoryKey = RelatedFlagsCategory.LATEST_ENTITIES.name,
-                )
+            latestEntities = when (latestEntities.isEmpty() to historicalUnits.isEmpty()) {
+                true to true -> null
+                true to false -> {
+                    val parentSovList = buildList {
+                        historicalUnits.forEach { unit ->
+                            unit.parentUnitKey?.let { add(flagViewMap.getValue(it)) }
+                                ?: unit.sovereignStateKey?.let { add(flagViewMap.getValue(it)) }
+                        }
+                    }
+                    val latestEntitiesType =
+                        if (parentSovList.size == 1) RelatedFlagsCategory.LATEST_ENTITIES_POLITY
+                        else RelatedFlagsCategory.LATEST_ENTITIES_POLITIES
+
+                    /* Return expression */
+                    if (parentSovList.isEmpty()) null else {
+                        RelatedFlagGroup.Multiple(
+                            flags = parentSovList,
+                            category = latestEntitiesType.title,
+                            categoryKey = latestEntitiesType.name,
+                        )
+                    }
+                }
+                else -> {
+                    val nonPolityCategories = Institution.allEnums() + Cultural.allEnums()
+                    val latestEntitiesType =
+                        if (latestEntities.any { entity ->
+                                entity.categories.any { it in nonPolityCategories } }) {
+                            RelatedFlagsCategory.LATEST_ENTITY_NON_POLITY
+                        } else if (latestEntities.size == 1) {
+                            RelatedFlagsCategory.LATEST_ENTITIES_POLITY
+                        } else {
+                            RelatedFlagsCategory.LATEST_ENTITIES_POLITIES
+                        }
+
+                    /* Return expression */
+                    RelatedFlagGroup.Multiple(
+                        flags = latestEntities,
+                        category = latestEntitiesType.title,
+                        categoryKey = latestEntitiesType.name,
+                    )
+                }
             },
             previousEntities = if (previousEntities.isEmpty()) null else {
                 RelatedFlagGroup.Multiple(
                     flags = previousEntities,
-                    category = RelatedFlagsCategory.PREVIOUS_ENTITIES.title,
-                    categoryKey = RelatedFlagsCategory.PREVIOUS_ENTITIES.name,
+                    category = RelatedFlagsCategory.PREVIOUS_ENTITIES_POLITY.title,
+                    categoryKey = RelatedFlagsCategory.PREVIOUS_ENTITIES_POLITY.name,
                 )
             },
             historicalUnits = if (historicalUnits.isEmpty()) null else {

@@ -151,7 +151,7 @@ fun RelatedFlagsMenuCard(
     )
 
     val showDatesHeaderTitles = listOf(
-        RelatedFlagsCategory.PREVIOUS_ENTITIES.title,
+        RelatedFlagsCategory.PREVIOUS_ENTITIES_POLITY.title,
         RelatedFlagsCategory.PREVIOUS_ENTITIES_OF_SOVEREIGN.title
     )
 

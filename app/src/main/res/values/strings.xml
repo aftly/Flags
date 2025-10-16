@@ -334,9 +334,12 @@
     <string name="menu_related_flags_chronological">Chronologically Related</string>
     <string name="menu_related_flags_chronological_short">Chron</string>
     <string name="menu_related_flags_chronological_historical_flags">Historical Flags</string>
-    <string name="menu_related_flags_chronological_latest">Latest Administration(s)</string>
-    <string name="menu_related_flags_chronological_previous">Previous Administrations</string>
-    <string name="menu_related_flags_chronological_historical_units">Historical Units</string>
+    <string name="menu_related_flags_chronological_latest_polities">Latest Administrations</string>
+    <string name="menu_related_flags_chronological_latest_polity">Latest Administration</string>
+    <string name="menu_related_flags_chronological_latest_non_polity">Latest Entity</string>
+    <string name="menu_related_flags_chronological_previous_polity">Previous Administrations</string>
+    <string name="menu_related_flags_chronological_previous_non_polity">Previous Entities</string>
+    <string name="menu_related_flags_chronological_historical_units">Historical Units (of Latest)</string>
     <string name="menu_related_flags_chronological_previous_of_sovereign">Previous Admins of Sovereign</string>
     <string name="menu_related_flags_chronological_dependents_of_latest">Dependents of Latest Admin(s)</string>
     <string name="menu_multiple_selection">Multiple Categories Selected</string>

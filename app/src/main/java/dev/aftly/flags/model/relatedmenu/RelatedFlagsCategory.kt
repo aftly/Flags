@@ -7,8 +7,11 @@ enum class RelatedFlagsCategory(
     @param:StringRes val title: Int
 ) {
     HISTORICAL_FLAGS (title = R.string.menu_related_flags_chronological_historical_flags),
-    LATEST_ENTITIES (title = R.string.menu_related_flags_chronological_latest),
-    PREVIOUS_ENTITIES (title = R.string.menu_related_flags_chronological_previous),
+    LATEST_ENTITIES_POLITIES (title = R.string.menu_related_flags_chronological_latest_polities),
+    LATEST_ENTITIES_POLITY (title = R.string.menu_related_flags_chronological_latest_polity),
+    LATEST_ENTITY_NON_POLITY (R.string.menu_related_flags_chronological_latest_non_polity),
+    PREVIOUS_ENTITIES_POLITY (title = R.string.menu_related_flags_chronological_previous_polity),
+    PREVIOUS_ENTITIES_NON_POLITY (title = R.string.menu_related_flags_chronological_previous_non_polity),
     HISTORICAL_UNITS (title = R.string.menu_related_flags_chronological_historical_units),
     PREVIOUS_ENTITIES_OF_SOVEREIGN (title = R.string.menu_related_flags_chronological_previous_of_sovereign),
     DEPENDENTS_OF_LATEST_ENTITY (title = R.string.menu_related_flags_chronological_dependents_of_latest)
