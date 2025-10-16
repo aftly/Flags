@@ -70,9 +70,6 @@ enum class FlagCategory(
     UNIVERSITY (title = R.string.category_university_title, string = R.string.category_university_string),
     VEXILLOLOGY (title = R.string.category_vexillology_title, string = R.string.category_vexillology_string),
 
-    /* Non-political categories */
-    CHARITY (title = R.string.category_charity_title, string = R.string.category_charity_string),
-    MARITIME (title = R.string.category_maritime_title, string = R.string.category_maritime_string),
 
     /* POLITICAL CATEGORIES: */
 
@@ -100,7 +97,6 @@ enum class FlagCategory(
     MILITARY_JUNTA (title = R.string.category_military_junta_title, string = R.string.category_military_junta_string),
     PROVISIONAL_GOVERNMENT (title = R.string.category_provisional_government_title, string = R.string.category_provisional_government_string),
 
-    /* Modes of political order */
     /* Regime type */
     DEMOCRACY(title = R.string.category_democracy_title, string = R.string.category_democracy_string),
     AUTHORITARIAN (title = R.string.category_authoritarian_title, string = R.string.category_authoritarian_string),
@@ -121,6 +117,8 @@ enum class FlagCategory(
     ETHNIC (title = R.string.category_ethnic_title, string = R.string.category_ethnic_string),
 
 
-    /* For entities that don't exist anymore */
+    /* OTHER */
     HISTORICAL (title = R.string.category_historical_title, string = R.string.category_historical_string),
+    CHARITY (title = R.string.category_charity_title, string = R.string.category_charity_string),
+    MARITIME (title = R.string.category_maritime_title, string = R.string.category_maritime_string)
 }

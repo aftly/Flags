@@ -556,7 +556,7 @@ class FlagViewModel(
                 }
                 REGIONAL -> resIds.add(R.string.category_regional_string)
                 SOCIAL -> resIds.add(R.string.category_social_in_description)
-                POLITICAL -> resIds.add(R.string.category_political_in_description)
+                POLITICAL -> resIds.add(R.string.category_political_long_string)
                 RELIGIOUS -> {
                     if (category == lastCategory)
                         resIds.add(R.string.category_religious_in_description)

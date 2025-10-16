@@ -244,7 +244,8 @@
     <string name="category_social_in_description">social movement</string>
     <string name="category_political_title">Political</string>
     <string name="category_political_string">political</string>
-    <string name="category_political_in_description">political movement</string>
+    <string name="category_political_long_title">Political Movement</string>
+    <string name="category_political_long_string">political movement</string>
     <string name="category_historical_title">Historical</string>
     <string name="category_historical_string">historical</string>
     <string name="categories_associated_country">Associated Country</string>
