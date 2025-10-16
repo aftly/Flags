@@ -667,7 +667,7 @@ fun getChronologicalRelatedFlagsContentOrNull(
                             unit.parentUnitKey?.let { add(flagViewMap.getValue(it)) }
                                 ?: unit.sovereignStateKey?.let { add(flagViewMap.getValue(it)) }
                         }
-                    }
+                    }.filterNot { it in historicalUnits }.distinct()
                     val latestEntitiesType =
                         if (parentSovList.size == 1) RelatedFlagsCategory.LATEST_ENTITIES_POLITY
                         else RelatedFlagsCategory.LATEST_ENTITIES_POLITIES
@@ -709,10 +709,22 @@ fun getChronologicalRelatedFlagsContentOrNull(
                 )
             },
             historicalUnits = if (historicalUnits.isEmpty()) null else {
+                val historicalUnitFlags = if (latestEntities.isNotEmpty()) historicalUnits else {
+                    val historicalUnitKeys =
+                        historicalUnits.map { inverseFlagViewMap.getValue(it) }
+
+                    historicalUnits.filterNot { unit ->
+                        unit.parentUnitKey in historicalUnitKeys
+                    }
+                }
+                val historicalUnitType =
+                    if (latestEntities.isNotEmpty()) RelatedFlagsCategory.HISTORICAL_UNITS
+                    else RelatedFlagsCategory.HISTORICAL_UNIT_SELECTED
+
                 RelatedFlagGroup.Multiple(
-                    flags = historicalUnits,
-                    category = RelatedFlagsCategory.HISTORICAL_UNITS.title,
-                    categoryKey = RelatedFlagsCategory.HISTORICAL_UNITS.name,
+                    flags = historicalUnitFlags,
+                    category = historicalUnitType.title,
+                    categoryKey = historicalUnitType.name,
                 )
             },
             previousEntitiesOfSovereign = if (previousEntitiesOfSovereign.isEmpty()) null else {

@@ -13,6 +13,7 @@ enum class RelatedFlagsCategory(
     PREVIOUS_ENTITIES_POLITY (title = R.string.menu_related_flags_chronological_previous_polity),
     PREVIOUS_ENTITIES_NON_POLITY (title = R.string.menu_related_flags_chronological_previous_non_polity),
     HISTORICAL_UNITS (title = R.string.menu_related_flags_chronological_historical_units),
+    HISTORICAL_UNIT_SELECTED (title = R.string.menu_related_flags_chronological_historical_unit_selected),
     PREVIOUS_ENTITIES_OF_SOVEREIGN (title = R.string.menu_related_flags_chronological_previous_of_sovereign),
     DEPENDENTS_OF_LATEST_ENTITY (title = R.string.menu_related_flags_chronological_dependents_of_latest)
 }

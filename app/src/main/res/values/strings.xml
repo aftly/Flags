@@ -340,6 +340,7 @@
     <string name="menu_related_flags_chronological_previous_polity">Previous Administrations</string>
     <string name="menu_related_flags_chronological_previous_non_polity">Previous Entities</string>
     <string name="menu_related_flags_chronological_historical_units">Historical Units (of Latest)</string>
+    <string name="menu_related_flags_chronological_historical_unit_selected">(Selected) Historical Unit of Latest</string>
     <string name="menu_related_flags_chronological_previous_of_sovereign">Previous Admins of Sovereign</string>
     <string name="menu_related_flags_chronological_dependents_of_latest">Dependents of Latest Admin(s)</string>
     <string name="menu_multiple_selection">Multiple Categories Selected</string>
