@@ -151,7 +151,11 @@ fun RelatedFlagsMenuCard(
     )
 
     val showDatesHeaderTitles = listOf(
+        RelatedFlagsCategory.HISTORICAL_FLAGS.title,
         RelatedFlagsCategory.PREVIOUS_ENTITIES_POLITY.title,
+        RelatedFlagsCategory.PREVIOUS_ENTITIES_NON_POLITY.title,
+        RelatedFlagsCategory.HISTORICAL_UNITS.title,
+        RelatedFlagsCategory.HISTORICAL_UNIT_SELECTED.title,
         RelatedFlagsCategory.PREVIOUS_ENTITIES_OF_SOVEREIGN.title
     )
 
@@ -342,7 +346,7 @@ private fun RelatedItem(
         flag == currentFlag || (menu == RelatedFlagsMenu.POLITICAL && inverseFlagViewMap
             .getValue(flag) == currentFlag.previousFlagOfKey)
     val fromToYear =
-        if (flag.isDated && (showDates || flag.previousFlagOfKey != null)) {
+        if (flag.isDated && showDates) {
             buildString {
                 append(stringResource(R.string.string_whitespace))
                 append(flagDatesString(flag))
