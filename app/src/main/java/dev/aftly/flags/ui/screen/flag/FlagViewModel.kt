@@ -9,6 +9,7 @@ import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.model.FlagCategory
+import dev.aftly.flags.model.FlagCategory.ANNEXED_TERRITORY
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
 import dev.aftly.flags.model.FlagCategory.CONFEDERATION
 import dev.aftly.flags.model.FlagCategory.CONSTITUTIONAL
@@ -218,10 +219,12 @@ class FlagViewModel(
         }
         val flagNameResIds = listOf(flag.flagOf, flag.flagOfOfficial)
         val descriptorResIds = listOf(
+            R.string.category_historical_in_description,
+            R.string.category_historical_descriptor,
+            R.string.category_annexed_territory_descriptor,
+            R.string.categories_non_self_governing_territory_descriptor,
             R.string.category_nominal_extra_constitutional_in_description,
-            R.string.string_defunct,
-            R.string.string_defunct_bracketed,
-            R.string.categories_non_self_governing_territory_descriptor
+            R.string.string_de_facto_descriptor
         )
 
         val categoriesInstitutional =
@@ -230,6 +233,7 @@ class FlagViewModel(
             categories.filter { it in Cultural.enums() }
         val categoriesPolity = categories.filterNot { it in categoriesCultural }
 
+        val isAnnexed = ANNEXED_TERRITORY in categories
         val isHistorical = HISTORICAL in categories
         val isPolity = categories.any {
             it == SOVEREIGN_STATE || it in AutonomousRegion.enums() || it in Regional.enums() ||
@@ -256,6 +260,11 @@ class FlagViewModel(
             resIds.add(flag.flagOf) /* FLAG NAME */
         }
 
+        /* Add annexed descriptor */
+        if (isAnnexed) {
+            resIds.add(R.string.category_annexed_territory_descriptor) /* DESCRIPTOR */
+        }
+
         /* Add connector */
         if (isLegislature) {
             resIds.add(R.string.string_is_the)
@@ -265,7 +274,7 @@ class FlagViewModel(
 
         /* Add historical descriptor */
         if (isHistorical) {
-            resIds.add(R.string.string_defunct) /* DESCRIPTOR */
+            resIds.add(R.string.category_historical_in_description) /* DESCRIPTOR */
         }
 
 
@@ -308,6 +317,7 @@ class FlagViewModel(
                     categories = categories,
                     isIrregularPower = isIrregularPower,
                     isLimitedRecognition = isLimitedRecognition,
+                    isAnnexed = isAnnexed,
                 )
             }
 
@@ -417,11 +427,13 @@ class FlagViewModel(
         isLimitedRecognition: Boolean,
         isDependent: Boolean,
     ) {
-        val skipCategories =
-            listOf(SOVEREIGN_STATE, FREE_ASSOCIATION, HISTORICAL, DEVOLVED_GOVERNMENT)
+        val skipCategories = listOf(
+            HISTORICAL, SOVEREIGN_STATE, FREE_ASSOCIATION, DEVOLVED_GOVERNMENT, ANNEXED_TERRITORY
+        )
 
-        val regionCategories = categories.filter { it in Regional.enums() }
-            .toMutableList()
+        val regionCategories = categories.filter {
+            it in Regional.enums() + STATE_WITH_LIMITED_RECOGNITION
+        }.toMutableList()
         regionCategories.removeFirstOrNull()
 
         /* ----- ITERATIONS ----- */
@@ -455,7 +467,7 @@ class FlagViewModel(
             } else if (category in regionCategories) {
                 resIds.add(R.string.string_and)
                 resIds.add(category.string)
-                regionCategories.remove(category)
+                regionCategories.remove(element = category)
 
             } else if (category == INTERNATIONAL_ORGANIZATION) {
                 if (categories.any { it in ExecutiveStructure.enums() } &&
@@ -532,10 +544,11 @@ class FlagViewModel(
         val firstCategory = categories[0]
         val lastCategory = categories[categories.size - 1]
         val legislatureDivisionsOfThe = LegislatureDivision.enums().filterNot { it == UNICAMERAL }
+        val skipCategories = listOf(HISTORICAL, ANNEXED_TERRITORY)
 
         for (category in categories) {
             when (category) {
-                HISTORICAL -> continue
+                in skipCategories -> continue
                 DEVOLVED_GOVERNMENT -> resIds.add(R.string.categories_devolved_string)
                 INTERNATIONAL_ORGANIZATION -> {
                     if (category == firstCategory && category != lastCategory) {
@@ -598,6 +611,7 @@ class FlagViewModel(
         categories: List<FlagCategory>,
         isIrregularPower: Boolean = false,
         isLimitedRecognition: Boolean = false,
+        isAnnexed: Boolean = false,
     ) {
         val isChild = parentUnit != null
         val isDependent = sovereignState != null
@@ -606,8 +620,11 @@ class FlagViewModel(
         if (isChild) {
             val isParentHistorical = HISTORICAL in parentUnit.categories
 
-            if (categories.lastOrNull() in inCategories) resIds.add(R.string.string_in)
-            else resIds.add(R.string.string_of)
+            if (isAnnexed || categories.lastOrNull() in inCategories) {
+                resIds.add(R.string.string_in)
+            } else {
+                resIds.add(R.string.string_of)
+            }
 
             /* Historical name and placement of descriptor varies */
             if (isParentHistorical && parentUnit.flagOfDescriptor != null) {
@@ -619,7 +636,7 @@ class FlagViewModel(
                 resIds.add(parentUnit.flagOf) /* FLAG NAME */
             }
 
-            if (isParentHistorical) resIds.add(R.string.string_defunct_bracketed) /* DESCRIPTOR */
+            if (isParentHistorical) resIds.add(R.string.category_historical_descriptor) /* DESCRIPTOR */
 
             resIds.add(R.string.string_comma)
             addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
@@ -649,7 +666,8 @@ class FlagViewModel(
                 resIds.add(sovereignState.flagOf) /* FLAG NAME */
             }
 
-            if (isSovHistorical) resIds.add(R.string.string_defunct_bracketed) /* DESCRIPTOR */
+            if (isChild && isAnnexed) resIds.add(R.string.string_de_facto_descriptor) /* DESCRIPTOR */
+            if (isSovHistorical) resIds.add(R.string.category_historical_descriptor) /* DESCRIPTOR */
         }
     }
 

@@ -80,6 +80,7 @@
     <string name="category_state_with_limited_recognition_string">state with limited recognition</string>
     <string name="category_annexed_territory_title">Annexed Territory</string>
     <string name="category_annexed_territory_string">annexed</string>
+    <string name="category_annexed_territory_descriptor">(annexed)</string>
     <string name="category_canton_title">Canton</string>
     <string name="category_canton_string">canton</string>
     <string name="category_collectivity_title">Collectivity</string>
@@ -250,6 +251,8 @@
     <string name="category_political_long_string">political movement</string>
     <string name="category_historical_title">Historical</string>
     <string name="category_historical_string">historical</string>
+    <string name="category_historical_in_description">defunct</string>
+    <string name="category_historical_descriptor">(defunct)</string>
     <string name="categories_associated_country">Associated Country</string>
     <string name="categories_autonomous_title">Autonomous</string>
     <string name="categories_autonomous_string">autonomous</string>
@@ -390,9 +393,8 @@
     <string name="string_and_the_flag_of">and the flag of a</string>
     <string name="string_comma">,</string>
     <string name="string_comma_whitespace">,\ </string>
-    <string name="string_defunct">defunct</string>
-    <string name="string_defunct_bracketed">(defunct)</string>
     <string name="string_forward_slash">/</string>
+    <string name="string_de_facto_descriptor">(de facto)</string>
     <string name="string_in">in</string>
     <string name="string_in_the">in the</string>
     <string name="string_is_a">is a</string>
