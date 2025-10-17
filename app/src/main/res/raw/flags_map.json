@@ -9684,9 +9684,9 @@
             "type": "StringResSource.Explicit",
             "resName": "crimea_wikipedia_url_path"
         },
-        "image": "flag_of_crimea__latest_version_",
-        "imagePreview": "flag_of_crimea__latest_version_",
-        "fromYear": 2014,
+        "image": "flag_of_crimea",
+        "imagePreview": "flag_of_crimea",
+        "fromYear": 1992,
         "fromYearCirca": false,
         "toYear": 0,
         "toYearCirca": false,
@@ -9756,54 +9756,103 @@
         "internationalOrganisations": [],
         "associatedState": null,
         "sovereignState": "ukraine",
-        "parentUnit": "russia",
-        "latestEntities": [],
+        "parentUnit": null,
+        "latestEntities": [
+            "crimea(Russia)"
+        ],
         "previousFlagOf": null,
         "categories": [
-            "ANNEXED_TERRITORY",
             "AUTONOMOUS_REGION",
             "REPUBLIC_UNIT"
         ]
     },
-    "crimea(Ukraine)": {
+    "crimea(Russia)": {
         "id": 162,
         "wikipediaUrlPath": {
-            "type": "StringResSource.Inherit"
+            "type": "StringResSource.Explicit",
+            "resName": "crimea_russia_wikipedia_url_path"
         },
-        "image": "flag_of_crimea",
-        "imagePreview": "flag_of_crimea",
-        "fromYear": 1992,
+        "image": "flag_of_crimea__latest_version_",
+        "imagePreview": "flag_of_crimea__latest_version_",
+        "fromYear": 2014,
         "fromYearCirca": false,
-        "toYear": 2014,
+        "toYear": 0,
         "toYearCirca": false,
         "flagOf": {
-            "type": "StringResSource.Inherit"
+            "type": "StringResSource.Explicit",
+            "resName": "crimea_russia"
         },
         "flagOfDescriptor": {
-            "type": "StringResSource.Inherit"
+            "type": "StringResSource.Explicit",
+            "resName": "crimea_russia_descriptor"
         },
         "flagOfOfficial": {
-            "type": "StringResSource.Inherit"
+            "type": "StringResSource.Explicit",
+            "resName": "crimea_russia_official"
         },
         "flagOfAlternate": [
             {
-                "type": "StringResSource.Inherit"
+                "type": "StringResSource.Explicit",
+                "resName": "crimea_russia_alt_1"
+            },
+            {
+                "type": "StringResSource.Explicit",
+                "resName": "crimea_russia_alt_2"
+            },
+            {
+                "type": "StringResSource.Explicit",
+                "resName": "crimea_russia_alt_3"
+            },
+            {
+                "type": "StringResSource.Explicit",
+                "resName": "crimea_russia_alt_4"
+            },
+            {
+                "type": "StringResSource.Explicit",
+                "resName": "crimea_russia_alt_5"
+            },
+            {
+                "type": "StringResSource.Explicit",
+                "resName": "crimea_russia_alt_6"
+            },
+            {
+                "type": "StringResSource.Explicit",
+                "resName": "crimea_russia_alt_7"
+            },
+            {
+                "type": "StringResSource.Explicit",
+                "resName": "crimea_russia_alt_8"
+            },
+            {
+                "type": "StringResSource.Explicit",
+                "resName": "crimea_russia_alt_9"
+            },
+            {
+                "type": "StringResSource.Explicit",
+                "resName": "crimea_russia_alt_10"
+            },
+            {
+                "type": "StringResSource.Explicit",
+                "resName": "crimea_russia_alt_11"
             }
         ],
         "isFlagOfThe": {
-            "type": "BooleanSource.Inherit"
+            "type": "BooleanSource.Explicit",
+            "bool": false
         },
         "isFlagOfOfficialThe": {
-            "type": "BooleanSource.Inherit"
+            "type": "BooleanSource.Explicit",
+            "bool": true
         },
         "internationalOrganisations": [],
         "associatedState": null,
-        "sovereignState": null,
+        "sovereignState": "russia",
         "parentUnit": null,
         "latestEntities": [],
-        "previousFlagOf": "crimea",
+        "previousFlagOf": null,
         "categories": [
-            "HISTORICAL"
+            "ANNEXED_TERRITORY",
+            "REPUBLIC_UNIT"
         ]
     },
     "croatia": {
@@ -10992,10 +11041,10 @@
         },
         "image": "flag_of_donetsk_oblast",
         "imagePreview": "flag_of_donetsk_oblast_preview",
-        "fromYear": null,
-        "fromYearCirca": null,
-        "toYear": null,
-        "toYearCirca": null,
+        "fromYear": 1999,
+        "fromYearCirca": false,
+        "toYear": 0,
+        "toYearCirca": false,
         "flagOf": {
             "type": "StringResSource.Explicit",
             "resName": "donetsk_oblast"
@@ -11034,7 +11083,9 @@
         "associatedState": null,
         "sovereignState": "ukraine",
         "parentUnit": null,
-        "latestEntities": [],
+        "latestEntities": [
+            "donetskPeoplesRepublic"
+        ],
         "previousFlagOf": null,
         "categories": [
             "OBLAST"
@@ -11048,10 +11099,10 @@
         },
         "image": "flag_of_donetsk_people_s_republic",
         "imagePreview": "flag_of_donetsk_people_s_republic_preview",
-        "fromYear": null,
-        "fromYearCirca": null,
-        "toYear": null,
-        "toYearCirca": null,
+        "fromYear": 2014,
+        "fromYearCirca": false,
+        "toYear": 0,
+        "toYearCirca": false,
         "flagOf": {
             "type": "StringResSource.Explicit",
             "resName": "donetsk_peoples_republic"
@@ -11085,8 +11136,8 @@
         },
         "internationalOrganisations": [],
         "associatedState": null,
-        "sovereignState": "ukraine",
-        "parentUnit": "russia",
+        "sovereignState": "russia",
+        "parentUnit": null,
         "latestEntities": [],
         "previousFlagOf": null,
         "categories": [
@@ -22412,10 +22463,10 @@
         },
         "image": "flag_of_luhansk_oblast",
         "imagePreview": "flag_of_luhansk_oblast_preview",
-        "fromYear": null,
-        "fromYearCirca": null,
-        "toYear": null,
-        "toYearCirca": null,
+        "fromYear": 1999,
+        "fromYearCirca": false,
+        "toYear": 0,
+        "toYearCirca": false,
         "flagOf": {
             "type": "StringResSource.Explicit",
             "resName": "luhansk_oblast"
@@ -22462,7 +22513,9 @@
         "associatedState": null,
         "sovereignState": "ukraine",
         "parentUnit": null,
-        "latestEntities": [],
+        "latestEntities": [
+            "luhanskPeoplesRepublic"
+        ],
         "previousFlagOf": null,
         "categories": [
             "OBLAST"
@@ -22476,10 +22529,10 @@
         },
         "image": "flag_of_the_luhansk_people_s_republic",
         "imagePreview": "flag_of_the_luhansk_people_s_republic",
-        "fromYear": null,
-        "fromYearCirca": null,
-        "toYear": null,
-        "toYearCirca": null,
+        "fromYear": 2014,
+        "fromYearCirca": false,
+        "toYear": 0,
+        "toYearCirca": false,
         "flagOf": {
             "type": "StringResSource.Explicit",
             "resName": "luhansk_peoples_republic"
@@ -22521,8 +22574,8 @@
         },
         "internationalOrganisations": [],
         "associatedState": null,
-        "sovereignState": "ukraine",
-        "parentUnit": "russia",
+        "sovereignState": "russia",
+        "parentUnit": null,
         "latestEntities": [],
         "previousFlagOf": null,
         "categories": [
@@ -35219,7 +35272,7 @@
         },
         "internationalOrganisations": [],
         "associatedState": null,
-        "sovereignState": "ukraine",
+        "sovereignState": "russia",
         "parentUnit": "crimea",
         "latestEntities": [],
         "previousFlagOf": null,
