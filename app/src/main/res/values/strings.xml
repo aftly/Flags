@@ -76,6 +76,10 @@
     <string name="category_devolved_government_in_description_fascist">with a devolved fascist government</string>
     <string name="category_indigenous_territory_title">Indigenous Territory</string>
     <string name="category_indigenous_territory_string">indigenous territory</string>
+    <string name="category_state_with_limited_recognition_title">State (limited recognition)</string>
+    <string name="category_state_with_limited_recognition_string">state with limited recognition</string>
+    <string name="category_annexed_territory_title">Annexed Territory</string>
+    <string name="category_annexed_territory_string">annexed</string>
     <string name="category_canton_title">Canton</string>
     <string name="category_canton_string">canton</string>
     <string name="category_collectivity_title">Collectivity</string>
@@ -127,8 +131,6 @@
     <string name="category_riding_unit_string">riding</string>
     <string name="category_state_title">State</string>
     <string name="category_state_string">state</string>
-    <string name="category_state_with_limited_recognition_title">State (limited recognition)</string>
-    <string name="category_state_with_limited_recognition_string">state with limited recognition</string>
     <string name="category_territory_title">Territory</string>
     <string name="category_territory_string">territory</string>
     <string name="category_supranational_union_title">Supranational Union</string>

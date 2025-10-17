@@ -535,6 +535,7 @@ class FlagViewModel(
 
         for (category in categories) {
             when (category) {
+                HISTORICAL -> continue
                 DEVOLVED_GOVERNMENT -> resIds.add(R.string.categories_devolved_string)
                 INTERNATIONAL_ORGANIZATION -> {
                     if (category == firstCategory && category != lastCategory) {

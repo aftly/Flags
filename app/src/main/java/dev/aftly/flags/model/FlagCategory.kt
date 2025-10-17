@@ -24,6 +24,7 @@ enum class FlagCategory(
     DEVOLVED_GOVERNMENT (title = R.string.category_devolved_government_title, string = R.string.category_devolved_government_string),
     INDIGENOUS_TERRITORY (title = R.string.category_indigenous_territory_title, string = R.string.category_indigenous_territory_string),
     STATE_WITH_LIMITED_RECOGNITION (title = R.string.category_state_with_limited_recognition_title, string = R.string.category_state_with_limited_recognition_string),
+    ANNEXED_TERRITORY (title = R.string.category_annexed_territory_title, string = R.string.category_annexed_territory_string),
 
     /* Administrative units within a sovereign state (eg. federated state or unitary region) */
     CANTON (title = R.string.category_canton_title, string = R.string.category_canton_string),
@@ -102,6 +103,7 @@ enum class FlagCategory(
     AUTHORITARIAN (title = R.string.category_authoritarian_title, string = R.string.category_authoritarian_string),
     TOTALITARIAN (title = R.string.category_totalitarian_title, string = R.string.category_totalitarian_string),
     DICTATORSHIP (title = R.string.category_dictatorship_title, string = R.string.category_dictatorship_string),
+
     /* Ideological orientation */
     LIBERAL (title = R.string.category_liberal_title, string = R.string.category_liberal_string),
     ILLIBERAL (title = R.string.category_illiberal_title, string = R.string.category_illiberal_string),
