@@ -143,11 +143,11 @@ fun RelatedFlagsMenuCard(
     val cardColors = CardDefaults.cardColors(containerColor = containerColor)
     val buttonColors = ButtonDefaults.buttonColors(
         containerColor = containerColor,
-        contentColor = contentColorFor(containerColor),
+        contentColor = contentColorFor(backgroundColor = containerColor),
     )
     val buttonColorsSelect = ButtonDefaults.buttonColors(
         containerColor = containerColorSelect,
-        contentColor = contentColorFor(containerColor),
+        contentColor = contentColorFor(backgroundColor = containerColor),
     )
 
     val showDatesHeaderTitles = listOf(
@@ -200,7 +200,7 @@ fun RelatedFlagsMenuCard(
         ) {
             Scrim(
                 modifier = Modifier.fillMaxSize()
-                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
+                    .background(color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
                 onAction = onExpand,
             )
         }
@@ -214,10 +214,10 @@ fun RelatedFlagsMenuCard(
         ) {
             Box(modifier = Modifier.fillMaxHeight()
                 .padding(
-                    top = with(density) { menuButtonOffset.y.toDp() },
-                    start = with(density) { menuButtonOffset.x.toDp() }
+                    top = with(receiver = density) { menuButtonOffset.y.toDp() },
+                    start = with(receiver = density) { menuButtonOffset.x.toDp() }
                 )
-                .width(width = with(density) { menuButtonWidth.toDp() })
+                .width(width = with(receiver = density) { menuButtonWidth.toDp() })
             ) {
                 RelatedFlagsButton(
                     relatedType = relatedFlagContent.menu,
@@ -248,7 +248,7 @@ fun RelatedFlagsMenuCard(
                 modifier = Modifier.fillMaxWidth()
                     .padding(
                         top = (scaffoldPadding.calculateTopPadding() - Dimens.small10)
-                            .coerceAtLeast(0.dp),
+                            .coerceAtLeast(minimumValue = 0.dp),
                         bottom = scaffoldPadding.calculateBottomPadding(),
                         start = Dimens.marginHorizontal16,
                         end = Dimens.marginHorizontal16,
@@ -307,7 +307,7 @@ private fun RelatedHeader(
     modifier: Modifier = Modifier,
     @StringRes title: Int,
 ) {
-    Spacer(modifier = Modifier.height(Dimens.small8))
+    Spacer(modifier = Modifier.height(height = Dimens.small8))
     HorizontalDivider(modifier = Modifier.padding(horizontal = Dimens.medium12))
 
     Row(
@@ -320,7 +320,7 @@ private fun RelatedHeader(
         horizontalArrangement = Arrangement.Center,
     ) {
         Text(
-            text = stringResource(title),
+            text = stringResource(id = title),
             style = MaterialTheme.typography.labelMedium,
         )
     }
@@ -348,7 +348,7 @@ private fun RelatedItem(
     val fromToYear =
         if (flag.isDated && showDates) {
             buildString {
-                append(stringResource(R.string.string_whitespace))
+                append(stringResource(id = R.string.string_whitespace))
                 append(flagDatesString(flag))
             }
         } else null
@@ -356,7 +356,7 @@ private fun RelatedItem(
     TextButton(
         onClick = { onFlagSelect(flag) },
         modifier = modifier,
-        shape = RoundedCornerShape(0.dp),
+        shape = RoundedCornerShape(size = 0.dp),
         colors = if (isFlagSelected) buttonColorsSelect else buttonColors
     ) {
         Row(
@@ -364,7 +364,7 @@ private fun RelatedItem(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(modifier = Modifier.weight(1f)) {
+            Box(modifier = Modifier.weight(weight = 1f)) {
                 Row(
                     modifier = Modifier
                         /* Separate text from image */
@@ -372,7 +372,7 @@ private fun RelatedItem(
                         .fillMaxWidth(),
                     verticalAlignment = Alignment.Bottom,
                 ) {
-                    Text(text = stringResource(flag.flagOf))
+                    Text(text = stringResource(id = flag.flagOf))
 
                     fromToYear?.let {
                         Text(
@@ -388,7 +388,7 @@ private fun RelatedItem(
                 Image(
                     painter = painterResource(id = flag.imagePreview),
                     contentDescription = null,
-                    modifier = Modifier.height(dynamicHeight - verticalPadding * 2),
+                    modifier = Modifier.height(height = dynamicHeight - verticalPadding * 2),
                     contentScale = ContentScale.Fit,
                 )
 
@@ -400,7 +400,7 @@ private fun RelatedItem(
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
-                        modifier = Modifier.size(Dimens.standardIconSize24 * fontScale),
+                        modifier = Modifier.size(size = Dimens.standardIconSize24 * fontScale),
                         tint = surfaceLight,
                     )
                 }
