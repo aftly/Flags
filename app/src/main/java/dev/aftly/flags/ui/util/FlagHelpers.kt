@@ -405,6 +405,143 @@ private fun getAdminDivisionUnitLevel(
     }
 }
 
+fun getChronologicalRelatedFlagsContentOrNull(
+    sourceFlag: FlagView,
+    application: Application,
+): RelatedFlagsContent.Chronological? {
+    val flag = sourceFlag.previousFlagOfKey?.let { flagViewMap.getValue(it) } ?: sourceFlag
+
+    return if (!flag.isChronologicalRelatedFlags()) {
+        null
+
+    } else {
+        val directRelatedFlags = sortFlagsAlphabetically(
+            application = application,
+            flags = getFlagsFromKeys(flag.chronologicalDirectRelatedFlagKeys)
+        )
+        val indirectRelatedFlags = sortFlagsAlphabetically(
+            application = application,
+            flags = getFlagsFromKeys(flag.chronologicalIndirectRelatedFlagKeys)
+        )
+
+        val historicalFlags = directRelatedFlags.filter { flag ->
+            flag.previousFlagOfKey != null
+        }.sortedBy { it.id }
+
+        val historicalUnits = directRelatedFlags.filter { flag ->
+            val latestKeys = directRelatedFlags.filter { it.latestEntityKeys.isEmpty() }
+                .map { inverseFlagViewMap.getValue(it) }
+            val isChild = flag.sovereignStateKey != null || flag.parentUnitKey != null
+
+            HISTORICAL in flag.categories && STATE_WITH_LIMITED_RECOGNITION !in flag.categories &&
+                    isChild &&
+                    flag.latestEntityKeys.none { it in latestKeys } &&
+                    flag !in historicalFlags
+        }
+
+        val latestEntities = directRelatedFlags.filter { flag ->
+            flag.latestEntityKeys.isEmpty() && flag !in historicalFlags + historicalUnits
+        }
+
+        val previousEntities = directRelatedFlags.filter { flag ->
+            flag.latestEntityKeys.isNotEmpty() && flag !in historicalUnits
+        }.sortedByDescending { it.fromYear }
+
+        val dependentsOfLatest = indirectRelatedFlags.filter { flag ->
+            latestEntities.any { flag.sovereignStateKey == inverseFlagViewMap.getValue(it) }
+        }
+
+        val previousEntitiesOfSovereign = indirectRelatedFlags.filterNot { indirectFlag ->
+            indirectFlag in dependentsOfLatest
+        }.sortedByDescending { it.fromYear }
+
+        RelatedFlagsContent.Chronological(
+            historicalFlags = if (historicalFlags.isEmpty()) null else {
+                RelatedFlagGroup.Multiple(
+                    flags = historicalFlags,
+                    category = RelatedFlagsCategory.HISTORICAL_FLAGS.title,
+                    categoryKey = RelatedFlagsCategory.HISTORICAL_FLAGS.name
+                )
+            },
+            latestEntities = when (latestEntities.isEmpty() to historicalUnits.isEmpty()) {
+                true to true -> null
+                true to false -> {
+                    val parentSovList = buildList {
+                        historicalUnits.forEach { unit ->
+                            unit.parentUnitKey?.let { add(flagViewMap.getValue(it)) }
+                                ?: unit.sovereignStateKey?.let { add(flagViewMap.getValue(it)) }
+                        }
+                    }
+                    val latestEntitiesType =
+                        if (parentSovList.size == 1) RelatedFlagsCategory.LATEST_ENTITIES_POLITY
+                        else RelatedFlagsCategory.LATEST_ENTITIES_POLITIES
+
+                    /* Return expression */
+                    if (parentSovList.isEmpty()) null else {
+                        RelatedFlagGroup.Multiple(
+                            flags = parentSovList,
+                            category = latestEntitiesType.title,
+                            categoryKey = latestEntitiesType.name,
+                        )
+                    }
+                }
+                else -> {
+                    val nonPolityCategories = Institution.allEnums() + Cultural.allEnums()
+                    val latestEntitiesType =
+                        if (latestEntities.any { entity ->
+                                entity.categories.any { it in nonPolityCategories } }) {
+                            RelatedFlagsCategory.LATEST_ENTITY_NON_POLITY
+                        } else if (latestEntities.size == 1) {
+                            RelatedFlagsCategory.LATEST_ENTITIES_POLITY
+                        } else {
+                            RelatedFlagsCategory.LATEST_ENTITIES_POLITIES
+                        }
+
+                    /* Return expression */
+                    RelatedFlagGroup.Multiple(
+                        flags = latestEntities,
+                        category = latestEntitiesType.title,
+                        categoryKey = latestEntitiesType.name,
+                    )
+                }
+            },
+            previousEntities = if (previousEntities.isEmpty()) null else {
+                RelatedFlagGroup.Multiple(
+                    flags = previousEntities,
+                    category = RelatedFlagsCategory.PREVIOUS_ENTITIES_POLITY.title,
+                    categoryKey = RelatedFlagsCategory.PREVIOUS_ENTITIES_POLITY.name,
+                )
+            },
+            historicalUnits = if (historicalUnits.isEmpty()) null else {
+                val historicalUnitType =
+                    if (latestEntities.isNotEmpty()) RelatedFlagsCategory.HISTORICAL_UNITS
+                    else RelatedFlagsCategory.HISTORICAL_UNIT_SELECTED
+
+                /* Return expression */
+                RelatedFlagGroup.Multiple(
+                    flags = historicalUnits,
+                    category = historicalUnitType.title,
+                    categoryKey = historicalUnitType.name,
+                )
+            },
+            previousEntitiesOfSovereign = if (previousEntitiesOfSovereign.isEmpty()) null else {
+                RelatedFlagGroup.Multiple(
+                    flags = previousEntitiesOfSovereign,
+                    category = RelatedFlagsCategory.PREVIOUS_ENTITIES_OF_SOVEREIGN.title,
+                    categoryKey = RelatedFlagsCategory.PREVIOUS_ENTITIES_OF_SOVEREIGN.name,
+                )
+            },
+            dependentsOfLatest = if (dependentsOfLatest.isEmpty()) null else {
+                RelatedFlagGroup.Multiple(
+                    flags = dependentsOfLatest,
+                    category = RelatedFlagsCategory.DEPENDENTS_OF_LATEST_ENTITY.title,
+                    categoryKey = RelatedFlagsCategory.DEPENDENTS_OF_LATEST_ENTITY.name,
+                )
+            },
+        )
+    }
+}
+
 fun getPoliticalRelatedFlagsContentOrNull(
     sourceFlag: FlagView,
     application: Application,
@@ -613,143 +750,6 @@ fun getPoliticalRelatedFlagsContentOrNull(
                 )
             },
             internationalOrgMembers = null,
-        )
-    }
-}
-
-fun getChronologicalRelatedFlagsContentOrNull(
-    sourceFlag: FlagView,
-    application: Application,
-): RelatedFlagsContent.Chronological? {
-    val flag = sourceFlag.previousFlagOfKey?.let { flagViewMap.getValue(it) } ?: sourceFlag
-
-    return if (!flag.isChronologicalRelatedFlags()) {
-        null
-
-    } else {
-        val directRelatedFlags = sortFlagsAlphabetically(
-            application = application,
-            flags = getFlagsFromKeys(flag.chronologicalDirectRelatedFlagKeys)
-        )
-        val indirectRelatedFlags = sortFlagsAlphabetically(
-            application = application,
-            flags = getFlagsFromKeys(flag.chronologicalIndirectRelatedFlagKeys)
-        )
-
-        val historicalFlags = directRelatedFlags.filter { flag ->
-            flag.previousFlagOfKey != null
-        }.sortedBy { it.id }
-
-        val historicalUnits = directRelatedFlags.filter { flag ->
-            val latestKeys = directRelatedFlags.filter { it.latestEntityKeys.isEmpty() }
-                .map { inverseFlagViewMap.getValue(it) }
-            val isChild = flag.sovereignStateKey != null || flag.parentUnitKey != null
-
-            HISTORICAL in flag.categories && STATE_WITH_LIMITED_RECOGNITION !in flag.categories &&
-                    isChild &&
-                    flag.latestEntityKeys.none { it in latestKeys } &&
-                    flag !in historicalFlags
-        }
-
-        val latestEntities = directRelatedFlags.filter { flag ->
-            flag.latestEntityKeys.isEmpty() && flag !in historicalFlags + historicalUnits
-        }
-
-        val previousEntities = directRelatedFlags.filter { flag ->
-            flag.latestEntityKeys.isNotEmpty() && flag !in historicalUnits
-        }.sortedByDescending { it.fromYear }
-
-        val dependentsOfLatest = indirectRelatedFlags.filter { flag ->
-            latestEntities.any { flag.sovereignStateKey == inverseFlagViewMap.getValue(it) }
-        }
-
-        val previousEntitiesOfSovereign = indirectRelatedFlags.filterNot { indirectFlag ->
-            indirectFlag in dependentsOfLatest
-        }.sortedByDescending { it.fromYear }
-
-        RelatedFlagsContent.Chronological(
-            historicalFlags = if (historicalFlags.isEmpty()) null else {
-                RelatedFlagGroup.Multiple(
-                    flags = historicalFlags,
-                    category = RelatedFlagsCategory.HISTORICAL_FLAGS.title,
-                    categoryKey = RelatedFlagsCategory.HISTORICAL_FLAGS.name
-                )
-            },
-            latestEntities = when (latestEntities.isEmpty() to historicalUnits.isEmpty()) {
-                true to true -> null
-                true to false -> {
-                    val parentSovList = buildList {
-                        historicalUnits.forEach { unit ->
-                            unit.parentUnitKey?.let { add(flagViewMap.getValue(it)) }
-                                ?: unit.sovereignStateKey?.let { add(flagViewMap.getValue(it)) }
-                        }
-                    }
-                    val latestEntitiesType =
-                        if (parentSovList.size == 1) RelatedFlagsCategory.LATEST_ENTITIES_POLITY
-                        else RelatedFlagsCategory.LATEST_ENTITIES_POLITIES
-
-                    /* Return expression */
-                    if (parentSovList.isEmpty()) null else {
-                        RelatedFlagGroup.Multiple(
-                            flags = parentSovList,
-                            category = latestEntitiesType.title,
-                            categoryKey = latestEntitiesType.name,
-                        )
-                    }
-                }
-                else -> {
-                    val nonPolityCategories = Institution.allEnums() + Cultural.allEnums()
-                    val latestEntitiesType =
-                        if (latestEntities.any { entity ->
-                                entity.categories.any { it in nonPolityCategories } }) {
-                            RelatedFlagsCategory.LATEST_ENTITY_NON_POLITY
-                        } else if (latestEntities.size == 1) {
-                            RelatedFlagsCategory.LATEST_ENTITIES_POLITY
-                        } else {
-                            RelatedFlagsCategory.LATEST_ENTITIES_POLITIES
-                        }
-
-                    /* Return expression */
-                    RelatedFlagGroup.Multiple(
-                        flags = latestEntities,
-                        category = latestEntitiesType.title,
-                        categoryKey = latestEntitiesType.name,
-                    )
-                }
-            },
-            previousEntities = if (previousEntities.isEmpty()) null else {
-                RelatedFlagGroup.Multiple(
-                    flags = previousEntities,
-                    category = RelatedFlagsCategory.PREVIOUS_ENTITIES_POLITY.title,
-                    categoryKey = RelatedFlagsCategory.PREVIOUS_ENTITIES_POLITY.name,
-                )
-            },
-            historicalUnits = if (historicalUnits.isEmpty()) null else {
-                val historicalUnitType =
-                    if (latestEntities.isNotEmpty()) RelatedFlagsCategory.HISTORICAL_UNITS
-                    else RelatedFlagsCategory.HISTORICAL_UNIT_SELECTED
-
-                /* Return expression */
-                RelatedFlagGroup.Multiple(
-                    flags = historicalUnits,
-                    category = historicalUnitType.title,
-                    categoryKey = historicalUnitType.name,
-                )
-            },
-            previousEntitiesOfSovereign = if (previousEntitiesOfSovereign.isEmpty()) null else {
-                RelatedFlagGroup.Multiple(
-                    flags = previousEntitiesOfSovereign,
-                    category = RelatedFlagsCategory.PREVIOUS_ENTITIES_OF_SOVEREIGN.title,
-                    categoryKey = RelatedFlagsCategory.PREVIOUS_ENTITIES_OF_SOVEREIGN.name,
-                )
-            },
-            dependentsOfLatest = if (dependentsOfLatest.isEmpty()) null else {
-                RelatedFlagGroup.Multiple(
-                    flags = dependentsOfLatest,
-                    category = RelatedFlagsCategory.DEPENDENTS_OF_LATEST_ENTITY.title,
-                    categoryKey = RelatedFlagsCategory.DEPENDENTS_OF_LATEST_ENTITY.name,
-                )
-            },
         )
     }
 }
