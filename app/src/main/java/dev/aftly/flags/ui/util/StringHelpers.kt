@@ -26,7 +26,16 @@ fun flagDatesString(
     if (flag.isDated) {
         if (isBrackets) append(stringResource(R.string.string_open_bracket))
 
-        flag.fromYear?.let { append(it.toString()) }
+        flag.fromYear?.let {
+            append(it.toString())
+            /*
+            if (flag.fromYearCirca) {
+
+            } else {
+                append(it.toString())
+            }
+             */
+        }
 
         if (flag.fromYear != null && flag.toYear != null) {
             append(stringResource(R.string.string_dash))
