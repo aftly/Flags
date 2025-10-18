@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.NAV_SEPARATOR
+import dev.aftly.flags.data.DataSource.annexedFlagResMap
 import dev.aftly.flags.data.DataSource.flagResMap
 import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.data.DataSource.flagViewMapId
@@ -103,6 +104,22 @@ fun getFlagFromId(id: Int): FlagView = flagViewMapId.getValue(key = id)
 
 /* ---------- For flagViewMap ---------- */
 
+private fun isSovereignKeyFromParentKey(
+    parentKey: String,
+    sovereignKey: String,
+): Boolean {
+    val parent = flagResMap.getValue(parentKey)
+
+    return if (parentKey == sovereignKey) true
+
+    else if (parent.sovereignState == sovereignKey) true
+
+    else if (parent.parentUnit != null && isSovereignKeyFromParentKey(
+            parentKey = parent.parentUnit,
+            sovereignKey = sovereignKey)) true
+    else false
+}
+
 fun getChronologicalDirectRelatedFlagKeys(
     flagKey: String,
     flagRes: FlagResources,
@@ -168,13 +185,13 @@ fun getPoliticalInternalRelatedFlagKeys(
         emptyList()
 
     } else {
-        val parentKeys = buildList {
-            add(flagKey)
-            flagRes.sovereignState?.let { add(it) }
-        }
+        val sovereignKey = flagRes.sovereignState ?: flagKey
 
         val childKeys = flagResMap.values.filter { flag ->
-            flag.sovereignState in parentKeys || flagKey in flag.internationalOrganisations
+            flag.sovereignState == sovereignKey || flagKey in flag.internationalOrganisations ||
+                    /* Assess if sovereign derives from parentUnit for annexed flags */
+                    (flag in annexedFlagResMap.values && flag.parentUnit != null &&
+                    isSovereignKeyFromParentKey(parentKey = flag.parentUnit, sovereignKey))
         }.filterNot { flag ->
             /* Exclude non-internal (external) categories unless in exceptions */
             (flag.categories.none { it in internalCategories } &&
@@ -190,7 +207,8 @@ fun getPoliticalInternalRelatedFlagKeys(
 
         /* Return expression */
         buildList {
-            addAll(elements = parentKeys)
+            add(flagKey)
+            add(sovereignKey)
             addAll(elements = childKeys)
         }.distinct()
     }
@@ -204,10 +222,7 @@ fun getPoliticalExternalRelatedFlagKeys(
         emptyList()
 
     } else {
-        val sovereignKeys = buildList {
-            add(flagKey)
-            flagRes.sovereignState?.let { add(it) }
-        }
+        val sovereignKey = flagRes.sovereignState ?: flagKey
 
         val internationalOrgKeys = buildList {
             addAll(elements = flagRes.internationalOrganisations)
@@ -215,7 +230,7 @@ fun getPoliticalExternalRelatedFlagKeys(
 
         val childKeys = flagResMap.values.filter { flag ->
             flag.associatedState == flagKey ||
-                    (flag.sovereignState in sovereignKeys &&
+                    (flag.sovereignState == sovereignKey &&
                     externalCategories.any { it in flag.categories } &&
                     flag.sovereignState !in extCatExceptions)
         }.filterNot { flag ->

@@ -140,6 +140,7 @@ data object DataSource {
 
     lateinit var flagResMap: Map<String, FlagResources>; private set
     lateinit var inverseFlagResMap: Map<FlagResources, String>; private set
+    lateinit var annexedFlagResMap: Map<String, FlagResources>; private set
     lateinit var flagViewMap: Map<String, FlagView>; private set
     lateinit var inverseFlagViewMap: Map<FlagView, String>; private set
     lateinit var flagViewMapId: Map<Int, FlagView>; private set
@@ -158,6 +159,7 @@ data object DataSource {
                 flagResMap = json.decodeFromStream<Map<String, FlagResources>>(it)
             }
             inverseFlagResMap = getInverseFlagResMap(flagResMap)
+            annexedFlagResMap = getAnnexedFlagResMap(flagResMap)
             flagViewMap = getFlagViewMap(flagResMap, context)
             inverseFlagViewMap = getInverseFlagViewMap(flagViewMap)
             flagViewMapId = getFlagViewMapId(flagViewMap)
@@ -171,6 +173,11 @@ data object DataSource {
         map: Map<String, FlagResources>
     ): Map<FlagResources, String> =
         map.entries.associate { it.value to it.key }
+
+    private fun getAnnexedFlagResMap(
+        map: Map<String, FlagResources>
+    ): Map<String, FlagResources> =
+        map.filterValues { FlagCategory.ANNEXED_TERRITORY in it.categories }
 
     private fun getFlagViewMap(
         map: Map<String, FlagResources>,
