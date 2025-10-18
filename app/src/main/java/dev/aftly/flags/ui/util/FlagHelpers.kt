@@ -120,6 +120,13 @@ private fun isSovereignKeyFromParentKey(
     else false
 }
 
+private fun isFlagAnnexedChild(
+    flag: FlagResources,
+    sovereignKey: String
+): Boolean =
+    flag in annexedFlagResMap.values && flag.parentUnit != null &&
+            isSovereignKeyFromParentKey(parentKey = flag.parentUnit, sovereignKey)
+
 fun getChronologicalDirectRelatedFlagKeys(
     flagKey: String,
     flagRes: FlagResources,
@@ -189,9 +196,7 @@ fun getPoliticalInternalRelatedFlagKeys(
 
         val childKeys = flagResMap.values.filter { flag ->
             flag.sovereignState == sovereignKey || flagKey in flag.internationalOrganisations ||
-                    /* Assess if sovereign derives from parentUnit for annexed flags */
-                    (flag in annexedFlagResMap.values && flag.parentUnit != null &&
-                    isSovereignKeyFromParentKey(parentKey = flag.parentUnit, sovereignKey))
+                    isFlagAnnexedChild(flag, sovereignKey)
         }.filterNot { flag ->
             /* Exclude non-internal (external) categories unless in exceptions */
             (flag.categories.none { it in internalCategories } &&
@@ -229,8 +234,10 @@ fun getPoliticalExternalRelatedFlagKeys(
         }
 
         val childKeys = flagResMap.values.filter { flag ->
-            flag.associatedState == flagKey ||
-                    (flag.sovereignState == sovereignKey &&
+            val isSovChild =
+                flag.sovereignState == sovereignKey || isFlagAnnexedChild(flag, sovereignKey)
+
+            flag.associatedState == flagKey || (isSovChild &&
                     externalCategories.any { it in flag.categories } &&
                     flag.sovereignState !in extCatExceptions)
         }.filterNot { flag ->
