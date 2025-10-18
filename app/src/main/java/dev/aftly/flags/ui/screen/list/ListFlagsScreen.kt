@@ -161,12 +161,14 @@ fun ListFlagsScreen(
         onSavedFlagsSelect = { viewModel.selectSavedFlags(on = it) },
         onSaveFlag = { viewModel.onSaveFlag(flag = it) },
         onResetScreen = { viewModel.resetScreen() },
+        onResetFlagNavState = { viewModel.onFlagNav(flag = null) },
         onFlagSelect = { flag ->
             val flags =
                 if (uiState.isSearchQuery) searchResults
                 else if (uiState.isViewSavedFlags) savedFlags
                 else uiState.currentFlags
 
+            viewModel.onFlagNav(flag)
             onNavigateToFlagScreen(flag, flags)
         },
     )
@@ -196,6 +198,7 @@ private fun ListFlagsScreen(
     onSavedFlagsSelect: (Boolean) -> Unit,
     onSaveFlag: (FlagView) -> Unit,
     onResetScreen: () -> Unit,
+    onResetFlagNavState: () -> Unit,
     onFlagSelect: (FlagView) -> Unit,
 ) {
     /* Controls FilterFlagsButton menu expansion amd tracks current button height
@@ -303,11 +306,13 @@ private fun ListFlagsScreen(
                     else if (uiState.isViewSavedFlags) savedFlags
                     else uiState.currentFlags
 
-                /* If not returning to saved flags from a removed saved flag */
-                if (!(uiState.isViewSavedFlags && flag !in savedFlags)) {
+                /* If not returning to saved flags from a removed saved flag, and flagId is novel */
+                if (!(uiState.isViewSavedFlags && flag !in savedFlags) &&
+                    flagId != uiState.initFlagNav?.id) {
                     val index = flags.indexOf(flag)
                     coroutineScope.launch { listState.scrollToItem(index = index) }
                 }
+                onResetFlagNavState()
             }
             currentBackStackEntry.savedStateHandle.set(key = "scrollToFlagId", value = 0)
         }

@@ -391,4 +391,8 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
     fun toggleIsSearchBarInitTopBar(isSearchBarInit: Boolean) {
         _uiState.update { it.copy(isSearchBarInitTopBar = isSearchBarInit) }
     }
+
+    fun onFlagNav(flag: FlagView?) {
+        _uiState.update { it.copy(initFlagNav = flag) }
+    }
 }
