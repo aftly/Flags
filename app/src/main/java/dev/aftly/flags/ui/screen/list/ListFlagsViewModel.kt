@@ -31,6 +31,7 @@ import dev.aftly.flags.ui.util.normalizeLower
 import dev.aftly.flags.ui.util.normalizeString
 import dev.aftly.flags.ui.util.sortFlagsAlphabetically
 import dev.aftly.flags.ui.util.toSavedFlag
+import dev.aftly.flags.ui.util.toWrapper
 import dev.aftly.flags.ui.util.updateCategoriesFromSub
 import dev.aftly.flags.ui.util.updateCategoriesFromSuper
 import kotlinx.coroutines.flow.Flow
@@ -384,12 +385,50 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
         _uiState.update { it.copy(isSearchQuery = newValue.text != "") }
     }
 
-    fun toggleIsSearchBarInit(isSearchBarInit: Boolean) {
-        _uiState.update { it.copy(isSearchBarInit = isSearchBarInit) }
+    fun toggleIsSearchBarInit(isSearchBar: Boolean) {
+        when (isSearchBar) {
+            true -> {
+                _uiState.update { state ->
+                    state.copy(
+                        preSearchSupers = state.currentSuperCategories,
+                        preSearchSubs = state.currentSubCategories,
+                    )
+                }
+                updateCurrentCategory(category = All)
+                selectSavedFlags(on = false)
+            }
+            false -> {
+                val isOnlyAllCatSelected = uiState.value.currentSuperCategories.all { it == All } &&
+                        uiState.value.currentSubCategories.isEmpty()
+                val preSearchCategories = buildList {
+                    addAll(elements = uiState.value.preSearchSupers)
+                    addAll(elements = uiState.value.preSearchSubs.map { it.toWrapper() })
+                }
+
+                if (isOnlyAllCatSelected) {
+                    when (preSearchCategories.size) {
+                        1 -> if (All !in preSearchCategories) {
+                            updateCurrentCategory(category = preSearchCategories.first())
+                        }
+                        0 -> selectSavedFlags(on = true)
+                        else -> preSearchCategories.forEach { category ->
+                            updateCurrentCategories(category)
+                        }
+                    }
+                }
+
+                _uiState.update {
+                    it.copy(
+                        preSearchSupers = emptyList(),
+                        preSearchSubs = emptyList()
+                    )
+                }
+            }
+        }
     }
 
-    fun toggleIsSearchBarInitTopBar(isSearchBarInit: Boolean) {
-        _uiState.update { it.copy(isSearchBarInitTopBar = isSearchBarInit) }
+    fun toggleIsSearchBarInitTopBar(isSearchBar: Boolean) {
+        _uiState.update { it.copy(isSearchBarInitTopBar = isSearchBar) }
     }
 
     fun onFlagNav(flag: FlagView?) {

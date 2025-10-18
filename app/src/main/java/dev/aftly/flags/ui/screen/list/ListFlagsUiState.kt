@@ -17,4 +17,7 @@ data class ListFlagsUiState(
     val isSearchBarInit: Boolean = false, /* Hold initialised state for effects */
     val isSearchBarInitTopBar: Boolean = false, /* Hold initialised state for effects */
     val initFlagNav: FlagView? = null, /* To compare against scrollToFlagId navArgument() */
+    /* For restoring state after exiting search when relevant */
+    val preSearchSupers: List<FlagSuperCategory> = emptyList(),
+    val preSearchSubs: List<FlagCategory> = emptyList(),
 )

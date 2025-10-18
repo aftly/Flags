@@ -253,22 +253,23 @@ private fun ListFlagsScreen(
     /* Handle isSearchBar effects */
     LaunchedEffect(key1 = isSearchBar) {
         if (!isSearchBar) {
+            /* Includes updates from/to category states */
             onIsSearchBarInit(false)
             onIsSearchBarInitTopBar(false)
             onSearchQueryValueChange(TextFieldValue())
 
-        } else if (!uiState.isSearchBarInit) {
+        } else if (!uiState.isSearchBarInit && isCompInit) {
+            /* Includes updates from/to category states */
+            onIsSearchBarInit(true)
+
             /* If saved flags or not All super category */
-            if (uiState.isViewSavedFlags || !(uiState.currentSuperCategories.all { it == All } &&
-                        uiState.currentSubCategories.isEmpty())) {
-                onCategorySelectSingle(All)
-                onSavedFlagsSelect(false)
+            if (!uiState.preSearchSupers.all { it == All } && uiState.preSearchSubs.isEmpty()) {
                 if (!isAtTop) {
                     coroutineScope.launch { listState.animateScrollToItem(index = 0) }
                 }
             }
-            onIsSearchBarInit(true)
         }
+        isCompInit = true
     }
 
     /* If returning from FlagScreen to SavedFlags and SavedFlags isEmpty() select All category */
