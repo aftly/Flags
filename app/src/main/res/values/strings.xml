@@ -394,6 +394,7 @@
     <string name="string_comma">,</string>
     <string name="string_comma_whitespace">,\ </string>
     <string name="string_forward_slash">/</string>
+    <string name="string_date_circa">c.%s</string>
     <string name="string_de_facto_descriptor">(de facto)</string>
     <string name="string_in">in</string>
     <string name="string_in_the">in the</string>
