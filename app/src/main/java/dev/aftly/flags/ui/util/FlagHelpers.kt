@@ -40,7 +40,7 @@ import dev.aftly.flags.model.FlagCategory.REPUBLIC_UNIT
 import dev.aftly.flags.model.FlagCategory.RIDING
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.STATE
-import dev.aftly.flags.model.FlagCategory.STATE_WITH_LIMITED_RECOGNITION
+import dev.aftly.flags.model.FlagCategory.UNRECOGNIZED_STATE
 import dev.aftly.flags.model.FlagCategory.TERRITORY
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory.Civilian
@@ -146,7 +146,7 @@ fun getChronologicalDirectRelatedFlagKeys(
                     ((flag.sovereignState == flagKey || flag.parentUnit == flagKey) &&
                     HISTORICAL in flag.categories &&
                     HISTORICAL !in flagRes.categories &&
-                    STATE_WITH_LIMITED_RECOGNITION !in flag.categories)
+                    UNRECOGNIZED_STATE !in flag.categories)
         }.map { flag ->
             inverseFlagResMap.getValue(flag)
         }
@@ -180,7 +180,7 @@ enum class ExternalCategoryExceptions(val key: String) {
     FRANCE (key = "france")
 }
 val extCatExceptions = ExternalCategoryExceptions.entries.map { it.key }
-val externalCategories = listOf(TERRITORY, REGION, COLONY, STATE_WITH_LIMITED_RECOGNITION)
+val externalCategories = listOf(TERRITORY, REGION, COLONY, UNRECOGNIZED_STATE)
 val internalCategories = listOf(SovereignCountry.enums(), Regional.enums(), Institution.allEnums())
     .flatten().filterNot { it in externalCategories } + CONFEDERATION + POLITICAL
 
@@ -455,7 +455,7 @@ fun getChronologicalRelatedFlagsContentOrNull(
                 .map { inverseFlagViewMap.getValue(it) }
             val isChild = flag.sovereignStateKey != null || flag.parentUnitKey != null
 
-            HISTORICAL in flag.categories && STATE_WITH_LIMITED_RECOGNITION !in flag.categories &&
+            HISTORICAL in flag.categories && UNRECOGNIZED_STATE !in flag.categories &&
                     isChild &&
                     flag.latestEntityKeys.none { it in latestKeys } &&
                     flag !in historicalFlags
@@ -642,7 +642,7 @@ fun getPoliticalRelatedFlagsContentOrNull(
         }
 
         val statesLimitedRecognition = externalRelatedFlags.filter { flag ->
-            STATE_WITH_LIMITED_RECOGNITION in flag.categories
+            UNRECOGNIZED_STATE in flag.categories
         }
         val externalTerritories = externalRelatedFlags.filterNot { flag ->
             flag in listOf(
@@ -715,8 +715,8 @@ fun getPoliticalRelatedFlagsContentOrNull(
             statesLimitedRecognition = if (statesLimitedRecognition.isEmpty()) null else {
                 RelatedFlagGroup.Multiple(
                     flags = statesLimitedRecognition,
-                    category = STATE_WITH_LIMITED_RECOGNITION.title,
-                    categoryKey = STATE_WITH_LIMITED_RECOGNITION.name,
+                    category = UNRECOGNIZED_STATE.title,
+                    categoryKey = UNRECOGNIZED_STATE.name,
                 )
             },
             institutions = if (institutions.isEmpty()) null else buildList {

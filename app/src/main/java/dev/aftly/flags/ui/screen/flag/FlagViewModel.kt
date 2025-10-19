@@ -35,7 +35,7 @@ import dev.aftly.flags.model.FlagCategory.RELIGIOUS
 import dev.aftly.flags.model.FlagCategory.SOCIAL
 import dev.aftly.flags.model.FlagCategory.SOCIALIST
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
-import dev.aftly.flags.model.FlagCategory.STATE_WITH_LIMITED_RECOGNITION
+import dev.aftly.flags.model.FlagCategory.UNRECOGNIZED_STATE
 import dev.aftly.flags.model.FlagCategory.SUPRANATIONAL_UNION
 import dev.aftly.flags.model.FlagCategory.TERRITORY
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
@@ -247,7 +247,7 @@ class FlagViewModel(
         val isChild = parentUnit != null
         val isPowerEnums = categories.any { it in PowerDerivation.enums() }
         val isIrregularPower = (isNSGT && isPowerEnums) || (isDependent && isPowerEnums)
-        val isLimitedRecognition = STATE_WITH_LIMITED_RECOGNITION in categories
+        val isLimitedRecognition = UNRECOGNIZED_STATE in categories
 
         /* ----------------------- Description START ----------------------- */
 
@@ -284,6 +284,7 @@ class FlagViewModel(
                 resIds = resIds,
                 whitespaceExceptionIndexes = whitespaceExceptionIndexes,
                 politicalSuperEnums = politicalSuperEnums,
+                isHistorical = isHistorical,
                 isInternational = isInternational,
                 isConstitutional = CONSTITUTIONAL in categories,
                 isNSGT = isNSGT,
@@ -420,6 +421,7 @@ class FlagViewModel(
         resIds: MutableList<Int>,
         whitespaceExceptionIndexes: MutableList<Int>,
         politicalSuperEnums: List<FlagCategory>,
+        isHistorical: Boolean,
         isInternational: Boolean,
         isConstitutional: Boolean,
         isNSGT: Boolean,
@@ -432,7 +434,7 @@ class FlagViewModel(
         )
 
         val regionCategories = categories.filter {
-            it in Regional.enums() + STATE_WITH_LIMITED_RECOGNITION
+            it in Regional.enums() + UNRECOGNIZED_STATE
         }.toMutableList()
         regionCategories.removeFirstOrNull()
 
@@ -449,12 +451,15 @@ class FlagViewModel(
             } else if (category == AUTONOMOUS_REGION) {
                 if (isLimitedRecognition) {
                     continue
-                } else if (HISTORICAL !in categories) {
+                } else if (!isHistorical) {
                     resIds.add(R.string.category_autonomous_region_in_description_an)
                     addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
                 } else {
                     resIds.add(R.string.category_autonomous_region_in_description)
                 }
+            } else if (category == UNRECOGNIZED_STATE && !isNSGT && !isHistorical) {
+                resIds.add(R.string.category_unrecognized_state_string_an)
+                addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
 
             } else if (category == TERRITORY && isNSGT) {
                 resIds.add(R.string.categories_non_self_governing_territory_string)

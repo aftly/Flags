@@ -76,8 +76,9 @@
     <string name="category_devolved_government_in_description_fascist">with a devolved fascist government</string>
     <string name="category_indigenous_territory_title">Indigenous Territory</string>
     <string name="category_indigenous_territory_string">indigenous territory</string>
-    <string name="category_state_with_limited_recognition_title">State (limited recognition)</string>
-    <string name="category_state_with_limited_recognition_string">state with limited recognition</string>
+    <string name="category_unrecognized_state_title">Unrecognized State</string>
+    <string name="category_unrecognized_state_string">unrecognized state</string>
+    <string name="category_unrecognized_state_string_an">n unrecognized state</string>
     <string name="category_annexed_territory_title">Annexed Territory</string>
     <string name="category_annexed_territory_string">annexed</string>
     <string name="category_annexed_territory_descriptor">(annexed)</string>

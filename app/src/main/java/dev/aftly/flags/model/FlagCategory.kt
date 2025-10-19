@@ -23,7 +23,7 @@ enum class FlagCategory(
     AUTONOMOUS_REGION (title = R.string.category_autonomous_region_title, string = R.string.category_autonomous_region_string),
     DEVOLVED_GOVERNMENT (title = R.string.category_devolved_government_title, string = R.string.category_devolved_government_string),
     INDIGENOUS_TERRITORY (title = R.string.category_indigenous_territory_title, string = R.string.category_indigenous_territory_string),
-    STATE_WITH_LIMITED_RECOGNITION (title = R.string.category_state_with_limited_recognition_title, string = R.string.category_state_with_limited_recognition_string),
+    UNRECOGNIZED_STATE (title = R.string.category_unrecognized_state_title, string = R.string.category_unrecognized_state_string),
     ANNEXED_TERRITORY (title = R.string.category_annexed_territory_title, string = R.string.category_annexed_territory_string),
 
     /* Administrative units within a sovereign state (eg. federated state or unitary region) */

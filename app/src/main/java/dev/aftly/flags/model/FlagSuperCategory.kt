@@ -82,7 +82,7 @@ sealed class FlagSuperCategory(
             FlagCategoryWrapper(enum = FlagCategory.AUTONOMOUS_REGION),
             FlagCategoryWrapper(enum = FlagCategory.DEVOLVED_GOVERNMENT),
             //FlagCategoryWrapper(enum = FlagCategory.INDIGENOUS_TERRITORY),
-            FlagCategoryWrapper(enum = FlagCategory.STATE_WITH_LIMITED_RECOGNITION),
+            FlagCategoryWrapper(enum = FlagCategory.UNRECOGNIZED_STATE),
             FlagCategoryWrapper(enum = FlagCategory.ANNEXED_TERRITORY)
         ),
     )

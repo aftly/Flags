@@ -243,7 +243,7 @@
         "previousFlagOf": null,
         "categories": [
             "AUTONOMOUS_REGION",
-            "STATE_WITH_LIMITED_RECOGNITION"
+            "UNRECOGNIZED_STATE"
         ]
     },
     "abruzzo": {
@@ -2572,7 +2572,7 @@
         "categories": [
             "HISTORICAL",
             "AUTONOMOUS_REGION",
-            "STATE_WITH_LIMITED_RECOGNITION"
+            "UNRECOGNIZED_STATE"
         ]
     },
     "aruba": {
@@ -3042,7 +3042,7 @@
         "categories": [
             "HISTORICAL",
             "AUTONOMOUS_REGION",
-            "STATE_WITH_LIMITED_RECOGNITION",
+            "UNRECOGNIZED_STATE",
             "THEOCRATIC",
             "PROVISIONAL_GOVERNMENT"
         ]
@@ -28508,7 +28508,7 @@
         "previousFlagOf": null,
         "categories": [
             "AUTONOMOUS_REGION",
-            "STATE_WITH_LIMITED_RECOGNITION"
+            "UNRECOGNIZED_STATE"
         ]
     },
     "northernIreland": {
@@ -30412,7 +30412,7 @@
         "previousFlagOf": null,
         "categories": [
             "AUTONOMOUS_REGION",
-            "STATE_WITH_LIMITED_RECOGNITION",
+            "UNRECOGNIZED_STATE",
             "UNITARY",
             "SEMI_PRESIDENTIAL",
             "PROVISIONAL_GOVERNMENT"
@@ -33213,7 +33213,7 @@
         "previousFlagOf": null,
         "categories": [
             "TERRITORY",
-            "STATE_WITH_LIMITED_RECOGNITION",
+            "UNRECOGNIZED_STATE",
             "UNITARY",
             "PRESIDENTIAL",
             "ONE_PARTY"
@@ -36275,7 +36275,7 @@
         "previousFlagOf": null,
         "categories": [
             "AUTONOMOUS_REGION",
-            "STATE_WITH_LIMITED_RECOGNITION"
+            "UNRECOGNIZED_STATE"
         ]
     },
     "somerset": {
@@ -36857,7 +36857,7 @@
         "previousFlagOf": null,
         "categories": [
             "AUTONOMOUS_REGION",
-            "STATE_WITH_LIMITED_RECOGNITION"
+            "UNRECOGNIZED_STATE"
         ]
     },
     "southSudan": {
@@ -40021,7 +40021,7 @@
         "previousFlagOf": null,
         "categories": [
             "AUTONOMOUS_REGION",
-            "STATE_WITH_LIMITED_RECOGNITION"
+            "UNRECOGNIZED_STATE"
         ]
     },
     "trentino-AltoAdigeSudtirol": {
