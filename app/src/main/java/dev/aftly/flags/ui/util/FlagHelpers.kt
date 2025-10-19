@@ -32,7 +32,7 @@ import dev.aftly.flags.model.FlagCategory.MICRONATION
 import dev.aftly.flags.model.FlagCategory.MUNICIPALITY
 import dev.aftly.flags.model.FlagCategory.OBLAST
 import dev.aftly.flags.model.FlagCategory.OKRUG
-import dev.aftly.flags.model.FlagCategory.POLITICAL
+import dev.aftly.flags.model.FlagCategory.POLITICAL_MOVEMENT
 import dev.aftly.flags.model.FlagCategory.PROVINCE
 import dev.aftly.flags.model.FlagCategory.REGION
 import dev.aftly.flags.model.FlagCategory.REGIONAL
@@ -182,7 +182,7 @@ enum class ExternalCategoryExceptions(val key: String) {
 val extCatExceptions = ExternalCategoryExceptions.entries.map { it.key }
 val externalCategories = listOf(TERRITORY, REGION, COLONY, UNRECOGNIZED_STATE)
 val internalCategories = listOf(SovereignCountry.enums(), Regional.enums(), Institution.allEnums())
-    .flatten().filterNot { it in externalCategories } + CONFEDERATION + POLITICAL
+    .flatten().filterNot { it in externalCategories } + CONFEDERATION + POLITICAL_MOVEMENT
 
 fun getPoliticalInternalRelatedFlagKeys(
     flagKey: String,
@@ -205,7 +205,7 @@ fun getPoliticalInternalRelatedFlagKeys(
                     /* Exclude historic institutions when sovereign non-historic */
                     (HISTORICAL in flag.categories && flag.sovereignState != null &&
                     HISTORICAL !in flagResMap.getValue(flag.sovereignState).categories &&
-                    flag.categories.any { it in Institution.allEnums() + POLITICAL })
+                    flag.categories.any { it in Institution.allEnums() + POLITICAL_MOVEMENT })
         }.map { flag ->
             inverseFlagResMap.getValue(flag)
         }
@@ -616,7 +616,7 @@ fun getPoliticalRelatedFlagsContentOrNull(
         }
 
         val institutions = internalRelatedFlags.filter { flag ->
-            flag.categories.any { it in Institution.allEnums() + POLITICAL }
+            flag.categories.any { it in Institution.allEnums() + POLITICAL_MOVEMENT }
         }
 
         val legislatureInstitutions = institutions.filter { flag ->
@@ -629,7 +629,7 @@ fun getPoliticalRelatedFlagsContentOrNull(
             flag.categories.any { it in Civilian.enums() }
         }
         val politicalMovements = institutions.filter { flag ->
-            flag.categories.any { it == POLITICAL }
+            flag.categories.any { it == POLITICAL_MOVEMENT }
         }
 
         val associatedStates = externalRelatedFlags.filter { flag ->
@@ -751,8 +751,8 @@ fun getPoliticalRelatedFlagsContentOrNull(
                     add(
                         RelatedFlagGroup.Multiple(
                             flags = politicalMovements,
-                            category = R.string.category_political_long_title,
-                            categoryKey = POLITICAL.name,
+                            category = POLITICAL_MOVEMENT.title,
+                            categoryKey = POLITICAL_MOVEMENT.name,
                         )
                     )
                 }

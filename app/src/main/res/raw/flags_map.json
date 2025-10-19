@@ -11528,7 +11528,7 @@
         "previousFlagOf": null,
         "categories": [
             "REGIONAL",
-            "POLITICAL",
+            "POLITICAL_MOVEMENT",
             "ETHNIC"
         ]
     },
@@ -19103,7 +19103,7 @@
         "latestEntities": [],
         "previousFlagOf": null,
         "categories": [
-            "POLITICAL"
+            "POLITICAL_ORGANIZATION"
         ]
     },
     "kansas": {
@@ -29149,7 +29149,7 @@
         "previousFlagOf": null,
         "categories": [
             "HISTORICAL",
-            "POLITICAL"
+            "POLITICAL_MOVEMENT"
         ]
     },
     "novosibirsk(Oblast)": {
@@ -30820,7 +30820,7 @@
         "latestEntities": [],
         "previousFlagOf": null,
         "categories": [
-            "POLITICAL"
+            "POLITICAL_ORGANIZATION"
         ]
     },
     "perm(Krai)": {

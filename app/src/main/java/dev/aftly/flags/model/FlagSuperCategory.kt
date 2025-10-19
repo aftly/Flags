@@ -209,9 +209,10 @@ sealed class FlagSuperCategory(
         gameScoreCategoryPreview = R.string.category_super_civilian_score_preview,
         gameScoreCategoryDetailed = R.string.category_super_civilian_score_detailed,
         subCategories = listOf(
-            FlagCategoryWrapper(enum = FlagCategory.CHARITY),
+            FlagCategoryWrapper(enum = FlagCategory.POLITICAL_ORGANIZATION),
             FlagCategoryWrapper(enum = FlagCategory.RELIGIOUS),
             FlagCategoryWrapper(enum = FlagCategory.UNIVERSITY),
+            FlagCategoryWrapper(enum = FlagCategory.CHARITY),
             FlagCategoryWrapper(enum = FlagCategory.VEXILLOLOGY)
         ),
     )
@@ -237,7 +238,7 @@ sealed class FlagSuperCategory(
         gameScoreCategoryDetailed = R.string.category_super_cultural_score_detailed,
         subCategories = listOf(
             FlagCategoryWrapper(enum = FlagCategory.SOCIAL),
-            FlagCategoryWrapper(enum = FlagCategory.POLITICAL),
+            FlagCategoryWrapper(enum = FlagCategory.POLITICAL_MOVEMENT),
             FlagCategoryWrapper(enum = FlagCategory.RELIGIOUS),
             FlagCategoryWrapper(enum = FlagCategory.ETHNIC),
         ),

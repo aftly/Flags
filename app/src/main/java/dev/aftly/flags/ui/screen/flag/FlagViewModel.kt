@@ -28,7 +28,7 @@ import dev.aftly.flags.model.FlagCategory.MONARCHY
 import dev.aftly.flags.model.FlagCategory.OBLAST
 import dev.aftly.flags.model.FlagCategory.ONE_PARTY
 import dev.aftly.flags.model.FlagCategory.POLICE
-import dev.aftly.flags.model.FlagCategory.POLITICAL
+import dev.aftly.flags.model.FlagCategory.POLITICAL_MOVEMENT
 import dev.aftly.flags.model.FlagCategory.PROVISIONAL_GOVERNMENT
 import dev.aftly.flags.model.FlagCategory.REGIONAL
 import dev.aftly.flags.model.FlagCategory.RELIGIOUS
@@ -575,7 +575,6 @@ class FlagViewModel(
                 }
                 REGIONAL -> resIds.add(R.string.category_regional_string)
                 SOCIAL -> resIds.add(R.string.category_social_in_description)
-                POLITICAL -> resIds.add(R.string.category_political_long_string)
                 RELIGIOUS -> {
                     if (category == lastCategory)
                         resIds.add(R.string.category_religious_in_description)
@@ -620,7 +619,7 @@ class FlagViewModel(
     ) {
         val isChild = parentUnit != null
         val isDependent = sovereignState != null
-        val inCategories = Civilian.enums() + POLITICAL + CONFEDERATION
+        val inCategories = Civilian.enums() + POLITICAL_MOVEMENT + CONFEDERATION
 
         if (isChild) {
             val isParentHistorical = HISTORICAL in parentUnit.categories

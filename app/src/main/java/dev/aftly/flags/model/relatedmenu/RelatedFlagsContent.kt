@@ -2,7 +2,7 @@ package dev.aftly.flags.model.relatedmenu
 
 import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
 import dev.aftly.flags.model.FlagCategory.INTERNATIONAL_ORGANIZATION
-import dev.aftly.flags.model.FlagCategory.POLITICAL
+import dev.aftly.flags.model.FlagCategory.POLITICAL_MOVEMENT
 
 sealed interface RelatedFlagsContent {
     val menu: RelatedFlagsMenu
@@ -51,13 +51,13 @@ sealed interface RelatedFlagsContent {
                     .AdminUnits && p1.unitLevel > p2.unitLevel -> 1
                 p2 is RelatedFlagGroup.AdminUnits && p1 is RelatedFlagGroup
                     .AdminUnits && p2.unitLevel > p1.unitLevel -> -1
-                p1.categoryKey == POLITICAL.name &&
+                p1.categoryKey == POLITICAL_MOVEMENT.name &&
                         p2.categoryKey == FREE_ASSOCIATION.name -> 1
-                p2.categoryKey == POLITICAL.name &&
+                p2.categoryKey == POLITICAL_MOVEMENT.name &&
                         p1.categoryKey == FREE_ASSOCIATION.name -> -1
-                p1.categoryKey == POLITICAL.name &&
+                p1.categoryKey == POLITICAL_MOVEMENT.name &&
                         p2.categoryKey == INTERNATIONAL_ORGANIZATION.name -> 1
-                p2.categoryKey == POLITICAL.name &&
+                p2.categoryKey == POLITICAL_MOVEMENT.name &&
                         p1.categoryKey == INTERNATIONAL_ORGANIZATION.name -> -1
                 else -> 0
             }
