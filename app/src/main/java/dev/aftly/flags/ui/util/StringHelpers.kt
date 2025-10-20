@@ -38,7 +38,8 @@ fun flagDatesString(
         flag.fromYear?.let { year ->
             if (flag.fromYearCirca == true) append(
                 stringResource(
-                    id = R.string.string_date_circa, formatter.format(year / 100)
+                    id = R.string.string_date_circa,
+                    formatter.format((year / 100).inc())
                 )
             ) else append(year.toString())
         }
@@ -55,7 +56,7 @@ fun flagDatesString(
                     if (flag.toYearCirca == true) append(
                         stringResource(
                             id = R.string.string_date_circa,
-                            formatter.format(year / 100)
+                            formatter.format((year / 100).inc())
                         )
                     ) else append(year.toString())
                 }
