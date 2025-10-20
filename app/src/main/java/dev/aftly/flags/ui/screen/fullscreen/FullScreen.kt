@@ -3,7 +3,6 @@ package dev.aftly.flags.ui.screen.fullscreen
 import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.activity.compose.BackHandler
-import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -17,7 +16,6 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -32,11 +30,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowLeft
-import androidx.compose.material.icons.filled.KeyboardDoubleArrowRight
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.ScreenLockLandscape
 import androidx.compose.material.icons.filled.StayPrimaryLandscape
+import androidx.compose.material.icons.filled.Transform
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -86,6 +84,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.aftly.flags.R
 import dev.aftly.flags.model.FlagView
@@ -102,6 +101,7 @@ import dev.aftly.flags.ui.util.isOrientationLandscape
 import dev.aftly.flags.ui.util.isOrientationPortrait
 import kotlinx.coroutines.delay
 import kotlin.math.abs
+import kotlin.math.max
 
 
 @Composable
@@ -159,11 +159,13 @@ private fun FullScreen(
 ) {
     BackHandler { onExitFullscreen() }
 
+    var isCompInit by remember { mutableStateOf(value = false) }
+
     /* State for controlling orientation */
     var isLandscape by rememberSaveable {
         mutableStateOf(value = isFlagWide && !isInitOrientationLandscape)
     }
-    LaunchedEffect(isLandscape) {
+    LaunchedEffect(key1 = isLandscape) {
         when (isLandscape) {
             true -> orientationController.setLandscapeOrientation()
             false -> orientationController.unsetLandscapeOrientation()
@@ -188,9 +190,21 @@ private fun FullScreen(
 
     var isTopBarLocked by remember { mutableStateOf(value = isScreenPortrait) }
 
+    /* For transform gestures and graphics */
+    val haptics = LocalHapticFeedback.current
+    var isTransformMode by rememberSaveable { mutableStateOf(value = false) }
+    var imageScale by rememberSaveable { mutableFloatStateOf(1f) }
+    var imageOffset by remember { mutableStateOf(Offset.Zero) }
+    var boxSize by remember { mutableStateOf(value = IntSize.Zero) }
+    var imageSize by remember { mutableStateOf(value = IntSize.Zero) }
+
+    /* To determine screen aspect ratio for image modifier so FullScreenButton can align with it */
+    val displayMetrics = LocalResources.current.displayMetrics
+    val isAspectRatioWide = displayMetrics.widthPixels >= displayMetrics.heightPixels
+
     /* Configure animation timings depending on API version due to different behaviors */
     val systemBarsExitDelay = if (isApi30) 0 else Timing.SYSTEM_BARS_HANG.toLong()
-    val exitButtonAnimationTiming = if (isApi30) Timing.SYSTEM_BARS / 2 else Timing.SYSTEM_BARS
+    val buttonAnimationTiming = if (isApi30) Timing.SYSTEM_BARS / 2 else Timing.SYSTEM_BARS
 
     /* Make top bar icons white (as fullscreen is always dark mode) */
     systemUiController.setLightStatusBar(light = false)
@@ -199,32 +213,34 @@ private fun FullScreen(
     systemUiController.setSystemBarsSwipeBehaviour()
 
     /* Control system bars when user interaction (when not top bar lock & portrait orientation) */
-    LaunchedEffect(isSystemBars) {
-        if (!(isTopBarLocked && isScreenPortrait)) {
-            if (isSystemBars) {
-                systemUiController.setSystemBars(visible = true)
-                isButtons = true
+    LaunchedEffect(key1 = isSystemBars) {
+        if (isTopBarLocked && isScreenPortrait && !isTransformMode) {
+            systemUiController.setSystemBars(visible = true)
 
-                /* Auto disable system bars and buttons after delay */
-                delay(
-                    timeMillis = Timing.SYSTEM_BARS.let {
-                        if (counter > 0) it * 2 else it / 1.5
-                    }.toLong()
-                )
-                counter++
-                isSystemBars = false
-            } else {
-                counter++
-                systemUiController.setSystemBars(visible = false)
+        } else if (isSystemBars) {
+            systemUiController.setSystemBars(visible = !isTransformMode)
+            isButtons = true
 
-                delay(timeMillis = systemBarsExitDelay)
-                if (!isSystemBars) isButtons = false
-            }
+            /* Auto disable system bars and buttons after delay */
+            delay(
+                timeMillis = Timing.SYSTEM_BARS.let {
+                    if (counter > 0) it * 2 else it / 1.5
+                }.toLong()
+            )
+            counter++
+            isSystemBars = false
+
+        } else {
+            counter++
+            systemUiController.setSystemBars(visible = false)
+
+            delay(timeMillis = systemBarsExitDelay)
+            if (!isSystemBars) isButtons = false
         }
     }
 
     /* Control status bars when top bar locked in portrait orientation */
-    LaunchedEffect(isTopBarLocked) {
+    LaunchedEffect(key1 = isTopBarLocked) {
         if (isTopBarLocked && isScreenPortrait) {
             systemUiController.setSystemBars(visible = true)
             isSystemBars = false
@@ -233,11 +249,12 @@ private fun FullScreen(
             if (!isLockPortraitInteraction) isButtons = false
         } else if (!isTopBarLocked && isScreenPortrait) {
             systemUiController.setSystemBars(visible = false)
+            isSystemBars = false
         }
     }
 
     /* Control buttons when top bar locked and screen in portrait orientation */
-    LaunchedEffect(isLockPortraitInteraction) {
+    LaunchedEffect(key1 = isLockPortraitInteraction) {
         if (isLockPortraitInteraction) {
             counter++
             isButtons = true
@@ -248,28 +265,33 @@ private fun FullScreen(
         }
     }
 
-    /* To determine screen aspect ratio for image modifier so FullScreenButton can align with it */
-    val displayMetrics = LocalResources.current.displayMetrics
-    val isAspectRatioWide = displayMetrics.widthPixels >= displayMetrics.heightPixels
+    LaunchedEffect(key1 = isTransformMode) {
+        if (isCompInit) haptics.performHapticFeedback(HapticFeedbackType.LongPress)
 
-    /* For transform gestures and graphics */
-    val haptics = LocalHapticFeedback.current
-    var imageScale by rememberSaveable { mutableFloatStateOf(1f) }
-    var imageOffset by remember { mutableStateOf(Offset.Zero) }
-    LaunchedEffect(uiState.flag) {
-        imageScale = 1f
-        imageOffset = Offset.Zero
+        if (isTransformMode && !isGame) {
+            imageScale = 1.25f
+            systemUiController.setSystemBars(visible = false)
+        } else {
+            imageScale = 1f
+            imageOffset = Offset.Zero
+
+            if (isScreenPortrait) systemUiController.setSystemBars(visible = true)
+        }
+        isSystemBars = true
     }
 
+    LaunchedEffect(key1 = Unit) { isCompInit = true }
 
-    /* Parent box as surface to receive tap gestures */
+
+    /* Parent box as surface to receive global tap gestures */
     Box(
         modifier = modifier
             .pointerInput(key1 = (Unit)) {
                 detectTapGestures(
                     onTap = {
                         when (isScreenPortrait to isTopBarLocked) {
-                            true to true -> isLockPortraitInteraction = !isLockPortraitInteraction
+                            true to true ->
+                                isLockPortraitInteraction = !isLockPortraitInteraction
                             else -> isSystemBars = !isSystemBars
                         }
                     },
@@ -277,11 +299,7 @@ private fun FullScreen(
                         onExitFullscreen()
                     },
                     onLongPress = {
-                        if (imageScale != 1f || imageOffset != Offset.Zero) {
-                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                            imageScale = 1f
-                            imageOffset = Offset.Zero
-                        }
+                        isTransformMode = !isTransformMode
                     },
                 )
             }
@@ -296,10 +314,7 @@ private fun FullScreen(
             modifier = Modifier.fillMaxSize(),
             topBar = {
                 AnimatedVisibility(
-                    visible = when (isTopBarLocked) {
-                        true -> true
-                        false -> isSystemBars
-                    },
+                    visible = (isTopBarLocked || isSystemBars) && !isTransformMode,
                     enter = fadeIn(animationSpec = tween(durationMillis = Timing.SYSTEM_BARS)),
                     exit = fadeOut(animationSpec = tween(durationMillis = Timing.SYSTEM_BARS)),
                 ) {
@@ -319,20 +334,34 @@ private fun FullScreen(
                 isAspectRatioWide = isAspectRatioWide,
                 isFlagWide = isFlagWide,
                 isButtons = isButtons,
-                exitButtonAnimationTiming = exitButtonAnimationTiming,
+                buttonAnimationTiming = buttonAnimationTiming,
                 flag = uiState.flag,
                 flags = uiState.flags,
                 isScreenPortrait = isScreenPortrait,
                 isLandscape = isLandscape,
+                isTransformMode = isTransformMode,
                 imageScale = imageScale,
                 imageOffset = imageOffset,
-                onImageScale = { zoom ->
+                onImageTransform = { pan, zoom ->
                     imageScale = (imageScale * zoom).coerceIn(minimumValue = 1f, maximumValue = 5f)
+
+                    val offset = imageOffset + pan
+                    val scaledWidth = imageSize.width * imageScale
+                    val scaledHeight = imageSize.height * imageScale
+                    val overflowX = (scaledWidth - boxSize.width) / 2
+                    val overflowY = (scaledHeight - boxSize.height) / 2
+                    val maxOffsetX = max(a = 0f, b = overflowX)
+                    val maxOffsetY = max(a = 0f, b = overflowY)
+
+                    imageOffset = Offset(
+                        x = offset.x.coerceIn(-maxOffsetX, maxOffsetX),
+                        y = offset.y.coerceIn(-maxOffsetY, maxOffsetY)
+                    )
                 },
-                onImageOffset = { pan ->
-                    imageOffset += pan
-                },
+                onBoxSize = { boxSize = it },
+                onImageSize = { imageSize = it },
                 onLandscapeChange = { isLandscape = !isLandscape },
+                onToggleTransform = { isTransformMode = !isTransformMode },
                 onExitFullScreen = onExitFullscreen,
                 onCarouselRotation = onCarouselRotation,
             )
@@ -350,15 +379,18 @@ private fun FullscreenContent(
     isAspectRatioWide: Boolean,
     isFlagWide: Boolean,
     isButtons: Boolean,
-    exitButtonAnimationTiming: Int,
+    buttonAnimationTiming: Int,
     flag: FlagView,
     flags: List<FlagView>,
     isLandscape: Boolean,
+    isTransformMode: Boolean,
     imageScale: Float,
     imageOffset: Offset,
-    onImageScale: (Float) -> Unit,
-    onImageOffset: (Offset) -> Unit,
+    onImageTransform: (Offset, Float) -> Unit,
+    onBoxSize: (IntSize) -> Unit,
+    onImageSize: (IntSize) -> Unit,
     onLandscapeChange: () -> Unit,
+    onToggleTransform: () -> Unit,
     onExitFullScreen: () -> Unit,
     onCarouselRotation: (FlagView) -> Unit,
 ) {
@@ -369,13 +401,12 @@ private fun FullscreenContent(
     val screenWidthPx = remember { displayMetrics.widthPixels.toFloat() }
     val screenWidthDp = remember { with(density) { screenWidthPx.toDp() } }
 
-    val flagsSize = flags.size
-    val flagsEndIndex = flagsSize - 1
-
     val carouselState = rememberCarouselState(
         initialItem = flags.indexOf(flag),
-        itemCount = { flagsSize },
+        itemCount = { flags.size },
     )
+
+    val isOrientationLockButton = isFlagWide || flags.size > 1
 
     /* For controlling scroll to end/beginning when at first or last item in carousel */
     var isLastItem by remember { mutableStateOf(value = false) }
@@ -390,120 +421,164 @@ private fun FullscreenContent(
         }
     }
 
-
-    HorizontalUncontainedCarousel(
-        state = carouselState,
-        itemWidth = screenWidthDp,
-        modifier = modifier
-            .fillMaxSize()
-            .background(surfaceDark)
-            .pointerInput(Unit) {
-                detectTransformGestures { _, pan, zoom, _ ->
-                    onImageOffset(pan)
-                    onImageScale(zoom)
-                }
-            },
-        flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(
-            state = carouselState,
-            snapAnimationSpec = spring(stiffness = Spring.StiffnessMedium)
-        )
-    ) { i ->
-        val item = flags[i]
-
-        var leftEdgeFromWindowLeft by remember { mutableFloatStateOf(value = 0f) }
-        var rightEdgeFromWindowRight by remember { mutableFloatStateOf(value = 100f) }
-
-        isLastItem = when (i) {
-            flagsEndIndex -> true
-            else -> false
-        }
-
-        /* If item becomes centred on screen update external item state */
-        LaunchedEffect(
-            key1 = leftEdgeFromWindowLeft,
-            key2 = rightEdgeFromWindowRight
-        ) {
-            if (abs(x = leftEdgeFromWindowLeft - rightEdgeFromWindowRight) <= 2f) {
-                onCarouselRotation(item)
-            }
-        }
-
+    if (isGame || isTransformMode) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize()
+                .background(color = surfaceDark)
+                .onGloballyPositioned { onBoxSize(it.size) }
+                .pointerInput(key1 = Unit) {
+                    detectTransformGestures { centroid, pan, zoom, _ ->
+                        onImageTransform(pan, zoom)
+                    }
+                },
             contentAlignment = Alignment.Center
         ) {
-            Box(
-                contentAlignment = Alignment.BottomEnd,
-            ) {
-                Image(
-                    painter = painterResource(item.image),
-                    contentDescription = null,
-                    modifier = when (isAspectRatioWide) {
-                        true -> Modifier.fillMaxHeight()
-                        false -> Modifier.fillMaxWidth()
-
-                    }.onGloballyPositioned { layout ->
-                        leftEdgeFromWindowLeft = layout.positionOnScreen().x
-                        rightEdgeFromWindowRight =
-                            screenWidthPx - (leftEdgeFromWindowLeft + layout.size.width.toFloat())
-
+            Image(
+                painter = painterResource(id = flag.image),
+                contentDescription = null,
+                modifier =
+                    if (isAspectRatioWide) {
+                        Modifier.fillMaxHeight()
+                    } else {
+                        Modifier.fillMaxWidth()
                     }.graphicsLayer(
                         scaleX = imageScale,
                         scaleY = imageScale,
                         translationX = imageOffset.x,
                         translationY = imageOffset.y,
-                    ),
-                    contentScale = when (isAspectRatioWide) {
-                        true -> ContentScale.FillHeight
-                        false -> ContentScale.FillWidth
+                    ).onGloballyPositioned {
+                        onImageSize(it.size)
                     },
-                )
+                contentScale =
+                    if (isAspectRatioWide) ContentScale.FillHeight
+                    else ContentScale.FillWidth,
+            )
 
-                if (isFlagWide || flags.size > 1) {
-                    /* Toggle landscape orientation */
-                    OrientationLockButton(
-                        modifier = Modifier.align(Alignment.BottomStart),
+            if (!isGame) {
+                TransformModeButton(
+                    visible = isButtons,
+                    sizeMultiplier = 2f,
+                    animationTiming = buttonAnimationTiming,
+                    onToggleTransform = onToggleTransform,
+                )
+            }
+        }
+    } else {
+        HorizontalUncontainedCarousel(
+            state = carouselState,
+            itemWidth = screenWidthDp,
+            modifier = modifier
+                .fillMaxSize()
+                .background(color = surfaceDark),
+            flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(
+                state = carouselState,
+                snapAnimationSpec = spring(stiffness = Spring.StiffnessMedium)
+            )
+        ) { i ->
+            val item = flags[i]
+
+            /* Image margins relative to their respective window margins */
+            var leftMarginPosition by remember { mutableFloatStateOf(value = 0f) }
+            var rightMarginPosition by remember { mutableFloatStateOf(value = 100f) }
+
+            isLastItem = when (i) {
+                flags.size - 1 -> true
+                else -> false
+            }
+
+            /* If item becomes centred on screen update external item state */
+            LaunchedEffect(
+                key1 = leftMarginPosition,
+                key2 = rightMarginPosition
+            ) {
+                if (abs(x = leftMarginPosition - rightMarginPosition) <= 2f) {
+                    onCarouselRotation(item)
+                }
+            }
+
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    contentAlignment = Alignment.BottomEnd,
+                ) {
+                    Image(
+                        painter = painterResource(item.image),
+                        contentDescription = null,
+                        modifier = when (isAspectRatioWide) {
+                            true -> Modifier.fillMaxHeight()
+                            false -> Modifier.fillMaxWidth()
+
+                        }.onGloballyPositioned { layout ->
+                            leftMarginPosition = layout.positionOnScreen().x
+                            rightMarginPosition =
+                                screenWidthPx - (leftMarginPosition + layout.size.width.toFloat())
+
+                        },
+                        contentScale = when (isAspectRatioWide) {
+                            true -> ContentScale.FillHeight
+                            false -> ContentScale.FillWidth
+                        },
+                    )
+
+                    if (isOrientationLockButton) {
+                        /* Toggle landscape orientation */
+                        OrientationLockButton(
+                            modifier = Modifier.align(Alignment.BottomStart),
+                            visible = isButtons,
+                            animationTiming = buttonAnimationTiming,
+                            isLocked = isLandscape,
+                            onLockChange = onLandscapeChange,
+                        )
+                    }
+
+                    /* Toggle transform mode */
+                    TransformModeButton(
+                        modifier = Modifier.align(
+                            alignment =
+                                if (isOrientationLockButton) Alignment.BottomCenter
+                                else Alignment.BottomStart
+                        ),
                         visible = isButtons,
-                        animationTiming = exitButtonAnimationTiming,
-                        isLocked = isLandscape,
-                        onLockChange = onLandscapeChange,
+                        animationTiming = buttonAnimationTiming,
+                        onToggleTransform = onToggleTransform,
+                    )
+
+                    /* Toggle fullscreen mode */
+                    FullscreenButton(
+                        visible = isButtons,
+                        isFullScreenView = true,
+                        animationTiming = buttonAnimationTiming,
+                        onInvisible = {},
+                        onFullScreen = onExitFullScreen,
                     )
                 }
 
-                /* Toggle fullscreen mode */
-                FullscreenButton(
-                    visible = isButtons,
-                    isFullScreenView = true,
-                    animationTiming = exitButtonAnimationTiming,
-                    onInvisible = {},
-                    onFullScreen = onExitFullScreen,
-                )
-            }
-
-            /* Scroll to beginning of list button */
-            if (isLastItem && flags.size > 2) {
-                ScrollToOppositeEndButton(
-                    visible = isButtons,
-                    animationTiming = exitButtonAnimationTiming,
-                    isScreenPortrait = isScreenPortrait,
-                    isEnd = true,
-                    onClick = {
-                        scrollToBeginning = when (val scrollToCopy = scrollToBeginning) {
-                            null -> true
-                            else -> !scrollToCopy
+                /* Scroll to beginning of list button */
+                if (isLastItem && flags.size > 2) {
+                    ScrollToBeginningButton(
+                        visible = isButtons,
+                        animationTiming = buttonAnimationTiming,
+                        isScreenPortrait = isScreenPortrait,
+                        onClick = {
+                            scrollToBeginning = when (val scrollToCopy = scrollToBeginning) {
+                                null -> true
+                                else -> !scrollToCopy
+                            }
                         }
-                    }
-                )
-            }
+                    )
+                }
 
-            /* Status bar scrim */
-            if (isGame) {
-                Box(modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .fillMaxWidth()
-                    .height(with(density) { statusBarHeight.toDp() })
-                    .background(color = surfaceDark.copy(alpha = 0.5f))
-                )
+                /* Status bar scrim */
+                if (isGame) {
+                    Box(modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .fillMaxWidth()
+                        .height(with(density) { statusBarHeight.toDp() })
+                        .background(color = surfaceDark.copy(alpha = 0.5f))
+                    )
+                }
             }
         }
     }
@@ -511,68 +586,31 @@ private fun FullscreenContent(
 
 
 @Composable
-private fun ScrollToOppositeEndButton(
+private fun ScrollToBeginningButton(
     visible: Boolean,
     animationTiming: Int,
     isScreenPortrait: Boolean,
-    isEnd: Boolean,
     onClick: () -> Unit,
 ) {
-    /* Composable fullscreen alignment */
-    val contentAlignment = when (isEnd) {
-        true -> Alignment.CenterEnd
-        false -> Alignment.CenterStart
-    }
-
     /* Icon & IconButton properties */
-    val icon = when (isEnd) {
-        true -> Icons.Default.KeyboardDoubleArrowLeft
-        false -> Icons.Default.KeyboardDoubleArrowRight
-    }
     val iconButtonSize = Dimens.standardIconSize24 * 2
-    val iconButtonPadding = when (isEnd) {
-        true -> PaddingValues(start = Dimens.small8)
-        false -> PaddingValues(end = Dimens.small8)
-    }
 
     /* Pill island properties */
     val surfaceHeight = iconButtonSize + Dimens.small8 * 2
-    val surfaceWidth = when (isScreenPortrait) {
-        true -> surfaceHeight
-        false -> iconButtonSize * 2 + Dimens.small8
-    }
-    val surfaceShape = when (isEnd) {
-        true ->
-            RoundedCornerShape(
-                topStart = surfaceHeight / 2,
-                bottomStart = surfaceHeight / 2,
-            )
-        false ->
-            RoundedCornerShape(
-                topEnd = surfaceHeight / 2,
-                bottomEnd = surfaceHeight / 2,
-            )
-    }
-
-    /* Arrangement of IconButton inside of island */
-    val rowArrangement = when (isEnd) {
-        true -> Arrangement.Start
-        false -> Arrangement.End
-    }
-
+    val surfaceWidth = if (isScreenPortrait) surfaceHeight else iconButtonSize * 2 + Dimens.small8
+    val surfaceShape = RoundedCornerShape(
+        topStart = surfaceHeight / 2,
+        bottomStart = surfaceHeight / 2,
+    )
 
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = contentAlignment,
+        contentAlignment = Alignment.CenterEnd,
     ) {
         AnimatedVisibility(
             visible = visible,
-            enter = fadeIn(
-                animationSpec = tween(durationMillis = animationTiming)
-            ),
-            exit = fadeOut(
-                animationSpec = tween(durationMillis = animationTiming)
-            ),
+            enter = fadeIn(animationSpec = tween(durationMillis = animationTiming)),
+            exit = fadeOut(animationSpec = tween(durationMillis = animationTiming)),
         ) {
             Surface(
                 modifier = Modifier
@@ -582,13 +620,13 @@ private fun ScrollToOppositeEndButton(
                 shape = surfaceShape,
             ) {
                 Row(
-                    horizontalArrangement = rowArrangement,
+                    horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(
                         onClick = onClick,
                         modifier = Modifier
-                            .padding(paddingValues = iconButtonPadding)
+                            .padding(start = Dimens.small8)
                             .size(iconButtonSize),
                         colors = IconButtonDefaults.iconButtonColors(
                             containerColor = MaterialTheme.colorScheme.primary,
@@ -596,13 +634,53 @@ private fun ScrollToOppositeEndButton(
                         )
                     ) {
                         Icon(
-                            imageVector = icon,
+                            imageVector = Icons.Default.KeyboardDoubleArrowLeft,
                             contentDescription = null,
                             modifier = Modifier.size(Dimens.standardIconSize24 * 1.25f),
                         )
                     }
                 }
             }
+        }
+    }
+}
+
+
+@Composable
+private fun TransformModeButton(
+    modifier: Modifier = Modifier,
+    visible: Boolean,
+    sizeMultiplier: Float? = null,
+    animationTiming: Int,
+    onToggleTransform: () -> Unit,
+) {
+    val paddingModifier = Modifier.padding(all = Dimens.small8)
+    val iconButtonModifier = if (sizeMultiplier == null) paddingModifier else {
+        paddingModifier.size(size = Dimens.standardIconSize24 * sizeMultiplier * 1.5f)
+    }
+    val iconModifier = if (sizeMultiplier == null) Modifier else {
+        Modifier.size(size = Dimens.standardIconSize24 * sizeMultiplier)
+    }
+
+    AnimatedVisibility(
+        visible = visible,
+        modifier = modifier,
+        enter = fadeIn(animationSpec = tween(durationMillis = animationTiming)),
+        exit = fadeOut(animationSpec = tween(durationMillis = animationTiming)),
+    ) {
+        IconButton(
+            onClick = onToggleTransform,
+            modifier = iconButtonModifier,
+            colors = IconButtonDefaults.iconButtonColors(
+                containerColor = Color.Black.copy(alpha = 0.5f)
+            )
+        ) {
+            Icon(
+                imageVector = Icons.Default.Transform,
+                contentDescription = null,
+                modifier = iconModifier,
+                tint = surfaceLight,
+            )
         }
     }
 }
@@ -619,12 +697,8 @@ private fun OrientationLockButton(
     AnimatedVisibility(
         visible = visible,
         modifier = modifier,
-        enter = fadeIn(
-            animationSpec = tween(durationMillis = animationTiming)
-        ),
-        exit = fadeOut(
-            animationSpec = tween(durationMillis = animationTiming)
-        ),
+        enter = fadeIn(animationSpec = tween(durationMillis = animationTiming)),
+        exit = fadeOut(animationSpec = tween(durationMillis = animationTiming)),
     ) {
         IconButton(
             onClick = onLockChange,
@@ -634,10 +708,9 @@ private fun OrientationLockButton(
             )
         ) {
             Icon(
-                imageVector = when (isLocked) {
-                    true -> Icons.Default.ScreenLockLandscape
-                    false -> Icons.Default.StayPrimaryLandscape
-                },
+                imageVector =
+                    if (isLocked) Icons.Default.ScreenLockLandscape
+                    else Icons.Default.StayPrimaryLandscape,
                 contentDescription = null,
                 tint = surfaceLight,
             )
