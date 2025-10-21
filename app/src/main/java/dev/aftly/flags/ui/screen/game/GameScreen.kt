@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -242,7 +243,7 @@ fun GameScreen(
     }
 
     if (uiState.isInfoDialog) {
-        InformationDialog(
+        InfoDialog(
             onDismiss = { viewModel.onInfoDialog(on = false) }
         )
     }
@@ -1243,6 +1244,7 @@ private fun GameDialog(
     }
 }
 
+
 @Composable
 private fun TimeTrialDialog(
     userMinutesInput: String,
@@ -1348,22 +1350,21 @@ private fun TimeTrialDialog(
     }
 }
 
+
 @Composable
-private fun InformationDialog(onDismiss: () -> Unit) {
+private fun InfoDialog(onDismiss: () -> Unit) {
     GameDialog(
         title = R.string.game_info_dialog_title,
         isSubmittable = false,
         onDismiss = onDismiss,
         onSubmit = {},
     ) {
-        val itemPadding = Dimens.small8
-
         /* Answer Mode description card */
-        InformationDialogCard(
+        InfoDialogCard(
             title = R.string.game_mode_answer_title,
         ) {
             AnswerMode.entries.forEach { answerMode ->
-                InformationDialogCardItem(
+                InfoDialogCardItemText(
                     title = answerMode.title,
                     description = answerMode.description,
                     description2 = answerMode.description2,
@@ -1372,18 +1373,18 @@ private fun InformationDialog(onDismiss: () -> Unit) {
         }
 
         /* Guess Limit description card */
-        InformationDialogCard(
+        InfoDialogCard(
             title = R.string.game_mode_difficulty_title,
         ) {
-            InformationDialogCardItem(
-                description = R.string.game_mode_difficulty_description,
+            InfoDialogCardItemText(
+                description = R.string.game_mode_difficulty_description
             )
 
             DifficultyMode.entries.forEach { difficultyMode ->
                 if (difficultyMode.icon != null && difficultyMode.description != null) {
-                    InformationDialogCardItem(
+                    InfoDialogCardItemIcon(
                         icon = difficultyMode.icon,
-                        description2 = difficultyMode.description,
+                        description = difficultyMode.description,
                     )
                 }
             }
@@ -1392,12 +1393,13 @@ private fun InformationDialog(onDismiss: () -> Unit) {
 }
 
 @Composable
-private fun InformationDialogCard(
+private fun InfoDialogCard(
+    modifier: Modifier = Modifier,
     @StringRes title: Int,
     content: @Composable (ColumnScope.() -> Unit),
 ) {
     Card(
-        modifier = Modifier.padding(top = Dimens.medium16),
+        modifier = modifier.padding(top = Dimens.medium16),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.225f)
         ),
@@ -1419,51 +1421,77 @@ private fun InformationDialogCard(
 }
 
 @Composable
-private fun InformationDialogCardItem(
+private fun InfoDialogCardItemText(
+    modifier: Modifier = Modifier,
     @StringRes title: Int? = null,
-    icon: ImageVector? = null,
-    @StringRes description: Int? = null,
+    @StringRes description: Int,
     @StringRes description2: Int? = null,
 ) {
-    val rowTopPadding = if (icon == null) Dimens.extraSmall4 else Dimens.extraSmall4 / 2
+    InfoDialogCardItem(
+        modifier = modifier.padding(top = Dimens.extraSmall4),
+        description = description,
+        description2 = description2,
+    ) {
+        title?.let {
+            Text(
+                text = stringResource(id = title),
+                style = MaterialTheme.typography.labelLarge,
+            )
 
+            Text(
+                text = stringResource(id = R.string.string_colon_whitespace),
+                style = MaterialTheme.typography.labelLarge,
+            )
+        }
+    }
+}
+
+@Composable
+private fun InfoDialogCardItemIcon(
+    modifier: Modifier = Modifier,
+    icon: ImageVector,
+    @StringRes description: Int,
+) {
+    InfoDialogCardItem(
+        modifier = modifier.padding(top = Dimens.extraSmall4 / 2),
+        description2 = description,
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier
+                .clip(shape = MaterialTheme.shapes.medium)
+                .background(color = MaterialTheme.colorScheme.tertiary)
+                .padding(vertical = 23.dp / 10, horizontal = Dimens.small8),
+            tint = MaterialTheme.colorScheme.onTertiary,
+        )
+
+        Text(
+            text = stringResource(id = R.string.string_equals_whitespace),
+            style = MaterialTheme.typography.labelLarge,
+        )
+    }
+}
+
+@Composable
+private fun InfoDialogCardItem(
+    modifier: Modifier = Modifier,
+    @StringRes description: Int? = null,
+    @StringRes description2: Int? = null,
+    titleContent: @Composable (RowScope.() -> Unit),
+) {
     val rowVerticalAlignment =
         if (description != null && description2 != null) Alignment.Top
         else Alignment.CenterVertically
 
     Row(
-        modifier = Modifier.padding(top = rowTopPadding),
-        verticalAlignment = rowVerticalAlignment
+        modifier = modifier,
+        verticalAlignment = rowVerticalAlignment,
     ) {
         /* Eg. Mode title */
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                icon?.let {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .clip(shape = MaterialTheme.shapes.medium)
-                            .background(color = MaterialTheme.colorScheme.tertiary)
-                            .padding(vertical = 23.dp / 10, horizontal = Dimens.small8),
-                        tint = MaterialTheme.colorScheme.onTertiary,
-                    )
-                    Text(
-                        text = stringResource(id = R.string.string_equals_whitespace),
-                        style = MaterialTheme.typography.labelLarge,
-                    )
-                }
-
-                title?.let {
-                    Text(
-                        text = stringResource(id = title),
-                        style = MaterialTheme.typography.labelLarge,
-                    )
-                    Text(
-                        text = stringResource(id = R.string.string_colon_whitespace),
-                        style = MaterialTheme.typography.labelLarge,
-                    )
-                }
+                titleContent()
             }
         }
 
@@ -1487,6 +1515,7 @@ private fun InformationDialogCardItem(
     }
 }
 
+
 @Composable
 private fun GameModesDialog(
     answerMode: AnswerMode,
@@ -1497,17 +1526,10 @@ private fun GameModesDialog(
     var answerModeSelect by rememberSaveable { mutableStateOf(value = answerMode) }
     var difficultyModeSelect by rememberSaveable { mutableStateOf(value = difficultyMode) }
 
-    val cardColorsSelected = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.primary
-    )
-    val cardColorsUnselected = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.outlineVariant
-    )
-    val isEasyButtonEnabled = answerModeSelect != AnswerMode.DATES
-
     LaunchedEffect(key1 = answerModeSelect) {
-        if (answerModeSelect == AnswerMode.DATES && difficultyModeSelect == DifficultyMode.EASY)
+        if (answerModeSelect == AnswerMode.DATES && difficultyModeSelect == DifficultyMode.EASY) {
             difficultyModeSelect = DifficultyMode.MEDIUM
+        }
     }
 
     GameDialog(
@@ -1520,155 +1542,119 @@ private fun GameModesDialog(
         },
     ) {
         /* Answer mode selection */
-        Text(
-            text = stringResource(R.string.game_mode_answer_title),
-            modifier = Modifier.padding(top = Dimens.large24),
-            style = MaterialTheme.typography.labelMedium,
+        GameModesDialogAnswerItem(
+            answerModeSelect = answerModeSelect,
+            onAnswerMode = { answerModeSelect = it },
         )
-        Row {
-            /* NAMES answer mode button */
-            Card(
-                onClick = { answerModeSelect = AnswerMode.NAMES },
-                shape =
-                    if (answerModeSelect == AnswerMode.NAMES) MaterialTheme.shapes.large
-                    else MaterialTheme.shapes.extraSmall,
-                colors =
-                    if (answerModeSelect == AnswerMode.NAMES) cardColorsSelected
-                    else cardColorsUnselected,
-            ) {
-                Text(
-                    text = stringResource(AnswerMode.NAMES.title),
-                    modifier = Modifier.padding(
-                        vertical = Dimens.small8,
-                        horizontal = Dimens.medium16,
-                    ),
-                    style = MaterialTheme.typography.titleSmall,
-                )
-            }
-
-            Spacer(Modifier.width(Dimens.small8))
-
-            /* DATES answer mode button */
-            Card(
-                onClick = { answerModeSelect = AnswerMode.DATES },
-                shape =
-                    if (answerModeSelect == AnswerMode.DATES) MaterialTheme.shapes.large
-                    else MaterialTheme.shapes.extraSmall,
-                colors =
-                    if (answerModeSelect == AnswerMode.DATES) cardColorsSelected
-                    else cardColorsUnselected,
-            ) {
-                Text(
-                    text = stringResource(id = AnswerMode.DATES.title),
-                    modifier = Modifier.padding(
-                        vertical = Dimens.small8,
-                        horizontal = Dimens.medium16,
-                    ),
-                    style = MaterialTheme.typography.titleSmall,
-                )
-            }
-        }
 
         /* Difficulty mode selection */
-        Text(
-            text = stringResource(R.string.game_mode_difficulty_title),
-            modifier = Modifier.padding(top = Dimens.large24),
-            style = MaterialTheme.typography.labelMedium,
+        GameModesDialogDifficultyItem(
+            answerModeSelect = answerModeSelect,
+            difficultyModeSelect = difficultyModeSelect,
+            onDifficultyMode = { difficultyModeSelect = it },
         )
-        Row {
-            /* EASY difficulty mode button */
-            Card(
-                onClick = { difficultyModeSelect = DifficultyMode.EASY },
-                enabled = isEasyButtonEnabled,
-                shape =
-                    if (difficultyModeSelect == DifficultyMode.EASY) MaterialTheme.shapes.large
-                    else MaterialTheme.shapes.extraSmall,
-                colors =
-                    if (difficultyModeSelect == DifficultyMode.EASY) cardColorsSelected
-                    else cardColorsUnselected,
-            ) {
-                DifficultyMode.EASY.icon?.let { icon ->
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        modifier = Modifier.padding(
-                            vertical = Dimens.extraSmall6,
-                            horizontal = Dimens.small8,
-                        ),
-                    )
-                }
-            }
+    }
+}
 
-            /* MEDIUM difficulty mode button */
-            Card(
-                onClick = { difficultyModeSelect = DifficultyMode.MEDIUM },
-                shape =
-                    if (difficultyModeSelect == DifficultyMode.MEDIUM) MaterialTheme.shapes.large
-                    else MaterialTheme.shapes.extraSmall,
-                colors =
-                    if (difficultyModeSelect == DifficultyMode.MEDIUM) cardColorsSelected
-                    else cardColorsUnselected,
-            ) {
-                DifficultyMode.MEDIUM.guessLimit?.let { guessLimit ->
-                    Text(
-                        text = guessLimit.toString(),
-                        modifier = Modifier.padding(
-                            vertical = Dimens.small8,
-                            horizontal = Dimens.medium16,
-                        ),
-                        style = MaterialTheme.typography.titleSmall,
-                    )
-                }
-            }
+@Composable
+private fun GameModesDialogAnswerItem(
+    answerModeSelect: AnswerMode,
+    onAnswerMode: (AnswerMode) -> Unit,
+) {
+    GameModesDialogItemTitle(title = R.string.game_mode_answer_title)
 
-            /* HARD difficulty mode button */
-            Card(
-                onClick = { difficultyModeSelect = DifficultyMode.HARD },
-                shape =
-                    if (difficultyModeSelect == DifficultyMode.HARD) MaterialTheme.shapes.large
-                    else MaterialTheme.shapes.extraSmall,
-                colors =
-                    if (difficultyModeSelect == DifficultyMode.HARD) cardColorsSelected
-                    else cardColorsUnselected,
-            ) {
-                DifficultyMode.HARD.guessLimit?.let { guessLimit ->
-                    Text(
-                        text = guessLimit.toString(),
-                        modifier = Modifier.padding(
-                            vertical = Dimens.small8,
-                            horizontal = Dimens.medium16,
-                        ),
-                        style = MaterialTheme.typography.titleSmall,
-                    )
-                }
-            }
+    Row {
+        AnswerMode.entries.forEachIndexed { index, answerMode ->
+            val endPadding = if (index != AnswerMode.entries.lastIndex) Dimens.small8 else 0.dp
 
-            /* SUDDEN_DEATH difficulty mode button */
-            Card(
-                onClick = { difficultyModeSelect = DifficultyMode.SUDDEN_DEATH },
-                shape =
-                    if (difficultyModeSelect == DifficultyMode.SUDDEN_DEATH)
-                        MaterialTheme.shapes.large
-                    else
-                        MaterialTheme.shapes.extraSmall,
-                colors =
-                    if (difficultyModeSelect == DifficultyMode.SUDDEN_DEATH) cardColorsSelected
-                    else cardColorsUnselected,
-            ) {
-                DifficultyMode.SUDDEN_DEATH.icon?.let { icon ->
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        modifier = Modifier.padding(
-                            vertical = Dimens.extraSmall6,
-                            horizontal = Dimens.small8,
-                        ),
-                    )
-                }
-            }
+            GameModesDialogItemButton(
+                modifier = Modifier.padding(end = endPadding),
+                text = stringResource(id = answerMode.title),
+                icon = null,
+                isEnabled = true,
+                isSelected = answerMode == answerModeSelect,
+                onMode = { onAnswerMode(answerMode) },
+            )
         }
     }
 }
+
+@Composable
+private fun GameModesDialogDifficultyItem(
+    answerModeSelect: AnswerMode,
+    difficultyModeSelect: DifficultyMode,
+    onDifficultyMode: (DifficultyMode) -> Unit,
+) {
+    val isDatesMode = answerModeSelect == AnswerMode.DATES
+
+    GameModesDialogItemTitle(title = R.string.game_mode_difficulty_title)
+
+    Row {
+        DifficultyMode.entries.forEachIndexed { index, difficultyMode ->
+            val isEasyMode = difficultyMode == DifficultyMode.EASY
+
+            GameModesDialogItemButton(
+                text = difficultyMode.guessLimit?.toString(),
+                icon = difficultyMode.icon,
+                isEnabled = !(isEasyMode && isDatesMode),
+                isSelected = difficultyMode == difficultyModeSelect,
+                onMode = { onDifficultyMode(difficultyMode) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun GameModesDialogItemTitle(@StringRes title: Int) = Text(
+    text = stringResource(id = title),
+    modifier = Modifier.padding(top = Dimens.large24),
+    style = MaterialTheme.typography.labelMedium,
+)
+
+@Composable
+private fun GameModesDialogItemButton(
+    modifier: Modifier = Modifier,
+    text: String?,
+    icon: ImageVector?,
+    isEnabled: Boolean,
+    isSelected: Boolean,
+    onMode: () -> Unit,
+) {
+    val buttonContainerColor =
+        if (isSelected) MaterialTheme.colorScheme.tertiary
+        else MaterialTheme.colorScheme.outlineVariant
+
+    Card(
+        onClick = onMode,
+        modifier = modifier,
+        enabled = isEnabled,
+        shape =
+            if (isSelected) MaterialTheme.shapes.large
+            else MaterialTheme.shapes.extraSmall,
+        colors = CardDefaults.cardColors(containerColor = buttonContainerColor),
+    ) {
+        icon?.let {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.padding(
+                    vertical = Dimens.extraSmall6,
+                    horizontal = Dimens.small8,
+                ),
+            )
+        } ?: text?.let {
+            Text(
+                text = text,
+                modifier = Modifier.padding(
+                    vertical = Dimens.small8,
+                    horizontal = Dimens.medium16,
+                ),
+                style = MaterialTheme.typography.titleSmall,
+            )
+        }
+    }
+}
+
 
 @Composable
 private fun ConfirmDialog(
@@ -1705,6 +1691,7 @@ private fun ConfirmDialog(
         }
     }
 }
+
 
 /* End game popup dialog showing final score. With buttons: Leave game, Share score, Play again */
 @OptIn(ExperimentalMaterial3Api::class)
