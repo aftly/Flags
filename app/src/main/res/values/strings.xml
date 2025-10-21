@@ -268,6 +268,7 @@
     <string name="categories_and">\ &amp;\ </string>
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_close">Close</string>
     <string name="error">Error</string>
     <string name="flag_screen_title">Flag</string>
     <string name="flag">flag</string>
@@ -289,15 +290,22 @@
     <string name="game_guess_field_dates_label">Guess date(s)</string>
     <string name="game_guess_field_label_error">Incorrect</string>
     <string name="game_guess_field_label_success">Correct!</string>
+    <string name="game_info_dialog_title">About</string>
+    <string name="game_mode_answer_title">Answer mode:</string>
     <string name="game_mode_answer_names_title">Names</string>
+    <string name="game_mode_answer_names_description">Guess flags by known names</string>
     <string name="game_mode_answer_dates_title">Dates</string>
+    <string name="game_mode_answer_dates_description">Guess flags by known dates</string>
+    <string name="game_mode_answer_dates_description_2">Eg. For (c.13th–present):\n\"1200\", \"2025\" and \"1200–2025\" are all valid guesses</string>
+    <string name="game_mode_difficulty_title">Guess limit:</string>
+    <string name="game_mode_difficulty_description">Number of guesses allowed before flag or game is failed</string>
     <string name="game_mode_difficulty_easy_title">Easy</string>
+    <string name="game_mode_difficulty_easy_description">Unlimited guesses</string>
     <string name="game_mode_difficulty_medium_title">Medium</string>
     <string name="game_mode_difficulty_hard_title">Hard</string>
     <string name="game_mode_difficulty_sudden_death_title">Sudden death</string>
+    <string name="game_mode_difficulty_sudden_death_description">Game over after 1 incorrect guess</string>
     <string name="game_modes_dialog_title">Game Modes</string>
-    <string name="game_modes_dialog_answer_mode_title">Answer mode:</string>
-    <string name="game_modes_dialog_difficulty_mode_title">Guess limit:</string>
     <string name="game_over_title">Game over</string>
     <string name="game_over_text_names">Flag names guessed: %d/%d</string>
     <string name="game_over_text_dates">Flag dates guessed: %d/%d</string>
@@ -394,11 +402,13 @@
     <string name="string_and">and</string>
     <string name="string_and_a">and a</string>
     <string name="string_and_the_flag_of">and the flag of a</string>
+    <string name="string_colon_whitespace">:\ </string>
     <string name="string_comma">,</string>
     <string name="string_comma_whitespace">,\ </string>
     <string name="string_forward_slash">/</string>
     <string name="string_date_circa">c.%s</string>
     <string name="string_de_facto_descriptor">(de facto)</string>
+    <string name="string_equals_whitespace">\ = \ </string>
     <string name="string_in">in</string>
     <string name="string_in_the">in the</string>
     <string name="string_is_a">is a</string>

@@ -131,7 +131,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
                 answerMode = answerMode,
                 difficultyMode = difficultyMode,
                 isGamePaused = false,
-                answersRemaining = it.difficultyMode.guessLimit,
+                answersRemaining = difficultyMode.guessLimit,
                 isGame = if (it.currentFlags.isNotEmpty()) startGame else false,
                 isGameOver = false,
                 isGameOverDialog = false,
@@ -487,6 +487,8 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
 
     /* Toggle game dialogs */
     fun onTimeTrialDialog(on: Boolean) = _uiState.update { it.copy(isTimeTrialDialog = on) }
+
+    fun onInfoDialog(on: Boolean) = _uiState.update { it.copy(isInfoDialog = on) }
 
     fun onGameModesDialog(on: Boolean) = _uiState.update { it.copy(isGameModesDialog = on) }
 

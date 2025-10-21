@@ -14,6 +14,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,6 +33,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Settings
@@ -70,6 +72,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
@@ -84,6 +87,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -226,7 +230,6 @@ fun GameScreen(
 
     /* -------------------------------------------------- */
 
-    /* Show time trial dialog when timer action button pressed */
     if (uiState.isTimeTrialDialog) {
         TimeTrialDialog(
             userMinutesInput = viewModel.userTimerInputMinutes,
@@ -235,6 +238,12 @@ fun GameScreen(
             onUserSecondsInputChange = { viewModel.updateUserSecondsInput(it) },
             onDismiss = { viewModel.onTimeTrialDialog(on = false) },
             onTimeTrial = { viewModel.resetGame(timeMode = TimeMode.TIME_TRIAL, startTime = it) },
+        )
+    }
+
+    if (uiState.isInfoDialog) {
+        InformationDialog(
+            onDismiss = { viewModel.onInfoDialog(on = false) }
         )
     }
 
@@ -307,6 +316,7 @@ fun GameScreen(
         },
         onNavigationDrawer = onNavigationDrawer,
         onTimeTrialDialog = { viewModel.onTimeTrialDialog(on = true) },
+        onInfoDialog = { viewModel.onInfoDialog(on = true) },
         onGameModesDialog = { viewModel.onGameModesDialog(on = true) },
         onScoreHistory = { onScoreHistory(uiState.isGameOver) },
         onFullscreen = { isFlagWide ->
@@ -346,6 +356,7 @@ private fun GameScreen(
     onCloseScoreDetails: () -> Unit,
     onNavigationDrawer: () -> Unit,
     onTimeTrialDialog: () -> Unit,
+    onInfoDialog: () -> Unit,
     onGameModesDialog: () -> Unit,
     onScoreHistory: () -> Unit,
     onFullscreen: (Boolean) -> Unit,
@@ -426,6 +437,7 @@ private fun GameScreen(
                             TimeMode.STANDARD -> onTimeTrialDialog()
                         }
                     },
+                    onInfoAction = onInfoDialog,
                     onSettingsAction = onGameModesDialog,
                     onHistoryAction = {
                         focusManager.clearFocus()
@@ -854,7 +866,7 @@ private fun GameCard(
         shape = MaterialTheme.shapes.large,
     ) {
         Column(
-            modifier = cardWidthModifier.padding(Dimens.large24),
+            modifier = cardWidthModifier.padding(all = Dimens.large24),
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -875,8 +887,8 @@ private fun GameCard(
                             append(totalFlagCount.toString())
                         },
                         modifier = Modifier
-                            .clip(MaterialTheme.shapes.medium)
-                            .background(MaterialTheme.colorScheme.primary)
+                            .clip(shape = MaterialTheme.shapes.medium)
+                            .background(color = MaterialTheme.colorScheme.primary)
                             .padding(vertical = Dimens.extraSmall4, horizontal = Dimens.small10),
                         color = MaterialTheme.colorScheme.onPrimary,
                         style = MaterialTheme.typography.titleSmall,
@@ -888,8 +900,8 @@ private fun GameCard(
                         Text(
                             text = shownFailedAnswerCount.toString(),
                             modifier = Modifier
-                                .clip(MaterialTheme.shapes.medium)
-                                .background(MaterialTheme.colorScheme.error)
+                                .clip(shape = MaterialTheme.shapes.medium)
+                                .background(color = MaterialTheme.colorScheme.error)
                                 .padding(
                                     vertical = Dimens.extraSmall4,
                                     horizontal = Dimens.small10,
@@ -904,8 +916,8 @@ private fun GameCard(
                     Text(
                         text = stringResource(answerMode.title),
                         modifier = Modifier
-                            .clip(MaterialTheme.shapes.medium)
-                            .background(MaterialTheme.colorScheme.tertiary)
+                            .clip(shape = MaterialTheme.shapes.medium)
+                            .background(color = MaterialTheme.colorScheme.tertiary)
                             .padding(vertical = Dimens.extraSmall4, horizontal = Dimens.small10),
                         color = MaterialTheme.colorScheme.onTertiary,
                         style = MaterialTheme.typography.titleSmall,
@@ -919,8 +931,8 @@ private fun GameCard(
                             imageVector = difficultyMode.icon,
                             contentDescription = null,
                             modifier = Modifier
-                                .clip(MaterialTheme.shapes.medium)
-                                .background(MaterialTheme.colorScheme.tertiary)
+                                .clip(shape = MaterialTheme.shapes.medium)
+                                .background(color = MaterialTheme.colorScheme.tertiary)
                                 .padding(vertical = 23.dp / 10, horizontal = Dimens.small8),
                             tint = MaterialTheme.colorScheme.onTertiary,
                         )
@@ -930,8 +942,8 @@ private fun GameCard(
                         Text(
                             text = difficultyMode.guessLimit.toString(),
                             modifier = Modifier
-                                .clip(MaterialTheme.shapes.medium)
-                                .background(MaterialTheme.colorScheme.tertiary)
+                                .clip(shape = MaterialTheme.shapes.medium)
+                                .background(color = MaterialTheme.colorScheme.tertiary)
                                 .padding(
                                     vertical = Dimens.extraSmall4,
                                     horizontal = Dimens.small10
@@ -950,7 +962,7 @@ private fun GameCard(
                                 Text(
                                     text = answersRemaining.toString(),
                                     modifier = Modifier
-                                        .clip(MaterialTheme.shapes.medium)
+                                        .clip(shape = MaterialTheme.shapes.medium)
                                         .background(
                                             color = if (isDarkTheme) successDark else successLight
                                         )
@@ -973,9 +985,9 @@ private fun GameCard(
                             focusManager.clearFocus()
                             onEndGame()
                         },
-                        modifier = Modifier.height(Dimens.extraLarge32),
+                        modifier = Modifier.height(height = Dimens.extraLarge32),
                         enabled = isGame && !isGameOver,
-                        shape = RoundedCornerShape(Dimens.small8),
+                        shape = RoundedCornerShape(size = Dimens.small8),
                         colors = ButtonDefaults.textButtonColors(
                             contentColor = MaterialTheme.colorScheme.error
                         ),
@@ -1015,7 +1027,7 @@ private fun GameCard(
                         modifier = Modifier
                             .fillMaxSize(fraction = 0.15f)
                             .onSizeChanged { onImageWide(it.width > it.height) },
-                        painter = painterResource(currentFlag.imagePreview),
+                        painter = painterResource(id = currentFlag.imagePreview),
                         contentDescription = null,
                         alpha = 0f,
                     )
@@ -1024,23 +1036,23 @@ private fun GameCard(
                         modifier = Modifier
                             .onSizeChanged { size ->
                                 onCardImageHeightChange(
-                                    with(density) { size.height.toDp() }
+                                    with(receiver = density) { size.height.toDp() }
                                 )
                                 onCardImageWidthChange(
-                                    with(density) { size.width.toDp() }
+                                    with(receiver = density) { size.width.toDp() }
                                 )
 
                                 /* Set image height modifier */
                                 if (contentColumnHeight < cardImageHeight) {
                                     onCardImageHeightModifierChange(
-                                        Modifier.height(height = contentColumnHeight)
+                                        Modifier.height(contentColumnHeight)
                                     )
                                     onCardWidthModifierChange(
-                                        Modifier.width(width = (cardImageWidth.value * 1.25).dp)
+                                        Modifier.width((cardImageWidth.value * 1.25).dp)
                                     )
                                 } else {
                                     onCardImageHeightModifierChange(
-                                        Modifier.height(height = cardImageHeight)
+                                        Modifier.height(cardImageHeight)
                                     )
                                     onCardWidthModifierChange(
                                         Modifier.fillMaxWidth()
@@ -1048,10 +1060,10 @@ private fun GameCard(
                                 }
                             }
                             /* Concatenate height after onSizeChanged */
-                            .then(cardImageHeightModifier)
+                            .then(other = cardImageHeightModifier)
                             /* Force aspect ratio to keep game card shape consistent */
                             .aspectRatio(ratio = 3f / 2f),
-                        painter = painterResource(currentFlag.image),
+                        painter = painterResource(id = currentFlag.image),
                         contentDescription = null,
                         contentScale = ContentScale.Fit,
                     )
@@ -1083,14 +1095,14 @@ private fun GameCard(
                         exit = ExitTransition.None,
                     ) {
                         Box(
-                            modifier = Modifier.padding(Dimens.medium16),
+                            modifier = Modifier.padding(all = Dimens.medium16),
                             contentAlignment = Alignment.Center,
                         ) {
                             correctAnswer?.let { answer ->
                                 Text(
                                     text = answer,
                                     modifier = Modifier
-                                        .clip(MaterialTheme.shapes.large)
+                                        .clip(shape = MaterialTheme.shapes.large)
                                         .background(color = Color.Black.copy(alpha = 0.75f))
                                         .padding(
                                             vertical = Dimens.small8,
@@ -1168,9 +1180,10 @@ private fun GameCard(
 @Composable
 private fun GameDialog(
     @StringRes title: Int,
+    isSubmittable: Boolean,
     onDismiss: () -> Unit,
     onSubmit: () -> Unit,
-    content: @Composable (() -> Unit),
+    content: @Composable (ColumnScope.() -> Unit),
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Card(shape = MaterialTheme.shapes.extraLarge) {
@@ -1185,7 +1198,7 @@ private fun GameDialog(
                         .align(Alignment.Start)
                 ) {
                     Text(
-                        text = stringResource(title),
+                        text = stringResource(id = title),
                         style = MaterialTheme.typography.headlineSmall,
                     )
                 }
@@ -1207,21 +1220,28 @@ private fun GameDialog(
                         )
                         .align(Alignment.End),
                 ) {
-                    DialogActionButton(
-                        onClick = onDismiss,
-                        buttonStringResId = R.string.dialog_cancel,
-                    )
+                    if (isSubmittable) {
+                        DialogActionButton(
+                            onClick = onDismiss,
+                            buttonStringResId = R.string.dialog_cancel,
+                        )
 
-                    DialogActionButton(
-                        onClick = onSubmit,
-                        buttonStringResId = R.string.dialog_ok,
-                    )
+                        DialogActionButton(
+                            onClick = onSubmit,
+                            buttonStringResId = R.string.dialog_ok,
+                        )
+                    } else {
+                        DialogActionButton(
+                            onClick = onDismiss,
+                            buttonStringResId = R.string.dialog_close,
+                        )
+                        Spacer(modifier = Modifier.width(Dimens.small8))
+                    }
                 }
             }
         }
     }
 }
-
 
 @Composable
 private fun TimeTrialDialog(
@@ -1256,6 +1276,7 @@ private fun TimeTrialDialog(
 
     GameDialog(
         title = R.string.game_time_trial_title,
+        isSubmittable = true,
         onDismiss = onDismiss,
         onSubmit = { onTimeTrialAction() },
     ) {
@@ -1327,6 +1348,144 @@ private fun TimeTrialDialog(
     }
 }
 
+@Composable
+private fun InformationDialog(onDismiss: () -> Unit) {
+    GameDialog(
+        title = R.string.game_info_dialog_title,
+        isSubmittable = false,
+        onDismiss = onDismiss,
+        onSubmit = {},
+    ) {
+        val itemPadding = Dimens.small8
+
+        /* Answer Mode description card */
+        InformationDialogCard(
+            title = R.string.game_mode_answer_title,
+        ) {
+            AnswerMode.entries.forEach { answerMode ->
+                InformationDialogCardItem(
+                    title = answerMode.title,
+                    description = answerMode.description,
+                    description2 = answerMode.description2,
+                )
+            }
+        }
+
+        /* Guess Limit description card */
+        InformationDialogCard(
+            title = R.string.game_mode_difficulty_title,
+        ) {
+            InformationDialogCardItem(
+                description = R.string.game_mode_difficulty_description,
+            )
+
+            DifficultyMode.entries.forEach { difficultyMode ->
+                if (difficultyMode.icon != null && difficultyMode.description != null) {
+                    InformationDialogCardItem(
+                        icon = difficultyMode.icon,
+                        description2 = difficultyMode.description,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun InformationDialogCard(
+    @StringRes title: Int,
+    content: @Composable (ColumnScope.() -> Unit),
+) {
+    Card(
+        modifier = Modifier.padding(top = Dimens.medium16),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.225f)
+        ),
+    ) {
+        Column(
+            modifier = Modifier.padding(all = Dimens.medium12)
+        ) {
+            /* TITLE */
+            Text(
+                text = stringResource(id = title),
+                modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
+                style = MaterialTheme.typography.titleMedium,
+            )
+
+            /* DESCRIPTION content */
+            content()
+        }
+    }
+}
+
+@Composable
+private fun InformationDialogCardItem(
+    @StringRes title: Int? = null,
+    icon: ImageVector? = null,
+    @StringRes description: Int? = null,
+    @StringRes description2: Int? = null,
+) {
+    val rowTopPadding = if (icon == null) Dimens.extraSmall4 else Dimens.extraSmall4 / 2
+
+    val rowVerticalAlignment =
+        if (description != null && description2 != null) Alignment.Top
+        else Alignment.CenterVertically
+
+    Row(
+        modifier = Modifier.padding(top = rowTopPadding),
+        verticalAlignment = rowVerticalAlignment
+    ) {
+        /* Eg. Mode title */
+        Column {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                icon?.let {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .clip(shape = MaterialTheme.shapes.medium)
+                            .background(color = MaterialTheme.colorScheme.tertiary)
+                            .padding(vertical = 23.dp / 10, horizontal = Dimens.small8),
+                        tint = MaterialTheme.colorScheme.onTertiary,
+                    )
+                    Text(
+                        text = stringResource(id = R.string.string_equals_whitespace),
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                }
+
+                title?.let {
+                    Text(
+                        text = stringResource(id = title),
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                    Text(
+                        text = stringResource(id = R.string.string_colon_whitespace),
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                }
+            }
+        }
+
+        /* Eg. Mode description */
+        Column {
+            description?.let {
+                Text(
+                    text = stringResource(id = description),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+
+            description2?.let {
+                Text(
+                    text = stringResource(id = description2),
+                    fontStyle = FontStyle.Italic,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+        }
+    }
+}
 
 @Composable
 private fun GameModesDialog(
@@ -1353,6 +1512,7 @@ private fun GameModesDialog(
 
     GameDialog(
         title = R.string.game_modes_dialog_title,
+        isSubmittable = true,
         onDismiss = onDismiss,
         onSubmit = {
             onGameModes(answerModeSelect, difficultyModeSelect)
@@ -1361,7 +1521,7 @@ private fun GameModesDialog(
     ) {
         /* Answer mode selection */
         Text(
-            text = stringResource(R.string.game_modes_dialog_answer_mode_title),
+            text = stringResource(R.string.game_mode_answer_title),
             modifier = Modifier.padding(top = Dimens.large24),
             style = MaterialTheme.typography.labelMedium,
         )
@@ -1399,7 +1559,7 @@ private fun GameModesDialog(
                     else cardColorsUnselected,
             ) {
                 Text(
-                    text = stringResource(AnswerMode.DATES.title),
+                    text = stringResource(id = AnswerMode.DATES.title),
                     modifier = Modifier.padding(
                         vertical = Dimens.small8,
                         horizontal = Dimens.medium16,
@@ -1411,7 +1571,7 @@ private fun GameModesDialog(
 
         /* Difficulty mode selection */
         Text(
-            text = stringResource(R.string.game_modes_dialog_difficulty_mode_title),
+            text = stringResource(R.string.game_mode_difficulty_title),
             modifier = Modifier.padding(top = Dimens.large24),
             style = MaterialTheme.typography.labelMedium,
         )
@@ -1510,7 +1670,6 @@ private fun GameModesDialog(
     }
 }
 
-
 @Composable
 private fun ConfirmDialog(
     type: GameConfirmDialog,
@@ -1528,6 +1687,7 @@ private fun ConfirmDialog(
 
     GameDialog(
         title = title,
+        isSubmittable = true,
         onDismiss = onDismiss,
         onSubmit = onConfirm,
     ) {
@@ -1545,7 +1705,6 @@ private fun ConfirmDialog(
         }
     }
 }
-
 
 /* End game popup dialog showing final score. With buttons: Leave game, Share score, Play again */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1684,6 +1843,7 @@ private fun GameTopBar(
     onNavigationDrawer: () -> Unit,
     onResetAction: () -> Unit,
     onTimeAction: () -> Unit,
+    onInfoAction: () -> Unit,
     onSettingsAction: () -> Unit,
     onHistoryAction: () -> Unit,
 ) {
@@ -1735,6 +1895,13 @@ private fun GameTopBar(
                     tint =
                         if (isTimeTrial && !isGameOver) MaterialTheme.colorScheme.error
                         else LocalContentColor.current,
+                )
+            }
+
+            IconButton(onClick = onInfoAction) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = null,
                 )
             }
 
