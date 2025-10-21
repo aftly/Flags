@@ -5,7 +5,9 @@ import androidx.compose.material.icons.filled.AllInclusive
 import androidx.compose.material.icons.filled.ElectricBolt
 import androidx.compose.ui.graphics.vector.ImageVector
 import dev.aftly.flags.R
+import kotlinx.serialization.Serializable
 
+@Serializable
 enum class DifficultyMode(
     val title: Int,
     val guessLimit: Int?,
