@@ -9,6 +9,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -1854,17 +1855,15 @@ private fun GameTopBar(
             }
         },
         actions = {
-            IconButton(onClick = onResetAction) {
-                Icon(
-                    imageVector = Icons.Default.Replay,
-                    contentDescription = null,
-                    tint = if (isGameOver) LocalContentColor.current else activeColor,
-                )
-            }
-
             Text(
                 text = timer,
-                modifier = Modifier.padding(end = Dimens.extraSmall4),
+                modifier = Modifier
+                    .clip(shape = MaterialTheme.shapes.medium)
+                    .clickable(onClick = onResetAction)
+                    .padding(
+                        vertical = Dimens.extraSmall4,
+                        horizontal = Dimens.extraSmall6,
+                    ),
                 color =
                     if (!isGame || isGamePaused || isGameOver) LocalContentColor.current
                     else MaterialTheme.colorScheme.error,
