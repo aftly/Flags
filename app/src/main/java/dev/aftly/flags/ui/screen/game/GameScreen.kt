@@ -1362,6 +1362,7 @@ private fun InfoDialog(onDismiss: () -> Unit) {
     ) {
         /* Answer Mode description card */
         InfoDialogCard(
+            containerColor = MaterialTheme.colorScheme.secondary,
             title = R.string.game_mode_answer_title,
         ) {
             AnswerMode.entries.forEach { answerMode ->
@@ -1375,6 +1376,7 @@ private fun InfoDialog(onDismiss: () -> Unit) {
 
         /* Guess Limit description card */
         InfoDialogCard(
+            containerColor = MaterialTheme.colorScheme.tertiary,
             title = R.string.game_mode_difficulty_title,
         ) {
             InfoDialogCardItemText(
@@ -1390,19 +1392,38 @@ private fun InfoDialog(onDismiss: () -> Unit) {
                 }
             }
         }
+
+        /* Top bar button(s) description */
+        InfoDialogCard(
+            containerColor = MaterialTheme.colorScheme.primary,
+            title = R.string.game_info_dialog_top_bar_title,
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                TopBarTimer(
+                    isTimerEnabled = true,
+                    isClickEnabled = false,
+                )
+
+                InfoDialogCardItemText(
+                    modifier = Modifier.padding(start = Dimens.extraSmall4),
+                    description = R.string.game_info_dialog_timer_description,
+                )
+            }
+        }
     }
 }
 
 @Composable
 private fun InfoDialogCard(
     modifier: Modifier = Modifier,
+    containerColor: Color,
     @StringRes title: Int,
     content: @Composable (ColumnScope.() -> Unit),
 ) {
     Card(
         modifier = modifier.padding(top = Dimens.medium16),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.225f)
+            containerColor = containerColor.copy(alpha = 0.225f)
         ),
     ) {
         Column(
@@ -1816,6 +1837,33 @@ private fun GameOverDialog(
     }
 }
 
+@Composable
+private fun TopBarTimer(
+    timerText: String = "0:00",
+    isTimerEnabled: Boolean,
+    isClickEnabled: Boolean,
+    onClick: () -> Unit = {},
+) {
+    Text(
+        text = timerText,
+        modifier = Modifier
+            .clip(shape = MaterialTheme.shapes.medium)
+            .clickable(
+                enabled = isClickEnabled,
+                onClick = onClick,
+            )
+            .padding(
+                vertical = Dimens.extraSmall4,
+                horizontal = Dimens.extraSmall6,
+            ),
+        color =
+            if (isTimerEnabled) MaterialTheme.colorScheme.error
+            else LocalContentColor.current,
+        fontSize = 18.sp,
+        fontWeight = FontWeight.Bold,
+    )
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1835,7 +1883,7 @@ private fun GameTopBar(
     onSettingsAction: () -> Unit,
     onHistoryAction: () -> Unit,
 ) {
-    val activeColor = MaterialTheme.colorScheme.error
+    val isTimerEnabled = !(!isGame || isGamePaused || isGameOver)
 
     TopAppBar(
         title = {
@@ -1855,20 +1903,11 @@ private fun GameTopBar(
             }
         },
         actions = {
-            Text(
-                text = timer,
-                modifier = Modifier
-                    .clip(shape = MaterialTheme.shapes.medium)
-                    .clickable(onClick = onResetAction)
-                    .padding(
-                        vertical = Dimens.extraSmall4,
-                        horizontal = Dimens.extraSmall6,
-                    ),
-                color =
-                    if (!isGame || isGamePaused || isGameOver) LocalContentColor.current
-                    else MaterialTheme.colorScheme.error,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
+            TopBarTimer(
+                timerText = timer,
+                isTimerEnabled = isTimerEnabled,
+                isClickEnabled = isTimerEnabled,
+                onClick = onResetAction,
             )
 
             IconButton(

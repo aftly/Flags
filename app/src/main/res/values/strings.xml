@@ -291,6 +291,8 @@
     <string name="game_guess_field_label_error">Incorrect</string>
     <string name="game_guess_field_label_success">Correct!</string>
     <string name="game_info_dialog_title">About</string>
+    <string name="game_info_dialog_top_bar_title">Top bar:</string>
+    <string name="game_info_dialog_timer_description">also a game reset button (without saving scores)</string>
     <string name="game_mode_answer_title">Answer mode:</string>
     <string name="game_mode_answer_names_title">Names</string>
     <string name="game_mode_answer_names_description">Guess flags by known names</string>
