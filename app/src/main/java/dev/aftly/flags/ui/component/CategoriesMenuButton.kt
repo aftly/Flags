@@ -39,6 +39,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -169,12 +170,6 @@ fun CategoriesButtonMenu(
         letterSpacing = 0.15.sp,
     )
 
-    var flagCountWidth by remember { mutableStateOf(Dimens.standardIconSize24) }
-    val flagCountShape = when (isOneLine) {
-        true -> MaterialTheme.shapes.large
-        false -> MaterialTheme.shapes.medium
-    }
-
     val density = LocalDensity.current
 
     /* Icon properties */
@@ -188,6 +183,12 @@ fun CategoriesButtonMenu(
     val iconSizePaddingMenu = iconSize + iconPaddingMenu
     val iconsTotalSizeMenu = (iconSizePaddingMenu + 1.dp) * 2
 
+    var flagCountWidth by remember { mutableStateOf(iconSize) }
+    val flagCountShape = when (isOneLine) {
+        true -> MaterialTheme.shapes.large
+        false -> MaterialTheme.shapes.medium
+    }
+
 
     Box(modifier = modifier) {
         /* Scrim behind expanded menu, tap gestures close menu */
@@ -199,7 +200,7 @@ fun CategoriesButtonMenu(
             Scrim(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
+                    .background(color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
                 onAction = onMenuButtonClick,
             )
         }
@@ -250,7 +251,7 @@ fun CategoriesButtonMenu(
                         flagCount?.let { flagCount ->
                             Box(
                                 modifier = Modifier.onSizeChanged { size ->
-                                    flagCountWidth = with(density) { size.width.toDp() }
+                                    flagCountWidth = with(receiver = density) { size.width.toDp() }
                                 },
                             ) {
                                 Text(
@@ -268,7 +269,7 @@ fun CategoriesButtonMenu(
                                     style = MaterialTheme.typography.titleSmall,
                                 )
                             }
-                        }
+                        } ?: Spacer(modifier = Modifier.width(iconSize))
                     },
                     postTextContent = {
                         Box(
@@ -433,8 +434,11 @@ private fun MenuItemContent(
         if (isMenuButton) Modifier.padding(horizontal = iconPaddingButton)
         else Modifier.padding(paddingValues = ButtonDefaults.TextButtonContentPadding)
 
+    val rowBackgroundColor = if (isMenuButton) Color.Transparent else buttonColors.containerColor
+    val textColor = if (isMenuButton) LocalContentColor.current else buttonColors.contentColor
+
     Row(
-        modifier = rowModifier.background(color = buttonColors.containerColor),
+        modifier = rowModifier.background(color = rowBackgroundColor),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -450,7 +454,7 @@ private fun MenuItemContent(
                 null -> textPaddingModifier
                 else -> textPaddingModifier.weight(weight = 1f, fill = false)
             },
-            color = buttonColors.contentColor,
+            color = textColor,
             fontWeight = fontWeight,
             textAlign = textAlign,
             onTextLayout = when (preTextContent) {
