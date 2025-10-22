@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.dataStoreFile
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
+import dev.aftly.flags.data.datastore.GamePreferencesRepository
 import dev.aftly.flags.data.datastore.UserPreferencesRepository
 import dev.aftly.flags.data.room.savedflags.OfflineSavedFlagsRepository
 import dev.aftly.flags.data.room.savedflags.SavedFlagsDatabase
@@ -18,6 +19,7 @@ private const val THEME_PREFERENCES_NAME = "theme_preferences.preferences_pb"
 
 interface AppContainer {
     val userPreferencesRepository: UserPreferencesRepository
+    val gamePreferencesRepository: GamePreferencesRepository
     val scoreItemsRepository: ScoreItemsRepository
     val savedFlagsRepository: SavedFlagsRepository
 }
@@ -29,6 +31,9 @@ class AppDataContainer(private val context: Context) : AppContainer {
 
     override val userPreferencesRepository: UserPreferencesRepository by lazy {
         UserPreferencesRepository(dataStore)
+    }
+    override val gamePreferencesRepository: GamePreferencesRepository by lazy {
+        GamePreferencesRepository(dataStore)
     }
     override val scoreItemsRepository: ScoreItemsRepository by lazy {
         OfflineScoreItemsRepository(ScoreHistoryDatabase.getDatabase(context).itemDao())

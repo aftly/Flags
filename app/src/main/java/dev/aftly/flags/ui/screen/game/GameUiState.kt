@@ -38,6 +38,7 @@ data class GameUiState(
     val isConfirmShowAnswer: Boolean = false,
     val isShowAnswer: Boolean = false,
 
+    val isFirstGame: Boolean = false,
     val isInfoDialog: Boolean = false,
 
     val isGameModesDialog: Boolean = false,

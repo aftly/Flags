@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.nullFlag
+import dev.aftly.flags.data.datastore.GamePreferencesRepository
 import dev.aftly.flags.data.room.savedflags.SavedFlag
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategoryBase
@@ -44,12 +45,16 @@ import java.util.Calendar
 
 
 class GameViewModel(app: Application) : AndroidViewModel(application = app) {
+    private val gamePreferencesRepository: GamePreferencesRepository =
+        (application as FlagsApplication).container.gamePreferencesRepository
     private val scoreItemsRepository =
         (application as FlagsApplication).container.scoreItemsRepository
     private val savedFlagsRepository =
         (application as FlagsApplication).container.savedFlagsRepository
 
-    private val _uiState = MutableStateFlow(value = GameUiState())
+    private val _uiState = MutableStateFlow(
+        value = GameUiState()
+    )
     val uiState = _uiState.asStateFlow()
     private val _savedFlagsState = MutableStateFlow(value = emptySet<SavedFlag>())
     val savedFlagsState = _savedFlagsState.asStateFlow()
@@ -77,10 +82,13 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
 
     /* Initialise ViewModel & State with category and other game related info */
     init {
-        resetScreen()
-
         /* Initialize savedFlags list */
         viewModelScope.launch {
+            val isFirstGame = gamePreferencesRepository.isFirstGame.first()
+            if (isFirstGame) _uiState.update { it.copy(isFirstGame = true) }
+
+            resetScreen()
+
             savedFlagsRepository.getAllFlagsStream().first().let { savedFlags ->
                 _savedFlagsState.value = savedFlags.toSet()
             }
@@ -116,7 +124,9 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         cancelConfirmShowAnswer()
 
 
-        val newFlag = getRandomFlag(isNewGame = true)
+        val newFlag = if (uiState.value.isFirstGame) nullFlag else {
+            getRandomFlag(isNewGame = true)
+        }
         val newFlagStrings = when (newFlag) {
             nullFlag -> emptyList()
             else -> getStringsList(flag = newFlag)
@@ -128,11 +138,12 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
                 currentFlagStrings = newFlagStrings,
                 isGuessWrong = false,
                 nextFlagInSkipped = null,
+                isInfoDialog = it.isFirstGame,
                 answerMode = answerMode,
                 difficultyMode = difficultyMode,
-                isGamePaused = false,
                 answersRemaining = difficultyMode.guessLimit,
                 isGame = if (it.currentFlags.isNotEmpty()) startGame else false,
+                isGamePaused = it.isFirstGame,
                 isGameOver = false,
                 isGameOverDialog = false,
                 isShowAnswer = false,
@@ -142,8 +153,13 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         }
 
         when (timeMode) {
-            TimeMode.STANDARD -> setStandardTimer(isGame = uiState.value.isGame)
-            TimeMode.TIME_TRIAL -> setTimeTrial(startTime = startTime, isGame = uiState.value.isGame)
+            TimeMode.STANDARD -> setStandardTimer(
+                isGame = uiState.value.isGame && !uiState.value.isGamePaused
+            )
+            TimeMode.TIME_TRIAL -> setTimeTrial(
+                startTime = startTime,
+                isGame = uiState.value.isGame && !uiState.value.isGamePaused
+            )
         }
     }
 
@@ -153,7 +169,9 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         if (!uiState.value.isGame && uiState.value.currentFlags.isNotEmpty()) {
             val isTimeTrial = uiState.value.timeMode == TimeMode.TIME_TRIAL
 
-            _uiState.update { it.copy(isGame = true) }
+            _uiState.update {
+                it.copy(isGame = true, isGamePaused = false)
+            }
 
             if (isTimeTrial && isJobInactive(timerTimeTrialJob)) {
                 timerTimeTrialJob = viewModelScope.launch { startTimerTimeTrial() }
@@ -189,6 +207,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         startGame: Boolean = true,
     ) {
         val allFlags = uiState.value.allFlags
+        val isFirstGame = uiState.value.isFirstGame
         val answerMode = answerModeNew ?: uiState.value.answerMode
         val difficultyMode = difficultyModeNew ?: uiState.value.difficultyMode
         val timeMode = timeModeNew ?: uiState.value.timeMode
@@ -214,6 +233,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
                 currentSubCategories = buildList {
                     if (category is FlagCategoryWrapper) add(category.enum)
                 },
+                isFirstGame = isFirstGame
             )
         }
 
@@ -488,7 +508,10 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
     /* Toggle game dialogs */
     fun onTimeTrialDialog(on: Boolean) = _uiState.update { it.copy(isTimeTrialDialog = on) }
 
-    fun onInfoDialog(on: Boolean) = _uiState.update { it.copy(isInfoDialog = on) }
+    fun onInfoDialog(on: Boolean) = when {
+        !on && uiState.value.isFirstGame -> onFirstGameInfoExit()
+        else -> _uiState.update { it.copy(isInfoDialog = on) }
+    }
 
     fun onGameModesDialog(on: Boolean) = _uiState.update { it.copy(isGameModesDialog = on) }
 
@@ -508,6 +531,14 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         _uiState.update { it.copy(currentFlagStrings = currentFlagStrings) }
     }
 
+
+    private fun onFirstGameInfoExit() {
+        viewModelScope.launch {
+            gamePreferencesRepository.onFirstGame()
+        }
+        _uiState.update { it.copy(isFirstGame = false) }
+        resetScreen()
+    }
 
     private fun setStandardTimer(isGame: Boolean) {
         _uiState.update {

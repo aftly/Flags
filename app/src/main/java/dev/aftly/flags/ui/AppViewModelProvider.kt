@@ -23,7 +23,9 @@ object AppViewModelProvider {
         }
 
         initializer {
-            SettingsViewModel(flagsApplication().container.userPreferencesRepository)
+            SettingsViewModel(
+                userPreferencesRepository = flagsApplication().container.userPreferencesRepository
+            )
         }
     }
 }
