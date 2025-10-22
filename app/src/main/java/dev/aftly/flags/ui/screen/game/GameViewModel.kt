@@ -79,10 +79,9 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         private set
     var userTimerInputSeconds by mutableStateOf(value = "")
         private set
-
-    /* Initialise ViewModel & State with category and other game related info */
+    
     init {
-        /* Initialize savedFlags list */
+        /* Initialize game and savedFlags list */
         viewModelScope.launch {
             val isFirstGame = gamePreferencesRepository.isFirstGame.first()
             if (isFirstGame) _uiState.update { it.copy(isFirstGame = true) }
