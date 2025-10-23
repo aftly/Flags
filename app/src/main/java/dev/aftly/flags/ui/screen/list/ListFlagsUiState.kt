@@ -13,6 +13,7 @@ data class ListFlagsUiState(
     val isViewSavedFlags: Boolean = false,
     val currentSuperCategories: List<FlagSuperCategory> = listOf(FlagSuperCategory.All),
     val currentSubCategories: List<FlagCategory> = emptyList(),
+    val filterByCountry: FlagView? = null,
     val isSearchQuery: Boolean = false,
     val isSearchBarInit: Boolean = false, /* Hold initialised state for effects */
     val isSearchBarInitTopBar: Boolean = false, /* Hold initialised state for effects */

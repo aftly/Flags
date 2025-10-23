@@ -348,6 +348,8 @@
     <string name="game_history_none_description_1">Play some games to create score history</string>
     <string name="game_history_none_description_2">(Requires at least 1 correct, skipped or shown flag)</string>
     <string name="list_screen_title">View</string>
+    <string name="menu_filter_button_category">Category</string>
+    <string name="menu_filter_button_country">Country</string>
     <string name="menu_related_flags_political">Politically Related</string>
     <string name="menu_related_flags_political_short">Pol</string>
     <string name="menu_related_flags_chronological">Chronologically Related</string>

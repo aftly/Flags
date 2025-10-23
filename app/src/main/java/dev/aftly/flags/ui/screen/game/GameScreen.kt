@@ -111,8 +111,8 @@ import dev.aftly.flags.model.game.DifficultyMode
 import dev.aftly.flags.model.game.GameConfirmDialog
 import dev.aftly.flags.model.game.TimeMode
 import dev.aftly.flags.navigation.Screen
-import dev.aftly.flags.ui.component.CategoriesButtonMenu
 import dev.aftly.flags.ui.component.DialogActionButton
+import dev.aftly.flags.ui.component.FilterButtonMenu
 import dev.aftly.flags.ui.component.FullscreenButton
 import dev.aftly.flags.ui.component.NoResultsFound
 import dev.aftly.flags.ui.component.ResultsType
@@ -493,7 +493,7 @@ private fun GameScreen(
 
         /* Custom quasi-DropdownMenu elevated above screen content with animated nested menus for
          * selecting super or sub category to filter flags by */
-        CategoriesButtonMenu(
+        FilterButtonMenu(
             modifier = Modifier.fillMaxSize(),
             scaffoldPadding = scaffoldPaddingValues,
             buttonHorizontalPadding = Dimens.marginHorizontal16,
@@ -503,11 +503,13 @@ private fun GameScreen(
             isMenuExpanded = isMenuExpanded,
             onMenuButtonClick = { isMenuExpanded = !isMenuExpanded },
             isSavedFlagsNotEmpty = isSavedFlagsNotEmpty,
+            filterByCountry = null,
             superCategories = uiState.currentSuperCategories,
             subCategories = uiState.currentSubCategories,
             onCategorySelectSingle = onCategorySelectSingle,
             onCategorySelectMultiple = onCategorySelectMultiple,
             onSavedFlagsSelect = onSavedFlagsSelect,
+            onFilterByCountry = {}, // TODO
         )
 
 

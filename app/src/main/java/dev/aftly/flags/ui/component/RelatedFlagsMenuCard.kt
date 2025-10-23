@@ -163,7 +163,7 @@ fun RelatedFlagsMenuCard(
         .onSizeChanged { itemHeight = it.height }
 
     /* On menu expand scroll to current to beginning */
-    LaunchedEffect(isExpanded) {
+    LaunchedEffect(key1 = isExpanded) {
         if (isExpanded) {
             listState.scrollToItem(index = 0)
             delay(timeMillis = Timing.MENU_EXPAND.toLong() * 2)
@@ -175,7 +175,7 @@ fun RelatedFlagsMenuCard(
     /* After delay animate scroll to current item offset to bottom of card
      * (in a separate LaunchedEffect because bottomItemOffset is calculated late and
      * LaunchedEffect takes a snapshot of state too early) */
-    LaunchedEffect(isExpandedDelay) {
+    LaunchedEffect(key1 = isExpandedDelay) {
         if (isExpandedDelay) {
             listState.animateScrollToItem(
                 index = relatedFlagItems.indexOfFirst { lazyColumnItem ->
@@ -281,14 +281,14 @@ fun RelatedFlagsMenuCard(
                                 modifier = Modifier.fillMaxWidth(),
                                 title = item.title,
                             )
-                            is LazyColumnItem.Flag -> RelatedItem(
+                            is LazyColumnItem.Flag -> MenuFlagItem(
                                 modifier =
                                     if (index == firstFlagIndex) firstItemModifier
                                     else Modifier.fillMaxWidth(),
                                 flag = item.flag,
-                                currentFlag = currentFlag,
+                                selectedFlag = currentFlag,
                                 menu = relatedFlagContent.menu,
-                                showDates = lastHeader?.title in showDatesHeaderTitles,
+                                isShowDates = lastHeader?.title in showDatesHeaderTitles,
                                 buttonColors = buttonColors,
                                 buttonColorsSelect = buttonColorsSelect,
                                 onFlagSelect = onFlagSelect,
@@ -326,27 +326,31 @@ private fun RelatedHeader(
     }
 }
 
-
 @Composable
-private fun RelatedItem(
+fun MenuFlagItem(
     modifier: Modifier = Modifier,
     flag: FlagView,
-    currentFlag: FlagView,
+    selectedFlag: FlagView?,
     menu: RelatedFlagsMenu,
-    showDates: Boolean,
+    isShowDates: Boolean,
     buttonColors: ButtonColors,
     buttonColorsSelect: ButtonColors,
     onFlagSelect: (FlagView) -> Unit,
 ) {
-    val configuration = LocalConfiguration.current
-    val fontScale = configuration.fontScale
+    val isSelected = flag == selectedFlag ||
+            (menu == RelatedFlagsMenu.POLITICAL &&
+            selectedFlag != null &&
+            inverseFlagViewMap.getValue(flag) == selectedFlag.previousFlagOfKey)
+
+    val fontScale = LocalConfiguration.current.fontScale
     val verticalPadding = Dimens.small8
     val dynamicHeight = Dimens.defaultListItemHeight48 * fontScale
-    val isFlagSelected =
-        flag == currentFlag || (menu == RelatedFlagsMenu.POLITICAL && inverseFlagViewMap
-            .getValue(flag) == currentFlag.previousFlagOfKey)
+    val imageHeight = dynamicHeight - verticalPadding * 2
+
+    val colors = if (isSelected) buttonColorsSelect else buttonColors
+
     val fromToYear =
-        if (flag.isDated && showDates) {
+        if (flag.isDated && isShowDates) {
             buildString {
                 append(stringResource(id = R.string.string_whitespace))
                 append(flagDatesString(flag))
@@ -357,7 +361,7 @@ private fun RelatedItem(
         onClick = { onFlagSelect(flag) },
         modifier = modifier,
         shape = RoundedCornerShape(size = 0.dp),
-        colors = if (isFlagSelected) buttonColorsSelect else buttonColors
+        colors = colors,
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -388,11 +392,11 @@ private fun RelatedItem(
                 Image(
                     painter = painterResource(id = flag.imagePreview),
                     contentDescription = null,
-                    modifier = Modifier.height(height = dynamicHeight - verticalPadding * 2),
+                    modifier = Modifier.height(imageHeight),
                     contentScale = ContentScale.Fit,
                 )
 
-                if (isFlagSelected) {
+                if (isSelected) {
                     Box(
                         modifier = Modifier.matchParentSize()
                             .background(color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f)),

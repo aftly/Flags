@@ -145,6 +145,7 @@ data object DataSource {
     lateinit var inverseFlagViewMap: Map<FlagView, String>; private set
     lateinit var flagViewMapId: Map<Int, FlagView>; private set
     lateinit var allFlagsList: List<FlagView>; private set
+    lateinit var countryFlagsList: List<FlagView>; private set
 
     @Volatile private var isInit = false
 
@@ -164,6 +165,7 @@ data object DataSource {
             inverseFlagViewMap = getInverseFlagViewMap(flagViewMap)
             flagViewMapId = getFlagViewMapId(flagViewMap)
             allFlagsList = getAllFlags(flagViewMap)
+            countryFlagsList = getCountryFlags(allFlagsList)
 
             isInit = true
         }
@@ -278,4 +280,11 @@ data object DataSource {
         map: Map<String, FlagView>
     ): List<FlagView> =
         map.values.toList()
+
+    private fun getCountryFlags(
+        list: List<FlagView>
+    ): List<FlagView> = list.filter { flag ->
+        FlagCategory.SOVEREIGN_STATE in flag.categories &&
+                FlagCategory.HISTORICAL !in flag.categories
+    }
 }

@@ -255,6 +255,8 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
      * Also updates currentSuperCategory and currentCategory title details for FilterFlagsButton UI
      * Is intended to be called with either a newSuperCategory OR newSubCategory, and a null value */
     fun updateCurrentCategory(category: FlagCategoryBase) {
+        val filterByCountry = uiState.value.filterByCountry
+
         /* If new category is All superCategory update flags with static allFlags source,
          * else dynamically generate flags list from category info */
         if (category == All) {
@@ -283,6 +285,7 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
                 )
             }
         }
+        if (filterByCountry != null) filterByCountry(filterByCountry)
     }
 
 
@@ -292,6 +295,7 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
 
         val superCategories = uiState.value.currentSuperCategories.toMutableList()
         val subCategories = uiState.value.currentSubCategories.toMutableList()
+        val filterByCountry = uiState.value.filterByCountry
 
         /* Exit function if new<*>Category is not selectable or mutually exclusive from current.
          * Else, add/remove category argument to/from categories lists */
@@ -349,6 +353,54 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
                 ),
                 currentSuperCategories = superCategories,
                 currentSubCategories = subCategories,
+            )
+        }
+        if (filterByCountry != null) filterByCountry(filterByCountry)
+    }
+
+    fun updateFilterByCountry(country: FlagView) {
+        val oldFilterByCountry = uiState.value.filterByCountry
+        val isCountry = uiState.value.currentSuperCategories.all { it == SovereignCountry } &&
+                uiState.value.currentSubCategories.isEmpty()
+
+        /* Deselect current filter country */
+        if (uiState.value.filterByCountry != null) {
+            _uiState.update {
+                it.copy(
+                    currentFlags = getFlagsFromCategories(
+                        allFlags = it.allFlags,
+                        currentFlags = it.currentFlags,
+                        isDeselectSwitch = Pair(first = true, second = false),
+                        superCategory = it.currentSuperCategories.firstOrNull(),
+                        superCategories = it.currentSuperCategories.toMutableList(),
+                        subCategories = it.currentSubCategories.toMutableList(),
+                    ),
+                    filterByCountry = null,
+                )
+            }
+        }
+
+        /* Filter by new country */
+        if (country != oldFilterByCountry) {
+            if (isCountry) updateCurrentCategory(category = All)
+            filterByCountry(country)
+        }
+    }
+
+    private fun filterByCountry(country: FlagView) {
+        val relatedFlags = buildList {
+            add(country)
+            addAll(elements =
+                country.politicalInternalRelatedFlagKeys.map { flagViewMap.getValue(it) }
+            )
+            addAll(elements =
+                country.politicalExternalRelatedFlagKeys.map { flagViewMap.getValue(it) }
+            )
+        }
+        _uiState.update { state ->
+            state.copy(
+                currentFlags = state.currentFlags.filter { it in relatedFlags },
+                filterByCountry = country,
             )
         }
     }

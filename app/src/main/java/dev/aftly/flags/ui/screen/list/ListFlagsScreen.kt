@@ -101,7 +101,7 @@ import dev.aftly.flags.model.FlagCategoryBase
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 import dev.aftly.flags.model.FlagView
-import dev.aftly.flags.ui.component.CategoriesButtonMenu
+import dev.aftly.flags.ui.component.FilterButtonMenu
 import dev.aftly.flags.ui.component.NoResultsFound
 import dev.aftly.flags.ui.component.ResultsType
 import dev.aftly.flags.ui.component.ScrollToTopButton
@@ -159,6 +159,7 @@ fun ListFlagsScreen(
             viewModel.updateCurrentCategories(category = it)
         },
         onSavedFlagsSelect = { viewModel.selectSavedFlags(on = it) },
+        onFilterByCountry = { viewModel.updateFilterByCountry(country = it) },
         onSaveFlag = { viewModel.onSaveFlag(flag = it) },
         onResetScreen = { viewModel.resetScreen() },
         onResetFlagNavState = { viewModel.onFlagNav(flag = null) },
@@ -196,6 +197,7 @@ private fun ListFlagsScreen(
     onCategorySelectSingle: (FlagCategoryBase) -> Unit,
     onCategorySelectMultiple: (FlagCategoryBase) -> Unit,
     onSavedFlagsSelect: (Boolean) -> Unit,
+    onFilterByCountry: (FlagView) -> Unit,
     onSaveFlag: (FlagView) -> Unit,
     onResetScreen: () -> Unit,
     onResetFlagNavState: () -> Unit,
@@ -412,7 +414,7 @@ private fun ListFlagsScreen(
 
         /* Custom quasi-DropdownMenu elevated above screen content with animated nested menus for
          * selecting super or sub category to filter flags by */
-        CategoriesButtonMenu(
+        FilterButtonMenu(
             modifier = Modifier.fillMaxSize(),
             scaffoldPadding = scaffoldPaddingValues,
             buttonHorizontalPadding = Dimens.marginHorizontal16,
@@ -426,6 +428,7 @@ private fun ListFlagsScreen(
             containerColorDark = containerColor1,
             containerColorLight = containerColor2,
             isSavedFlagsNotEmpty = uiState.savedFlags.isNotEmpty(),
+            filterByCountry = uiState.filterByCountry,
             superCategories = uiState.currentSuperCategories,
             subCategories = uiState.currentSubCategories,
             onCategorySelectSingle = {
@@ -440,6 +443,10 @@ private fun ListFlagsScreen(
                 onSavedFlagsSelect(true)
                 coroutineScope.launch { listState.animateScrollToItem(index = 0) }
             },
+            onFilterByCountry = {
+                onFilterByCountry(it)
+                coroutineScope.launch { listState.animateScrollToItem(index = 0) }
+            }
         )
     }
 }

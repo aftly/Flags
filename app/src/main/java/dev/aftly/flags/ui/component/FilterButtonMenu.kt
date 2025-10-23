@@ -1,5 +1,7 @@
 package dev.aftly.flags.ui.component
 
+import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.core.tween
@@ -7,6 +9,9 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -27,9 +32,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
@@ -47,6 +54,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,6 +72,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.aftly.flags.R
+import dev.aftly.flags.data.DataSource.countryFlagsList
 import dev.aftly.flags.data.DataSource.menuSuperCategoryList
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategoryBase
@@ -72,16 +81,20 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagSuperCategory.Institution
 import dev.aftly.flags.model.FlagSuperCategory.Political
+import dev.aftly.flags.model.FlagView
+import dev.aftly.flags.model.filtermenu.FilterMode
+import dev.aftly.flags.model.relatedmenu.RelatedFlagsMenu
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Shapes
 import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.getCategoriesTitleIds
 import dev.aftly.flags.ui.util.toWrapper
+import kotlinx.coroutines.delay
 
 
 @Composable
-fun CategoriesButtonMenu(
+fun FilterButtonMenu(
     modifier: Modifier = Modifier,
     scaffoldPadding: PaddingValues,
     buttonHorizontalPadding: Dp,
@@ -93,20 +106,19 @@ fun CategoriesButtonMenu(
     containerColorDark: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     containerColorLight: Color = MaterialTheme.colorScheme.secondary,
     isSavedFlagsNotEmpty: Boolean,
+    filterByCountry: FlagView?,
     superCategories: List<FlagSuperCategory>,
     subCategories: List<FlagCategory>,
     onCategorySelectSingle: (FlagCategoryBase) -> Unit,
     onCategorySelectMultiple: (FlagCategoryBase) -> Unit,
     onSavedFlagsSelect: () -> Unit,
+    onFilterByCountry: (FlagView) -> Unit,
 ) {
-    /* Expand single sub-menu at a time when it's category's are not selected. State represented by
-     * the sub-menu's FlagSuperCategory */
+    /* UI state */
     var expandSubMenu by remember { mutableStateOf<FlagSuperCategory?>(value = null) }
-
-    /* When menu collapse, reset expandSubMenu state */
-    LaunchedEffect(isMenuExpanded) {
-        if (!isMenuExpanded) expandSubMenu = null
-    }
+    var filterModeSelect by rememberSaveable { mutableStateOf(value = FilterMode.CATEGORY) }
+    val countriesListState = rememberLazyListState()
+    val countriesList = countryFlagsList
 
     /* Color properties */
     val cardColorsDark: CardColors = CardDefaults.cardColors(containerColor = containerColorDark)
@@ -187,6 +199,28 @@ fun CategoriesButtonMenu(
     val flagCountShape = when (isOneLine) {
         true -> MaterialTheme.shapes.large
         false -> MaterialTheme.shapes.medium
+    }
+
+    /* When menu collapse, reset ui state */
+    LaunchedEffect(key1 = isMenuExpanded) {
+        if (!isMenuExpanded) {
+            delay(timeMillis = Timing.MENU_COLLAPSE.toLong())
+
+            expandSubMenu = null
+            filterModeSelect = FilterMode.CATEGORY
+            countriesListState.scrollToItem(index = 0)
+        }
+    }
+
+    /* Country list scroll effects */
+    LaunchedEffect(key1 = filterModeSelect) {
+        if (filterModeSelect == FilterMode.COUNTRY && filterByCountry != null) {
+
+            delay(timeMillis = Timing.MENU_EXPAND.toLong() * 2)
+            countriesListState.animateScrollToItem(
+                index = countriesList.indexOfFirst { it.id == filterByCountry.id }
+            )
+        }
     }
 
 
@@ -296,119 +330,212 @@ fun CategoriesButtonMenu(
                     shape = Shapes.large,
                     colors = cardColorsDark,
                 ) {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentPadding = PaddingValues(
-                            top = Dimens.small8,
-                            bottom = Dimens.small10,
-                        ),
+                    Row(
+                        modifier = Modifier
+                            .padding(
+                                top = Dimens.small8 - 1.dp,
+                                bottom = Dimens.extraSmall4,
+                                start = Dimens.medium12,
+                                end = 1.dp,
+                            )
+                            .fillMaxWidth()
                     ) {
-                        /* Saved flags item */
-                        if (isSavedFlagsNotEmpty) {
-                            item {
-                                MenuItem(
-                                    modifier = Modifier.clickable(
-                                        onClick = {
-                                            expandSubMenu = null
-                                            onSavedFlagsSelect()
-                                            onMenuButtonClick()
-                                        }
-                                    ),
-                                    textButtonStyle = textButtonStyle,
-                                    buttonColors =
-                                        if (superCategories.isEmpty() && subCategories.isEmpty()) {
-                                            buttonColorsLight
-                                        } else {
-                                            buttonColorsDark
-                                        },
-                                    category = null,
-                                )
+                        FilterMode.entries.forEach { filterMode ->
+                            MenuButton(
+                                modifier = Modifier
+                                    .padding(end = Dimens.small10 + 1.dp)
+                                    .weight(1f),
+                                title = filterMode.title,
+                                isSelected = filterMode == filterModeSelect,
+                                buttonColorsSelect = buttonColorsLight,
+                                buttonColorsUnselect = buttonColorsDark,
+                                onClick = { filterModeSelect = filterMode },
+                            )
+                        }
+                    }
+
+                    AnimatedContent(
+                        targetState = filterModeSelect,
+                        transitionSpec = {
+                            slideInHorizontally {
+                                when (filterModeSelect) {
+                                    FilterMode.CATEGORY -> -it
+                                    FilterMode.COUNTRY -> it
+                                }
+                            } togetherWith slideOutHorizontally {
+                                when (filterModeSelect) {
+                                    FilterMode.CATEGORY -> it
+                                    FilterMode.COUNTRY -> -it
+                                }
                             }
                         }
+                    ) { targetFilterMode ->
+                        val lazyColumnContentPadding = PaddingValues(bottom = Dimens.small10)
 
-                        /* Flag category items */
-                        items(items = menuSuperCategoryList) { superCategory ->
-                            val buttonColors = if (superCategory in superCategories) {
-                                buttonColorsLight
-                            } else if (superCategory != All &&
-                                (superCategory.allEnums().any { it in subCategories } ||
-                                superCategory.supers().any { it in superCategories })) {
-                                buttonColorsSubSelected
-                            } else {
-                                buttonColorsDark
+                        when (targetFilterMode) {
+                            FilterMode.COUNTRY -> LazyColumn(
+                                modifier = Modifier.fillMaxWidth(),
+                                state = countriesListState,
+                                contentPadding = lazyColumnContentPadding,
+                            ) {
+                                /* Flag category items */
+                                items(items = countriesList) { flag ->
+                                    MenuFlagItem(
+                                        flag = flag,
+                                        selectedFlag = filterByCountry,
+                                        menu = RelatedFlagsMenu.POLITICAL,
+                                        isShowDates = false,
+                                        buttonColors = buttonColorsDark,
+                                        buttonColorsSelect = buttonColorsLight,
+                                        onFlagSelect = { flag ->
+                                            val current = filterByCountry
+                                            onFilterByCountry(flag)
+                                            if (flag != current) onMenuButtonClick()
+                                        },
+                                    )
+                                }
                             }
+                            FilterMode.CATEGORY -> LazyColumn(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentPadding = lazyColumnContentPadding,
+                            ) {
+                                /* Saved flags item */
+                                if (isSavedFlagsNotEmpty) {
+                                    item {
+                                        MenuItem(
+                                            modifier = Modifier.clickable(
+                                                onClick = {
+                                                    expandSubMenu = null
+                                                    onSavedFlagsSelect()
+                                                    onMenuButtonClick()
+                                                }
+                                            ),
+                                            textButtonStyle = textButtonStyle,
+                                            buttonColors =
+                                                if (superCategories.isEmpty() && subCategories.isEmpty()) {
+                                                    buttonColorsLight
+                                                } else {
+                                                    buttonColorsDark
+                                                },
+                                            category = null,
+                                        )
+                                    }
+                                }
+
+                                /* Flag category items */
+                                items(items = menuSuperCategoryList) { superCategory ->
+                                    val buttonColors = if (superCategory in superCategories) {
+                                        buttonColorsLight
+                                    } else if (superCategory != All &&
+                                        (superCategory.allEnums().any { it in subCategories } ||
+                                                superCategory.supers().any { it in superCategories })) {
+                                        buttonColorsSubSelected
+                                    } else {
+                                        buttonColorsDark
+                                    }
 
 
-                            if (superCategory.enums().size == 1 || superCategory == All) {
-                                /* If superCategory has 1 subcategory use 1 tier (static) menu item */
-                                SuperItemStatic(
-                                    textButtonStyle = textButtonStyle,
-                                    buttonColors = buttonColors,
-                                    superCategory = superCategory,
-                                    onCategorySelectSingle = { superCategory ->
-                                        expandSubMenu = null
-                                        onCategorySelectSingle(superCategory)
-                                        onMenuButtonClick()
-                                    },
-                                    onCategorySelectMultiple = onCategorySelectMultiple,
-                                )
-                            } else if (superCategory.enums().isNotEmpty()) {
-                                /* If superCategory has multiple subcategories
-                                 * use 2 tier (expandable) menu item */
-                                SuperItemExpandable(
-                                    textButtonStyle = textButtonStyle,
-                                    buttonColors = buttonColors,
-                                    buttonColorsChild = buttonColorsLight,
-                                    cardColors = cardColorsLight,
-                                    iconSize = iconSize,
-                                    iconPadding = iconPaddingMenu,
-                                    iconsTotalSize = iconsTotalSizeMenu,
-                                    isCategoriesMenuExpanded = isMenuExpanded,
-                                    isSuperCategorySelectable = true,
-                                    itemSuperCategory = superCategory,
-                                    selectedSubCategories = subCategories,
-                                    isMenuExpandedParentState = superCategory == expandSubMenu,
-                                    onSuperItemSelect = { expandSubMenu = it },
-                                    onCategorySelectSingle = {
-                                        onCategorySelectSingle(it)
-                                        onMenuButtonClick()
-                                    },
-                                    onCategorySelectMultiple = onCategorySelectMultiple,
-                                )
-                            } else {
-                                /* If superCategory only contains superCategories use 3 tier menu */
-                                SuperItemOfSupers(
-                                    textButtonStyle = textButtonStyle,
-                                    buttonColorsSelectable = buttonColors,
-                                    buttonColorsDark = buttonColorsDark,
-                                    buttonColorsLight = buttonColorsLight,
-                                    buttonColorsInCardSubSelected = buttonColorsInCardSubSelected,
-                                    buttonColorsSuperInCardSelected =
-                                        buttonColorsSuperInCardSelected,
-                                    cardColorsDark = cardColorsDark,
-                                    cardColorsLight = cardColorsLight,
-                                    iconSize = iconSize,
-                                    iconPadding = iconPaddingMenu,
-                                    iconsTotalSize = iconsTotalSizeMenu,
-                                    isCategoriesMenuExpanded = isMenuExpanded,
-                                    isSuperItemCardStyle = superCategory != Institution,
-                                    itemSuperCategory = superCategory,
-                                    selectedSuperCategories = superCategories,
-                                    selectedSubCategories = subCategories,
-                                    isMenuExpandedParentState = expandSubMenu,
-                                    onSuperItemExpand = { expandSubMenu = it },
-                                    onCategorySelectSingle = {
-                                        onCategorySelectSingle(it)
-                                        onMenuButtonClick()
-                                    },
-                                    onCategorySelectMultiple = onCategorySelectMultiple,
-                                )
+                                    if (superCategory.enums().size == 1 || superCategory == All) {
+                                        /* If superCategory has 1 subcategory use 1 tier (static) menu item */
+                                        SuperItemStatic(
+                                            textButtonStyle = textButtonStyle,
+                                            buttonColors = buttonColors,
+                                            superCategory = superCategory,
+                                            onCategorySelectSingle = { superCategory ->
+                                                expandSubMenu = null
+                                                onCategorySelectSingle(superCategory)
+                                                onMenuButtonClick()
+                                            },
+                                            onCategorySelectMultiple = onCategorySelectMultiple,
+                                        )
+                                    } else if (superCategory.enums().isNotEmpty()) {
+                                        /* If superCategory has multiple subcategories
+                                         * use 2 tier (expandable) menu item */
+                                        SuperItemExpandable(
+                                            textButtonStyle = textButtonStyle,
+                                            buttonColors = buttonColors,
+                                            buttonColorsChild = buttonColorsLight,
+                                            cardColors = cardColorsLight,
+                                            iconSize = iconSize,
+                                            iconPadding = iconPaddingMenu,
+                                            iconsTotalSize = iconsTotalSizeMenu,
+                                            isCategoriesMenuExpanded = isMenuExpanded,
+                                            isSuperCategorySelectable = true,
+                                            itemSuperCategory = superCategory,
+                                            selectedSubCategories = subCategories,
+                                            isMenuExpandedParentState = superCategory == expandSubMenu,
+                                            onSuperItemSelect = { expandSubMenu = it },
+                                            onCategorySelectSingle = {
+                                                onCategorySelectSingle(it)
+                                                onMenuButtonClick()
+                                            },
+                                            onCategorySelectMultiple = onCategorySelectMultiple,
+                                        )
+                                    } else {
+                                        /* If superCategory only contains superCategories use 3 tier menu */
+                                        SuperItemOfSupers(
+                                            textButtonStyle = textButtonStyle,
+                                            buttonColorsSelectable = buttonColors,
+                                            buttonColorsDark = buttonColorsDark,
+                                            buttonColorsLight = buttonColorsLight,
+                                            buttonColorsInCardSubSelected = buttonColorsInCardSubSelected,
+                                            buttonColorsSuperInCardSelected =
+                                                buttonColorsSuperInCardSelected,
+                                            cardColorsDark = cardColorsDark,
+                                            cardColorsLight = cardColorsLight,
+                                            iconSize = iconSize,
+                                            iconPadding = iconPaddingMenu,
+                                            iconsTotalSize = iconsTotalSizeMenu,
+                                            isCategoriesMenuExpanded = isMenuExpanded,
+                                            isSuperItemCardStyle = superCategory != Institution,
+                                            itemSuperCategory = superCategory,
+                                            selectedSuperCategories = superCategories,
+                                            selectedSubCategories = subCategories,
+                                            isMenuExpandedParentState = expandSubMenu,
+                                            onSuperItemExpand = { expandSubMenu = it },
+                                            onCategorySelectSingle = {
+                                                onCategorySelectSingle(it)
+                                                onMenuButtonClick()
+                                            },
+                                            onCategorySelectMultiple = onCategorySelectMultiple,
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun MenuButton(
+    modifier: Modifier = Modifier,
+    @StringRes title: Int,
+    isSelected: Boolean,
+    buttonColorsSelect: ButtonColors,
+    buttonColorsUnselect: ButtonColors,
+    onClick: () -> Unit,
+) {
+    val colors = if (isSelected) buttonColorsSelect else buttonColorsUnselect
+
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        colors = colors,
+        shape = MaterialTheme.shapes.medium,
+    ) {
+        Icon(
+            imageVector = Icons.Default.FilterList,
+            contentDescription = null,
+        )
+
+        Text(
+            text = stringResource(id = title),
+            modifier = Modifier.padding(start = Dimens.extraSmall4),
+        )
     }
 }
 
@@ -517,10 +644,12 @@ private fun MenuItemCentred(
 ) {
     val boxModifier =
         if (isMenuButton) modifier.fillMaxSize()
-        else modifier.fillMaxWidth().padding(
-            top = Dimens.textButtonVertPad,
-            bottom = Dimens.textButtonVertPad + lastItemPadding
-        )
+        else modifier
+            .fillMaxWidth()
+            .padding(
+                top = Dimens.textButtonVertPad,
+                bottom = Dimens.textButtonVertPad + lastItemPadding
+            )
 
     @Suppress("UnusedBoxWithConstraintsScope")
     BoxWithConstraints(modifier = boxModifier) {
