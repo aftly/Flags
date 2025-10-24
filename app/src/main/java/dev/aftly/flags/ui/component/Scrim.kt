@@ -12,18 +12,20 @@ import androidx.compose.ui.input.pointer.pointerInput
 @Composable
 fun Scrim(
     modifier: Modifier = Modifier,
-    onAction: () -> Unit,
+    onClick: () -> Unit,
 ) {
     Box(
         modifier = modifier
-            .pointerInput(onAction) {
-                detectTapGestures { onAction() }
+            .pointerInput(key1 = onClick) {
+                detectTapGestures { onClick() }
             }
             .onKeyEvent {
                 if (it.key == Key.Escape) {
-                    onAction()
+                    onClick()
                     true
-                } else false
+                } else {
+                    false
+                }
             }
     )
 }

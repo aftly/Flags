@@ -50,9 +50,10 @@ import dev.aftly.flags.model.FlagSuperCategory.Regional
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 import dev.aftly.flags.model.FlagSuperCategory.TerritorialDistributionOfAuthority
 import dev.aftly.flags.model.FlagView
-import dev.aftly.flags.model.relatedmenu.RelatedFlagsMenu
-import dev.aftly.flags.model.relatedmenu.RelatedFlagsMenu.CHRONOLOGICAL
-import dev.aftly.flags.model.relatedmenu.RelatedFlagsMenu.POLITICAL
+import dev.aftly.flags.model.menu.FlagsMenu
+import dev.aftly.flags.model.menu.FlagsMenu.FILTER
+import dev.aftly.flags.model.menu.FlagsMenu.CHRONOLOGICAL
+import dev.aftly.flags.model.menu.FlagsMenu.POLITICAL
 import kotlin.collections.plus
 
 
@@ -84,13 +85,15 @@ fun ScoreItem.superCategories(): List<FlagSuperCategory> =
     gameSuperCategories.filterIsInstance<FlagSuperCategory>()
 
 @Composable
-fun RelatedFlagsMenu.color(): Color = when (this) {
+fun FlagsMenu.color(): Color = when (this) {
+    FILTER -> MaterialTheme.colorScheme.onSecondaryContainer
     CHRONOLOGICAL -> MaterialTheme.colorScheme.tertiary
     POLITICAL -> MaterialTheme.colorScheme.secondary
 }
 
 @Composable
-fun RelatedFlagsMenu.colorSelect(): Color = when (this) {
+fun FlagsMenu.colorSelect(): Color = when (this) {
+    FILTER -> MaterialTheme.colorScheme.secondary
     CHRONOLOGICAL -> MaterialTheme.colorScheme.onTertiaryContainer
     POLITICAL -> MaterialTheme.colorScheme.onSecondaryContainer
 }

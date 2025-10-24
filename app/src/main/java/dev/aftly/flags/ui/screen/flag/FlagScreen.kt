@@ -234,7 +234,7 @@ private fun FlagScreen(
                 },
                 currentFlag = uiState.flag,
                 isOnlyButton = uiState.politicalRelatedFlagsContent == null,
-                relatedFlagContent = relatedFlags,
+                relatedFlagsContent = relatedFlags,
                 onFlagSelect = { newFlag ->
                     if (newFlag != uiState.flag) {
                         expandRelatedMenu = null
@@ -259,7 +259,7 @@ private fun FlagScreen(
                 },
                 currentFlag = uiState.flag,
                 isOnlyButton = uiState.chronologicalRelatedFlagsContent == null,
-                relatedFlagContent = relatedFlags,
+                relatedFlagsContent = relatedFlags,
                 onFlagSelect = { newFlag ->
                     if (newFlag != uiState.flag) {
                         expandRelatedMenu = null
@@ -561,7 +561,7 @@ private fun FlagTopBar(
                         horizontalArrangement = Arrangement.Center,
                     ) {
                         RelatedFlagsButton(
-                            relatedType = FlagsMenu.CHRONOLOGICAL,
+                            menu = FlagsMenu.CHRONOLOGICAL,
                             isFullSize = !isPoliticalFlagsButton,
                             menuExpanded = isChronologicalButtonExpanded,
                             onMenuExpand = onChronologicalButtonExpand,
@@ -583,7 +583,7 @@ private fun FlagTopBar(
                         horizontalArrangement = Arrangement.Center,
                     ) {
                         RelatedFlagsButton(
-                            relatedType = FlagsMenu.POLITICAL,
+                            menu = FlagsMenu.POLITICAL,
                             isFullSize = !isChronologicalFlagsButton,
                             menuExpanded = isPoliticalButtonExpanded,
                             onMenuExpand = onPoliticalButtonExpand,

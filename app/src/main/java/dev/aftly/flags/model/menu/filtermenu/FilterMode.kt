@@ -1,4 +1,4 @@
-package dev.aftly.flags.model.filtermenu
+package dev.aftly.flags.model.menu.filtermenu
 
 import androidx.annotation.StringRes
 import dev.aftly.flags.R

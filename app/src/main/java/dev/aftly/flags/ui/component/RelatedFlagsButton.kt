@@ -27,7 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.aftly.flags.R
-import dev.aftly.flags.model.relatedmenu.RelatedFlagsMenu
+import dev.aftly.flags.model.menu.FlagsMenu
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.util.color
 
@@ -35,19 +35,19 @@ import dev.aftly.flags.ui.util.color
 @Composable
 fun RelatedFlagsButton(
     modifier: Modifier = Modifier,
-    relatedType: RelatedFlagsMenu,
+    menu: FlagsMenu,
     isFullSize: Boolean,
     menuExpanded: Boolean,
     onMenuExpand: () -> Unit,
-    onButtonPosition: (Offset) -> Unit,
-    onButtonWidth: (Int) -> Unit,
+    onButtonPosition: (Offset) -> Unit = {},
+    onButtonWidth: (Int) -> Unit = {},
 ) {
-    val buttonColors = ButtonDefaults.buttonColors(containerColor = relatedType.color())
+    val buttonColors = ButtonDefaults.buttonColors(containerColor = menu.color())
     val configuration = LocalConfiguration.current
     val fontScale = configuration.fontScale
     val iconSize = Dimens.standardIconSize24 * fontScale
     val iconPadding = 2.dp * fontScale
-    val titleStringRes = if (isFullSize) relatedType.title else relatedType.titleShort
+    val titleStringRes = if (isFullSize) menu.title else menu.titleShort
 
     Box(
         modifier = modifier
@@ -69,7 +69,7 @@ fun RelatedFlagsButton(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
-                    imageVector = relatedType.icon,
+                    imageVector = menu.icon,
                     contentDescription = null,
                     modifier = Modifier
                         .size(iconSize)

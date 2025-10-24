@@ -129,7 +129,7 @@ fun ScoreDetails(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.575f)),
-                onAction = {
+                onClick = {
                     /* Dismiss ScoreDetails on tap off */
                     if (!isDarkTheme) systemUiController.setLightStatusBar(light = true)
                     onClose()

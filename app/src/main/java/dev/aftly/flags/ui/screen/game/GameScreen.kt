@@ -503,7 +503,7 @@ private fun GameScreen(
             onButtonHeightChange = { buttonHeight = it },
             isMenuEnabled = uiState.answerMode != AnswerMode.DATES,
             isMenuExpanded = isMenuExpanded,
-            onMenuButtonClick = { isMenuExpanded = !isMenuExpanded },
+            onMenuExpand = { isMenuExpanded = !isMenuExpanded },
             isSavedFlagsNotEmpty = isSavedFlagsNotEmpty,
             filterByCountry = uiState.filterByCountry,
             superCategories = uiState.currentSuperCategories,

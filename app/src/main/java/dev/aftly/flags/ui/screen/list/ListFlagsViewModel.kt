@@ -255,8 +255,6 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
      * Also updates currentSuperCategory and currentCategory title details for FilterFlagsButton UI
      * Is intended to be called with either a newSuperCategory OR newSubCategory, and a null value */
     fun updateCurrentCategory(category: FlagCategoryBase) {
-        val filterByCountry = uiState.value.filterByCountry
-
         /* If new category is All superCategory update flags with static allFlags source,
          * else dynamically generate flags list from category info */
         if (category == All) {
@@ -285,7 +283,10 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
                 )
             }
         }
-        if (filterByCountry != null) filterByCountry(filterByCountry)
+        /* Refilter by country */
+        uiState.value.filterByCountry?.let { country ->
+            filterByCountry(country)
+        }
     }
 
 
@@ -295,7 +296,6 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
 
         val superCategories = uiState.value.currentSuperCategories.toMutableList()
         val subCategories = uiState.value.currentSubCategories.toMutableList()
-        val filterByCountry = uiState.value.filterByCountry
 
         /* Exit function if new<*>Category is not selectable or mutually exclusive from current.
          * Else, add/remove category argument to/from categories lists */
@@ -355,7 +355,10 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
                 currentSubCategories = subCategories,
             )
         }
-        if (filterByCountry != null) filterByCountry(filterByCountry)
+        /* Refilter by country */
+        uiState.value.filterByCountry?.let { country ->
+            filterByCountry(country)
+        }
     }
 
     fun updateFilterByCountry(country: FlagView) {

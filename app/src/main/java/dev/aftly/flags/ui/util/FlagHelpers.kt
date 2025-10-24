@@ -2,7 +2,6 @@ package dev.aftly.flags.ui.util
 
 import android.app.Application
 import android.content.Context
-import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.NAV_SEPARATOR
 import dev.aftly.flags.data.DataSource.annexedFlagResMap
 import dev.aftly.flags.data.DataSource.flagResMap
@@ -52,9 +51,10 @@ import dev.aftly.flags.model.FlagSuperCategory.Legislature
 import dev.aftly.flags.model.FlagSuperCategory.Regional
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 import dev.aftly.flags.model.FlagView
-import dev.aftly.flags.model.relatedmenu.RelatedFlagGroup
-import dev.aftly.flags.model.relatedmenu.RelatedFlagsCategory
-import dev.aftly.flags.model.relatedmenu.RelatedFlagsContent
+import dev.aftly.flags.model.menu.relatedmenu.LazyColumnItem
+import dev.aftly.flags.model.menu.relatedmenu.RelatedFlagGroup
+import dev.aftly.flags.model.menu.relatedmenu.RelatedFlagsCategory
+import dev.aftly.flags.model.menu.relatedmenu.RelatedFlagsContent
 import dev.aftly.flags.model.serialization.BooleanSource
 import dev.aftly.flags.model.serialization.StringResSource
 
@@ -366,7 +366,13 @@ fun getFlagOfAlternativeResIds(
 /* ------------------------------------------ */
 
 
-/* ---------- For RelatedFlagsMenu ---------- */
+/* ---------- For related flags (eg. RelatedFlagsMenu) ---------- */
+
+fun getLatestFlag(flag: FlagView): FlagView =
+    flag.previousFlagOfKey?.let { flagViewMap.getValue(it) } ?: flag
+
+fun getLatestFlagKey(flag: FlagView): String =
+    flag.previousFlagOfKey ?: inverseFlagViewMap.getValue(flag)
 
 val perLevelAdminDivisionOrder = listOf(
     STATE,
@@ -431,7 +437,7 @@ fun getChronologicalRelatedFlagsContentOrNull(
     sourceFlag: FlagView,
     application: Application,
 ): RelatedFlagsContent.Chronological? {
-    val flag = sourceFlag.previousFlagOfKey?.let { flagViewMap.getValue(it) } ?: sourceFlag
+    val flag = getLatestFlag(sourceFlag)
 
     return if (!flag.isChronologicalRelatedFlags()) {
         null
@@ -568,8 +574,8 @@ fun getPoliticalRelatedFlagsContentOrNull(
     sourceFlag: FlagView,
     application: Application,
 ): RelatedFlagsContent.Political? {
-    val flag = sourceFlag.previousFlagOfKey?.let { flagViewMap.getValue(it) } ?: sourceFlag
-    val flagKey = sourceFlag.previousFlagOfKey ?: inverseFlagViewMap.getValue(sourceFlag)
+    val flag = getLatestFlag(sourceFlag)
+    val flagKey = getLatestFlagKey(sourceFlag)
 
     return if (!flag.isPoliticalRelatedFlags()) {
         null
@@ -773,5 +779,42 @@ fun getPoliticalRelatedFlagsContentOrNull(
             },
             internationalOrgMembers = null,
         )
+    }
+}
+
+fun getRelatedFlagItems(
+    relatedFlagsContent: RelatedFlagsContent
+): List<LazyColumnItem> = relatedFlagsContent.groups.flatMap { group ->
+    buildList {
+        add(
+            LazyColumnItem.Header(
+                title = group.category,
+                keyTag = group.categoryKey,
+            )
+        )
+        when (group) {
+            is RelatedFlagGroup.Single -> add(
+                LazyColumnItem.Flag(
+                    flag = group.flag,
+                    keyTag = group.categoryKey,
+                )
+            )
+            is RelatedFlagGroup.Multiple -> group.flags.forEach { flag ->
+                add(
+                    LazyColumnItem.Flag(
+                        flag = flag,
+                        keyTag = group.categoryKey,
+                    )
+                )
+            }
+            is RelatedFlagGroup.AdminUnits -> group.flags.forEach { flag ->
+                add(
+                    LazyColumnItem.Flag(
+                        flag = flag,
+                        keyTag = group.categoryKey,
+                    )
+                )
+            }
+        }
     }
 }

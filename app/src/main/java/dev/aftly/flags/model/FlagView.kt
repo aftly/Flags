@@ -4,6 +4,8 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.data.DataSource.inverseFlagViewMap
+import dev.aftly.flags.ui.util.getLatestFlag
+import dev.aftly.flags.ui.util.getLatestFlagKey
 
 /* Launch process class from flagsMap FlagResources for complete information for view and search */
 data class FlagView(
@@ -37,16 +39,16 @@ data class FlagView(
     val isDated = fromYear != null || (toYear != null && toYear != 0)
 
     fun isPoliticalRelatedFlags(): Boolean {
-        val primaryFlag = previousFlagOfKey?.let { flagViewMap.getValue(it) } ?: this
-        val primaryKey = previousFlagOfKey ?: inverseFlagViewMap.getValue(this)
+        val primaryFlag = getLatestFlag(flag = this)
+        val primaryKey = getLatestFlagKey(flag = this)
 
         return (primaryFlag.politicalInternalRelatedFlagKeys +
                 primaryFlag.politicalExternalRelatedFlagKeys).any { it != primaryKey }
     }
 
     fun isChronologicalRelatedFlags(): Boolean {
-        val primaryFlag = previousFlagOfKey?.let { flagViewMap.getValue(it) } ?: this
-        val primaryKey = previousFlagOfKey ?: inverseFlagViewMap.getValue(this)
+        val primaryFlag = getLatestFlag(flag = this)
+        val primaryKey = getLatestFlagKey(flag = this)
 
         return (primaryFlag.chronologicalDirectRelatedFlagKeys +
                 primaryFlag.chronologicalIndirectRelatedFlagKeys).any { it != primaryKey }

@@ -1,8 +1,9 @@
-package dev.aftly.flags.model.relatedmenu
+package dev.aftly.flags.model.menu.relatedmenu
 
 import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
 import dev.aftly.flags.model.FlagCategory.INTERNATIONAL_ORGANIZATION
 import dev.aftly.flags.model.FlagCategory.POLITICAL_MOVEMENT
+import dev.aftly.flags.model.menu.FlagsMenu
 
 sealed interface RelatedFlagsContent {
     val menu: FlagsMenu

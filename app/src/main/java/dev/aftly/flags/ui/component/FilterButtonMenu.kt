@@ -1,29 +1,17 @@
 package dev.aftly.flags.ui.component
 
-import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -31,14 +19,12 @@ import androidx.compose.foundation.layout.requiredWidthIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
@@ -46,7 +32,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -71,27 +56,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.countryFlagsList
 import dev.aftly.flags.data.DataSource.menuSuperCategoryList
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategoryBase
-import dev.aftly.flags.model.FlagCategoryWrapper
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagSuperCategory.Institution
 import dev.aftly.flags.model.FlagSuperCategory.Political
 import dev.aftly.flags.model.FlagView
-import dev.aftly.flags.model.filtermenu.FilterMode
-import dev.aftly.flags.model.relatedmenu.RelatedFlagsMenu
+import dev.aftly.flags.model.menu.FlagsMenu
+import dev.aftly.flags.model.menu.filtermenu.FilterMode
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Shapes
 import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.util.LocalDarkTheme
+import dev.aftly.flags.ui.util.color
+import dev.aftly.flags.ui.util.colorSelect
 import dev.aftly.flags.ui.util.getCategoriesTitleIds
 import dev.aftly.flags.ui.util.toWrapper
 import kotlinx.coroutines.delay
-
 
 @Composable
 fun FilterButtonMenu(
@@ -102,9 +86,9 @@ fun FilterButtonMenu(
     onButtonHeightChange: (Dp) -> Unit,
     isMenuEnabled: Boolean = true,
     isMenuExpanded: Boolean,
-    onMenuButtonClick: () -> Unit,
-    containerColorDark: Color = MaterialTheme.colorScheme.onSecondaryContainer,
-    containerColorLight: Color = MaterialTheme.colorScheme.secondary,
+    onMenuExpand: () -> Unit,
+    colorPrimary: Color = FlagsMenu.FILTER.color(),
+    colorSecondary: Color = FlagsMenu.FILTER.colorSelect(),
     isSavedFlagsNotEmpty: Boolean,
     filterByCountry: FlagView?,
     superCategories: List<FlagSuperCategory>,
@@ -115,24 +99,24 @@ fun FilterButtonMenu(
     onFilterByCountry: (FlagView) -> Unit,
 ) {
     /* UI state */
-    var expandSubMenu by remember { mutableStateOf<FlagSuperCategory?>(value = null) }
+    var subMenuExpand by remember { mutableStateOf<FlagSuperCategory?>(value = null) }
     var filterModeSelect by rememberSaveable { mutableStateOf(value = FilterMode.CATEGORY) }
     val countriesListState = rememberLazyListState()
-    val countriesList = countryFlagsList
+    val filterCountries = countryFlagsList
 
     /* Color properties */
-    val cardColorsDark: CardColors = CardDefaults.cardColors(containerColor = containerColorDark)
-    val cardColorsLight: CardColors = CardDefaults.cardColors(containerColor = containerColorLight)
-    val buttonColorsDark: ButtonColors =
-        ButtonDefaults.buttonColors(containerColor = containerColorDark)
-    val buttonColorsLight: ButtonColors =
-        ButtonDefaults.buttonColors(containerColor = containerColorLight)
+    val cardColorsPrimary: CardColors = CardDefaults.cardColors(containerColor = colorPrimary)
+    val cardColorsSecondary: CardColors = CardDefaults.cardColors(containerColor = colorSecondary)
+    val buttonColorsPrimary: ButtonColors =
+        ButtonDefaults.buttonColors(containerColor = colorPrimary)
+    val buttonColorsSecondary: ButtonColors =
+        ButtonDefaults.buttonColors(containerColor = colorSecondary)
 
     val isDarkTheme = LocalDarkTheme.current
     val containerColorSubSelected = if (isDarkTheme) Color.White else Color.Black
     val buttonColorsSubSelected = ButtonDefaults.buttonColors(
         containerColor = lerp(
-            start = buttonColorsDark.containerColor,
+            start = colorPrimary,
             stop = containerColorSubSelected,
             fraction = if (isDarkTheme) 0.25f else 0.165f,
         )
@@ -140,7 +124,7 @@ fun FilterButtonMenu(
     val containerColorInCardSubSelected = if (isDarkTheme) Color.White else Color.Black
     val buttonColorsInCardSubSelected = ButtonDefaults.buttonColors(
         containerColor = lerp(
-            start = buttonColorsLight.containerColor,
+            start = colorSecondary,
             stop = containerColorInCardSubSelected,
             fraction = if (isDarkTheme) 0.275f else 0.12f,
         )
@@ -148,7 +132,7 @@ fun FilterButtonMenu(
     val containerColorSuperInCardSelected = if (isDarkTheme) Color.Black else Color.White
     val buttonColorsSuperInCardSelected = ButtonDefaults.buttonColors(
         containerColor = lerp(
-            start = buttonColorsLight.containerColor,
+            start = colorSecondary,
             stop = containerColorSuperInCardSelected,
             fraction = if (isDarkTheme) 0.13f else 0.175f,
         )
@@ -201,12 +185,15 @@ fun FilterButtonMenu(
         false -> MaterialTheme.shapes.medium
     }
 
+    val lazyColumnModifier = Modifier.fillMaxWidth()
+    val lazyColumnContentPadding = PaddingValues(bottom = Dimens.small10)
+
     /* When menu collapse, reset ui state */
     LaunchedEffect(key1 = isMenuExpanded) {
         if (!isMenuExpanded) {
             delay(timeMillis = Timing.MENU_COLLAPSE.toLong())
 
-            expandSubMenu = null
+            subMenuExpand = null
             filterModeSelect = FilterMode.CATEGORY
             countriesListState.scrollToItem(index = 0)
         }
@@ -218,7 +205,7 @@ fun FilterButtonMenu(
 
             delay(timeMillis = Timing.MENU_EXPAND.toLong() * 2)
             countriesListState.animateScrollToItem(
-                index = countriesList.indexOfFirst { it.id == filterByCountry.id }
+                index = filterCountries.indexOfFirst { it.id == filterByCountry.id }
             )
         }
     }
@@ -226,18 +213,10 @@ fun FilterButtonMenu(
 
     Box(modifier = modifier) {
         /* Scrim behind expanded menu, tap gestures close menu */
-        AnimatedVisibility(
+        MenuScrim(
             visible = isMenuExpanded,
-            enter = fadeIn(animationSpec = tween(durationMillis = Timing.MENU_EXPAND)),
-            exit = fadeOut(animationSpec = tween(durationMillis = Timing.MENU_EXPAND)),
-        ) {
-            Scrim(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
-                onAction = onMenuButtonClick,
-            )
-        }
+            onClick = onMenuExpand,
+        )
 
         /* Content */
         Column(
@@ -252,20 +231,20 @@ fun FilterButtonMenu(
         ) {
             /* Parent content */
             Button(
-                onClick = onMenuButtonClick,
+                onClick = onMenuExpand,
                 modifier = Modifier
                     .padding(bottom = Dimens.small8) /* Separate Button from Menu */
                     .height(buttonHeight),
                 enabled = isMenuEnabled,
                 shape = MaterialTheme.shapes.large,
-                colors = buttonColorsLight,
+                colors = buttonColorsSecondary,
                 contentPadding = PaddingValues(horizontal = Dimens.medium16),
             ) {
-                MenuItemCentred(
+                MenuCategoryItemCentred(
                     isMenuButton = true,
                     buttonTitle = buttonTitle,
                     textButtonStyle = MaterialTheme.typography.titleMedium,
-                    buttonColors = buttonColorsLight,
+                    buttonColors = buttonColorsSecondary,
                     category = null,
                     iconPaddingButton = iconPaddingButton,
                     iconSizePadding = iconSizePaddingButton,
@@ -293,13 +272,13 @@ fun FilterButtonMenu(
                                     modifier = Modifier
                                         .requiredWidthIn(min = Dimens.standardIconSize24)
                                         .clip(flagCountShape)
-                                        .background(buttonColorsLight.contentColor)
+                                        .background(buttonColorsSecondary.contentColor)
                                         .padding(
                                             vertical = 2.dp * fontScale,
                                             horizontal = 6.dp * fontScale,
                                         ),
                                     textAlign = TextAlign.Center,
-                                    color = buttonColorsLight.containerColor,
+                                    color = buttonColorsSecondary.containerColor,
                                     style = MaterialTheme.typography.titleSmall,
                                 )
                             }
@@ -315,7 +294,7 @@ fun FilterButtonMenu(
                                 isMenuButton = true,
                                 iconSize = iconSize,
                                 iconPadding = iconPaddingButton,
-                                tint = buttonColorsLight.contentColor
+                                tint = buttonColorsSecondary.contentColor
                             )
                         }
                     },
@@ -323,13 +302,9 @@ fun FilterButtonMenu(
             }
 
             /* Child content */
-            MenuAnimatedVisibility(
-                visible = isMenuExpanded
-            ) {
-                Card(
-                    shape = Shapes.large,
-                    colors = cardColorsDark,
-                ) {
+            MenuAnimatedVisibility(visible = isMenuExpanded) {
+                MenuCard(menu = FlagsMenu.FILTER) {
+                    /* FilterMode buttons */
                     Row(
                         modifier = Modifier
                             .padding(
@@ -346,9 +321,10 @@ fun FilterButtonMenu(
                                     .padding(end = Dimens.small10 + 1.dp)
                                     .weight(1f),
                                 title = filterMode.title,
+                                icon = FlagsMenu.FILTER.icon,
                                 isSelected = filterMode == filterModeSelect,
-                                buttonColorsSelect = buttonColorsLight,
-                                buttonColorsUnselect = buttonColorsDark,
+                                buttonColorsSelect = buttonColorsSecondary,
+                                buttonColorsUnselect = buttonColorsPrimary,
                                 onClick = { filterModeSelect = filterMode },
                             )
                         }
@@ -370,137 +346,45 @@ fun FilterButtonMenu(
                             }
                         }
                     ) { targetFilterMode ->
-                        val lazyColumnContentPadding = PaddingValues(bottom = Dimens.small10)
-
                         when (targetFilterMode) {
-                            FilterMode.COUNTRY -> LazyColumn(
-                                modifier = Modifier.fillMaxWidth(),
-                                state = countriesListState,
-                                contentPadding = lazyColumnContentPadding,
-                            ) {
-                                /* Flag category items */
-                                items(items = countriesList) { flag ->
-                                    MenuFlagItem(
-                                        flag = flag,
-                                        selectedFlag = filterByCountry,
-                                        menu = RelatedFlagsMenu.POLITICAL,
-                                        isShowDates = false,
-                                        buttonColors = buttonColorsDark,
-                                        buttonColorsSelect = buttonColorsLight,
-                                        onFlagSelect = { flag ->
-                                            val current = filterByCountry
-                                            onFilterByCountry(flag)
-                                            if (flag != current) onMenuButtonClick()
-                                        },
-                                    )
-                                }
+                            FilterMode.COUNTRY -> {
+                                CountryLazyList(
+                                    modifier = lazyColumnModifier,
+                                    listState = countriesListState,
+                                    contentPadding = lazyColumnContentPadding,
+                                    countries = filterCountries,
+                                    selectedFlag = filterByCountry,
+                                    onFlagSelect = onFilterByCountry,
+                                    onMenuExpand = onMenuExpand,
+                                )
                             }
-                            FilterMode.CATEGORY -> LazyColumn(
-                                modifier = Modifier.fillMaxWidth(),
-                                contentPadding = lazyColumnContentPadding,
-                            ) {
-                                /* Saved flags item */
-                                if (isSavedFlagsNotEmpty) {
-                                    item {
-                                        MenuItem(
-                                            modifier = Modifier.clickable(
-                                                onClick = {
-                                                    expandSubMenu = null
-                                                    onSavedFlagsSelect()
-                                                    onMenuButtonClick()
-                                                }
-                                            ),
-                                            textButtonStyle = textButtonStyle,
-                                            buttonColors =
-                                                if (superCategories.isEmpty() && subCategories.isEmpty()) {
-                                                    buttonColorsLight
-                                                } else {
-                                                    buttonColorsDark
-                                                },
-                                            category = null,
-                                        )
-                                    }
-                                }
-
-                                /* Flag category items */
-                                items(items = menuSuperCategoryList) { superCategory ->
-                                    val buttonColors = if (superCategory in superCategories) {
-                                        buttonColorsLight
-                                    } else if (superCategory != All &&
-                                        (superCategory.allEnums().any { it in subCategories } ||
-                                                superCategory.supers().any { it in superCategories })) {
-                                        buttonColorsSubSelected
-                                    } else {
-                                        buttonColorsDark
-                                    }
-
-
-                                    if (superCategory.enums().size == 1 || superCategory == All) {
-                                        /* If superCategory has 1 subcategory use 1 tier (static) menu item */
-                                        SuperItemStatic(
-                                            textButtonStyle = textButtonStyle,
-                                            buttonColors = buttonColors,
-                                            superCategory = superCategory,
-                                            onCategorySelectSingle = { superCategory ->
-                                                expandSubMenu = null
-                                                onCategorySelectSingle(superCategory)
-                                                onMenuButtonClick()
-                                            },
-                                            onCategorySelectMultiple = onCategorySelectMultiple,
-                                        )
-                                    } else if (superCategory.enums().isNotEmpty()) {
-                                        /* If superCategory has multiple subcategories
-                                         * use 2 tier (expandable) menu item */
-                                        SuperItemExpandable(
-                                            textButtonStyle = textButtonStyle,
-                                            buttonColors = buttonColors,
-                                            buttonColorsChild = buttonColorsLight,
-                                            cardColors = cardColorsLight,
-                                            iconSize = iconSize,
-                                            iconPadding = iconPaddingMenu,
-                                            iconsTotalSize = iconsTotalSizeMenu,
-                                            isCategoriesMenuExpanded = isMenuExpanded,
-                                            isSuperCategorySelectable = true,
-                                            itemSuperCategory = superCategory,
-                                            selectedSubCategories = subCategories,
-                                            isMenuExpandedParentState = superCategory == expandSubMenu,
-                                            onSuperItemSelect = { expandSubMenu = it },
-                                            onCategorySelectSingle = {
-                                                onCategorySelectSingle(it)
-                                                onMenuButtonClick()
-                                            },
-                                            onCategorySelectMultiple = onCategorySelectMultiple,
-                                        )
-                                    } else {
-                                        /* If superCategory only contains superCategories use 3 tier menu */
-                                        SuperItemOfSupers(
-                                            textButtonStyle = textButtonStyle,
-                                            buttonColorsSelectable = buttonColors,
-                                            buttonColorsDark = buttonColorsDark,
-                                            buttonColorsLight = buttonColorsLight,
-                                            buttonColorsInCardSubSelected = buttonColorsInCardSubSelected,
-                                            buttonColorsSuperInCardSelected =
-                                                buttonColorsSuperInCardSelected,
-                                            cardColorsDark = cardColorsDark,
-                                            cardColorsLight = cardColorsLight,
-                                            iconSize = iconSize,
-                                            iconPadding = iconPaddingMenu,
-                                            iconsTotalSize = iconsTotalSizeMenu,
-                                            isCategoriesMenuExpanded = isMenuExpanded,
-                                            isSuperItemCardStyle = superCategory != Institution,
-                                            itemSuperCategory = superCategory,
-                                            selectedSuperCategories = superCategories,
-                                            selectedSubCategories = subCategories,
-                                            isMenuExpandedParentState = expandSubMenu,
-                                            onSuperItemExpand = { expandSubMenu = it },
-                                            onCategorySelectSingle = {
-                                                onCategorySelectSingle(it)
-                                                onMenuButtonClick()
-                                            },
-                                            onCategorySelectMultiple = onCategorySelectMultiple,
-                                        )
-                                    }
-                                }
+                            FilterMode.CATEGORY -> {
+                                CategoryLazyList(
+                                    modifier = lazyColumnModifier,
+                                    contentPadding = lazyColumnContentPadding,
+                                    textButtonStyle = textButtonStyle,
+                                    iconSize = iconSize,
+                                    iconPaddingMenu = iconPaddingMenu,
+                                    iconsTotalSizeMenu = iconsTotalSizeMenu,
+                                    cardColorsPrimary = cardColorsPrimary,
+                                    cardColorsSecondary = cardColorsSecondary,
+                                    buttonColorsPrimary = buttonColorsPrimary,
+                                    buttonColorsSecondary = buttonColorsSecondary,
+                                    buttonColorsSubSelected = buttonColorsSubSelected,
+                                    buttonColorsInCardSubSelected = buttonColorsInCardSubSelected,
+                                    buttonColorsSuperInCardSelected =
+                                        buttonColorsSuperInCardSelected,
+                                    superCategories = superCategories,
+                                    subCategories = subCategories,
+                                    isMenuExpanded = isMenuExpanded,
+                                    isSavedFlagsNotEmpty = isSavedFlagsNotEmpty,
+                                    subMenuExpand = subMenuExpand,
+                                    onSubMenuExpand = { subMenuExpand = it },
+                                    onCategorySelectSingle = onCategorySelectSingle,
+                                    onCategorySelectMultiple = onCategorySelectMultiple,
+                                    onSavedFlagsSelect = onSavedFlagsSelect,
+                                    onMenuExpand = onMenuExpand,
+                                )
                             }
                         }
                     }
@@ -511,215 +395,176 @@ fun FilterButtonMenu(
 }
 
 @Composable
-private fun MenuButton(
+private fun CountryLazyList(
     modifier: Modifier = Modifier,
-    @StringRes title: Int,
-    isSelected: Boolean,
-    buttonColorsSelect: ButtonColors,
-    buttonColorsUnselect: ButtonColors,
-    onClick: () -> Unit,
+    listState: LazyListState,
+    contentPadding: PaddingValues,
+    countries: List<FlagView>,
+    selectedFlag: FlagView?,
+    onFlagSelect: (FlagView) -> Unit,
+    onMenuExpand: () -> Unit,
 ) {
-    val colors = if (isSelected) buttonColorsSelect else buttonColorsUnselect
-
-    Button(
-        onClick = onClick,
+    LazyColumn(
         modifier = modifier,
-        colors = colors,
-        shape = MaterialTheme.shapes.medium,
+        state = listState,
+        contentPadding = contentPadding,
     ) {
-        Icon(
-            imageVector = Icons.Default.FilterList,
-            contentDescription = null,
-        )
+        /* Flag category items */
+        items(
+            count = countries.size,
+            key = { index -> countries[index].id }
+        ) { index ->
+            val flag = countries[index]
 
-        Text(
-            text = stringResource(id = title),
-            modifier = Modifier.padding(start = Dimens.extraSmall4),
-        )
-    }
-}
-
-@Composable
-private fun MenuItemContent(
-    modifier: Modifier = Modifier,
-    isMenuButton: Boolean = false,
-    buttonTitle: String? = null,
-    textButtonStyle: TextStyle,
-    buttonColors: ButtonColors,
-    fontWeight: FontWeight? = null,
-    textAlign: TextAlign? = null,
-    iconPaddingButton: Dp = 0.dp,
-    category: FlagCategoryBase?,
-    onTextWidth: (Dp) -> Unit = {},
-    onSingleLineCount: (Boolean) -> Unit = {},
-    preTextContent: (@Composable RowScope.() -> Unit)? = null,
-    postTextContent: @Composable RowScope.() -> Unit = {},
-) {
-    val density = LocalDensity.current
-    val rowModifier = if (isMenuButton) modifier.fillMaxSize() else modifier.fillMaxWidth()
-    val textPaddingModifier =
-        if (isMenuButton) Modifier.padding(horizontal = iconPaddingButton)
-        else Modifier.padding(paddingValues = ButtonDefaults.TextButtonContentPadding)
-
-    val rowBackgroundColor = if (isMenuButton) Color.Transparent else buttonColors.containerColor
-    val textColor = if (isMenuButton) LocalContentColor.current else buttonColors.contentColor
-
-    Row(
-        modifier = rowModifier.background(color = rowBackgroundColor),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        preTextContent?.let { preTextContent() }
-
-        Text(
-            text = buttonTitle ?: when (category) {
-                is FlagSuperCategory -> stringResource(category.title)
-                is FlagCategoryWrapper -> stringResource(category.enum.title)
-                else -> stringResource(R.string.saved_flags)
-            },
-            modifier = when (preTextContent) {
-                null -> textPaddingModifier
-                else -> textPaddingModifier.weight(weight = 1f, fill = false)
-            },
-            color = textColor,
-            fontWeight = fontWeight,
-            textAlign = textAlign,
-            onTextLayout = when (preTextContent) {
-                null -> null
-                else -> { textLayoutResult ->
-                    with(receiver = density) { onTextWidth(textLayoutResult.size.width.toDp()) }
-
-                    if (isMenuButton && textLayoutResult.lineCount > 1) {
-                        onSingleLineCount(false)
-                    } else if (isMenuButton) {
-                        onSingleLineCount(true)
-                    }
-                }
-            },
-            style = textButtonStyle,
-        )
-
-        postTextContent()
-    }
-}
-
-@Composable
-private fun MenuItem(
-    modifier: Modifier = Modifier,
-    textButtonStyle: TextStyle,
-    buttonColors: ButtonColors,
-    fontWeight: FontWeight? = null,
-    category: FlagCategoryBase?,
-    postTextContent: @Composable RowScope.() -> Unit = {},
-) {
-    Box(
-        modifier = modifier.padding(vertical = Dimens.textButtonVertPad)
-    ) {
-        MenuItemContent(
-            textButtonStyle = textButtonStyle,
-            buttonColors = buttonColors,
-            fontWeight = fontWeight,
-            category = category,
-            postTextContent = postTextContent,
-        )
-    }
-}
-
-@Composable
-private fun MenuItemCentred(
-    modifier: Modifier = Modifier,
-    isMenuButton: Boolean = false,
-    buttonTitle: String? = null,
-    textButtonStyle: TextStyle,
-    buttonColors: ButtonColors,
-    fontWeight: FontWeight? = null,
-    category: FlagCategoryBase?,
-    lastItemPadding: Dp = 0.dp,
-    iconPaddingButton: Dp = 0.dp,
-    iconSizePadding: Dp,
-    iconsTotalSize: Dp,
-    onSingleLineCount: (Boolean) -> Unit = {},
-    preTextContent: @Composable (RowScope.() -> Unit)? = null,
-    postTextContent: @Composable RowScope.() -> Unit = {},
-) {
-    val boxModifier =
-        if (isMenuButton) modifier.fillMaxSize()
-        else modifier
-            .fillMaxWidth()
-            .padding(
-                top = Dimens.textButtonVertPad,
-                bottom = Dimens.textButtonVertPad + lastItemPadding
+            MenuFlagItem(
+                flag = flag,
+                selectedFlag = selectedFlag,
+                menu = FlagsMenu.FILTER,
+                isShowDates = false,
+                onFlagSelect = { flag ->
+                    val current = selectedFlag
+                    onFlagSelect(flag)
+                    if (flag != current) onMenuExpand()
+                },
             )
-
-    @Suppress("UnusedBoxWithConstraintsScope")
-    BoxWithConstraints(modifier = boxModifier) {
-        /* Manage dynamic spacer size for button title center alignment */
-        val buttonWidth = maxWidth /* (BoxWithConstraintsScope usage) */
-        var textWidth by remember { mutableStateOf(value = 0.dp) }
-
-        MenuItemContent(
-            isMenuButton = isMenuButton,
-            buttonTitle = buttonTitle,
-            textButtonStyle = textButtonStyle,
-            buttonColors = buttonColors,
-            fontWeight = fontWeight,
-            textAlign = TextAlign.Center,
-            iconPaddingButton = iconPaddingButton,
-            category = category,
-            onTextWidth = { textWidth = it },
-            onSingleLineCount = onSingleLineCount,
-            preTextContent = {
-                preTextContent?.let {
-                    preTextContent()
-                } ?: Spacer(
-                    modifier = Modifier.width(width =
-                        if (textWidth + iconsTotalSize < buttonWidth) iconSizePadding
-                        else 0.dp
-                    )
-                )
-            },
-            postTextContent = postTextContent,
-        )
-    }
-}
-
-@Composable
-private fun MenuItemCard(
-    modifier: Modifier = Modifier,
-    innerPadding: Dp = Dimens.extraSmall4,
-    cardColors: CardColors,
-    content: @Composable () -> Unit,
-) {
-    Card(
-        modifier = modifier.padding(horizontal = Dimens.small10),
-        shape = Shapes.large,
-        colors = cardColors,
-    ) {
-        Column(modifier = Modifier.padding(vertical = innerPadding)) {
-            content()
         }
     }
 }
 
 @Composable
-private fun MenuAnimatedVisibility(
-    visible: Boolean,
-    content: @Composable (AnimatedVisibilityScope.() -> Unit),
+private fun CategoryLazyList(
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues,
+    textButtonStyle: TextStyle,
+    iconSize: Dp,
+    iconPaddingMenu: Dp,
+    iconsTotalSizeMenu: Dp,
+    cardColorsPrimary: CardColors,
+    cardColorsSecondary: CardColors,
+    buttonColorsPrimary: ButtonColors,
+    buttonColorsSecondary: ButtonColors,
+    buttonColorsSubSelected: ButtonColors,
+    buttonColorsInCardSubSelected: ButtonColors,
+    buttonColorsSuperInCardSelected: ButtonColors,
+    superCategories: List<FlagSuperCategory>,
+    subCategories: List<FlagCategory>,
+    isMenuExpanded: Boolean,
+    isSavedFlagsNotEmpty: Boolean,
+    subMenuExpand: FlagSuperCategory?,
+    onSubMenuExpand: (FlagSuperCategory?) -> Unit,
+    onCategorySelectSingle: (FlagCategoryBase) -> Unit,
+    onCategorySelectMultiple: (FlagCategoryBase) -> Unit,
+    onSavedFlagsSelect: () -> Unit,
+    onMenuExpand: () -> Unit,
 ) {
-    AnimatedVisibility(
-        visible = visible,
-        enter = expandVertically(
-            animationSpec = tween(durationMillis = Timing.MENU_EXPAND),
-            expandFrom = Alignment.Top,
-        ),
-        exit = shrinkVertically(
-            animationSpec = tween(durationMillis = Timing.MENU_COLLAPSE),
-            shrinkTowards = Alignment.Top,
-        ),
-        content = content,
-    )
-}
+    LazyColumn(modifier = modifier, contentPadding = contentPadding) {
+        /* Saved flags item */
+        if (isSavedFlagsNotEmpty) {
+            item {
+                MenuCategoryItem(
+                    modifier = Modifier.clickable(
+                        onClick = {
+                            onSubMenuExpand(null)
+                            onSavedFlagsSelect()
+                            onMenuExpand()
+                        }
+                    ),
+                    textButtonStyle = textButtonStyle,
+                    buttonColors =
+                        if (superCategories.isEmpty() && subCategories.isEmpty()) {
+                            buttonColorsSecondary
+                        } else {
+                            buttonColorsPrimary
+                        },
+                    category = null,
+                )
+            }
+        }
 
+        /* Flag category items */
+        items(items = menuSuperCategoryList) { superCategory ->
+            val isSelected = superCategory in superCategories
+
+            val buttonColors = if (superCategory in superCategories) {
+                buttonColorsSecondary
+            } else if (superCategory != All &&
+                (superCategory.allEnums().any { it in subCategories } ||
+                        superCategory.supers().any { it in superCategories })) {
+                buttonColorsSubSelected
+            } else {
+                buttonColorsPrimary
+            }
+
+
+            if (superCategory.enums().size == 1 || superCategory == All) {
+                /* If superCategory has 1 subcategory use 1 tier (static) menu item */
+                SuperItemStatic(
+                    textButtonStyle = textButtonStyle,
+                    //buttonColors = buttonColors,
+                    isSelected = isSelected,
+                    superCategory = superCategory,
+                    onCategorySelectSingle = { superCategory ->
+                        onSubMenuExpand(null)
+                        onCategorySelectSingle(superCategory)
+                        onMenuExpand()
+                    },
+                    onCategorySelectMultiple = onCategorySelectMultiple,
+                )
+            } else if (superCategory.enums().isNotEmpty()) {
+                /* If superCategory has multiple subcategories
+                 * use 2 tier (expandable) menu item */
+                SuperItemExpandable(
+                    textButtonStyle = textButtonStyle,
+                    buttonColors = buttonColors,
+                    buttonColorsChild = buttonColorsSecondary,
+                    cardColors = cardColorsSecondary,
+                    iconSize = iconSize,
+                    iconPadding = iconPaddingMenu,
+                    iconsTotalSize = iconsTotalSizeMenu,
+                    isCategoriesMenuExpanded = isMenuExpanded,
+                    isSuperCategorySelectable = true,
+                    itemSuperCategory = superCategory,
+                    selectedSubCategories = subCategories,
+                    isMenuExpandedParentState = superCategory == subMenuExpand,
+                    onSuperItemSelect = { onSubMenuExpand(it) },
+                    onCategorySelectSingle = {
+                        onCategorySelectSingle(it)
+                        onMenuExpand()
+                    },
+                    onCategorySelectMultiple = onCategorySelectMultiple,
+                )
+            } else {
+                /* If superCategory only contains superCategories use 3 tier menu */
+                SuperItemOfSupers(
+                    textButtonStyle = textButtonStyle,
+                    buttonColorsSelectable = buttonColors,
+                    buttonColorsDark = buttonColorsPrimary,
+                    buttonColorsLight = buttonColorsSecondary,
+                    buttonColorsInCardSubSelected = buttonColorsInCardSubSelected,
+                    buttonColorsSuperInCardSelected =
+                        buttonColorsSuperInCardSelected,
+                    cardColorsDark = cardColorsPrimary,
+                    cardColorsLight = cardColorsSecondary,
+                    iconSize = iconSize,
+                    iconPadding = iconPaddingMenu,
+                    iconsTotalSize = iconsTotalSizeMenu,
+                    isCategoriesMenuExpanded = isMenuExpanded,
+                    isSuperItemCardStyle = superCategory != Institution,
+                    itemSuperCategory = superCategory,
+                    selectedSuperCategories = superCategories,
+                    selectedSubCategories = subCategories,
+                    isMenuExpandedParentState = subMenuExpand,
+                    onSuperItemExpand = { onSubMenuExpand(it) },
+                    onCategorySelectSingle = {
+                        onCategorySelectSingle(it)
+                        onMenuExpand()
+                    },
+                    onCategorySelectMultiple = onCategorySelectMultiple,
+                )
+            }
+        }
+    }
+}
 
 @Composable
 private fun SubItem(
@@ -734,7 +579,7 @@ private fun SubItem(
     onCategorySelectSingle: (FlagCategoryBase) -> Unit,
     onCategorySelectMultiple: (FlagCategoryBase) -> Unit,
 ) {
-    MenuItem(
+    MenuCategoryItem(
         modifier = modifier.combinedClickable(
             onClick = { onCategorySelectSingle(subCategory.toWrapper()) },
             onLongClick = { onCategorySelectMultiple(subCategory.toWrapper()) },
@@ -757,33 +602,34 @@ private fun SubItem(
     }
 }
 
-
 @Composable
 private fun SuperItemStatic(
     modifier: Modifier = Modifier,
     textButtonStyle: TextStyle,
-    buttonColors: ButtonColors,
+    //buttonColors: ButtonColors,
+    isSelected: Boolean,
     superCategory: FlagSuperCategory,
     onCategorySelectSingle: (FlagCategoryBase) -> Unit,
     onCategorySelectMultiple: (FlagCategoryBase) -> Unit,
 ) {
+    val color = if (isSelected) FlagsMenu.FILTER.colorSelect() else FlagsMenu.FILTER.color()
+    //val buttonColors = ButtonDefaults.buttonColors(containerColor = FlagsMenu.FILTER.color())
     val fontWeight = when (superCategory) {
         All -> FontWeight.ExtraBold
         else -> null
     }
 
-    MenuItem(
+    MenuCategoryItem(
         modifier = modifier.combinedClickable(
             onClick = { onCategorySelectSingle(superCategory) },
             onLongClick = { onCategorySelectMultiple(superCategory) },
         ),
         textButtonStyle = textButtonStyle,
-        buttonColors = buttonColors,
+        buttonColors = ButtonDefaults.buttonColors(containerColor = color),
         fontWeight = fontWeight,
         category = superCategory,
     )
 }
-
 
 @Composable
 private fun SuperItemExpandable(
@@ -791,6 +637,7 @@ private fun SuperItemExpandable(
     buttonColors: ButtonColors,
     buttonColorsChild: ButtonColors,
     cardColors: CardColors,
+    //isSelected: Boolean,
     iconSize: Dp,
     iconPadding: Dp,
     iconsTotalSize: Dp,
@@ -855,7 +702,7 @@ private fun SuperItemExpandable(
 
     /* Parent content */
     if (isSuperCategorySelectable) {
-        MenuItem(
+        MenuCategoryItem(
             modifier = Modifier.combinedClickable(
                 onClick = {
                     onSuperItemSelect(null)
@@ -879,7 +726,7 @@ private fun SuperItemExpandable(
             )
         }
     } else {
-        MenuItemCentred(
+        MenuCategoryItemCentred(
             modifier = expandSuperClickableModifier,
             textButtonStyle = textButtonStyle,
             buttonColors = buttonColors,
@@ -924,7 +771,6 @@ private fun SuperItemExpandable(
 
     Spacer(modifier = Modifier.height(lastItemPadding))
 }
-
 
 @Composable
 private fun SuperItemsContainer(
@@ -1012,7 +858,7 @@ private fun SuperItemOfSupers(
     ) {
         /* Parent content */
         if (isSuperItemCardStyle) {
-            MenuItemCentred(
+            MenuCategoryItemCentred(
                 modifier = expandSuperClickableModifier,
                 textButtonStyle = textButtonStyle,
                 buttonColors = buttonColorsLight,
@@ -1029,7 +875,7 @@ private fun SuperItemOfSupers(
                 )
             }
         } else {
-            MenuItem(
+            MenuCategoryItem(
                 modifier = Modifier.combinedClickable(
                     onClick = { onCategorySelectSingle(itemSuperCategory) },
                     onLongClick = { onCategorySelectMultiple(itemSuperCategory) },
@@ -1092,30 +938,4 @@ private fun SuperItemOfSupers(
             }
         }
     }
-}
-
-
-@Composable
-private fun MenuItemExpandableArrowIcon(
-    modifier: Modifier = Modifier,
-    isExpanded: Boolean,
-    isMenuButton: Boolean = false,
-    iconSize: Dp,
-    iconPadding: Dp,
-    tint: Color = Color.Unspecified,
-) {
-    val endPadding = if (!isMenuButton) iconPadding else 0.dp
-
-    Icon(
-        imageVector =
-            if (isExpanded) Icons.Default.KeyboardArrowUp
-            else Icons.Default.KeyboardArrowDown,
-        contentDescription =
-            if (isExpanded) stringResource(R.string.menu_sub_icon_collapse)
-            else stringResource(R.string.menu_sub_icon_expand),
-        modifier = modifier
-            .padding(end = endPadding)
-            .size(iconSize),
-        tint = tint,
-    )
 }
