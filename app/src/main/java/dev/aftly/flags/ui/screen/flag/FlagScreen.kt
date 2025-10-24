@@ -71,7 +71,7 @@ import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.model.FlagScreenContent
 import dev.aftly.flags.model.FlagView
-import dev.aftly.flags.model.relatedmenu.RelatedFlagsMenu
+import dev.aftly.flags.model.menu.FlagsMenu
 import dev.aftly.flags.ui.component.FullscreenButton
 import dev.aftly.flags.ui.component.RelatedFlagsButton
 import dev.aftly.flags.ui.component.RelatedFlagsMenuCard
@@ -150,13 +150,13 @@ private fun FlagScreen(
     modifier: Modifier = Modifier,
     uiState: FlagUiState,
     onFlagSave: () -> Unit,
-    onRelatedFlag: (FlagView, RelatedFlagsMenu?, Boolean) -> Unit,
+    onRelatedFlag: (FlagView, FlagsMenu?, Boolean) -> Unit,
     onFullscreen: (Boolean) -> Unit,
     onNavigateBack: () -> Unit,
 ) {
     /* Controls FilterFlagsButton menu expansion amd tracks current button height
      * Also for FilterFlagsButton to access Scaffold() padding */
-    var expandRelatedMenu by rememberSaveable { mutableStateOf<RelatedFlagsMenu?>(value = null) }
+    var expandRelatedMenu by rememberSaveable { mutableStateOf<FlagsMenu?>(value = null) }
     var scaffoldPaddingValues by remember { mutableStateOf(value = PaddingValues()) }
     var buttonChronologicalOffset by remember { mutableStateOf(value = Offset(x = 0f, y = 0f)) }
     var buttonChronologicalWidth by remember { mutableIntStateOf(value = 0) }
@@ -181,19 +181,19 @@ private fun FlagScreen(
                     onFlagSave = onFlagSave,
                     isPoliticalFlagsButton = uiState.politicalRelatedFlagsContent != null,
                     isChronologicalFlagsButton = uiState.chronologicalRelatedFlagsContent != null,
-                    isPoliticalButtonExpanded = expandRelatedMenu == RelatedFlagsMenu.POLITICAL,
+                    isPoliticalButtonExpanded = expandRelatedMenu == FlagsMenu.POLITICAL,
                     isChronologicalButtonExpanded =
-                        expandRelatedMenu == RelatedFlagsMenu.CHRONOLOGICAL,
+                        expandRelatedMenu == FlagsMenu.CHRONOLOGICAL,
                     onPoliticalButtonExpand = {
                         expandRelatedMenu = when (expandRelatedMenu) {
-                            RelatedFlagsMenu.POLITICAL -> null
-                            else -> RelatedFlagsMenu.POLITICAL
+                            FlagsMenu.POLITICAL -> null
+                            else -> FlagsMenu.POLITICAL
                         }
                     },
                     onChronologicalButtonExpand = {
                         expandRelatedMenu = when (expandRelatedMenu) {
-                            RelatedFlagsMenu.CHRONOLOGICAL -> null
-                            else -> RelatedFlagsMenu.CHRONOLOGICAL
+                            FlagsMenu.CHRONOLOGICAL -> null
+                            else -> FlagsMenu.CHRONOLOGICAL
                         }
                     },
                     onChronologicalButtonPosition = { buttonChronologicalOffset = it },
@@ -277,7 +277,7 @@ private fun FlagContent(
     modifier: Modifier = Modifier,
     flagScreenContent: FlagScreenContent,
     onImageWide: (Boolean) -> Unit,
-    onRelatedFlag: (FlagView, RelatedFlagsMenu, Boolean) -> Unit,
+    onRelatedFlag: (FlagView, FlagsMenu, Boolean) -> Unit,
     onFullscreen: () -> Unit,
 ) {
     /* Properties for if image height greater than column height, eg. in landscape orientation,
@@ -375,7 +375,7 @@ private fun FlagContent(
                                         }
                                     }
                                     flagToNavigate?.let {
-                                        onRelatedFlag(it, RelatedFlagsMenu.POLITICAL, true)
+                                        onRelatedFlag(it, FlagsMenu.POLITICAL, true)
                                     }
                                 }
                             ) {
@@ -561,7 +561,7 @@ private fun FlagTopBar(
                         horizontalArrangement = Arrangement.Center,
                     ) {
                         RelatedFlagsButton(
-                            relatedType = RelatedFlagsMenu.CHRONOLOGICAL,
+                            relatedType = FlagsMenu.CHRONOLOGICAL,
                             isFullSize = !isPoliticalFlagsButton,
                             menuExpanded = isChronologicalButtonExpanded,
                             onMenuExpand = onChronologicalButtonExpand,
@@ -583,7 +583,7 @@ private fun FlagTopBar(
                         horizontalArrangement = Arrangement.Center,
                     ) {
                         RelatedFlagsButton(
-                            relatedType = RelatedFlagsMenu.POLITICAL,
+                            relatedType = FlagsMenu.POLITICAL,
                             isFullSize = !isChronologicalFlagsButton,
                             menuExpanded = isPoliticalButtonExpanded,
                             onMenuExpand = onPoliticalButtonExpand,

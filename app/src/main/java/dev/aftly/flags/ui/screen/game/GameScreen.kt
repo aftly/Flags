@@ -331,6 +331,7 @@ fun GameScreen(
             viewModel.updateCurrentCategories(category = it)
         },
         onSavedFlagsSelect = { viewModel.selectSavedFlags() },
+        onFilterByCountry = { viewModel.updateFilterByCountry(country = it) }
     )
 }
 
@@ -365,6 +366,7 @@ private fun GameScreen(
     onCategorySelectSingle: (FlagCategoryBase) -> Unit,
     onCategorySelectMultiple: (FlagCategoryBase) -> Unit,
     onSavedFlagsSelect: () -> Unit,
+    onFilterByCountry: (FlagView) -> Unit,
 ) {
     /* Controls FilterFlagsButton menu expansion and tracks button height */
     var isMenuExpanded by rememberSaveable { mutableStateOf(value = false) }
@@ -503,13 +505,13 @@ private fun GameScreen(
             isMenuExpanded = isMenuExpanded,
             onMenuButtonClick = { isMenuExpanded = !isMenuExpanded },
             isSavedFlagsNotEmpty = isSavedFlagsNotEmpty,
-            filterByCountry = null,
+            filterByCountry = uiState.filterByCountry,
             superCategories = uiState.currentSuperCategories,
             subCategories = uiState.currentSubCategories,
             onCategorySelectSingle = onCategorySelectSingle,
             onCategorySelectMultiple = onCategorySelectMultiple,
             onSavedFlagsSelect = onSavedFlagsSelect,
-            onFilterByCountry = {}, // TODO
+            onFilterByCountry = { onFilterByCountry(it) },
         )
 
 

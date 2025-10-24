@@ -9,6 +9,7 @@ import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
 import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.R
+import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.data.DataSource.nullFlag
 import dev.aftly.flags.data.datastore.GamePreferencesRepository
 import dev.aftly.flags.data.room.savedflags.SavedFlag
@@ -97,6 +98,8 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
 
     fun resetScreen() {
         /* updateCurrentCategory also calls resetGame() */
+        _uiState.update { it.copy(filterByCountry = null) }
+
         updateCurrentCategory(
             category = SovereignCountry,
             answerModeNew = AnswerMode.NAMES,
@@ -207,6 +210,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
     ) {
         val allFlags = uiState.value.allFlags
         val isFirstGame = uiState.value.isFirstGame
+        val filterByCountry = uiState.value.filterByCountry
         val answerMode = answerModeNew ?: uiState.value.answerMode
         val difficultyMode = difficultyModeNew ?: uiState.value.difficultyMode
         val timeMode = timeModeNew ?: uiState.value.timeMode
@@ -232,8 +236,13 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
                 currentSubCategories = buildList {
                     if (category is FlagCategoryWrapper) add(category.enum)
                 },
-                isFirstGame = isFirstGame
+                filterByCountry = filterByCountry,
+                isFirstGame = isFirstGame,
             )
+        }
+        /* Refilter by country */
+        uiState.value.filterByCountry?.let { country ->
+            filterByCountry(country)
         }
 
         resetGame(startGame, answerMode, difficultyMode, timeMode, timeTrialStartTime)
@@ -293,6 +302,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         /* Update state with new categories lists and currentFlags list */
         val allFlags = uiState.value.allFlags
         val currentFlags = uiState.value.currentFlags
+        val filterByCountry = uiState.value.filterByCountry
         val answerMode = uiState.value.answerMode
         val difficultyMode = uiState.value.difficultyMode
         val timeMode = uiState.value.timeMode
@@ -310,9 +320,14 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
             ),
             currentSuperCategories = superCategories,
             currentSubCategories = subCategories,
+            filterByCountry = filterByCountry,
             answerMode = answerMode,
             difficultyMode = difficultyMode,
         )
+        /* Refilter by country */
+        uiState.value.filterByCountry?.let { country ->
+            filterByCountry(country)
+        }
 
         resetGame(
             startGame = false,
@@ -530,6 +545,53 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         _uiState.update { it.copy(currentFlagStrings = currentFlagStrings) }
     }
 
+    fun updateFilterByCountry(country: FlagView) {
+        val oldFilterByCountry = uiState.value.filterByCountry
+        val isCountry = uiState.value.currentSuperCategories.all { it == SovereignCountry } &&
+                uiState.value.currentSubCategories.isEmpty()
+
+        /* Deselect current filter country */
+        if (uiState.value.filterByCountry != null) {
+            _uiState.update {
+                it.copy(
+                    currentFlags = getFlagsFromCategories(
+                        allFlags = it.allFlags,
+                        currentFlags = it.currentFlags,
+                        isDeselectSwitch = Pair(first = true, second = false),
+                        superCategory = it.currentSuperCategories.firstOrNull(),
+                        superCategories = it.currentSuperCategories.toMutableList(),
+                        subCategories = it.currentSubCategories.toMutableList(),
+                    ),
+                    filterByCountry = null,
+                )
+            }
+        }
+
+        /* Filter by new country */
+        if (country != oldFilterByCountry) {
+            if (isCountry) updateCurrentCategory(category = All)
+            filterByCountry(country)
+        }
+    }
+
+
+    private fun filterByCountry(country: FlagView) {
+        val relatedFlags = buildList {
+            add(country)
+            addAll(elements =
+                country.politicalInternalRelatedFlagKeys.map { flagViewMap.getValue(it) }
+            )
+            addAll(elements =
+                country.politicalExternalRelatedFlagKeys.map { flagViewMap.getValue(it) }
+            )
+        }
+        _uiState.update { state ->
+            state.copy(
+                currentFlags = state.currentFlags.filter { it in relatedFlags },
+                filterByCountry = country,
+            )
+        }
+    }
 
     private fun onFirstGameInfoExit() {
         viewModelScope.launch {

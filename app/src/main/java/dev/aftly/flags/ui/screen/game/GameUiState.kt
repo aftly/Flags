@@ -15,6 +15,7 @@ data class GameUiState(
     val currentFlags: List<FlagView> = allFlagsList,
     val currentSuperCategories: List<FlagSuperCategory> = listOf(FlagSuperCategory.All),
     val currentSubCategories: List<FlagCategory> = emptyList(),
+    val filterByCountry: FlagView? = null,
 
     val currentFlag: FlagView = nullFlag,
     val currentFlagStrings: List<String> = emptyList(),

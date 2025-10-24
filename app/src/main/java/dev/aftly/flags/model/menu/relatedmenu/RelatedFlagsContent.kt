@@ -5,7 +5,7 @@ import dev.aftly.flags.model.FlagCategory.INTERNATIONAL_ORGANIZATION
 import dev.aftly.flags.model.FlagCategory.POLITICAL_MOVEMENT
 
 sealed interface RelatedFlagsContent {
-    val menu: RelatedFlagsMenu
+    val menu: FlagsMenu
     val groups: List<RelatedFlagGroup>
 
     fun getIds(): List<Int> = groups.flatMap { group ->
@@ -26,7 +26,7 @@ sealed interface RelatedFlagsContent {
         val internationalOrgs: RelatedFlagGroup.Multiple?,
         val internationalOrgMembers: RelatedFlagGroup.Multiple?,
     ) : RelatedFlagsContent {
-        override val menu = RelatedFlagsMenu.POLITICAL
+        override val menu = FlagsMenu.POLITICAL
 
         override val groups = buildList {
             sovereign?.let { add(it) }
@@ -72,7 +72,7 @@ sealed interface RelatedFlagsContent {
         val previousEntitiesOfSovereign: RelatedFlagGroup.Multiple?,
         val dependentsOfLatest: RelatedFlagGroup.Multiple?,
     ) : RelatedFlagsContent {
-        override val menu = RelatedFlagsMenu.CHRONOLOGICAL
+        override val menu = FlagsMenu.CHRONOLOGICAL
 
         override val groups = buildList {
             historicalFlags?.let { add(it) }

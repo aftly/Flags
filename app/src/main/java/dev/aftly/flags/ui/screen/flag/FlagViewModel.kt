@@ -57,7 +57,7 @@ import dev.aftly.flags.model.FlagSuperCategory.PowerDerivation
 import dev.aftly.flags.model.FlagSuperCategory.Regional
 import dev.aftly.flags.model.FlagSuperCategory.TerritorialDistributionOfAuthority
 import dev.aftly.flags.model.FlagView
-import dev.aftly.flags.model.relatedmenu.RelatedFlagsMenu
+import dev.aftly.flags.model.menu.FlagsMenu
 import dev.aftly.flags.ui.util.getChronologicalRelatedFlagsContentOrNull
 import dev.aftly.flags.ui.util.getFlagFromId
 import dev.aftly.flags.ui.util.getFlagIdsFromString
@@ -142,7 +142,7 @@ class FlagViewModel(
 
     fun updateFlagRelated(
         flag: FlagView,
-        relatedMenu: RelatedFlagsMenu?,
+        relatedMenu: FlagsMenu?,
         isLink: Boolean,
     ) {
         _uiState.update {
@@ -171,9 +171,9 @@ class FlagViewModel(
         val polRelated = uiState.value.politicalRelatedFlagsContent
         val chronRelated = uiState.value.chronologicalRelatedFlagsContent
 
-        return if (latest == RelatedFlagsMenu.POLITICAL && flag.id !in flagIds) {
+        return if (latest == FlagsMenu.POLITICAL && flag.id !in flagIds) {
             polRelated?.getIds() ?: emptyList()
-        } else if (latest == RelatedFlagsMenu.CHRONOLOGICAL && flag.id !in flagIds) {
+        } else if (latest == FlagsMenu.CHRONOLOGICAL && flag.id !in flagIds) {
             chronRelated?.getIds() ?: emptyList()
         } else {
             flagIds

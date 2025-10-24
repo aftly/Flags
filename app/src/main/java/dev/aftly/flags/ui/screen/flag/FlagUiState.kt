@@ -4,8 +4,8 @@ import dev.aftly.flags.data.DataSource.nullFlag
 import dev.aftly.flags.data.room.savedflags.SavedFlag
 import dev.aftly.flags.model.FlagScreenContent
 import dev.aftly.flags.model.FlagView
-import dev.aftly.flags.model.relatedmenu.RelatedFlagsContent
-import dev.aftly.flags.model.relatedmenu.RelatedFlagsMenu
+import dev.aftly.flags.model.menu.relatedmenu.RelatedFlagsContent
+import dev.aftly.flags.model.menu.FlagsMenu
 
 data class FlagUiState(
     val flag: FlagView = nullFlag,
@@ -15,7 +15,7 @@ data class FlagUiState(
     val flagScreenContent: FlagScreenContent? = null,
     val navBackScrollToId: Int = 0,
     val annotatedLinkFrom: List<FlagView> = emptyList(),
-    val latestMenuInteraction: RelatedFlagsMenu? = null,
+    val latestMenuInteraction: FlagsMenu? = null,
     val savedFlags: Set<SavedFlag> = emptySet(),
     val savedFlag: SavedFlag? = null,
 )
