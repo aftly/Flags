@@ -241,7 +241,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
             )
         }
         /* Refilter by country */
-        uiState.value.filterByCountry?.let { country ->
+        filterByCountry?.let { country ->
             filterByCountry(country)
         }
 
@@ -325,7 +325,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
             difficultyMode = difficultyMode,
         )
         /* Refilter by country */
-        uiState.value.filterByCountry?.let { country ->
+        filterByCountry?.let { country ->
             filterByCountry(country)
         }
 
@@ -572,6 +572,8 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
             if (isCountry) updateCurrentCategory(category = All)
             filterByCountry(country)
         }
+
+        resetGame()
     }
 
 
