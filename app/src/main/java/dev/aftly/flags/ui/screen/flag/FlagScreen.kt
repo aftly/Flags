@@ -313,8 +313,8 @@ private fun FlagContent(
             modifier = modifier
                 .fillMaxSize()
                 .padding(
-                    start = Dimens.marginHorizontal16,
-                    end = Dimens.marginHorizontal16
+                    start = Dimens.margin16,
+                    end = Dimens.margin16
                 )
                 /*
                 .onSizeChanged { size ->

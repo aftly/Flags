@@ -380,8 +380,8 @@ private fun ListFlagsScreen(
                     .fillMaxSize()
                     .padding(
                         top = scaffoldPadding.calculateTopPadding(),
-                        start = Dimens.marginHorizontal16,
-                        end = Dimens.marginHorizontal16,
+                        start = Dimens.margin16,
+                        end = Dimens.margin16,
                     ),
                 filterButtonHeight = buttonHeight,
                 scaffoldBottomPadding = scaffoldPadding.calculateBottomPadding(),
@@ -417,7 +417,7 @@ private fun ListFlagsScreen(
         FilterButtonMenu(
             modifier = Modifier.fillMaxSize(),
             scaffoldPadding = scaffoldPaddingValues,
-            buttonHorizontalPadding = Dimens.marginHorizontal16,
+            buttonHorizontalPadding = Dimens.margin16,
             flagCount =
                 if (uiState.isSearchQuery) searchResults.size
                 else if (uiState.isViewSavedFlags) uiState.savedFlags.size
@@ -580,11 +580,9 @@ private fun ListItem(
     onSaveFlag: (FlagView) -> Unit,
     onFlagSelect: (FlagView) -> Unit,
 ) {
-    val configuration = LocalConfiguration.current
-    val fontScale = configuration.fontScale
-    val dynamicHeight = Dimens.defaultListItemHeight48 * fontScale
     val contentPadding = Dimens.extraSmall4
     val textColor = MaterialTheme.colorScheme.onPrimaryContainer
+    val imageHeight = Dimens.listItemHeight48 - verticalPadding * 2
 
     /* Item strings */
     val flagOf = stringResource(flag.flagOf)
@@ -684,8 +682,7 @@ private fun ListItem(
                 Image(
                     painter = painterResource(id = flag.imagePreview),
                     contentDescription = null,
-                    /* Limit image height to dynamicHeight minus item padding */
-                    modifier = Modifier.height(dynamicHeight - verticalPadding * 2),
+                    modifier = Modifier.height(imageHeight),
                     contentScale = ContentScale.Fit,
                 )
             }
@@ -699,8 +696,8 @@ private fun ListItem(
             IconButton(
                 onClick = { onSaveFlag(flag) },
                 modifier = Modifier
-                    .padding(start = Dimens.marginHorizontal16 - Dimens.extraSmall4)
-                    .width(Dimens.standardIconSize24 + Dimens.extraSmall4),
+                    .padding(start = Dimens.margin16 - Dimens.extraSmall4)
+                    .width(Dimens.iconSize24 + Dimens.extraSmall4),
             ) {
                 Icon(
                     imageVector = saveFlagIcon,
@@ -921,7 +918,7 @@ private fun ListFlagsTopBar(
                                     }
                                     /* Spacer enables centred animation of above button */
                                     Spacer(modifier = Modifier
-                                        .width(Dimens.standardIconSize24 * 1.75f)
+                                        .width(Dimens.iconSize24 * 1.75f)
                                     )
                                 }
 

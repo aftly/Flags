@@ -152,7 +152,7 @@ private fun SettingsContent(
     onThemeDialog: () -> Unit,
     onCheckDynamicColor: (Boolean) -> Unit,
 ) {
-    val halfMarginPadding = Dimens.marginHorizontal16 / 2
+    val halfMarginPadding = Dimens.margin16 / 2
 
     Column(
         modifier = modifier

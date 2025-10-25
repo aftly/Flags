@@ -3,8 +3,6 @@ package dev.aftly.flags.ui.component
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -52,11 +50,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -75,6 +72,7 @@ import dev.aftly.flags.ui.theme.surfaceLight
 import dev.aftly.flags.ui.util.color
 import dev.aftly.flags.ui.util.colorSelect
 import dev.aftly.flags.ui.util.flagDatesString
+import dev.aftly.flags.ui.util.textButtonEndPadding
 
 /* ---------- SCRIM RELATED ---------- */
 @Composable
@@ -189,11 +187,11 @@ fun MenuItemExpandableArrowIcon(
     modifier: Modifier = Modifier,
     isExpanded: Boolean,
     isMenuButton: Boolean = false,
-    iconSize: Dp,
-    iconPadding: Dp,
     tint: Color = Color.Unspecified,
 ) {
-    val endPadding = if (!isMenuButton) iconPadding else 0.dp
+    val endPadding = if (isMenuButton) 0.dp else {
+        textButtonEndPadding(layDir = LocalLayoutDirection.current)
+    }
 
     Icon(
         imageVector =
@@ -202,9 +200,7 @@ fun MenuItemExpandableArrowIcon(
         contentDescription =
             if (isExpanded) stringResource(R.string.menu_sub_icon_collapse)
             else stringResource(R.string.menu_sub_icon_expand),
-        modifier = modifier
-            .padding(end = endPadding)
-            .size(iconSize),
+        modifier = modifier.padding(end = endPadding),
         tint = tint,
     )
 }
@@ -214,17 +210,15 @@ fun MenuItemExpandableArrowIcon(
 @Composable
 fun MenuCategoryItem(
     modifier: Modifier = Modifier,
-    textButtonStyle: TextStyle,
     buttonColors: ButtonColors,
     fontWeight: FontWeight? = null,
     category: FlagCategoryBase?,
     postTextContent: @Composable RowScope.() -> Unit = {},
 ) {
     Box(
-        modifier = modifier.padding(vertical = Dimens.textButtonVertPad)
+        modifier = modifier.padding(vertical = Dimens.menuItemVertPad)
     ) {
         MenuCategoryItemContent(
-            textButtonStyle = textButtonStyle,
             buttonColors = buttonColors,
             fontWeight = fontWeight,
             category = category,
@@ -238,26 +232,21 @@ fun MenuCategoryItemCentred(
     modifier: Modifier = Modifier,
     isMenuButton: Boolean = false,
     buttonTitle: String? = null,
-    textButtonStyle: TextStyle,
     buttonColors: ButtonColors,
     fontWeight: FontWeight? = null,
     category: FlagCategoryBase?,
-    lastItemPadding: Dp = 0.dp,
-    iconPaddingButton: Dp = 0.dp,
-    iconSizePadding: Dp,
-    iconsTotalSize: Dp,
     onSingleLineCount: (Boolean) -> Unit = {},
     preTextContent: @Composable (RowScope.() -> Unit)? = null,
     postTextContent: @Composable RowScope.() -> Unit = {},
 ) {
-    val boxModifier =
-        if (isMenuButton) modifier.fillMaxSize()
-        else modifier
-            .fillMaxWidth()
-            .padding(
-                top = Dimens.textButtonVertPad,
-                bottom = Dimens.textButtonVertPad + lastItemPadding
-            )
+    val boxModifier = if (isMenuButton) modifier.fillMaxSize() else modifier
+        .fillMaxWidth()
+        .padding(vertical = Dimens.menuItemVertPad)
+    val iconPadding = if (isMenuButton) 2.dp else {
+        textButtonEndPadding(layDir = LocalLayoutDirection.current)
+    }
+    val iconSizePadding = Dimens.iconSize24 + iconPadding
+    val iconSizePaddingDuo = (iconSizePadding + 1.dp) * 2
 
     @Suppress("UnusedBoxWithConstraintsScope")
     BoxWithConstraints(modifier = boxModifier) {
@@ -268,11 +257,9 @@ fun MenuCategoryItemCentred(
         MenuCategoryItemContent(
             isMenuButton = isMenuButton,
             buttonTitle = buttonTitle,
-            textButtonStyle = textButtonStyle,
             buttonColors = buttonColors,
             fontWeight = fontWeight,
             textAlign = TextAlign.Center,
-            iconPaddingButton = iconPaddingButton,
             category = category,
             onTextWidth = { textWidth = it },
             onSingleLineCount = onSingleLineCount,
@@ -281,8 +268,7 @@ fun MenuCategoryItemCentred(
                     preTextContent()
                 } ?: Spacer(
                     modifier = Modifier.width(width =
-                        if (textWidth + iconsTotalSize < buttonWidth) iconSizePadding
-                        else 0.dp
+                        if (textWidth + iconSizePaddingDuo < buttonWidth) iconSizePadding else 0.dp
                     )
                 )
             },
@@ -296,11 +282,9 @@ fun MenuCategoryItemContent(
     modifier: Modifier = Modifier,
     isMenuButton: Boolean = false,
     buttonTitle: String? = null,
-    textButtonStyle: TextStyle,
     buttonColors: ButtonColors,
     fontWeight: FontWeight? = null,
     textAlign: TextAlign? = null,
-    iconPaddingButton: Dp = 0.dp,
     category: FlagCategoryBase?,
     onTextWidth: (Dp) -> Unit = {},
     onSingleLineCount: (Boolean) -> Unit = {},
@@ -310,11 +294,16 @@ fun MenuCategoryItemContent(
     val density = LocalDensity.current
     val rowModifier = if (isMenuButton) modifier.fillMaxSize() else modifier.fillMaxWidth()
     val textPaddingModifier =
-        if (isMenuButton) Modifier.padding(horizontal = iconPaddingButton)
+        if (isMenuButton) Modifier.padding(horizontal = 2.dp)
         else Modifier.padding(paddingValues = ButtonDefaults.TextButtonContentPadding)
 
     val rowBackgroundColor = if (isMenuButton) Color.Transparent else buttonColors.containerColor
     val textColor = if (isMenuButton) LocalContentColor.current else buttonColors.contentColor
+
+    val textButtonStyle =
+        if (isMenuButton) MaterialTheme.typography.titleMedium
+        else MaterialTheme.typography.bodyMedium
+    val textButtonFontWeight = fontWeight ?: FontWeight.Medium /* When null imitate TextButton() */
 
     Row(
         modifier = rowModifier.background(color = rowBackgroundColor),
@@ -325,8 +314,8 @@ fun MenuCategoryItemContent(
 
         Text(
             text = buttonTitle ?: when (category) {
-                is FlagSuperCategory -> stringResource(category.title)
-                is FlagCategoryWrapper -> stringResource(category.enum.title)
+                is FlagSuperCategory -> stringResource(id = category.title)
+                is FlagCategoryWrapper -> stringResource(id = category.enum.title)
                 else -> stringResource(R.string.saved_flags)
             },
             modifier = when (preTextContent) {
@@ -334,7 +323,7 @@ fun MenuCategoryItemContent(
                 else -> textPaddingModifier.weight(weight = 1f, fill = false)
             },
             color = textColor,
-            fontWeight = fontWeight,
+            fontWeight = textButtonFontWeight,
             textAlign = textAlign,
             onTextLayout = when (preTextContent) {
                 null -> null
@@ -372,11 +361,8 @@ fun MenuFlagItem(
             inverseFlagViewMap.getValue(flag) == selectedFlag?.previousFlagOfKey
     val isSelected = isSelectedLiteral || isSelectedPolitical
 
-
-    val fontScale = LocalConfiguration.current.fontScale
     val verticalPadding = Dimens.small8
-    val dynamicHeight = Dimens.defaultListItemHeight48 * fontScale
-    val imageHeight = dynamicHeight - verticalPadding * 2
+    val imageHeight = Dimens.listItemHeight48 - verticalPadding * 2
 
     val color = if (isSelected) menu.colorSelect() else menu.color()
 
@@ -435,7 +421,7 @@ fun MenuFlagItem(
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
-                        modifier = Modifier.size(size = Dimens.standardIconSize24 * fontScale),
+                        modifier = Modifier.size(size = Dimens.iconSize24),
                         tint = surfaceLight,
                     )
                 }

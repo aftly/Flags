@@ -593,7 +593,7 @@ private fun ScrollToBeginningButton(
     onClick: () -> Unit,
 ) {
     /* Icon & IconButton properties */
-    val iconButtonSize = Dimens.standardIconSize24 * 2
+    val iconButtonSize = Dimens.iconSize24 * 2
 
     /* Pill island properties */
     val surfaceHeight = iconButtonSize + Dimens.small8 * 2
@@ -636,7 +636,7 @@ private fun ScrollToBeginningButton(
                         Icon(
                             imageVector = Icons.Default.KeyboardDoubleArrowLeft,
                             contentDescription = null,
-                            modifier = Modifier.size(Dimens.standardIconSize24 * 1.25f),
+                            modifier = Modifier.size(Dimens.iconSize24 * 1.25f),
                         )
                     }
                 }
@@ -656,10 +656,10 @@ private fun TransformModeButton(
 ) {
     val paddingModifier = Modifier.padding(all = Dimens.small8)
     val iconButtonModifier = if (sizeMultiplier == null) paddingModifier else {
-        paddingModifier.size(size = Dimens.standardIconSize24 * sizeMultiplier * 1.5f)
+        paddingModifier.size(size = Dimens.iconSize24 * sizeMultiplier * 1.5f)
     }
     val iconModifier = if (sizeMultiplier == null) Modifier else {
-        Modifier.size(size = Dimens.standardIconSize24 * sizeMultiplier)
+        Modifier.size(size = Dimens.iconSize24 * sizeMultiplier)
     }
 
     AnimatedVisibility(

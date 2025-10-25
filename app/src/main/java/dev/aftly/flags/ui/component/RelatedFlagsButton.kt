@@ -22,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionOnScreen
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -43,10 +42,8 @@ fun RelatedFlagsButton(
     onButtonWidth: (Int) -> Unit = {},
 ) {
     val buttonColors = ButtonDefaults.buttonColors(containerColor = menu.color())
-    val configuration = LocalConfiguration.current
-    val fontScale = configuration.fontScale
-    val iconSize = Dimens.standardIconSize24 * fontScale
-    val iconPadding = 2.dp * fontScale
+    val iconSize = Dimens.iconSize24
+    val iconPadding = 2.dp
     val titleStringRes = if (isFullSize) menu.title else menu.titleShort
 
     Box(
@@ -58,7 +55,7 @@ fun RelatedFlagsButton(
     ) {
         Button(
             onClick = onMenuExpand,
-            modifier = Modifier.height(Dimens.defaultFilterButtonHeight30 * fontScale),
+            modifier = Modifier.height(Dimens.filterButtonHeight30),
             shape = MaterialTheme.shapes.large,
             colors = buttonColors,
             contentPadding = PaddingValues(horizontal = Dimens.medium16),

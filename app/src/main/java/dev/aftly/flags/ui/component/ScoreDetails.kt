@@ -150,8 +150,8 @@ fun ScoreDetails(
                     .padding(
                         top = insetsPadding.calculateTopPadding(),
                         bottom = insetsPadding.calculateBottomPadding(),
-                        start = Dimens.marginHorizontal16,
-                        end = Dimens.marginHorizontal16
+                        start = Dimens.margin16,
+                        end = Dimens.margin16
                     ),
                 shape = MaterialTheme.shapes.extraLarge
             ) {

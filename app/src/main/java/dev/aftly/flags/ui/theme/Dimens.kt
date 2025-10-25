@@ -15,14 +15,12 @@ object Dimens {
     val large24: Dp = 24.dp
     val extraLarge32: Dp = 32.dp
 
-    val marginHorizontal16: Dp = 16.dp
-    val canNavigateBack0: Dp = 0.dp
-    val defaultListItemHeight48: Dp = 48.dp
-    val defaultFilterButtonHeight30: Dp = 30.dp
-    val defaultFilterButtonHeight50: Dp = 50.dp
-    val bottomSpacer30: Dp = 30.dp
+    val margin16: Dp = 16.dp
+    val listItemHeight48: Dp = 48.dp
+    val filterButtonHeight30: Dp = 30.dp
+    val filterButtonHeightTwoLine50: Dp = 50.dp
     val bottomSpacer80: Dp = 80.dp
-    val standardIconSize24: Dp = 24.dp
-    val textButtonVertPad: Dp = 4.dp
+    val iconSize24: Dp = 24.dp
+    val menuItemVertPad: Dp = 4.dp
     val textButtonHorizPad: Dp = 12.dp
 }

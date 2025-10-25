@@ -56,7 +56,7 @@ fun AppNavigationDrawer(
                         Image(
                             painter = painterResource(R.drawable.flags_icon_circle),
                             contentDescription = null,
-                            modifier = Modifier.height(Dimens.defaultListItemHeight48),
+                            modifier = Modifier.height(Dimens.listItemHeight48),
                         )
 
                         Text(

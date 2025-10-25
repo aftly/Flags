@@ -498,7 +498,7 @@ private fun GameScreen(
         FilterButtonMenu(
             modifier = Modifier.fillMaxSize(),
             scaffoldPadding = scaffoldPaddingValues,
-            buttonHorizontalPadding = Dimens.marginHorizontal16,
+            buttonHorizontalPadding = Dimens.margin16,
             flagCount = null,
             onButtonHeightChange = { buttonHeight = it },
             isMenuEnabled = uiState.answerMode != AnswerMode.DATES,
@@ -574,7 +574,7 @@ private fun GameContent(
     var imageHeightModifier by remember { mutableStateOf<Modifier>(value = Modifier) }
     var cardWidthModifier by remember { mutableStateOf<Modifier>(value = Modifier) }
     val density = LocalDensity.current
-    val contentTopPadding = Dimens.defaultFilterButtonHeight30 / 2
+    val contentTopPadding = Dimens.filterButtonHeight30 / 2
 
     val aspectRatioTopPadding = when (isWideScreen) {
         false -> Dimens.large24
@@ -601,8 +601,8 @@ private fun GameContent(
             .padding(
                 /* Top padding so that content scroll disappears into FilterFlagsButton */
                 top = filterButtonHeight / 2,
-                start = Dimens.marginHorizontal16,
-                end = Dimens.marginHorizontal16,
+                start = Dimens.margin16,
+                end = Dimens.margin16,
             )
             .onSizeChanged { size ->
                 columnHeight = with(density) { size.height.toDp() } - contentTopPadding

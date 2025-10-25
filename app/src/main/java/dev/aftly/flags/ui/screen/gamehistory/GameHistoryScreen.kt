@@ -217,7 +217,7 @@ private fun GameHistoryContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = Dimens.marginHorizontal16)
+            .padding(horizontal = Dimens.margin16)
     ) {
         if (scoreItems.isEmpty()) {
             NoResultsFound(
@@ -274,7 +274,7 @@ private fun HistoryItem(
         ) ?: R.string.game_history_category_multiple
 
     /* Icon properties */
-    val iconSize = Dimens.standardIconSize24 * 0.85f
+    val iconSize = Dimens.iconSize24 * 0.85f
     val categoryIcon = Icons.Default.Category
     val scoreIcon = Icons.Default.SportsScore
     val modeIcon = Icons.Default.Settings
@@ -397,7 +397,7 @@ private fun HistoryItem(
                 onCheckedChange = { onCheckedItem(item) },
                 modifier = Modifier
                     .padding(start = Dimens.small8)
-                    .size(Dimens.standardIconSize24)
+                    .size(Dimens.iconSize24)
             )
         }
     }

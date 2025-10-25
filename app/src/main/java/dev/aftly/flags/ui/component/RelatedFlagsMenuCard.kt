@@ -132,8 +132,8 @@ fun RelatedFlagsMenuCard(
                         top = (scaffoldPadding.calculateTopPadding() - Dimens.small10)
                             .coerceAtLeast(minimumValue = 0.dp),
                         bottom = scaffoldPadding.calculateBottomPadding(),
-                        start = Dimens.marginHorizontal16,
-                        end = Dimens.marginHorizontal16,
+                        start = Dimens.margin16,
+                        end = Dimens.margin16,
                     )
                     .onSizeChanged { cardHeight = it.height },
                 menu = menu,

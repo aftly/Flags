@@ -49,13 +49,13 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import dev.aftly.flags.data.DataSource.countryFlagsList
 import dev.aftly.flags.data.DataSource.menuSuperCategoryList
 import dev.aftly.flags.model.FlagCategory
@@ -74,6 +74,7 @@ import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.color
 import dev.aftly.flags.ui.util.colorSelect
 import dev.aftly.flags.ui.util.getCategoriesTitleIds
+import dev.aftly.flags.ui.util.textButtonEndPadding
 import dev.aftly.flags.ui.util.toWrapper
 import kotlinx.coroutines.delay
 
@@ -139,18 +140,15 @@ fun FilterButtonMenu(
     )
 
     /* Button height properties */
-    val configuration = LocalConfiguration.current
-    val fontScale = configuration.fontScale
-    val oneLineButtonHeight = Dimens.defaultFilterButtonHeight30 * fontScale
-    val twoLineButtonHeight = Dimens.defaultFilterButtonHeight50 * fontScale
-    var isOneLine by remember { mutableStateOf(value = true) }
-    var buttonHeight by remember {
-        mutableStateOf(value = Dimens.defaultFilterButtonHeight30 * fontScale)
-    }
-    LaunchedEffect(buttonHeight) {
+    val fontScale = LocalConfiguration.current.fontScale
+    val buttonHeightOneLine = Dimens.filterButtonHeight30 * fontScale
+    val buttonHeightTwoLine = Dimens.filterButtonHeightTwoLine50 * fontScale
+    var isButtonOneLine by remember { mutableStateOf(value = true) }
+    var buttonHeight by remember { mutableStateOf(value = buttonHeightOneLine) }
+    LaunchedEffect(key1 = buttonHeight) {
         when (buttonHeight) {
-            oneLineButtonHeight -> onButtonHeightChange(oneLineButtonHeight)
-            twoLineButtonHeight -> onButtonHeightChange(twoLineButtonHeight)
+            buttonHeightOneLine -> onButtonHeightChange(buttonHeightOneLine)
+            buttonHeightTwoLine -> onButtonHeightChange(buttonHeightTwoLine)
         }
     }
 
@@ -161,29 +159,8 @@ fun FilterButtonMenu(
         }
     }
 
-    val textButtonStyle = MaterialTheme.typography.bodyMedium.copy(
-        fontWeight = FontWeight.Medium,
-        letterSpacing = 0.15.sp,
-    )
-
-    val density = LocalDensity.current
-
-    /* Icon properties */
-    val iconSize = Dimens.standardIconSize24 * fontScale
-
-    val iconPaddingButton = 2.dp * fontScale
-    val iconSizePaddingButton = iconSize + iconPaddingButton
-    val iconsTotalSizeButton = (iconSizePaddingButton + 1.dp) * 2
-
-    val iconPaddingMenu = Dimens.textButtonHorizPad
-    val iconSizePaddingMenu = iconSize + iconPaddingMenu
-    val iconsTotalSizeMenu = (iconSizePaddingMenu + 1.dp) * 2
-
-    var flagCountWidth by remember { mutableStateOf(iconSize) }
-    val flagCountShape = when (isOneLine) {
-        true -> MaterialTheme.shapes.large
-        false -> MaterialTheme.shapes.medium
-    }
+    var flagCountWidth by remember { mutableStateOf(value = Dimens.iconSize24) }
+    val filterModeButtonPadding = Dimens.small10 + 1.dp
 
     val lazyColumnModifier = Modifier.fillMaxWidth()
     val lazyColumnContentPadding = PaddingValues(bottom = Dimens.small10)
@@ -229,7 +206,7 @@ fun FilterButtonMenu(
                     end = buttonHorizontalPadding,
                 ),
         ) {
-            /* Parent content */
+            /* MENU BUTTON */
             Button(
                 onClick = onMenuExpand,
                 modifier = Modifier
@@ -243,46 +220,30 @@ fun FilterButtonMenu(
                 MenuCategoryItemCentred(
                     isMenuButton = true,
                     buttonTitle = buttonTitle,
-                    textButtonStyle = MaterialTheme.typography.titleMedium,
                     buttonColors = buttonColorsSecondary,
                     category = null,
-                    iconPaddingButton = iconPaddingButton,
-                    iconSizePadding = iconSizePaddingButton,
-                    iconsTotalSize = iconsTotalSizeButton,
                     onSingleLineCount = { isSingleLine ->
                         if (isSingleLine) {
-                            buttonHeight = oneLineButtonHeight
-                            isOneLine = true
+                            buttonHeight = buttonHeightOneLine
+                            isButtonOneLine = true
                         } else {
-                            buttonHeight = twoLineButtonHeight
-                            isOneLine = false
+                            buttonHeight = buttonHeightTwoLine
+                            isButtonOneLine = false
                         }
                     },
                     preTextContent = {
-                        /* If not null (eg. on game screen) show flag count indicator,
-                         * else spacer (for text centering) */
-                        flagCount?.let { flagCount ->
-                            Box(
-                                modifier = Modifier.onSizeChanged { size ->
-                                    flagCountWidth = with(receiver = density) { size.width.toDp() }
-                                },
-                            ) {
-                                Text(
-                                    text = "$flagCount",
-                                    modifier = Modifier
-                                        .requiredWidthIn(min = Dimens.standardIconSize24)
-                                        .clip(flagCountShape)
-                                        .background(buttonColorsSecondary.contentColor)
-                                        .padding(
-                                            vertical = 2.dp * fontScale,
-                                            horizontal = 6.dp * fontScale,
-                                        ),
-                                    textAlign = TextAlign.Center,
-                                    color = buttonColorsSecondary.containerColor,
-                                    style = MaterialTheme.typography.titleSmall,
-                                )
-                            }
-                        } ?: Spacer(modifier = Modifier.width(iconSize))
+                        if (flagCount != null) {
+                            FlagCounter(
+                                flagCount = flagCount,
+                                textColor = buttonColorsSecondary.containerColor,
+                                backgroundColor = buttonColorsSecondary.contentColor,
+                                isButtonOneLine = isButtonOneLine,
+                                onWidth = { flagCountWidth = it },
+                            )
+                        } else {
+                            /* To ensure button title centering */
+                            Spacer(modifier = Modifier.width(Dimens.iconSize24))
+                        }
                     },
                     postTextContent = {
                         Box(
@@ -292,8 +253,6 @@ fun FilterButtonMenu(
                             MenuItemExpandableArrowIcon(
                                 isExpanded = isMenuExpanded,
                                 isMenuButton = true,
-                                iconSize = iconSize,
-                                iconPadding = iconPaddingButton,
                                 tint = buttonColorsSecondary.contentColor
                             )
                         }
@@ -301,7 +260,7 @@ fun FilterButtonMenu(
                 )
             }
 
-            /* Child content */
+            /* MENU CARD */
             MenuAnimatedVisibility(visible = isMenuExpanded) {
                 MenuCard(menu = FlagsMenu.FILTER) {
                     /* FilterMode buttons */
@@ -311,14 +270,13 @@ fun FilterButtonMenu(
                                 top = Dimens.small8 - 1.dp,
                                 bottom = Dimens.extraSmall4,
                                 start = Dimens.medium12,
-                                end = 1.dp,
+                                end = Dimens.medium12 - filterModeButtonPadding,
                             )
                             .fillMaxWidth()
                     ) {
                         FilterMode.entries.forEach { filterMode ->
                             MenuButton(
-                                modifier = Modifier
-                                    .padding(end = Dimens.small10 + 1.dp)
+                                modifier = Modifier.padding(end = filterModeButtonPadding)
                                     .weight(1f),
                                 title = filterMode.title,
                                 icon = FlagsMenu.FILTER.icon,
@@ -330,6 +288,7 @@ fun FilterButtonMenu(
                         }
                     }
 
+                    /* Category / Country content */
                     AnimatedContent(
                         targetState = filterModeSelect,
                         transitionSpec = {
@@ -362,10 +321,6 @@ fun FilterButtonMenu(
                                 CategoryLazyList(
                                     modifier = lazyColumnModifier,
                                     contentPadding = lazyColumnContentPadding,
-                                    textButtonStyle = textButtonStyle,
-                                    iconSize = iconSize,
-                                    iconPaddingMenu = iconPaddingMenu,
-                                    iconsTotalSizeMenu = iconsTotalSizeMenu,
                                     cardColorsPrimary = cardColorsPrimary,
                                     cardColorsSecondary = cardColorsSecondary,
                                     buttonColorsPrimary = buttonColorsPrimary,
@@ -391,6 +346,38 @@ fun FilterButtonMenu(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun FlagCounter(
+    modifier: Modifier = Modifier,
+    flagCount: Int,
+    textColor: Color,
+    backgroundColor: Color,
+    isButtonOneLine: Boolean,
+    onWidth: (Dp) -> Unit,
+) {
+    val density = LocalDensity.current
+    val shape = if (isButtonOneLine) MaterialTheme.shapes.large else MaterialTheme.shapes.medium
+
+    Box(
+        modifier = modifier.onSizeChanged { size ->
+            val width = with(receiver = density) { size.width.toDp() }
+            onWidth(width)
+        },
+    ) {
+        Text(
+            text = flagCount.toString(),
+            modifier = Modifier
+                .requiredWidthIn(min = Dimens.iconSize24)
+                .clip(shape = shape)
+                .background(color = backgroundColor)
+                .padding(vertical = 2.dp, horizontal = 6.dp),
+            textAlign = TextAlign.Center,
+            color = textColor,
+            style = MaterialTheme.typography.titleSmall,
+        )
     }
 }
 
@@ -435,10 +422,6 @@ private fun CountryLazyList(
 private fun CategoryLazyList(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues,
-    textButtonStyle: TextStyle,
-    iconSize: Dp,
-    iconPaddingMenu: Dp,
-    iconsTotalSizeMenu: Dp,
     cardColorsPrimary: CardColors,
     cardColorsSecondary: CardColors,
     buttonColorsPrimary: ButtonColors,
@@ -469,13 +452,13 @@ private fun CategoryLazyList(
                             onMenuExpand()
                         }
                     ),
-                    textButtonStyle = textButtonStyle,
                     buttonColors =
                         if (superCategories.isEmpty() && subCategories.isEmpty()) {
                             buttonColorsSecondary
                         } else {
                             buttonColorsPrimary
                         },
+                    fontWeight = FontWeight.Light,
                     category = null,
                 )
             }
@@ -499,7 +482,6 @@ private fun CategoryLazyList(
             if (superCategory.enums().size == 1 || superCategory == All) {
                 /* If superCategory has 1 subcategory use 1 tier (static) menu item */
                 SuperItemStatic(
-                    textButtonStyle = textButtonStyle,
                     //buttonColors = buttonColors,
                     isSelected = isSelected,
                     superCategory = superCategory,
@@ -514,13 +496,9 @@ private fun CategoryLazyList(
                 /* If superCategory has multiple subcategories
                  * use 2 tier (expandable) menu item */
                 SuperItemExpandable(
-                    textButtonStyle = textButtonStyle,
                     buttonColors = buttonColors,
                     buttonColorsChild = buttonColorsSecondary,
                     cardColors = cardColorsSecondary,
-                    iconSize = iconSize,
-                    iconPadding = iconPaddingMenu,
-                    iconsTotalSize = iconsTotalSizeMenu,
                     isCategoriesMenuExpanded = isMenuExpanded,
                     isSuperCategorySelectable = true,
                     itemSuperCategory = superCategory,
@@ -536,7 +514,6 @@ private fun CategoryLazyList(
             } else {
                 /* If superCategory only contains superCategories use 3 tier menu */
                 SuperItemOfSupers(
-                    textButtonStyle = textButtonStyle,
                     buttonColorsSelectable = buttonColors,
                     buttonColorsDark = buttonColorsPrimary,
                     buttonColorsLight = buttonColorsSecondary,
@@ -545,9 +522,6 @@ private fun CategoryLazyList(
                         buttonColorsSuperInCardSelected,
                     cardColorsDark = cardColorsPrimary,
                     cardColorsLight = cardColorsSecondary,
-                    iconSize = iconSize,
-                    iconPadding = iconPaddingMenu,
-                    iconsTotalSize = iconsTotalSizeMenu,
                     isCategoriesMenuExpanded = isMenuExpanded,
                     isSuperItemCardStyle = superCategory != Institution,
                     itemSuperCategory = superCategory,
@@ -569,11 +543,7 @@ private fun CategoryLazyList(
 @Composable
 private fun SubItem(
     modifier: Modifier = Modifier,
-    textButtonStyle: TextStyle,
     buttonColors: ButtonColors,
-    fontWeight: FontWeight? = null,
-    iconSize: Dp,
-    iconPadding: Dp,
     subCategory: FlagCategory,
     selectedSubCategories: List<FlagCategory>,
     onCategorySelectSingle: (FlagCategoryBase) -> Unit,
@@ -584,9 +554,7 @@ private fun SubItem(
             onClick = { onCategorySelectSingle(subCategory.toWrapper()) },
             onLongClick = { onCategorySelectMultiple(subCategory.toWrapper()) },
         ),
-        textButtonStyle = textButtonStyle,
         buttonColors = buttonColors,
-        fontWeight = fontWeight,
         category = subCategory.toWrapper(),
     ) {
         if (subCategory in selectedSubCategories) {
@@ -594,8 +562,8 @@ private fun SubItem(
                 imageVector = Icons.Default.Check,
                 contentDescription = null,
                 modifier = Modifier
-                    .padding(end = iconPadding)
-                    .size(iconSize * 0.9f),
+                    .padding(end = textButtonEndPadding(layDir = LocalLayoutDirection.current))
+                    .size(Dimens.iconSize24 * 0.9f),
                 tint = buttonColors.contentColor,
             )
         }
@@ -605,7 +573,6 @@ private fun SubItem(
 @Composable
 private fun SuperItemStatic(
     modifier: Modifier = Modifier,
-    textButtonStyle: TextStyle,
     //buttonColors: ButtonColors,
     isSelected: Boolean,
     superCategory: FlagSuperCategory,
@@ -624,7 +591,6 @@ private fun SuperItemStatic(
             onClick = { onCategorySelectSingle(superCategory) },
             onLongClick = { onCategorySelectMultiple(superCategory) },
         ),
-        textButtonStyle = textButtonStyle,
         buttonColors = ButtonDefaults.buttonColors(containerColor = color),
         fontWeight = fontWeight,
         category = superCategory,
@@ -633,14 +599,10 @@ private fun SuperItemStatic(
 
 @Composable
 private fun SuperItemExpandable(
-    textButtonStyle: TextStyle,
     buttonColors: ButtonColors,
     buttonColorsChild: ButtonColors,
     cardColors: CardColors,
     //isSelected: Boolean,
-    iconSize: Dp,
-    iconPadding: Dp,
-    iconsTotalSize: Dp,
     isCategoriesMenuExpanded: Boolean,
     isSuperCategorySelectable: Boolean,
     itemSuperCategory: FlagSuperCategory,
@@ -671,8 +633,6 @@ private fun SuperItemExpandable(
     val lastItems = listOf(Political.subCategories.last(), Institution.subCategories.last())
     val lastItemPadding = if (itemSuperCategory in lastItems &&
         (isMenuExpandedParentState || isMenuExpandedLocalState == true)) 9.dp else 0.dp
-
-    val fontScale = LocalConfiguration.current.fontScale
 
     val expandSuperClickableModifier = Modifier.clickable(
         onClick = {
@@ -712,7 +672,6 @@ private fun SuperItemExpandable(
                     onCategorySelectMultiple(itemSuperCategory)
                 },
             ),
-            textButtonStyle = textButtonStyle,
             buttonColors = buttonColors,
             category = itemSuperCategory,
         ) {
@@ -720,26 +679,18 @@ private fun SuperItemExpandable(
             MenuItemExpandableArrowIcon(
                 modifier = expandSuperClickableModifier,
                 isExpanded = isMenuExpandedLocalState ?: isMenuExpandedParentState,
-                iconSize = iconSize,
-                iconPadding = iconPadding,
                 tint = buttonColors.contentColor,
             )
         }
     } else {
         MenuCategoryItemCentred(
             modifier = expandSuperClickableModifier,
-            textButtonStyle = textButtonStyle,
             buttonColors = buttonColors,
             category = itemSuperCategory,
-            lastItemPadding = lastItemPadding,
-            iconSizePadding = iconSize + iconPadding,
-            iconsTotalSize = iconsTotalSize,
         ) {
             /* Local state takes priority for icon shown */
             MenuItemExpandableArrowIcon(
                 isExpanded = isMenuExpandedLocalState ?: isMenuExpandedParentState,
-                iconSize = iconSize,
-                iconPadding = iconPadding,
                 tint = buttonColors.contentColor,
             )
         }
@@ -750,16 +701,12 @@ private fun SuperItemExpandable(
         visible = isMenuExpandedLocalState ?: isMenuExpandedParentState
     ) {
         MenuItemCard(
-            modifier = Modifier.padding(vertical = 2.25.dp * fontScale),
+            modifier = Modifier.padding(vertical = 2.25.dp),
             cardColors = cardColors,
         ) {
             subCategories.forEach { subCategory ->
                 SubItem(
-                    textButtonStyle = textButtonStyle,
                     buttonColors = buttonColorsChild,
-                    fontWeight = FontWeight.Normal,
-                    iconSize = iconSize,
-                    iconPadding = iconPadding,
                     subCategory = subCategory,
                     selectedSubCategories = selectedSubCategories,
                     onCategorySelectSingle = onCategorySelectSingle,
@@ -792,7 +739,6 @@ private fun SuperItemsContainer(
 
 @Composable
 private fun SuperItemOfSupers(
-    textButtonStyle: TextStyle,
     buttonColorsSelectable: ButtonColors,
     buttonColorsDark: ButtonColors,
     buttonColorsLight: ButtonColors,
@@ -800,9 +746,6 @@ private fun SuperItemOfSupers(
     buttonColorsSuperInCardSelected: ButtonColors,
     cardColorsDark: CardColors,
     cardColorsLight: CardColors,
-    iconSize: Dp,
-    iconPadding: Dp,
-    iconsTotalSize: Dp,
     isCategoriesMenuExpanded: Boolean,
     isSuperItemCardStyle: Boolean,
     itemSuperCategory: FlagSuperCategory,
@@ -860,17 +803,12 @@ private fun SuperItemOfSupers(
         if (isSuperItemCardStyle) {
             MenuCategoryItemCentred(
                 modifier = expandSuperClickableModifier,
-                textButtonStyle = textButtonStyle,
                 buttonColors = buttonColorsLight,
                 fontWeight = FontWeight.ExtraBold,
                 category = itemSuperCategory,
-                iconSizePadding = iconSize + iconPadding,
-                iconsTotalSize = iconsTotalSize,
             ) {
                 MenuItemExpandableArrowIcon(
                     isExpanded = isMenuExpandedLocalState ?: isSuperItemExpanded,
-                    iconSize = iconSize,
-                    iconPadding = iconPadding,
                     tint = buttonColorsLight.contentColor,
                 )
             }
@@ -880,7 +818,6 @@ private fun SuperItemOfSupers(
                     onClick = { onCategorySelectSingle(itemSuperCategory) },
                     onLongClick = { onCategorySelectMultiple(itemSuperCategory) },
                 ),
-                textButtonStyle = textButtonStyle,
                 buttonColors = buttonColorsSelectable,
                 category = itemSuperCategory,
 
@@ -889,8 +826,6 @@ private fun SuperItemOfSupers(
                 MenuItemExpandableArrowIcon(
                     modifier = expandSuperClickableModifier,
                     isExpanded = isMenuExpandedLocalState ?: isSuperItemExpanded,
-                    iconSize = iconSize,
-                    iconPadding = iconPadding,
                     tint = buttonColorsSelectable.contentColor,
                 )
             }
@@ -918,13 +853,9 @@ private fun SuperItemOfSupers(
                         }
 
                     SuperItemExpandable(
-                        textButtonStyle = textButtonStyle,
                         buttonColors = buttonColors,
                         buttonColorsChild = buttonColorsDark,
                         cardColors = cardColorsDark,
-                        iconSize = iconSize,
-                        iconPadding = iconPadding,
-                        iconsTotalSize = iconsTotalSize,
                         isCategoriesMenuExpanded = isCategoriesMenuExpanded,
                         isSuperCategorySelectable = superCategory !in Political.supers(),
                         itemSuperCategory = superCategory,
