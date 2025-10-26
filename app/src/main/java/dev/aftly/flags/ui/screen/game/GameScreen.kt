@@ -453,7 +453,7 @@ private fun GameScreen(
             scaffoldPaddingValues = scaffoldPadding
 
             GameContent(
-                modifier = Modifier.padding(scaffoldPadding),
+                modifier = Modifier.padding(paddingValues = scaffoldPadding),
                 isNavigationDrawerOpen = isNavigationDrawerOpen,
                 answerMode = uiState.answerMode,
                 difficultyMode = uiState.difficultyMode,

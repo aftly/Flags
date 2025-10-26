@@ -546,8 +546,10 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
     }
 
     fun updateFilterByCountry(country: FlagView) {
-        val oldFilterByCountry = uiState.value.filterByCountry
+        val isNew = country != uiState.value.filterByCountry
         val isCountry = uiState.value.currentSuperCategories.all { it == SovereignCountry } &&
+                uiState.value.currentSubCategories.isEmpty()
+        val isAll = uiState.value.currentSuperCategories.all { it == All } &&
                 uiState.value.currentSubCategories.isEmpty()
 
         /* Deselect current filter country */
@@ -568,12 +570,14 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         }
 
         /* Filter by new country */
-        if (country != oldFilterByCountry) {
+        if (isNew) {
             if (isCountry) updateCurrentCategory(category = All)
             filterByCountry(country)
+        } else if (isAll) {
+            updateCurrentCategory(category = SovereignCountry)
         }
 
-        resetGame()
+        resetGame(startGame = isNew)
     }
 
 
