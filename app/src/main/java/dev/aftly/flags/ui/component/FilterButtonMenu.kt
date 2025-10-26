@@ -443,12 +443,17 @@ private fun CategoryLazyList(
                 )
             } else {
                 /* If superCategory only contains superCategories use 3 tier menu */
+                val isItemNested = superCategory == Political
+                val itemModifier =
+                    if (isItemNested) Modifier.padding(top = Dimens.extraSmall4) else Modifier
+
                 SuperItemOfSupers(
+                    modifier = itemModifier,
                     nestLevel = nestLevel,
                     isSelected = isSelected,
                     isChildSelected = isChildSelected,
                     isCategoriesMenuExpanded = isMenuExpanded,
-                    isParentNested = superCategory == Political,
+                    isItemNested = isItemNested,
                     isSuperSelectable = superCategory != Political,
                     itemSuperCategory = superCategory,
                     superCategoriesSelected = superCategories,
@@ -671,7 +676,7 @@ private fun SuperItemOfSupers(
     isSelected: Boolean,
     isChildSelected: Boolean,
     isCategoriesMenuExpanded: Boolean,
-    isParentNested: Boolean,
+    isItemNested: Boolean,
     isSuperSelectable: Boolean,
     itemSuperCategory: FlagSuperCategory,
     superCategoriesSelected: List<FlagSuperCategory>,
@@ -701,7 +706,7 @@ private fun SuperItemOfSupers(
         }
     }
 
-    val parentNestLevel = if (isParentNested) nestLevel.inc() else nestLevel
+    val parentNestLevel = if (isItemNested) nestLevel.inc() else nestLevel
     val childNestLevel = nestLevel.inc()
 
     /* When the categories menu is open, upon subcategory change or categories menu open
@@ -724,7 +729,7 @@ private fun SuperItemOfSupers(
     SuperItemsContainer(
         modifier = modifier,
         nestLevel = parentNestLevel,
-        isNested = isParentNested,
+        isNested = isItemNested,
     ) {
         /* Parent content */
         if (isSuperSelectable) {
@@ -763,8 +768,8 @@ private fun SuperItemOfSupers(
         ) {
             MenuCategoryItemCard(
                 nestLevel = childNestLevel,
-                isNested = !isParentNested,
-                shape = if (isParentNested) RoundedCornerShape(size = 0.dp) else null,
+                isNested = !isItemNested,
+                shape = if (isItemNested) RoundedCornerShape(size = 0.dp) else null,
                 innerPadding = 0.dp,
             ) {
                 itemSuperCategory.supers().forEach { superCategory ->
