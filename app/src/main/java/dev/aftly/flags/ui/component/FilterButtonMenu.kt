@@ -444,11 +444,10 @@ private fun CategoryLazyList(
             } else {
                 /* If superCategory only contains superCategories use 3 tier menu */
                 val isItemNested = superCategory == Political
-                val itemModifier =
-                    if (isItemNested) Modifier.padding(top = Dimens.extraSmall4) else Modifier
+                val topPadding = if (isItemNested) Dimens.extraSmall4 else 0.dp
 
                 SuperItemOfSupers(
-                    modifier = itemModifier,
+                    modifier = Modifier.padding(top = topPadding),
                     nestLevel = nestLevel,
                     isSelected = isSelected,
                     isChildSelected = isChildSelected,
