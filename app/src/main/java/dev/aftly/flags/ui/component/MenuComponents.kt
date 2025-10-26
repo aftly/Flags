@@ -10,6 +10,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -33,8 +35,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +48,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
@@ -69,9 +71,12 @@ import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Shapes
 import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.theme.surfaceLight
+import dev.aftly.flags.ui.util.LocalDarkTheme
 import dev.aftly.flags.ui.util.color
 import dev.aftly.flags.ui.util.colorSelect
 import dev.aftly.flags.ui.util.flagDatesString
+import dev.aftly.flags.ui.util.getButtonColors
+import dev.aftly.flags.ui.util.getCardColors
 import dev.aftly.flags.ui.util.textButtonEndPadding
 
 /* ---------- SCRIM RELATED ---------- */
@@ -92,7 +97,8 @@ fun MenuScrim(
     onClick: () -> Unit,
 ) = MenuScrimAnimatedVisibility(visible = visible) {
     Scrim(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
         onClick = onClick,
     )
@@ -124,25 +130,30 @@ fun MenuAnimatedVisibility(
 fun MenuCard(
     modifier: Modifier = Modifier,
     menu: FlagsMenu,
+    nestLevel: Int = 0,
+    shape: Shape? = null,
     content: @Composable (ColumnScope.() -> Unit)
 ) = Card(
     modifier = modifier,
-    shape = Shapes.large,
-    colors = CardDefaults.cardColors(containerColor = menu.color()),
+    shape = shape ?: Shapes.large,
+    colors = getCardColors(containerColor =
+        if (nestLevel % 2 == 0) menu.color() else menu.colorSelect()
+    ),
     content = content,
 )
 
 @Composable
 fun MenuButton(
     modifier: Modifier = Modifier,
+    menu: FlagsMenu,
+    isSelected: Boolean,
     @StringRes title: Int,
     icon: ImageVector?,
-    isSelected: Boolean,
-    buttonColorsSelect: ButtonColors,
-    buttonColorsUnselect: ButtonColors,
     onClick: () -> Unit,
 ) {
-    val colors = if (isSelected) buttonColorsSelect else buttonColorsUnselect
+    val colors = getButtonColors(containerColor =
+        if (isSelected) menu.colorSelect() else menu.color()
+    )
 
     Button(
         onClick = onClick,
@@ -165,29 +176,11 @@ fun MenuButton(
 }
 
 @Composable
-fun MenuItemCard(
-    modifier: Modifier = Modifier,
-    innerPadding: Dp = Dimens.extraSmall4,
-    cardColors: CardColors,
-    content: @Composable () -> Unit,
-) {
-    Card(
-        modifier = modifier.padding(horizontal = Dimens.small10),
-        shape = Shapes.large,
-        colors = cardColors,
-    ) {
-        Column(modifier = Modifier.padding(vertical = innerPadding)) {
-            content()
-        }
-    }
-}
-
-@Composable
 fun MenuItemExpandableArrowIcon(
     modifier: Modifier = Modifier,
+    nestLevel: Int,
     isExpanded: Boolean,
     isMenuButton: Boolean = false,
-    tint: Color = Color.Unspecified,
 ) {
     val endPadding = if (isMenuButton) 0.dp else {
         textButtonEndPadding(layDir = LocalLayoutDirection.current)
@@ -201,25 +194,58 @@ fun MenuItemExpandableArrowIcon(
             if (isExpanded) stringResource(R.string.menu_sub_icon_collapse)
             else stringResource(R.string.menu_sub_icon_expand),
         modifier = modifier.padding(end = endPadding),
-        tint = tint,
+        tint = getNestedColors(nestLevel).contentColor,
     )
 }
 
-
 /* ------------- CATEGORY MENU COMPONENTS -------------- */
+@Composable
+fun MenuCategoryItemCard(
+    modifier: Modifier = Modifier,
+    menu: FlagsMenu = FlagsMenu.FILTER,
+    nestLevel: Int,
+    isNested: Boolean = true,
+    shape: Shape? = null,
+    innerPadding: Dp = Dimens.extraSmall4,
+    content: @Composable () -> Unit,
+) {
+    val horizontalPadding = if (isNested) Dimens.small10 else 0.dp
+
+    MenuCard(
+        modifier = modifier.padding(horizontal = horizontalPadding),
+        menu = menu,
+        nestLevel = nestLevel,
+        shape = shape,
+    ) {
+        Column(modifier = Modifier.padding(vertical = innerPadding)) {
+            content()
+        }
+    }
+}
+
 @Composable
 fun MenuCategoryItem(
     modifier: Modifier = Modifier,
-    buttonColors: ButtonColors,
+    nestLevel: Int,
+    isSelected: Boolean = false,
+    isChildSelected: Boolean = false,
     fontWeight: FontWeight? = null,
     category: FlagCategoryBase?,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
     postTextContent: @Composable RowScope.() -> Unit = {},
 ) {
     Box(
         modifier = modifier.padding(vertical = Dimens.menuItemVertPad)
     ) {
         MenuCategoryItemContent(
-            buttonColors = buttonColors,
+            modifier = Modifier.combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick,
+            ),
+            nestLevel = nestLevel,
+            isSelected = isSelected,
+            isChildSelected = isChildSelected,
             fontWeight = fontWeight,
             category = category,
             postTextContent = postTextContent,
@@ -230,18 +256,24 @@ fun MenuCategoryItem(
 @Composable
 fun MenuCategoryItemCentred(
     modifier: Modifier = Modifier,
+    nestLevel: Int,
+    isSelected: Boolean = false,
+    isChildSelected: Boolean = false,
     isMenuButton: Boolean = false,
     buttonTitle: String? = null,
-    buttonColors: ButtonColors,
     fontWeight: FontWeight? = null,
     category: FlagCategoryBase?,
     onSingleLineCount: (Boolean) -> Unit = {},
+    onClick: () -> Unit,
     preTextContent: @Composable (RowScope.() -> Unit)? = null,
     postTextContent: @Composable RowScope.() -> Unit = {},
 ) {
     val boxModifier = if (isMenuButton) modifier.fillMaxSize() else modifier
         .fillMaxWidth()
         .padding(vertical = Dimens.menuItemVertPad)
+
+    val buttonModifier = if (isMenuButton) Modifier else Modifier.clickable(onClick = onClick)
+
     val iconPadding = if (isMenuButton) 2.dp else {
         textButtonEndPadding(layDir = LocalLayoutDirection.current)
     }
@@ -255,9 +287,12 @@ fun MenuCategoryItemCentred(
         var textWidth by remember { mutableStateOf(value = 0.dp) }
 
         MenuCategoryItemContent(
+            modifier = buttonModifier,
+            nestLevel = nestLevel,
+            isSelected = isSelected,
+            isChildSelected = isChildSelected,
             isMenuButton = isMenuButton,
             buttonTitle = buttonTitle,
-            buttonColors = buttonColors,
             fontWeight = fontWeight,
             textAlign = TextAlign.Center,
             category = category,
@@ -280,9 +315,11 @@ fun MenuCategoryItemCentred(
 @Composable
 fun MenuCategoryItemContent(
     modifier: Modifier = Modifier,
+    nestLevel: Int,
+    isSelected: Boolean,
+    isChildSelected: Boolean,
     isMenuButton: Boolean = false,
     buttonTitle: String? = null,
-    buttonColors: ButtonColors,
     fontWeight: FontWeight? = null,
     textAlign: TextAlign? = null,
     category: FlagCategoryBase?,
@@ -291,6 +328,12 @@ fun MenuCategoryItemContent(
     preTextContent: (@Composable RowScope.() -> Unit)? = null,
     postTextContent: @Composable RowScope.() -> Unit = {},
 ) {
+    val buttonColors = getNestedColors(
+        nestLevel = nestLevel,
+        isSelected = isSelected,
+        isChildSelected = isChildSelected,
+    )
+
     val density = LocalDensity.current
     val rowModifier = if (isMenuButton) modifier.fillMaxSize() else modifier.fillMaxWidth()
     val textPaddingModifier =
@@ -342,6 +385,48 @@ fun MenuCategoryItemContent(
 
         postTextContent()
     }
+}
+
+@Composable
+fun getNestedColors(
+    nestLevel: Int,
+    menu: FlagsMenu = FlagsMenu.FILTER,
+    isSelected: Boolean = false,
+    isChildSelected: Boolean = false,
+): ButtonColors {
+    val isDarkTheme = LocalDarkTheme.current
+    val baseColor1 = menu.color()
+    val baseColor2 = menu.colorSelect()
+
+    val color = if (nestLevel % 2 == 0) baseColor1 else baseColor2
+
+    val colorSelect = lerp(
+        start = if (nestLevel == 0 || nestLevel % 2 == 1) baseColor2 else baseColor1,
+        stop = when {
+            nestLevel == 0 -> baseColor2
+            isDarkTheme -> Color.Black
+            else -> Color.White
+        },
+        fraction = if (isDarkTheme) 0.13f else 0.175f,
+    )
+
+    val colorChildSelect = lerp(
+        start = color,
+        stop = if (isDarkTheme) Color.White else Color.Black,
+        /* Variant only necessary for secondary color because of unique contrast */
+        fraction = when (nestLevel % 2) {
+            1 -> if (isDarkTheme) 0.275f else 0.12f
+            else -> if (isDarkTheme) 0.25f else 0.165f
+        },
+    )
+
+    return getButtonColors(
+        containerColor = when {
+            isSelected -> colorSelect
+            isChildSelected -> colorChildSelect
+            else -> color
+        }
+    )
 }
 /* ------------------------------------- */
 
@@ -415,7 +500,8 @@ fun MenuFlagItem(
 
                 if (isSelected) {
                     Box(
-                        modifier = Modifier.matchParentSize()
+                        modifier = Modifier
+                            .matchParentSize()
                             .background(color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f)),
                     )
                     Icon(

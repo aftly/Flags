@@ -504,7 +504,7 @@ private fun GameScreen(
             isMenuEnabled = uiState.answerMode != AnswerMode.DATES,
             isMenuExpanded = isMenuExpanded,
             onMenuExpand = { isMenuExpanded = !isMenuExpanded },
-            isSavedFlagsNotEmpty = isSavedFlagsNotEmpty,
+            isSavedFlags = isSavedFlagsNotEmpty,
             filterByCountry = uiState.filterByCountry,
             superCategories = uiState.currentSuperCategories,
             subCategories = uiState.currentSubCategories,

@@ -427,7 +427,7 @@ private fun ListFlagsScreen(
             onMenuExpand = { isMenuExpanded = !isMenuExpanded },
             colorPrimary = containerColor1,
             colorSecondary = containerColor2,
-            isSavedFlagsNotEmpty = uiState.savedFlags.isNotEmpty(),
+            isSavedFlags = uiState.savedFlags.isNotEmpty(),
             filterByCountry = uiState.filterByCountry,
             superCategories = uiState.currentSuperCategories,
             subCategories = uiState.currentSubCategories,
