@@ -47,6 +47,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.lerp
@@ -147,6 +148,7 @@ fun MenuButton(
     modifier: Modifier = Modifier,
     menu: FlagsMenu,
     isSelected: Boolean,
+    isContentSelected: Boolean = false,
     @StringRes title: Int,
     icon: ImageVector?,
     onClick: () -> Unit,
@@ -172,6 +174,19 @@ fun MenuButton(
             text = stringResource(id = title),
             modifier = Modifier.padding(start = Dimens.extraSmall4),
         )
+
+        if (isContentSelected) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null,
+                modifier = Modifier.padding(start = Dimens.extraSmall6)
+                    .size(Dimens.iconSize24 * 0.7f)
+                    .clip(shape = MaterialTheme.shapes.large)
+                    .background(color = colors.contentColor)
+                    .padding(all = 1.dp),
+                tint = colors.containerColor,
+            )
+        }
     }
 }
 
@@ -227,6 +242,7 @@ fun MenuCategoryItemCard(
 fun MenuCategoryItem(
     modifier: Modifier = Modifier,
     nestLevel: Int,
+    isEnabled: Boolean = true,
     isSelected: Boolean = false,
     isChildSelected: Boolean = false,
     fontWeight: FontWeight? = null,
@@ -240,10 +256,12 @@ fun MenuCategoryItem(
     ) {
         MenuCategoryItemContent(
             modifier = Modifier.combinedClickable(
+                enabled = isEnabled,
                 onClick = onClick,
                 onLongClick = onLongClick,
             ),
             nestLevel = nestLevel,
+            isEnabled = isEnabled,
             isSelected = isSelected,
             isChildSelected = isChildSelected,
             fontWeight = fontWeight,
@@ -316,6 +334,7 @@ fun MenuCategoryItemCentred(
 fun MenuCategoryItemContent(
     modifier: Modifier = Modifier,
     nestLevel: Int,
+    isEnabled: Boolean = true,
     isSelected: Boolean,
     isChildSelected: Boolean,
     isMenuButton: Boolean = false,
@@ -341,7 +360,15 @@ fun MenuCategoryItemContent(
         else Modifier.padding(paddingValues = ButtonDefaults.TextButtonContentPadding)
 
     val rowBackgroundColor = if (isMenuButton) Color.Transparent else buttonColors.containerColor
-    val textColor = if (isMenuButton) LocalContentColor.current else buttonColors.contentColor
+    val textColor = when {
+        isMenuButton -> LocalContentColor.current
+        isEnabled -> buttonColors.contentColor
+        else -> lerp(
+            start = buttonColors.contentColor,
+            stop = buttonColors.containerColor,
+            fraction = 0.5f,
+        )
+    }
 
     val textButtonStyle =
         if (isMenuButton) MaterialTheme.typography.titleMedium

@@ -268,6 +268,7 @@ fun GameScreen(
             maxScore = uiState.currentFlags.size,
             superCategories = uiState.currentSuperCategories,
             subCategories = uiState.currentSubCategories,
+            filterByCountry = uiState.filterByCountry,
             answerMode = uiState.answerMode,
             difficultyMode = uiState.difficultyMode,
             onDetails = {
@@ -1728,6 +1729,7 @@ private fun GameOverDialog(
     maxScore: Int,
     superCategories: List<FlagSuperCategory>,
     subCategories: List<FlagCategory>,
+    filterByCountry: FlagView?,
     answerMode: AnswerMode,
     difficultyMode: DifficultyMode,
     onDetails: () -> Unit,
@@ -1737,15 +1739,23 @@ private fun GameOverDialog(
     onReplay: () -> Unit,
 ) {
     val categoriesString = buildString {
-        getCategoriesTitleIds(superCategories, subCategories, isAppendFlags = false)
-            .forEach { append(stringResource(it)) }
+        getCategoriesTitleIds(
+            superCategories, subCategories, filterByCountry = null, isAppendFlags = false
+        ).forEach {
+            append(stringResource(id = it))
+        }
     }
+    val isFilterByCountry = filterByCountry != null
 
     val scoreMessage =
-        if (finalScore == 0) stringResource(R.string.game_over_text_min_score)
+        if (finalScore == 0) stringResource(id = R.string.game_over_text_min_score)
         else when (answerMode) {
-            AnswerMode.NAMES -> stringResource(R.string.game_over_text_names, finalScore, maxScore)
-            AnswerMode.DATES -> stringResource(R.string.game_over_text_dates, finalScore, maxScore)
+            AnswerMode.NAMES -> stringResource(
+                id = R.string.game_over_text_names, finalScore, maxScore
+            )
+            AnswerMode.DATES -> stringResource(
+                id = R.string.game_over_text_dates, finalScore, maxScore
+            )
         }
 
     val shareScoreMessage = stringResource(
@@ -1753,8 +1763,10 @@ private fun GameOverDialog(
         finalScore,
         maxScore,
         categoriesString,
-        stringResource(answerMode.title),
-        stringResource(difficultyMode.title)
+        if (isFilterByCountry) stringResource(id = R.string.game_over_share_country) else "",
+        if (isFilterByCountry) stringResource(id = filterByCountry.flagOf) + "\n" else "",
+        stringResource(id = answerMode.title),
+        stringResource(id = difficultyMode.title)
     )
 
 

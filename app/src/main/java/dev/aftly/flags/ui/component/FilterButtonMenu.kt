@@ -54,6 +54,7 @@ import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategoryBase
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
+import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 import dev.aftly.flags.model.FlagSuperCategory.Institution
 import dev.aftly.flags.model.FlagSuperCategory.Political
 import dev.aftly.flags.model.FlagView
@@ -90,6 +91,9 @@ fun FilterButtonMenu(
     var filterModeSelect by rememberSaveable { mutableStateOf(value = FilterMode.CATEGORY) }
     val countriesListState = rememberLazyListState()
     val filterCountries = countryFlagsList
+    val isFilterByCountry = filterByCountry != null
+    val isFilterByCategory = !(superCategories.isNotEmpty() && superCategories.all { it == All } &&
+            subCategories.isEmpty())
 
     /* Color properties */
     val nestLevel = 0 /* Sets the starting nest level to control colors */
@@ -105,7 +109,7 @@ fun FilterButtonMenu(
 
     /* Manage button title & exceptions */
     val buttonTitle = buildString {
-        getCategoriesTitleIds(superCategories, subCategories).forEach { resId ->
+        getCategoriesTitleIds(superCategories, subCategories, filterByCountry).forEach { resId ->
             append(stringResource(resId))
         }
     }
@@ -234,11 +238,17 @@ fun FilterButtonMenu(
                             .fillMaxWidth()
                     ) {
                         FilterMode.entries.forEach { filterMode ->
+                            val isContentSelected = when (filterMode) {
+                                FilterMode.CATEGORY -> isFilterByCategory
+                                FilterMode.COUNTRY -> isFilterByCountry
+                            }
+
                             MenuButton(
                                 modifier = Modifier.padding(end = filterModeButtonPadding)
                                     .weight(1f),
                                 menu = FlagsMenu.FILTER,
                                 isSelected = filterMode == filterModeSelect,
+                                isContentSelected = isContentSelected,
                                 title = filterMode.title,
                                 icon = FlagsMenu.FILTER.icon,
                                 onClick = { filterModeSelect = filterMode },
@@ -283,6 +293,7 @@ fun FilterButtonMenu(
                                     isMenuExpanded = isMenuExpanded,
                                     subMenuExpand = subMenuExpand,
                                     isSavedFlags = isSavedFlags,
+                                    isFilterByCountry = isFilterByCountry,
                                     superCategories = superCategories,
                                     subCategories = subCategories,
                                     onMenuExpand = onMenuExpand,
@@ -376,6 +387,7 @@ private fun CategoryLazyList(
     isMenuExpanded: Boolean,
     subMenuExpand: FlagSuperCategory?,
     isSavedFlags: Boolean,
+    isFilterByCountry: Boolean,
     superCategories: List<FlagSuperCategory>,
     subCategories: List<FlagCategory>,
     onMenuExpand: () -> Unit,
@@ -409,10 +421,16 @@ private fun CategoryLazyList(
             val isChildSelected = superCategory.allEnums().any { it in subCategories } ||
                     superCategory.supers().any { it in superCategories }
 
+            val isEnabled = !(isFilterByCountry && superCategory == SovereignCountry)
+
+            val isItemNested = superCategory == Political
+            val tier3MenuTopPadding = if (isItemNested) Dimens.extraSmall4 else 0.dp
+
             if (superCategory.enums().size == 1 || superCategory == All) {
                 /* If superCategory has 1 subcategory use 1 tier (static) menu item */
                 SuperItemStatic(
                     nestLevel = nestLevel,
+                    isEnabled = isEnabled,
                     isSelected = isSelected,
                     superCategory = superCategory,
                     onCategorySelectSingle = { superCategory ->
@@ -443,11 +461,8 @@ private fun CategoryLazyList(
                 )
             } else {
                 /* If superCategory only contains superCategories use 3 tier menu */
-                val isItemNested = superCategory == Political
-                val topPadding = if (isItemNested) Dimens.extraSmall4 else 0.dp
-
                 SuperItemOfSupers(
-                    modifier = Modifier.padding(top = topPadding),
+                    modifier = Modifier.padding(top = tier3MenuTopPadding),
                     nestLevel = nestLevel,
                     isSelected = isSelected,
                     isChildSelected = isChildSelected,
@@ -482,6 +497,7 @@ private fun SubItem(
     MenuCategoryItem(
         modifier = modifier,
         nestLevel = nestLevel,
+        fontWeight = FontWeight.Normal,
         category = subCategory.toWrapper(),
         onClick = { onCategorySelectSingle(subCategory.toWrapper()) },
         onLongClick = { onCategorySelectMultiple(subCategory.toWrapper()) },
@@ -503,6 +519,7 @@ private fun SubItem(
 private fun SuperItemStatic(
     modifier: Modifier = Modifier,
     nestLevel: Int,
+    isEnabled: Boolean = true,
     isSelected: Boolean,
     superCategory: FlagSuperCategory,
     onCategorySelectSingle: (FlagCategoryBase) -> Unit,
@@ -516,6 +533,7 @@ private fun SuperItemStatic(
     MenuCategoryItem(
         modifier = modifier,
         nestLevel = nestLevel,
+        isEnabled = isEnabled,
         isSelected = isSelected,
         fontWeight = fontWeight,
         category = superCategory,

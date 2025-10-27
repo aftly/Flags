@@ -818,3 +818,14 @@ fun getRelatedFlagItems(
         }
     }
 }
+
+fun getPoliticalRelatedFlags(flag: FlagView?): List<FlagView> = buildList {
+    flag?.let {
+        add(flag)
+        addAll(elements =
+            getFlagsFromKeys(flagKeys =
+                flag.politicalInternalRelatedFlagKeys + flag.politicalExternalRelatedFlagKeys
+            )
+        )
+    }
+}

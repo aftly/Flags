@@ -127,9 +127,9 @@ fun ListFlagsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val searchResults by viewModel.searchResults.collectAsStateWithLifecycle()
 
-    val savedFlags = viewModel.sortFlagsAlphabetically(
-        flags = getSavedFlagView(uiState.savedFlags)
-    )
+    LaunchedEffect(key1 = uiState.savedFlags, key2 = uiState.filterByCountry) {
+        viewModel.updateSavedFlagView()
+    }
 
     /* Update (alphabetical) order of flag lists when language changes */
     //val configuration = LocalConfiguration.current
@@ -147,7 +147,7 @@ fun ListFlagsScreen(
         onDrawerNavigateToList = onDrawerNavigateToList,
         onResetDrawerNavigateToList = onResetDrawerNavigateToList,
         searchResults = searchResults,
-        savedFlags = savedFlags,
+        savedFlags = uiState.savedFlagView,
         searchQueryValue = viewModel.searchQueryValue,
         onSearchQueryValueChange = { viewModel.onSearchQueryValueChange(it) },
         onIsSearchBarInit = { viewModel.toggleIsSearchBarInit(it) },
@@ -166,7 +166,7 @@ fun ListFlagsScreen(
         onFlagSelect = { flag ->
             val flags =
                 if (uiState.isSearchQuery) searchResults
-                else if (uiState.isViewSavedFlags) savedFlags
+                else if (uiState.isViewSavedFlags) uiState.savedFlagView
                 else uiState.currentFlags
 
             viewModel.onFlagNav(flag)
@@ -188,8 +188,6 @@ private fun ListFlagsScreen(
     onResetDrawerNavigateToList: () -> Unit,
     searchResults: List<FlagView>,
     savedFlags: List<FlagView>,
-    containerColor1: Color = MaterialTheme.colorScheme.onSecondaryContainer,
-    containerColor2: Color = MaterialTheme.colorScheme.secondary,
     searchQueryValue: TextFieldValue,
     onSearchQueryValueChange: (TextFieldValue) -> Unit,
     onIsSearchBarInit: (Boolean) -> Unit,
@@ -233,7 +231,7 @@ private fun ListFlagsScreen(
     var isCompInit by remember { mutableStateOf(value = false) }
 
 
-    LaunchedEffect(onDrawerNavigateToList) {
+    LaunchedEffect(key1 = onDrawerNavigateToList) {
         if (onDrawerNavigateToList) {
             val isOnlySovereign = uiState.currentSuperCategories
                 .none { it != SovereignCountry } && uiState.currentSubCategories.isEmpty()
@@ -331,7 +329,7 @@ private fun ListFlagsScreen(
         Scaffold(
             modifier = Modifier
                 .fillMaxSize()
-                .pointerInput(Unit) {
+                .pointerInput(key1 = Unit) {
                     detectTapGestures {
                         focusManager.clearFocus()
                         isSearchBarFocused = false
@@ -366,7 +364,7 @@ private fun ListFlagsScreen(
             floatingActionButton = {
                 ScrollToTopButton(
                     isVisible = !isAtTop,
-                    containerColor = containerColor2,
+                    containerColor = MaterialTheme.colorScheme.secondary,
                     onClick = {
                         coroutineScope.launch { listState.animateScrollToItem(index = 0) }
                     }

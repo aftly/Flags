@@ -530,6 +530,7 @@ fun filterRedundantSuperCategories(
 fun getCategoriesTitleIds(
     superCategories: List<FlagSuperCategory>,
     subCategories: List<FlagCategory>,
+    filterByCountry: FlagView?,
     isAppendFlags: Boolean = true,
 ): List<Int> {
     /* ---------- Early escape --------- */
