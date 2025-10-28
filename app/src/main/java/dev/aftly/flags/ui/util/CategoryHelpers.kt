@@ -562,6 +562,8 @@ fun getCategoriesTitleIds(
 
 
     /* ------------------- Boolean exceptions ------------------- */
+    val isFilterByCategory = filterByCountry != null
+
     val isHistorical = Historical in superCategoriesFiltered
 
     val isCultural = Cultural in superCategoriesFiltered
@@ -612,6 +614,11 @@ fun getCategoriesTitleIds(
 
     /* -------------------------------- GET ITERATIONS -------------------------------- */
     val strings = mutableListOf<Int>()
+
+    if (isFilterByCategory) {
+        strings.add(filterByCountry.flagOf)
+        strings.add(R.string.string_colon_whitespace)
+    }
 
     if (isHistorical) {
         superCategoriesFiltered.remove(Historical)
@@ -695,7 +702,7 @@ fun getCategoriesTitleIds(
     superCategoriesFiltered.forEachIndexed { index, superCategory ->
         if (superCategory == Regional &&
             (isHistorical || isCultural || isAutonomousRegion ||
-                    isDevolvedRegion || culturalCategories.isNotEmpty())) {
+            isDevolvedRegion || culturalCategories.isNotEmpty())) {
             strings.add(R.string.category_region_title)
             strings.add(R.string.string_whitespace)
         } else {
