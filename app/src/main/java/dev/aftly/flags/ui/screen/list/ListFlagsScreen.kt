@@ -8,9 +8,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,7 +35,6 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -50,7 +47,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -65,7 +61,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -111,7 +106,6 @@ import dev.aftly.flags.ui.util.clickableNoHaptics
 import dev.aftly.flags.ui.util.flagDatesString
 import dev.aftly.flags.ui.util.getCardColors
 import dev.aftly.flags.ui.util.getFlagFromId
-import dev.aftly.flags.ui.util.getSavedFlagView
 import kotlinx.coroutines.launch
 
 
@@ -127,11 +121,8 @@ fun ListFlagsScreen(
     onNavigateToFlagScreen: (FlagView, List<FlagView>) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val savedFlags by viewModel.savedFlagsState.collectAsState()
     val searchResults by viewModel.searchResults.collectAsStateWithLifecycle()
-
-    LaunchedEffect(key1 = uiState.savedFlags, key2 = uiState.filterByCountry) {
-        viewModel.updateSavedFlagView()
-    }
 
     /* Update (alphabetical) order of flag lists when language changes */
     //val configuration = LocalConfiguration.current
@@ -149,17 +140,13 @@ fun ListFlagsScreen(
         onDrawerNavigateToList = onDrawerNavigateToList,
         onResetDrawerNavigateToList = onResetDrawerNavigateToList,
         searchResults = searchResults,
-        savedFlags = uiState.savedFlagView,
+        savedFlags = savedFlags,
         searchQueryValue = viewModel.searchQueryValue,
-        onSearchQueryValueChange = { viewModel.onSearchQueryValueChange(it) },
-        onIsSearchBarInit = { viewModel.toggleIsSearchBarInit(it) },
-        onIsSearchBarInitTopBar = { viewModel.toggleIsSearchBarInitTopBar(it) },
-        onCategorySelectSingle = {
-            viewModel.updateCurrentCategory(category = it)
-        },
-        onCategorySelectMultiple = {
-            viewModel.updateCurrentCategories(category = it)
-        },
+        onSearchQueryValueChange = { viewModel.onSearchQueryValueChange(newValue = it) },
+        onIsSearchBarInit = { viewModel.toggleIsSearchBarInit(isSearchBar = it) },
+        onIsSearchBarInitTopBar = { viewModel.toggleIsSearchBarInitTopBar(isSearchBar = it) },
+        onCategorySelectSingle = { viewModel.updateCurrentCategory(category = it) },
+        onCategorySelectMultiple = { viewModel.updateCurrentCategories(category = it) },
         onSavedFlagsSelect = { viewModel.selectSavedFlags(on = it) },
         onFilterByCountry = { viewModel.updateFilterByCountry(country = it) },
         onSaveFlag = { viewModel.onSaveFlag(flag = it) },
@@ -420,7 +407,7 @@ private fun ListFlagsScreen(
             buttonHorizontalPadding = Dimens.margin16,
             flagCount =
                 if (uiState.isSearchQuery) searchResults.size
-                else if (uiState.isViewSavedFlags) uiState.savedFlags.size
+                else if (uiState.isViewSavedFlags) savedFlags.size
                 else uiState.currentFlags.size,
             onButtonHeightChange = { buttonHeight = it },
             isMenuExpanded = isMenuExpanded,

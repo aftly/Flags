@@ -19,14 +19,12 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 import dev.aftly.flags.model.FlagView
-import dev.aftly.flags.model.SearchFlow
 import dev.aftly.flags.ui.util.getFlagKey
 import dev.aftly.flags.ui.util.getFlagsFromCategories
 import dev.aftly.flags.ui.util.getFlagsFromCategory
 import dev.aftly.flags.ui.util.getFlagsFromKeys
 import dev.aftly.flags.ui.util.getPoliticalRelatedFlags
 import dev.aftly.flags.ui.util.getSavedFlagView
-import dev.aftly.flags.ui.util.getSavedFlagViewSorted
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
 import dev.aftly.flags.ui.util.normalizeLower
@@ -36,7 +34,6 @@ import dev.aftly.flags.ui.util.toSavedFlag
 import dev.aftly.flags.ui.util.toWrapper
 import dev.aftly.flags.ui.util.updateCategoriesFromSub
 import dev.aftly.flags.ui.util.updateCategoriesFromSuper
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -55,29 +52,38 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
 
     var searchQueryValue by mutableStateOf(value = TextFieldValue())
         private set
+    private val searchQueryFlow = snapshotFlow { searchQueryValue.text }
 
-    private val allFlagsFlow = uiState.map { SearchFlow.FlagsList(value = it.allFlags) }
-    private val currentFlagsFlow = uiState.map { SearchFlow.FlagsList(value = it.currentFlags) }
-    private val savedFlagsFlow = uiState.map { SearchFlow.FlagsList(value = it.savedFlagView) }
-    private var isSavedFlagsFlow = uiState.map { SearchFlow.Bool(value = it.isViewSavedFlags) }
-    private val searchQueryFlow = snapshotFlow { searchQueryValue }
-        .map { SearchFlow.Str(value = it.text) }
+    val savedFlagsState = uiState.map { state ->
+        val savedFlags = sortFlagsAlphabetically(
+            application = application,
+            flags = getSavedFlagView(savedFlags = state.savedFlags)
+        )
+        val filterByCountry = state.filterByCountry
+        val isFilterByCountry = filterByCountry != null
 
-    /* Use sealed interface SearchFlow for safe casting in combine() transform lambda */
-    val flows: List<Flow<SearchFlow>> = listOf(
-        searchQueryFlow,
-        allFlagsFlow,
-        currentFlagsFlow,
-        savedFlagsFlow,
-        isSavedFlagsFlow,
+        when {
+            isFilterByCountry -> {
+                val relatedFlags = getPoliticalRelatedFlags(flag = filterByCountry)
+
+                savedFlags.filter { it in relatedFlags }
+            }
+            else -> savedFlags
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        initialValue = emptyList(),
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
     )
 
-    val searchResults = combine(flows) { flowArray ->
-        val query = (flowArray[0] as SearchFlow.Str).value
-        val all = (flowArray[1] as SearchFlow.FlagsList).value
-        val current = (flowArray[2] as SearchFlow.FlagsList).value
-        val saved = (flowArray[3] as SearchFlow.FlagsList).value
-        val isSaved = (flowArray[4] as SearchFlow.Bool).value
+    val searchResults = combine(
+        flow = searchQueryFlow,
+        flow2 = uiState,
+        flow3 = savedFlagsState,
+    ) { query, state, saved ->
+        val all = state.allFlags
+        val current = state.currentFlags
+        val isSaved = state.isViewSavedFlags
 
         val res = application.resources
         val the = res.getString(R.string.string_the_whitespace)
@@ -393,26 +399,6 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
         }
     }
 
-    fun updateSavedFlagView() {
-        val allSavedFlags = sortFlagsAlphabetically(
-            application = application,
-            flags = getSavedFlagView(savedFlags = uiState.value.savedFlags),
-        )
-        val savedFlags = buildList {
-            when (val filterByCountry = uiState.value.filterByCountry) {
-                null -> addAll(elements = allSavedFlags)
-                else -> {
-                    val relatedFlags = getPoliticalRelatedFlags(flag = filterByCountry)
-
-                    addAll(elements =
-                        allSavedFlags.filter { it in relatedFlags }
-                    )
-                }
-            }
-        }
-        _uiState.update { it.copy(savedFlagView = savedFlags) }
-    }
-
     fun selectSavedFlags(on: Boolean = true) {
         if (on) {
             _uiState.update {
@@ -435,9 +421,9 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
 
         viewModelScope.launch {
             if (savedFlag != null) {
-                savedFlagsRepository.deleteFlag(savedFlag)
+                savedFlagsRepository.deleteFlag(flag = savedFlag)
             } else {
-                savedFlagsRepository.insertFlag(flag.toSavedFlag())
+                savedFlagsRepository.insertFlag(flag = flag.toSavedFlag())
             }
         }
     }
