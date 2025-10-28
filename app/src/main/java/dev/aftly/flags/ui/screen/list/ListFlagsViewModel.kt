@@ -59,12 +59,11 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
             application = application,
             flags = getSavedFlagView(savedFlags = state.savedFlags)
         )
-        val filterByCountry = state.filterByCountry
-        val isFilterByCountry = filterByCountry != null
+        val isFilterByCountry = state.filterByCountry != null
 
         when {
             isFilterByCountry -> {
-                val relatedFlags = getPoliticalRelatedFlags(flag = filterByCountry)
+                val relatedFlags = getPoliticalRelatedFlags(flag = state.filterByCountry)
 
                 savedFlags.filter { it in relatedFlags }
             }
