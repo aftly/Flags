@@ -238,20 +238,29 @@ fun FilterButtonMenu(
                             .fillMaxWidth()
                     ) {
                         FilterMode.entries.forEach { filterMode ->
-                            val isContentSelected = when (filterMode) {
+                            val isFiltered = when (filterMode) {
                                 FilterMode.CATEGORY -> isFilterByCategory
                                 FilterMode.COUNTRY -> isFilterByCountry
                             }
 
                             MenuButton(
-                                modifier = Modifier.padding(end = filterModeButtonPadding)
+                                modifier = Modifier
+                                    .padding(end = filterModeButtonPadding)
                                     .weight(1f),
                                 menu = FlagsMenu.FILTER,
                                 isSelected = filterMode == filterModeSelect,
-                                isContentSelected = isContentSelected,
+                                isContentSelected = isFiltered,
+                                isLongClickEnabled = isFiltered,
                                 title = filterMode.title,
                                 icon = FlagsMenu.FILTER.icon,
                                 onClick = { filterModeSelect = filterMode },
+                                onLongClick = {
+                                    when (filterMode) {
+                                        FilterMode.CATEGORY -> onCategorySelectSingle(All)
+                                        FilterMode.COUNTRY ->
+                                            filterByCountry?.let { onFilterByCountry(it) }
+                                    }
+                                },
                             )
                         }
                     }

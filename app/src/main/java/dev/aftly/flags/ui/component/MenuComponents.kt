@@ -12,6 +12,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -31,7 +35,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -40,6 +43,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,8 +56,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -73,6 +80,8 @@ import dev.aftly.flags.ui.theme.Shapes
 import dev.aftly.flags.ui.theme.Timing
 import dev.aftly.flags.ui.theme.surfaceLight
 import dev.aftly.flags.ui.util.LocalDarkTheme
+import dev.aftly.flags.ui.util.buttonCardColors
+import dev.aftly.flags.ui.util.clickableNoHaptics
 import dev.aftly.flags.ui.util.color
 import dev.aftly.flags.ui.util.colorSelect
 import dev.aftly.flags.ui.util.flagDatesString
@@ -149,43 +158,66 @@ fun MenuButton(
     menu: FlagsMenu,
     isSelected: Boolean,
     isContentSelected: Boolean = false,
+    isLongClickEnabled: Boolean,
     @StringRes title: Int,
     icon: ImageVector?,
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
 ) {
-    val colors = getButtonColors(containerColor =
+    val colors = buttonCardColors(containerColor =
         if (isSelected) menu.colorSelect() else menu.color()
     )
+    val shape = MaterialTheme.shapes.medium
+    val haptic = LocalHapticFeedback.current
+    val interactionSource = remember { MutableInteractionSource() }
 
-    Button(
-        onClick = onClick,
-        modifier = modifier,
+    Card(
+        modifier = modifier.clickableNoHaptics(
+            shape = shape,
+            interactionSource = interactionSource,
+            onClick = onClick,
+            onLongClick = {
+                if (isLongClickEnabled) {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onLongClick()
+                }
+            },
+        ),
+        shape = shape,
         colors = colors,
-        shape = MaterialTheme.shapes.medium,
     ) {
-        icon?.let {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-            )
-        }
+        Row(
+            modifier = Modifier.padding(paddingValues = ButtonDefaults.ContentPadding)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            icon?.let {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                )
+            }
 
-        Text(
-            text = stringResource(id = title),
-            modifier = Modifier.padding(start = Dimens.extraSmall4),
-        )
-
-        if (isContentSelected) {
-            Icon(
-                imageVector = Icons.Default.Check,
-                contentDescription = null,
-                modifier = Modifier.padding(start = Dimens.extraSmall6)
-                    .size(Dimens.iconSize24 * 0.7f)
-                    .clip(shape = MaterialTheme.shapes.large)
-                    .background(color = colors.contentColor)
-                    .padding(all = 1.dp),
-                tint = colors.containerColor,
+            Text(
+                text = stringResource(id = title),
+                modifier = Modifier.padding(start = Dimens.extraSmall4),
+                fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.bodyMedium,
             )
+
+            if (isContentSelected) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = null,
+                    modifier = Modifier.padding(start = Dimens.extraSmall6)
+                        .size(Dimens.iconSize24 * 0.7f)
+                        .clip(shape = MaterialTheme.shapes.large)
+                        .background(color = colors.contentColor)
+                        .padding(all = 1.dp),
+                    tint = colors.containerColor,
+                )
+            }
         }
     }
 }

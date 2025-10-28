@@ -107,7 +107,9 @@ import dev.aftly.flags.ui.component.ResultsType
 import dev.aftly.flags.ui.component.ScrollToTopButton
 import dev.aftly.flags.ui.theme.Dimens
 import dev.aftly.flags.ui.theme.Timing
+import dev.aftly.flags.ui.util.clickableNoHaptics
 import dev.aftly.flags.ui.util.flagDatesString
+import dev.aftly.flags.ui.util.getCardColors
 import dev.aftly.flags.ui.util.getFlagFromId
 import dev.aftly.flags.ui.util.getSavedFlagView
 import kotlinx.coroutines.launch
@@ -579,6 +581,7 @@ private fun ListItem(
     val contentPadding = Dimens.extraSmall4
     val textColor = MaterialTheme.colorScheme.onPrimaryContainer
     val imageHeight = Dimens.listItemHeight48 - verticalPadding * 2
+    val shape = MaterialTheme.shapes.large
 
     /* Item strings */
     val flagOf = stringResource(flag.flagOf)
@@ -607,33 +610,20 @@ private fun ListItem(
         Card(
             modifier = Modifier
                 .weight(1f)
-                .clip(shape = MaterialTheme.shapes.large)
-                .indication(interactionSource, ripple())
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onPress = { offset ->
-                            val press = PressInteraction.Press(offset)
-                            interactionSource.emit(press)
-
-                            val released = tryAwaitRelease()
-                            val end =
-                                if (released) PressInteraction.Release(press)
-                                else PressInteraction.Cancel(press)
-                            interactionSource.emit(end)
-                        },
-                        onTap = { onFlagSelect(flag) },
-                        onLongPress = {
-                            if (isSearch) {
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                onSearchQueryReplace(flagOf)
-                            }
-                        },
-                    )
-                },
-            shape = MaterialTheme.shapes.large,
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
-            ),
+                .clickableNoHaptics(
+                    shape = shape,
+                    interactionSource = interactionSource,
+                    onClick = { onFlagSelect(flag) },
+                    onLongClick = {
+                        if (isSearch) {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onSearchQueryReplace(flagOf)
+                        }
+                    },
+                ),
+            shape = shape,
+            colors =
+                getCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest),
         ) {
             Row(
                 modifier = modifier.padding(
