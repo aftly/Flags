@@ -10,7 +10,6 @@ data class ListFlagsUiState(
     val allFlags: List<FlagView> = allFlagsList,
     val currentFlags: List<FlagView> = allFlagsList,
     val savedFlags: Set<SavedFlag> = emptySet(),
-    val savedFlagView: List<FlagView> = emptyList(),
     val isViewSavedFlags: Boolean = false,
     val currentSuperCategories: List<FlagSuperCategory> = listOf(FlagSuperCategory.All),
     val currentSubCategories: List<FlagCategory> = emptyList(),

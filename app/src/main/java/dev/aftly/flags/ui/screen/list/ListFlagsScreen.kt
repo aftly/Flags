@@ -155,7 +155,7 @@ fun ListFlagsScreen(
         onFlagSelect = { flag ->
             val flags =
                 if (uiState.isSearchQuery) searchResults
-                else if (uiState.isViewSavedFlags) uiState.savedFlagView
+                else if (uiState.isViewSavedFlags) savedFlags
                 else uiState.currentFlags
 
             viewModel.onFlagNav(flag)
