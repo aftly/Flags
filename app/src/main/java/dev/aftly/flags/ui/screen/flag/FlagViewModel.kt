@@ -22,6 +22,7 @@ import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
 import dev.aftly.flags.model.FlagCategory.HISTORICAL
 import dev.aftly.flags.model.FlagCategory.INTERNATIONAL_ORGANIZATION
 import dev.aftly.flags.model.FlagCategory.MICRONATION
+import dev.aftly.flags.model.FlagCategory.MICROSTATE
 import dev.aftly.flags.model.FlagCategory.MILITARY
 import dev.aftly.flags.model.FlagCategory.MILITARY_JUNTA
 import dev.aftly.flags.model.FlagCategory.MONARCHY
@@ -433,10 +434,13 @@ class FlagViewModel(
             HISTORICAL, SOVEREIGN_STATE, FREE_ASSOCIATION, DEVOLVED_GOVERNMENT, ANNEXED_TERRITORY
         )
 
-        val regionCategories = categories.filter {
-            it in Regional.enums() + UNRECOGNIZED_STATE
-        }.toMutableList()
+        val regionCategories = categories.filter { it in Regional.enums() + UNRECOGNIZED_STATE }
+            .toMutableList()
         regionCategories.removeFirstOrNull()
+
+        val derivationCategories = categories.filter { it in PowerDerivation.enums() + MICROSTATE }
+            .toMutableList()
+        derivationCategories.removeFirstOrNull()
 
         /* ----- ITERATIONS ----- */
         for (category in categories) {
@@ -470,15 +474,18 @@ class FlagViewModel(
                 addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
 
             } else if (category in regionCategories) {
-                resIds.add(R.string.string_and)
+                if (regionCategories.size > 1) {
+                    resIds.add(R.string.string_comma)
+                    addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
+                } else {
+                    resIds.add(R.string.string_and)
+                }
                 resIds.add(category.string)
                 regionCategories.remove(element = category)
 
             } else if (category == INTERNATIONAL_ORGANIZATION) {
                 if (categories.any { it in ExecutiveStructure.enums() } &&
-                    !categories.any {
-                        it in TerritorialDistributionOfAuthority.enums()
-                    }) {
+                    !categories.any { it in TerritorialDistributionOfAuthority.enums() }) {
                     if (SUPRANATIONAL_UNION in categories) {
                         resIds.add(R.string.string_and)
                     }
@@ -517,9 +524,15 @@ class FlagViewModel(
             } else if (category == CONSTITUTIONAL && MONARCHY !in categories) {
                 continue
 
-            } else if (category == THEOCRACY && MONARCHY in categories) {
-                resIds.add(R.string.string_and)
+            } else if (category in derivationCategories) {
+                if (derivationCategories.size > 1) {
+                    resIds.add(R.string.string_comma)
+                    addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
+                } else {
+                    resIds.add(R.string.string_and)
+                }
                 resIds.add(category.string)
+                derivationCategories.remove(element = category)
 
             } else if (category == ONE_PARTY) {
                 resIds.add(R.string.category_one_party_in_description)
@@ -619,7 +632,7 @@ class FlagViewModel(
     ) {
         val isChild = parentUnit != null
         val isDependent = sovereignState != null
-        val inCategories = Civilian.enums() + POLITICAL_MOVEMENT + CONFEDERATION
+        val inCategories = Civilian.enums() + POLITICAL_MOVEMENT + CONFEDERATION + MICROSTATE
 
         if (isChild) {
             val isParentHistorical = HISTORICAL in parentUnit.categories
@@ -642,8 +655,10 @@ class FlagViewModel(
 
             if (isParentHistorical) resIds.add(R.string.category_historical_descriptor) /* DESCRIPTOR */
 
-            resIds.add(R.string.string_comma)
-            addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
+            if (isDependent) {
+                resIds.add(R.string.string_comma)
+                addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
+            }
         }
 
         if (isDependent) {

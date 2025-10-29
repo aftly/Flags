@@ -1577,7 +1577,7 @@
         ],
         "associatedState": null,
         "sovereignState": null,
-        "parentUnit": null,
+        "parentUnit": "spain",
         "latestEntities": [],
         "previousFlagOf": null,
         "categories": [
@@ -1585,7 +1585,8 @@
             "UNITARY",
             "PARLIAMENTARY",
             "CONSTITUTIONAL",
-            "MONARCHY"
+            "MONARCHY",
+            "MICROSTATE"
         ]
     },
     "anglesey": {
@@ -21973,14 +21974,15 @@
         ],
         "associatedState": null,
         "sovereignState": null,
-        "parentUnit": null,
+        "parentUnit": "switzerland",
         "latestEntities": [],
         "previousFlagOf": null,
         "categories": [
             "SOVEREIGN_STATE",
             "UNITARY",
             "PARLIAMENTARY",
-            "MONARCHY"
+            "MONARCHY",
+            "MICROSTATE"
         ]
     },
     "liguria": {
@@ -25091,7 +25093,7 @@
         ],
         "associatedState": null,
         "sovereignState": null,
-        "parentUnit": null,
+        "parentUnit": "france",
         "latestEntities": [],
         "previousFlagOf": null,
         "categories": [
@@ -25099,7 +25101,8 @@
             "UNITARY",
             "PARLIAMENTARY",
             "CONSTITUTIONAL",
-            "MONARCHY"
+            "MONARCHY",
+            "MICROSTATE"
         ]
     },
     "mongolia": {
@@ -34187,7 +34190,7 @@
         ],
         "associatedState": null,
         "sovereignState": null,
-        "parentUnit": null,
+        "parentUnit": "italy",
         "latestEntities": [],
         "previousFlagOf": null,
         "categories": [
@@ -34195,7 +34198,8 @@
             "UNITARY",
             "PARLIAMENTARY",
             "CONSTITUTIONAL",
-            "REPUBLIC"
+            "REPUBLIC",
+            "MICROSTATE"
         ]
     },
     "santaCruzDeTenerife(Province)": {
@@ -44475,14 +44479,15 @@
         "internationalOrganisations": [],
         "associatedState": null,
         "sovereignState": null,
-        "parentUnit": null,
+        "parentUnit": "rome",
         "latestEntities": [],
         "previousFlagOf": null,
         "categories": [
             "SOVEREIGN_STATE",
             "UNITARY",
             "MONARCHY",
-            "THEOCRACY"
+            "THEOCRACY",
+            "MICROSTATE"
         ]
     },
     "vaud": {

@@ -31,6 +31,7 @@ enum class FlagCategory(
     COLLECTIVITY (title = R.string.category_collectivity_title, string = R.string.category_collectivity_string),
     COLONY(title = R.string.category_colony_title, string = R.string.category_colony_string),
     COMMUNITY (title = R.string.category_community_title, string = R.string.category_community_string),
+    COMUNE (title = R.string.category_comune_title, string = R.string.category_comune_string),
     COUNCIL_AREA (title = R.string.category_council_area_title, string = R.string.category_council_area_string),
     COUNTRY (title = R.string.category_country_title, string = R.string.category_country_string),
     COUNTY (title = R.string.category_county_title, string = R.string.category_county_string),
@@ -72,6 +73,7 @@ enum class FlagCategory(
     CHARITY (title = R.string.category_charity_title, string = R.string.category_charity_string),
     UNIVERSITY (title = R.string.category_university_title, string = R.string.category_university_string),
     VEXILLOLOGY (title = R.string.category_vexillology_title, string = R.string.category_vexillology_string),
+    RELIGIOUS (title = R.string.category_religious_title, string = R.string.category_religious_string),
 
 
     /* POLITICAL CATEGORIES: */
@@ -117,12 +119,13 @@ enum class FlagCategory(
     /* CULTURAL ENTITIES */
     SOCIAL (title = R.string.category_social_title, string = R.string.category_social_string),
     POLITICAL_MOVEMENT (title = R.string.category_political_movement_title, string = R.string.category_political_movement_string),
-    RELIGIOUS (title = R.string.category_religious_title, string = R.string.category_religious_string),
     ETHNIC (title = R.string.category_ethnic_title, string = R.string.category_ethnic_string),
 
 
     /* OTHER */
     HISTORICAL (title = R.string.category_historical_title, string = R.string.category_historical_string),
     MARITIME (title = R.string.category_maritime_title, string = R.string.category_maritime_string),
+    SOVEREIGN_ENTITY (title = R.string.category_sovereign_entity_title, string = R.string.category_sovereign_entity_string),
+    MICROSTATE (title = R.string.category_microstate_title, string = R.string.category_microstate_string),
     TERRORIST_ORGANIZATION (title = R.string.category_terrorist_organization_title, string = R.string.category_terrorist_organization_string)
 }

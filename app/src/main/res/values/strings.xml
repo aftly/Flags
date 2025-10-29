@@ -90,6 +90,8 @@
     <string name="category_colony_string">colony</string>
     <string name="category_community_title">Community</string>
     <string name="category_community_string">community</string>
+    <string name="category_comune_title">Comune</string>
+    <string name="category_comune_string">comune</string>
     <string name="category_council_area_title">Council Area</string>
     <string name="category_council_area_string">council area</string>
     <string name="category_country_title">Constituent Country</string>
@@ -180,6 +182,10 @@
     <string name="category_vexillology_description_string">vexillological</string>
     <string name="category_maritime_title">Maritime</string>
     <string name="category_maritime_string">maritime</string>
+    <string name="category_sovereign_entity_title">Sovereign Entity</string>
+    <string name="category_sovereign_entity_string">sovereign entity</string>
+    <string name="category_microstate_title">Microstate</string>
+    <string name="category_microstate_string">microstate</string>
     <string name="category_terrorist_organization_title">Terrorist Organization</string>
     <string name="category_terrorist_organization_string">designated terrorist organization</string>
     <string name="category_unitary_title">Unitary</string>
