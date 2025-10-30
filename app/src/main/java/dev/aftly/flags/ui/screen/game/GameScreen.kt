@@ -149,7 +149,7 @@ fun GameScreen(
 ) {
     /* Expose screen and backStack state */
     val uiState by viewModel.uiState.collectAsState()
-    val savedFlags by viewModel.savedFlagsState.collectAsState()
+    val savedFlags by viewModel.savedFlags.collectAsState()
 
     /* Manage system bars and flag state after returning from FullScreen */
     val view = LocalView.current

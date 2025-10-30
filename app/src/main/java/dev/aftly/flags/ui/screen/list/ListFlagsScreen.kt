@@ -121,7 +121,7 @@ fun ListFlagsScreen(
     onNavigateToFlagScreen: (FlagView, List<FlagView>) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val savedFlags by viewModel.savedFlagsState.collectAsState()
+    val savedFlags by viewModel.savedFlagView.collectAsState()
     val searchResults by viewModel.searchResults.collectAsStateWithLifecycle()
 
     /* Update (alphabetical) order of flag lists when language changes */

@@ -54,7 +54,7 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
         private set
     private val searchQueryFlow = snapshotFlow { searchQueryValue.text }
 
-    val savedFlagsState = uiState.map { state ->
+    val savedFlagView = uiState.map { state ->
         val savedFlags = sortFlagsAlphabetically(
             application = application,
             flags = getSavedFlagView(savedFlags = state.savedFlags)
@@ -78,7 +78,7 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
     val searchResults = combine(
         flow = searchQueryFlow,
         flow2 = uiState,
-        flow3 = savedFlagsState,
+        flow3 = savedFlagView,
     ) { query, state, saved ->
         val all = state.allFlags
         val current = state.currentFlags
@@ -287,14 +287,14 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
         }
         /* Refilter by country */
         uiState.value.filterByCountry?.let { country ->
-            filterByCountry(country)
+            setFilterByCountry(country)
         }
     }
 
 
     fun updateCurrentCategories(category: FlagCategoryBase) {
         /* Controls whether flags are updated from current or all flags */
-        var isDeselectSwitch = false to false
+        var isDeselectSwitch: Pair<Boolean, Boolean>
 
         val superCategories = uiState.value.currentSuperCategories.toMutableList()
         val subCategories = uiState.value.currentSubCategories.toMutableList()
@@ -359,7 +359,7 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
         }
         /* Refilter by country */
         uiState.value.filterByCountry?.let { country ->
-            filterByCountry(country)
+            setFilterByCountry(country)
         }
     }
 
@@ -371,19 +371,24 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
         val isAll = supers.isNotEmpty() && supers.all { it == All } && subs.isEmpty()
         val isCountry =
             supers.isNotEmpty() && supers.all { it == SovereignCountry } && subs.isEmpty()
+        val isSaved = supers.isEmpty() && subs.isEmpty()
 
         /* Deselect current filter country */
         if (uiState.value.filterByCountry != null) {
             _uiState.update {
                 it.copy(
-                    currentFlags = getFlagsFromCategories(
-                        allFlags = it.allFlags,
-                        currentFlags = it.currentFlags,
-                        isDeselectSwitch = Pair(first = true, second = false),
-                        superCategory = it.currentSuperCategories.firstOrNull(),
-                        superCategories = it.currentSuperCategories.toMutableList(),
-                        subCategories = it.currentSubCategories.toMutableList(),
-                    ),
+                    currentFlags = when {
+                        isSaved -> it.currentFlags
+
+                        else -> getFlagsFromCategories(
+                            allFlags = it.allFlags,
+                            currentFlags = it.currentFlags,
+                            isDeselectSwitch = Pair(first = true, second = false),
+                            superCategory = it.currentSuperCategories.firstOrNull(),
+                            superCategories = it.currentSuperCategories.toMutableList(),
+                            subCategories = it.currentSubCategories.toMutableList(),
+                        )
+                    },
                     filterByCountry = null,
                 )
             }
@@ -392,7 +397,8 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
         /* Filter by new country */
         if (isNew) {
             if (isCountry) updateCurrentCategory(category = All)
-            filterByCountry(country)
+            setFilterByCountry(country = country, isFilterFlags = !isSaved)
+
         } else if (isAll) {
             updateCurrentCategory(category = SovereignCountry)
         }
@@ -483,14 +489,18 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
     }
 
 
-    private fun filterByCountry(country: FlagView) {
-        val relatedFlags = getPoliticalRelatedFlags(flag = country)
-
-        _uiState.update { state ->
-            state.copy(
-                currentFlags = state.currentFlags.filter { it in relatedFlags },
-                filterByCountry = country,
-            )
-        }
+    private fun setFilterByCountry(
+        country: FlagView,
+        isFilterFlags: Boolean = true,
+    ) = _uiState.update { state ->
+        state.copy(
+            currentFlags = when {
+                isFilterFlags -> getPoliticalRelatedFlags(flag = country).let { relatedFlags ->
+                    state.currentFlags.filter { it in relatedFlags }
+                }
+                else -> state.currentFlags
+            },
+            filterByCountry = country,
+        )
     }
 }
