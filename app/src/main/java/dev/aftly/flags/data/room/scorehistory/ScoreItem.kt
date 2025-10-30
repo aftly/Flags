@@ -32,7 +32,7 @@ data class ScoreItem(
 
     /* Handled by Room @TypeConverters */
     @ColumnInfo(name = "game_super_categories")
-    val gameSuperCategories: List<FlagCategoryBase>, /* Allow additional types without migration */
+    val gameSuperCategories: List<FlagCategoryBase>,
     @ColumnInfo(name = "game_sub_categories")
     val gameSubCategories: List<FlagCategory>,
 
