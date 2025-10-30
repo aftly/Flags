@@ -20,6 +20,8 @@ data class GameUiState(
     val currentFlag: FlagView = nullFlag,
     val currentFlagStrings: List<String> = emptyList(),
 
+    val isSavedFlags: Boolean = false,
+
     val isConfirmExitDialog: Boolean = false,
     val isConfirmResetDialog: Boolean = false,
 

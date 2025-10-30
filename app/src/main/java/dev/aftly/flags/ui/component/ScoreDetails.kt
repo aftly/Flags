@@ -66,6 +66,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.aftly.flags.R
+import dev.aftly.flags.data.DataSource.flagViewMap
+import dev.aftly.flags.model.FlagsOfCountry
+import dev.aftly.flags.model.FlagCategoryWrapper
+import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.game.AnswerMode
 import dev.aftly.flags.model.game.CategoriesOverview
@@ -474,43 +478,55 @@ private fun CategoriesOverview(
         )
 
         /* If game list is saved flags */
-        if (categoriesOverview.superCategories.isEmpty() &&
-            categoriesOverview.subCategories.isEmpty()) {
-            val savedFlagsText = stringResource(R.string.saved_flags_score_detailed)
-
+        if (categoriesOverview.isSavedFlags) {
             ClippedTextItem(
                 modifier = Modifier.padding(top = clippedPadding),
-                text = savedFlagsText,
+                text = stringResource(id = R.string.saved_flags_score_detailed),
                 backgroundColor = MaterialTheme.colorScheme.primary,
                 textColor = MaterialTheme.colorScheme.onPrimary,
             )
+        }
 
-        } else {
-            /* Super-categories */
-            categoriesOverview.superCategories.forEach { superCategory ->
-                superCategory.gameScoreCategoryDetailed?.let {
-                    val categoryText = stringResource(it)
+        /* Super-categories */
+        categoriesOverview.superCategories.forEach { category ->
+            when (category) {
+                is FlagsOfCountry -> ClippedTextItem(
+                    modifier = Modifier.padding(top = clippedPadding),
+                    text = buildString {
+                        val country = flagViewMap.getValue(key = category.countryKey)
 
+                        append(
+                            stringResource(
+                                id = R.string.game_score_details_prepend_flags_string,
+                                if (country.isFlagOfThe)
+                                    stringResource(id = R.string.string_the_whitespace) else ""
+                            ),
+                        )
+                        append(stringResource(id = country.flagOf))
+                    },
+                    backgroundColor = MaterialTheme.colorScheme.tertiary,
+                    textColor = MaterialTheme.colorScheme.onTertiary,
+                )
+                is FlagSuperCategory -> category.gameScoreCategoryDetailed?.let {
                     ClippedTextItem(
                         modifier = Modifier.padding(top = clippedPadding),
-                        text = categoryText,
+                        text = stringResource(id = it),
                         backgroundColor = MaterialTheme.colorScheme.primary,
                         textColor = MaterialTheme.colorScheme.onPrimary,
                     )
                 }
+                is FlagCategoryWrapper -> {}
             }
+        }
 
-            /* Sub-categories */
-            categoriesOverview.subCategories.forEach { subCategory ->
-                val categoryText = stringResource(subCategory.title)
-
-                ClippedTextItem(
-                    modifier = Modifier.padding(top = clippedPadding),
-                    text = categoryText,
-                    backgroundColor = MaterialTheme.colorScheme.secondary,
-                    textColor = MaterialTheme.colorScheme.onSecondary,
-                )
-            }
+        /* Sub-categories */
+        categoriesOverview.subCategories.forEach { subCategory ->
+            ClippedTextItem(
+                modifier = Modifier.padding(top = clippedPadding),
+                text = stringResource(id = subCategory.title),
+                backgroundColor = MaterialTheme.colorScheme.secondary,
+                textColor = MaterialTheme.colorScheme.onSecondary,
+            )
         }
     }
 }

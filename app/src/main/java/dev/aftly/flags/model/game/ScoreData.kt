@@ -3,7 +3,6 @@ package dev.aftly.flags.model.game
 import dev.aftly.flags.data.room.scorehistory.ScoreItem
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategoryBase
-import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.ui.util.getFlagKeys
 import dev.aftly.flags.ui.util.getFlagsFromKeys
@@ -19,8 +18,9 @@ class ScoreData(
     val timeMode: TimeMode,
     val timerStart: Int?, /* In seconds */
     val timerEnd: Int, /* In seconds */
-    val gameSuperCategories: List<FlagSuperCategory>,
+    val gameSuperCategories: List<FlagCategoryBase>,
     val gameSubCategories: List<FlagCategory>,
+    val isSavedFlags: Boolean,
     val flagsAll: List<FlagView>,
     val flagsGuessed: List<FlagView>,
     flagsGuessedSorted: List<FlagView>,
@@ -38,7 +38,7 @@ class ScoreData(
     }
     private val correctAnswers = flagsGuessed.size
     private val scorePercent = (correctAnswers.toFloat() / flagsAll.size.toFloat()) * 100f
-
+    
     val scoreOverview = ScoreOverview(
         answerMode = answerMode,
         difficultyMode = difficultyMode,
@@ -50,6 +50,7 @@ class ScoreData(
         categoriesOverview = CategoriesOverview(
             superCategories = gameSuperCategories,
             subCategories = gameSubCategories,
+            isSavedFlags = isSavedFlags,
         ),
         timeOverview = TimeOverview(
             timeMode = timeMode,
@@ -96,7 +97,7 @@ class ScoreData(
         timeMode = timeMode,
         timerStart = timerStart,
         timerEnd = timerEnd,
-        gameSuperCategories = gameSuperCategories as List<FlagCategoryBase>,
+        gameSuperCategories = gameSuperCategories,
         gameSubCategories = gameSubCategories,
         flagsAll = getFlagKeys(flags = flagsAll),
         flagsGuessed = getFlagKeys(flags = flagsGuessed),
@@ -127,8 +128,9 @@ fun ScoreItem.toScoreData(
     timeMode = timeMode,
     timerStart = timerStart,
     timerEnd = timerEnd,
-    gameSuperCategories = superCategories(),
+    gameSuperCategories = gameSuperCategories,
     gameSubCategories = gameSubCategories,
+    isSavedFlags = superCategories().isEmpty() && gameSubCategories.isEmpty(),
     flagsAll = getFlagsFromKeys(flagKeys = flagsAll),
     flagsGuessed = getFlagsFromKeys(flagKeys = flagsGuessed),
     flagsGuessedSorted = flagsGuessedSorted,
@@ -161,8 +163,9 @@ data class TotalsOverview(
 )
 
 data class CategoriesOverview(
-    val superCategories: List<FlagSuperCategory>,
+    val superCategories: List<FlagCategoryBase>,
     val subCategories: List<FlagCategory>,
+    val isSavedFlags: Boolean,
 )
 
 data class TimeOverview(

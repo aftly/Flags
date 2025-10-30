@@ -333,6 +333,7 @@
     <string name="game_score_details_correct_title">Correct answers:\ </string>
     <string name="game_score_details_correct_absolute">%d/%d</string>
     <string name="game_score_details_categories_title">Categories:\ </string>
+    <string name="game_score_details_prepend_flags_string">Flags of %s</string>
     <string name="game_score_details_answer_mode">Answer mode:\ </string>
     <string name="game_score_details_difficulty_mode">Difficulty mode:\ </string>
     <string name="game_score_details_time_mode">Time mode:\ </string>

@@ -12,6 +12,7 @@ import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.nullFlag
 import dev.aftly.flags.data.datastore.GamePreferencesRepository
 import dev.aftly.flags.data.room.savedflags.SavedFlag
+import dev.aftly.flags.model.FlagsOfCountry
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategoryBase
 import dev.aftly.flags.model.FlagCategoryWrapper
@@ -33,6 +34,7 @@ import dev.aftly.flags.ui.util.isSuperCategoryExit
 import dev.aftly.flags.ui.util.normalizeLower
 import dev.aftly.flags.ui.util.normalizeString
 import dev.aftly.flags.ui.util.sortFlagsAlphabetically
+import dev.aftly.flags.ui.util.toFlagsOfCountry
 import dev.aftly.flags.ui.util.updateCategoriesFromSub
 import dev.aftly.flags.ui.util.updateCategoriesFromSuper
 import kotlinx.coroutines.Job
@@ -279,6 +281,9 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
                     subCategories = subCategories,
                 )
             }
+            is FlagsOfCountry -> {
+                isDeselectSwitch = false to false
+            }
         }
         /* Return updateCurrentCategory() if deselection to only 1 super category */
         if (isDeselectSwitch.first) {
@@ -390,6 +395,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
                     savedFlags = savedFlags.value,
                     filterByCountry = it.filterByCountry,
                 ),
+                isSavedFlags = true,
                 currentSuperCategories = emptyList(),
                 currentSubCategories = emptyList(),
             )
@@ -793,8 +799,12 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
                 TimeMode.STANDARD -> uiState.value.timerStandard
                 TimeMode.TIME_TRIAL -> uiState.value.timerTimeTrial
             },
-            gameSuperCategories = getScoreDataSupers(),
+            gameSuperCategories = buildList {
+                uiState.value.filterByCountry?.let { add(it.toFlagsOfCountry()) }
+                addAll(elements = getScoreDataSupers())
+            },
             gameSubCategories = getScoreDataSubs(),
+            isSavedFlags = uiState.value.isSavedFlags,
             flagsAll = uiState.value.currentFlags,
             flagsGuessed = _guessedFlags.toList(),
             flagsGuessedSorted = sortFlags(_guessedFlags),

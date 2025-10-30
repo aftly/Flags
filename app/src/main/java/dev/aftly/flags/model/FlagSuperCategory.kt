@@ -14,7 +14,7 @@ sealed class FlagSuperCategory(
     @param:StringRes val gameScoreCategoryPreview: Int?,
     @param:StringRes val gameScoreCategoryDetailed: Int?,
     @Polymorphic val subCategories: List<FlagCategoryBase>,
-) : FlagCategoryBase() {
+) : FlagCategoryBase {
     fun supers(): List<FlagSuperCategory> = subCategories.filterIsInstance<FlagSuperCategory>()
 
     fun allChildSupers(
@@ -40,6 +40,7 @@ sealed class FlagSuperCategory(
         when (category) {
             is FlagCategoryWrapper -> listOf(category.enum)
             is FlagSuperCategory -> allEnums(category.subCategories)
+            is FlagsOfCountry -> emptyList()
         }
     }
 

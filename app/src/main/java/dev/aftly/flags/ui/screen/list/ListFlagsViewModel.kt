@@ -13,6 +13,7 @@ import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.data.DataSource.inverseFlagViewMap
+import dev.aftly.flags.model.FlagsOfCountry
 import dev.aftly.flags.model.FlagCategoryBase
 import dev.aftly.flags.model.FlagCategoryWrapper
 import dev.aftly.flags.model.FlagSuperCategory
@@ -321,6 +322,7 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
                     subCategories = subCategories,
                 )
             }
+            is FlagsOfCountry -> isDeselectSwitch = false to false
         }
 
         /* Return updateCurrentCategory() if deselection to only 1 super category */

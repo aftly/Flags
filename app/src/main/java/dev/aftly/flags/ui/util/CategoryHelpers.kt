@@ -19,6 +19,7 @@ import dev.aftly.flags.data.DataSource.supersExclusiveOfInternational
 import dev.aftly.flags.data.DataSource.supersExclusiveOfPolitical
 import dev.aftly.flags.data.DataSource.switchSupersSuperCategories
 import dev.aftly.flags.data.room.scorehistory.ScoreItem
+import dev.aftly.flags.model.FlagsOfCountry
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
 import dev.aftly.flags.model.FlagCategory.CONFEDERATION
@@ -84,6 +85,7 @@ fun ScoreItem.isCategoriesEmpty(): Boolean =
 fun ScoreItem.superCategories(): List<FlagSuperCategory> =
     gameSuperCategories.filterIsInstance<FlagSuperCategory>()
 
+
 @Composable
 fun FlagsMenu.color(): Color = when (this) {
     FILTER -> MaterialTheme.colorScheme.onSecondaryContainer
@@ -119,6 +121,7 @@ fun getFlagsFromCategory(
             else if (category.enum == THEOCRATIC) listOf(category.enum, THEOCRACY)
             else listOf(category.enum)
         }
+        is FlagsOfCountry -> emptyList()
     }
 
     /* For skipping historical flags when category in exception */
@@ -143,6 +146,7 @@ fun getParentSuperCategory(
     is FlagSuperCategory -> category
     is FlagCategoryWrapper -> menuSuperCategoryList.filterNot { it == All || it == Political }
         .find { category.enum in it.enums() } ?: Political
+    is FlagsOfCountry -> Political
 }
 
 
@@ -391,6 +395,7 @@ private fun isCategoryExclusive(
     val isCategory = when (category) {
         is FlagSuperCategory -> superCategoryExclusives?.contains(category) ?: false
         is FlagCategoryWrapper -> subCategoryExclusives?.contains(category.enum) ?: false
+        is FlagsOfCountry -> false
     }
 
     val anySelected = buildList {

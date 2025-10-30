@@ -2,8 +2,6 @@ package dev.aftly.flags.model
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import dev.aftly.flags.data.DataSource.flagViewMap
-import dev.aftly.flags.data.DataSource.inverseFlagViewMap
 import dev.aftly.flags.ui.util.getLatestFlag
 import dev.aftly.flags.ui.util.getLatestFlagKey
 

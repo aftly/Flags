@@ -10,6 +10,7 @@ import dev.aftly.flags.data.DataSource.flagViewMapId
 import dev.aftly.flags.data.DataSource.inverseFlagResMap
 import dev.aftly.flags.data.DataSource.inverseFlagViewMap
 import dev.aftly.flags.data.room.savedflags.SavedFlag
+import dev.aftly.flags.model.FlagsOfCountry
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
 import dev.aftly.flags.model.FlagCategory.CANTON
 import dev.aftly.flags.model.FlagCategory.CITY
@@ -98,6 +99,8 @@ fun getSavedFlagViewSorted(
 
 fun SavedFlag.getFlagView(): FlagView = flagViewMap.getValue(key = this.flagKey)
 fun FlagView.toSavedFlag(): SavedFlag = SavedFlag(flagKey = getFlagKey(flag = this))
+fun FlagView.toFlagsOfCountry(): FlagsOfCountry =
+    FlagsOfCountry(countryKey = inverseFlagViewMap.getValue(key = this))
 
 
 /* ---------- For navigation ---------- */

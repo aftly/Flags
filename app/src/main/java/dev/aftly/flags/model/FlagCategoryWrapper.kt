@@ -5,4 +5,4 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName(value = "flag_category")
-data class FlagCategoryWrapper(val enum: FlagCategory) : FlagCategoryBase()
+data class FlagCategoryWrapper(val enum: FlagCategory) : FlagCategoryBase
