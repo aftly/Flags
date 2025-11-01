@@ -84,6 +84,7 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [x] Add Python scripts to external repository @ https://github.com/aftly/flag-data-scripts
 - [x] **(Partially done)** - Optimize app for different system Font sizes
 <br>
+
 --- Priority ---
 - [ ] More flags
 - [ ] Info dialog in screen to describe game modes
