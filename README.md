@@ -85,10 +85,13 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [x] **(Partially done)** - Optimize app for different system Font sizes
 <br>
 
+--- Not released ---
+- [x] Change fullscreen gesture transform implementation to not conflict with carousel gestures and constrain edges
+- [x] Info dialog in screen to describe game modes
+- [x] Filter flags by (their) country
+- [x] More flags
+
 --- Priority ---
-- [ ] More flags
-- [ ] Info dialog in screen to describe game modes
-- [ ] Replace current fullscreen gesture transform with one that doesn't conflict with carousel gestures
 - [ ] **Map game mode**: Click on map to answer geographical location of flag
 - [ ] Add screenshots of app to **README**
 - [ ] Optimize app for different screen resolutions and aspect ratios
@@ -110,10 +113,10 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 
 
 ## 🛠 Design
-- Built with Jetpack Compose in Kotlin, following architecture principles described on Android Developers such as UDF, SSOT, separation of concerns, and ViewModels for managing business state and logic.
+- Built with Jetpack Compose in Kotlin, trying to follow architecture principles from Android Developers such as UDF, SSOT, declarative state, separation of concerns, and ViewModels for managing business state and logic.
 
-- Flag info uses local data, originally sourced from Wikipedia via [scripts](https://github.com/aftly/flag-data-scripts) for getting flag images, common names, official names and alternate names.
-Flag category info is derived more manually, by filtering from broader categories such as on [countries by system of government](https://en.wikipedia.org/wiki/List_of_countries_by_system_of_government) and other Wikipedia lists.
+- Flag info uses local data, sourced from Wikipedia via [scripts](https://github.com/aftly/flag-data-scripts) for getting flag images, common names, official names and alternate names.
+Flag category info is derived more manually, eg. by filtering from broader categories such as on [countries by system of government](https://en.wikipedia.org/wiki/List_of_countries_by_system_of_government) and other Wikipedia lists.
 <br>
 
 ## ❤️ Acknowledgements 
