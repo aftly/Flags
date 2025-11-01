@@ -116,7 +116,7 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 ## 🛠 Design
 - Built with Jetpack Compose in Kotlin, trying to follow architecture principles from Android Developers such as UDF, SSOT, declarative state, separation of concerns, and ViewModels for managing business state and logic.
 
-- Flag info uses local data, sourced from Wikipedia via [scripts](https://github.com/aftly/flag-data-scripts) for getting flag images, common names, official names and alternate names.
+- Flag info uses local data, sourced from Wikipedia via [scripts](https://github.com/aftly/flag-data-scripts) for getting flag images and entity names.
 Flag category info is derived more manually, eg. by filtering from broader categories such as on [countries by system of government](https://en.wikipedia.org/wiki/List_of_countries_by_system_of_government) and other Wikipedia lists.
 <br>
 
