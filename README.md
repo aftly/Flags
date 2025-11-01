@@ -90,6 +90,7 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 - [x] Info dialog in screen to describe game modes
 - [x] Filter flags by (their) country
 - [x] More flags
+- [x] Various UI improvements
 
 --- Priority ---
 - [ ] **Map game mode**: Click on map to answer geographical location of flag
