@@ -251,6 +251,8 @@
     <string name="category_fascist_string">fascist</string>
     <string name="category_ethnic_title">Ethnic</string>
     <string name="category_ethnic_string">ethnic</string>
+    <string name="category_tribe_title">Tribe</string>
+    <string name="category_tribe_string">tribe</string>
     <string name="category_ethnic_in_description_1">ethnicity</string>
     <string name="category_ethnic_in_description_2">n ethnicity</string>
     <string name="category_social_title">Social</string>

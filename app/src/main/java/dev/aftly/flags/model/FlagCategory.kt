@@ -120,6 +120,7 @@ enum class FlagCategory(
     SOCIAL (title = R.string.category_social_title, string = R.string.category_social_string),
     POLITICAL_MOVEMENT (title = R.string.category_political_movement_title, string = R.string.category_political_movement_string),
     ETHNIC (title = R.string.category_ethnic_title, string = R.string.category_ethnic_string),
+    TRIBE (title = R.string.category_tribe_title, string = R.string.category_tribe_string),
 
 
     /* OTHER */
