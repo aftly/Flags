@@ -17,7 +17,7 @@
 ## ❔ About
 - **Flags** is a free and open source Android app for displaying various flags of the world with categorisation for descriptions and user sorting. Also includes a game.
 
-- *This app is currently in beta and is missing production properties. Feedback is welcome, please submit feature requests and issues via [GitHub Issues](https://github.com/aftly/Flags/issues).*
+- *This app is currently in beta and is missing production properties. Please submit feature requests and issues via [GitHub Issues](https://github.com/aftly/Flags/issues).*
 <br>
 
 ## 📸 Screenshots
