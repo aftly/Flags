@@ -87,7 +87,7 @@ dev.aftly.flags 2E:F2:C1:C7:6B:7F:BB:06:F7:AD:55:07:C6:6B:7D:12:4B:F3:2F:95:CB:0
 
 --- Not released ---
 - [x] Change fullscreen gesture transform implementation to not conflict with carousel gestures and constrain edges
-- [x] Info dialog in screen to describe game modes
+- [x] Info dialog to describe game modes
 - [x] Filter flags by (their) country
 - [x] More flags
 - [x] Various UI improvements
