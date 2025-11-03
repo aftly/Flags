@@ -412,7 +412,7 @@ private fun CategoryLazyList(
                 MenuCategoryItem(
                     nestLevel = nestLevel,
                     isSelected = superCategories.isEmpty() && subCategories.isEmpty(),
-                    fontWeight = FontWeight.Light,
+                    fontWeight = FontWeight.Normal,
                     category = null,
                     onClick = {
                         onSubMenuExpand(null)
