@@ -107,10 +107,10 @@ enum class FlagCategory(
     AUTHORITARIAN (title = R.string.category_authoritarian_title, string = R.string.category_authoritarian_string),
     TOTALITARIAN (title = R.string.category_totalitarian_title, string = R.string.category_totalitarian_string),
     DICTATORSHIP (title = R.string.category_dictatorship_title, string = R.string.category_dictatorship_string),
+    OLIGARCHY (title = R.string.category_oligarchy_title, string = R.string.category_oligarchy_string),
 
     /* Ideological orientation */
     LIBERAL (title = R.string.category_liberal_title, string = R.string.category_liberal_string),
-    ILLIBERAL (title = R.string.category_illiberal_title, string = R.string.category_illiberal_string),
     THEOCRATIC (title = R.string.category_theocratic_title, string = R.string.category_theocratic_string),
     SOCIALIST (title = R.string.category_socialist_title, string = R.string.category_socialist_string),
     FASCIST (title = R.string.category_fascist_title, string = R.string.category_fascist_string),
@@ -125,6 +125,7 @@ enum class FlagCategory(
 
     /* OTHER */
     HISTORICAL (title = R.string.category_historical_title, string = R.string.category_historical_string),
+    COMPOSITE (title = R.string.category_composite_title, string = R.string.category_composite_string),
     MARITIME (title = R.string.category_maritime_title, string = R.string.category_maritime_string),
     SOVEREIGN_ENTITY (title = R.string.category_sovereign_entity_title, string = R.string.category_sovereign_entity_string),
     MICROSTATE (title = R.string.category_microstate_title, string = R.string.category_microstate_string),

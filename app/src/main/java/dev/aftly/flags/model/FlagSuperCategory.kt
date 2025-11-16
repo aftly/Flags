@@ -82,7 +82,7 @@ sealed class FlagSuperCategory(
             FlagCategoryWrapper(enum = FlagCategory.FREE_ASSOCIATION),
             FlagCategoryWrapper(enum = FlagCategory.AUTONOMOUS_REGION),
             FlagCategoryWrapper(enum = FlagCategory.DEVOLVED_GOVERNMENT),
-            //FlagCategoryWrapper(enum = FlagCategory.INDIGENOUS_TERRITORY),
+            FlagCategoryWrapper(enum = FlagCategory.INDIGENOUS_TERRITORY),
             FlagCategoryWrapper(enum = FlagCategory.UNRECOGNIZED_STATE),
             FlagCategoryWrapper(enum = FlagCategory.ANNEXED_TERRITORY)
         ),
@@ -105,7 +105,7 @@ sealed class FlagSuperCategory(
             FlagCategoryWrapper(enum = FlagCategory.COUNTY),
             FlagCategoryWrapper(enum = FlagCategory.CITY),
             FlagCategoryWrapper(enum = FlagCategory.DISTRICT),
-            //FlagCategoryWrapper(enum = FlagCategory.EMIRATE),
+            FlagCategoryWrapper(enum = FlagCategory.EMIRATE),
             //FlagCategoryWrapper(enum = FlagCategory.ENTITY),
             //FlagCategoryWrapper(enum = FlagCategory.GOVERNORATE),
             FlagCategoryWrapper(enum = FlagCategory.ISLAND),
@@ -336,7 +336,8 @@ sealed class FlagSuperCategory(
             FlagCategoryWrapper(enum = FlagCategory.DEMOCRACY),
             FlagCategoryWrapper(enum = FlagCategory.AUTHORITARIAN),
             FlagCategoryWrapper(enum = FlagCategory.TOTALITARIAN),
-            FlagCategoryWrapper(enum = FlagCategory.DICTATORSHIP)
+            FlagCategoryWrapper(enum = FlagCategory.DICTATORSHIP),
+            FlagCategoryWrapper(enum = FlagCategory.OLIGARCHY)
         ),
     )
 
@@ -349,7 +350,6 @@ sealed class FlagSuperCategory(
         gameScoreCategoryDetailed = null,
         subCategories = listOf(
             //FlagCategoryWrapper(enum = FlagCategory.LIBERAL),
-            //FlagCategoryWrapper(enum = FlagCategory.ILLIBERAL),
             FlagCategoryWrapper(enum = FlagCategory.THEOCRATIC),
             FlagCategoryWrapper(enum = FlagCategory.SOCIALIST),
             FlagCategoryWrapper(enum = FlagCategory.FASCIST)
