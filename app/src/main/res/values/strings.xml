@@ -1350,7 +1350,7 @@
     <string name="brunei_alt_6">Brunei Darussalam</string>
     <string name="brussels_region">Brussels</string>
     <string name="brussels_region_descriptor">(region)</string>
-    <string name="brussels_region_official">Brussels</string>
+    <string name="brussels_region_official">Brussels-Capital Region</string>
     <string name="brussels_region_wikipedia_url_path">Brussels</string>
     <string name="brussels_region_alt_1">Brussels Region</string>
     <string name="brussels_region_alt_2">BE-BRU</string>
@@ -1684,9 +1684,9 @@
     <string name="china_alt_13">China</string>
     <string name="china_alt_14">Zhōngguó</string>
     <string name="china_alt_15">P.R.C.</string>
-    <string name="chinook_nation">Chinook people</string>
-    <string name="chinook_nation_official">Chinook Nation</string>
-    <string name="chinook_nation_wikipedia_url_path">Chinookan_peoples</string>
+    <string name="chinook_nation">Chinook Nation</string>
+    <string name="chinook_nation_official">Chinook Indian Nation</string>
+    <string name="chinook_nation_wikipedia_url_path">Chinook_Indian_Nation</string>
     <string name="chinook_nation_alt">Chinook</string>
     <string name="choctaw_nation">Choctaw Nation</string>
     <string name="choctaw_nation_official">Choctaw Nation of Oklahoma</string>
@@ -2236,8 +2236,9 @@
     <string name="espirito_santo_alt_1">ES</string>
     <string name="espirito_santo_alt_2">Espiritu Santo</string>
     <string name="espirito_santo_alt_3">Espirito Santo State</string>
-    <string name="espirito_santo_province">province of Brazil</string>
-    <string name="espirito_santo_province_official">provinces of Brazil</string>
+    <string name="espirito_santo_province">Espírito Santo</string>
+    <string name="espirito_santo_province_descriptor">(province)</string>
+    <string name="espirito_santo_province_official">province of Espírito Santo</string>
     <string name="espirito_santo_province_wikipedia_url_path">Provinces_of_Brazil</string>
     <string name="essex">Essex</string>
     <string name="essex_official">Essex</string>
@@ -2459,7 +2460,8 @@
     <string name="friuli_venezia_giulia_alt_1">Friuli-Julian March</string>
     <string name="friuli_venezia_giulia_alt_2">Friuli-Venezia Giulia region</string>
     <string name="friuli_venezia_giulia_alt_3">Friuli-Venezia Giulia</string>
-    <string name="fujairah_emirate">Emirate of Fujairah</string>
+    <string name="fujairah_emirate">Fujairah</string>
+    <string name="fujairah_emirate_descriptor">(emirate)</string>
     <string name="fujairah_emirate_official">Emirate of Fujairah</string>
     <string name="fujairah_emirate_wikipedia_url_path">Fujairah_(emirate)</string>
     <string name="gabon">Gabon</string>
@@ -4650,8 +4652,9 @@
     <string name="northamptonshire">Northamptonshire</string>
     <string name="northamptonshire_official">Northamptonshire</string>
     <string name="northamptonshire_wikipedia_url_path">Northamptonshire</string>
-    <string name="northern_arapaho_of_wind_river">Wind River Indian Reservation</string>
-    <string name="northern_arapaho_of_wind_river_official">Wind River Indian Reservation</string>
+    <string name="northern_arapaho_of_wind_river">Northern Arapaho</string>
+    <string name="northern_arapaho_of_wind_river_descriptor">(Wind River)</string>
+    <string name="northern_arapaho_of_wind_river_official">Northern Arapaho of the Wind River Indian Reservation</string>
     <string name="northern_arapaho_of_wind_river_wikipedia_url_path">Wind_River_Indian_Reservation</string>
     <string name="northern_cheyenne">Northern Cheyenne Indian Reservation</string>
     <string name="northern_cheyenne_official">Northern Cheyenne Tribe of the Northern Cheyenne Indian Reservation</string>
@@ -5217,8 +5220,9 @@
     <string name="quintana_roo_wikipedia_url_path">Quintana_Roo</string>
     <string name="quintana_roo_alt_1">Free and Sovereign State of Quintana Roo</string>
     <string name="quintana_roo_alt_2">State of Quintana Roo</string>
-    <string name="ras_al_khaimah_emirate">Emirate of Ras Al Khaimah</string>
-    <string name="ras_al_khaimah_emirate_official">Ras Al Khaimah</string>
+    <string name="ras_al_khaimah_emirate">Ras Al Khaimah</string>
+    <string name="ras_al_khaimah_emirate_descriptor">(emirate)</string>
+    <string name="ras_al_khaimah_emirate_official">Emirate of Ras Al Khaimah</string>
     <string name="ras_al_khaimah_emirate_wikipedia_url_path">Emirate_of_Ras_Al_Khaimah</string>
     <string name="ras_al_khaimah_emirate_alt_1">Ras Al Khaimah</string>
     <string name="ras_al_khaimah_emirate_alt_2">Ras Al-Khaimah</string>
@@ -5321,7 +5325,7 @@
     <string name="rivne_oblast_alt_2">Rivnenshchyna</string>
     <string name="rivne_oblast_alt_3">Rovno Oblast</string>
     <string name="rivne_oblast_alt_4">Polesie</string>
-    <string name="robinson_pomo">Robinson Rancheria of Pomo Indians of California</string>
+    <string name="robinson_pomo">Robinson Pomo</string>
     <string name="robinson_pomo_official">Robinson Rancheria of Pomo Indians of California</string>
     <string name="robinson_pomo_wikipedia_url_path">Robinson_Rancheria_of_Pomo_Indians_of_California</string>
     <string name="robinson_pomo_alt">Robinson Rancheria</string>
@@ -5738,7 +5742,8 @@
     <string name="seychelles_alt_2">sc</string>
     <string name="seychelles_alt_3">SYC</string>
     <string name="seychelles_alt_4">SEY</string>
-    <string name="sharjah_emirate">Emirate of Sharjah</string>
+    <string name="sharjah_emirate">Sharjah</string>
+    <string name="sharjah_emirate_descriptor">(emirate)</string>
     <string name="sharjah_emirate_official">Emirate of Sharjah</string>
     <string name="sharjah_emirate_wikipedia_url_path">Sharjah_(emirate)</string>
     <string name="sharjah_emirate_alt">Sharjah Emirate</string>

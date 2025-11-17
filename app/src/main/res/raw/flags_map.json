@@ -7749,8 +7749,8 @@
             "type": "StringResSource.Explicit",
             "resName": "burgenland_wikipedia_url_path"
         },
-        "image": "flag_of_burgenland",
-        "imagePreview": "flag_of_burgenland",
+        "image": "flag_of_burgenland__state_",
+        "imagePreview": "flag_of_burgenland__state__preview",
         "fromYear": null,
         "fromYearCirca": null,
         "toYear": null,
@@ -10289,7 +10289,7 @@
         ],
         "isFlagOfThe": {
             "type": "BooleanSource.Explicit",
-            "bool": false
+            "bool": true
         },
         "isFlagOfOfficialThe": {
             "type": "BooleanSource.Explicit",
@@ -10302,7 +10302,8 @@
         "latestEntities": [],
         "previousFlagOf": null,
         "categories": [
-            "ETHNIC"
+            "CONFEDERATION",
+            "TRIBE"
         ]
     },
     "choctawNation": {
@@ -11736,7 +11737,7 @@
         "imagePreview": "flag_of_the_confederate_states__18611863_",
         "fromYear": 1861,
         "fromYearCirca": false,
-        "toYear": 1861,
+        "toYear": 1863,
         "toYearCirca": false,
         "flagOf": {
             "type": "StringResSource.Inherit"
@@ -11965,7 +11966,7 @@
         "internationalOrganisations": [],
         "associatedState": null,
         "sovereignState": "unitedStates",
-        "parentUnit": "chinookNation",
+        "parentUnit": "oregon",
         "latestEntities": [],
         "previousFlagOf": null,
         "categories": [
@@ -15318,7 +15319,10 @@
             "type": "StringResSource.Explicit",
             "resName": "espirito_santo_province"
         },
-        "flagOfDescriptor": null,
+        "flagOfDescriptor": {
+            "type": "StringResSource.Explicit",
+            "resName": "espirito_santo_province_descriptor"
+        },
         "flagOfOfficial": {
             "type": "StringResSource.Explicit",
             "resName": "espirito_santo_province_official"
@@ -15326,7 +15330,7 @@
         "flagOfAlternate": [],
         "isFlagOfThe": {
             "type": "BooleanSource.Explicit",
-            "bool": true
+            "bool": false
         },
         "isFlagOfOfficialThe": {
             "type": "BooleanSource.Explicit",
@@ -17174,7 +17178,10 @@
             "type": "StringResSource.Explicit",
             "resName": "fujairah_emirate"
         },
-        "flagOfDescriptor": null,
+        "flagOfDescriptor": {
+            "type": "StringResSource.Explicit",
+            "resName": "fujairah_emirate_descriptor"
+        },
         "flagOfOfficial": {
             "type": "StringResSource.Explicit",
             "resName": "fujairah_emirate_official"
@@ -17182,7 +17189,7 @@
         "flagOfAlternate": [],
         "isFlagOfThe": {
             "type": "BooleanSource.Explicit",
-            "bool": true
+            "bool": false
         },
         "isFlagOfOfficialThe": {
             "type": "BooleanSource.Explicit",
@@ -34999,7 +35006,10 @@
             "type": "StringResSource.Explicit",
             "resName": "northern_arapaho_of_wind_river"
         },
-        "flagOfDescriptor": null,
+        "flagOfDescriptor": {
+            "type": "StringResSource.Explicit",
+            "resName": "northern_arapaho_of_wind_river_descriptor"
+        },
         "flagOfOfficial": {
             "type": "StringResSource.Explicit",
             "resName": "northern_arapaho_of_wind_river_official"
@@ -39736,7 +39746,10 @@
             "type": "StringResSource.Explicit",
             "resName": "ras_al_khaimah_emirate"
         },
-        "flagOfDescriptor": null,
+        "flagOfDescriptor": {
+            "type": "StringResSource.Explicit",
+            "resName": "ras_al_khaimah_emirate_descriptor"
+        },
         "flagOfOfficial": {
             "type": "StringResSource.Explicit",
             "resName": "ras_al_khaimah_emirate_official"
@@ -42314,8 +42327,8 @@
             "type": "StringResSource.Explicit",
             "resName": "salzburg_state_wikipedia_url_path"
         },
-        "image": "flag_of_salzburg__vienna__vorarlberg",
-        "imagePreview": "flag_of_salzburg__vienna__vorarlberg",
+        "image": "flag_of_salzburg__state_",
+        "imagePreview": "flag_of_salzburg__state__preview",
         "fromYear": null,
         "fromYearCirca": null,
         "toYear": null,
@@ -43994,7 +44007,10 @@
             "type": "StringResSource.Explicit",
             "resName": "sharjah_emirate"
         },
-        "flagOfDescriptor": null,
+        "flagOfDescriptor": {
+            "type": "StringResSource.Explicit",
+            "resName": "sharjah_emirate_descriptor"
+        },
         "flagOfOfficial": {
             "type": "StringResSource.Explicit",
             "resName": "sharjah_emirate_official"
@@ -44007,7 +44023,7 @@
         ],
         "isFlagOfThe": {
             "type": "BooleanSource.Explicit",
-            "bool": true
+            "bool": false
         },
         "isFlagOfOfficialThe": {
             "type": "BooleanSource.Explicit",
@@ -46827,8 +46843,8 @@
             "type": "StringResSource.Explicit",
             "resName": "styria_wikipedia_url_path"
         },
-        "image": "flag_of_styria",
-        "imagePreview": "flag_of_styria",
+        "image": "flag_of_styria__state_",
+        "imagePreview": "flag_of_styria__state__preview",
         "fromYear": null,
         "fromYearCirca": null,
         "toYear": null,
@@ -50365,8 +50381,8 @@
             "type": "StringResSource.Explicit",
             "resName": "tyrol_state_wikipedia_url_path"
         },
-        "image": "flag_of_tirol_and_upper_austria",
-        "imagePreview": "flag_of_tirol_and_upper_austria",
+        "image": "flag_of_tirol__state_",
+        "imagePreview": "flag_of_tirol__state_",
         "fromYear": null,
         "fromYearCirca": null,
         "toYear": null,
@@ -53652,8 +53668,8 @@
             "type": "StringResSource.Explicit",
             "resName": "upper_austria_wikipedia_url_path"
         },
-        "image": "flag_of_tirol_and_upper_austria",
-        "imagePreview": "flag_of_tirol_and_upper_austria",
+        "image": "flag_of_upper_austria__state_",
+        "imagePreview": "flag_of_upper_austria__state__preview",
         "fromYear": null,
         "fromYearCirca": null,
         "toYear": null,
@@ -54740,8 +54756,8 @@
             "type": "StringResSource.Explicit",
             "resName": "vienna_wikipedia_url_path"
         },
-        "image": "flag_of_salzburg__vienna__vorarlberg",
-        "imagePreview": "flag_of_salzburg__vienna__vorarlberg",
+        "image": "flag_of_vienna__state_",
+        "imagePreview": "flag_of_vienna__state_",
         "fromYear": null,
         "fromYearCirca": null,
         "toYear": null,
@@ -55254,8 +55270,8 @@
             "type": "StringResSource.Explicit",
             "resName": "vorarlberg_wikipedia_url_path"
         },
-        "image": "flag_of_salzburg__vienna__vorarlberg",
-        "imagePreview": "flag_of_salzburg__vienna__vorarlberg",
+        "image": "flag_of_vorarlberg__state_",
+        "imagePreview": "flag_of_vorarlberg__state_",
         "fromYear": null,
         "fromYearCirca": null,
         "toYear": null,
