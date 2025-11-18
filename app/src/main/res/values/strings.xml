@@ -80,6 +80,8 @@
     <string name="category_unrecognized_state_title">Unrecognized State</string>
     <string name="category_unrecognized_state_string">unrecognized state</string>
     <string name="category_unrecognized_state_string_an">n unrecognized state</string>
+    <string name="category_unrecognized_state_short_string">unrecognized</string>
+    <string name="category_unrecognized_state_short_string_an">n unrecognized</string>
     <string name="category_annexed_territory_title">Annexed Territory</string>
     <string name="category_annexed_territory_string">annexed</string>
     <string name="category_annexed_territory_descriptor">(annexed)</string>
@@ -169,6 +171,7 @@
     <string name="category_police_in_description_string">police force</string>
     <string name="category_political_organization_title">Political Organization</string>
     <string name="category_political_organization_string">political organization</string>
+    <string name="category_political_military_organization_string">political and military organization</string>
     <string name="category_university_title">University</string>
     <string name="category_university_string">university</string>
     <string name="category_charity_title">Charity</string>
