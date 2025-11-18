@@ -48,6 +48,7 @@
     <string name="category_super_cultural_in_description_historical">flag represented a</string>
     <string name="category_super_cultural_in_description_also">flag also represents a</string>
     <string name="category_super_cultural_in_description_historical_also">flag also represented a</string>
+    <string name="category_super_other_parameters">Other</string>
     <string name="category_super_historical">Historical</string>
     <string name="category_super_historical_menu_button">Historical</string>
     <string name="category_super_historical_score_preview">Historical</string>
@@ -188,6 +189,10 @@
     <string name="category_sovereign_entity_string">sovereign entity</string>
     <string name="category_microstate_title">Microstate</string>
     <string name="category_microstate_string">microstate</string>
+    <string name="category_quasi_state_title">Quasi-state</string>
+    <string name="category_quasi_state_string">quasi-state</string>
+    <string name="category_militant_organization_title">Militant Organization</string>
+    <string name="category_militant_organization_string">militant organization</string>
     <string name="category_terrorist_organization_title">Terrorist Organization</string>
     <string name="category_terrorist_organization_string">designated terrorist organization</string>
     <string name="category_unitary_title">Unitary</string>
@@ -253,7 +258,7 @@
     <string name="category_fascist_string">fascist</string>
     <string name="category_ethnic_title">Ethnic</string>
     <string name="category_ethnic_string">ethnic</string>
-    <string name="category_tribe_title">Tribe</string>
+    <string name="category_tribe_title">Tribal</string>
     <string name="category_tribe_string">tribe</string>
     <string name="category_ethnic_in_description_1">ethnicity</string>
     <string name="category_ethnic_in_description_2">n ethnicity</string>
@@ -563,6 +568,17 @@
     <string name="akwa_ibom_official">Akwa Ibom</string>
     <string name="akwa_ibom_wikipedia_url_path">Akwa_Ibom</string>
     <string name="akwa_ibom_alt">Akwa Ibom</string>
+    <string name="al_qaeda">Al-Qaeda</string>
+    <string name="al_qaeda_official">Al-Qaeda</string>
+    <string name="al_qaeda_wikipedia_url_path">Al_Qaeda</string>
+    <string name="al_qaeda_alt_1">al-Qa\'ida</string>
+    <string name="al_qaeda_alt_2">al-Qaida</string>
+    <string name="al_qaeda_alt_3">al-Qaeda</string>
+    <string name="al_qaeda_alt_4">Qaedat al-Jihad</string>
+    <string name="al_qaeda_alt_5">Al Qaeda</string>
+    <string name="al_qaeda_alt_6">The Base</string>
+    <string name="al_qaeda_alt_7">The Foundation</string>
+    <string name="al_qaeda_alt_8">al-Qa\'idah</string>
     <string name="al_qassam_brigades">Al-Qassam Brigades</string>
     <string name="al_qassam_brigades_official">Izz al-Din al-Qassam Brigades</string>
     <string name="al_qassam_brigades_wikipedia_url_path">Al_Qassam_Brigades</string>
@@ -3043,7 +3059,8 @@
     <string name="islamic_revolutionary_guard_corps_alt_9">Army of the Guardians of the Islamic Revolution</string>
     <string name="islamic_revolutionary_guard_corps_alt_10">Iranian Revolutionary Guards</string>
     <string name="islamic_revolutionary_guard_corps_alt_11">IRGC</string>
-    <string name="islamic_state">Islamic State</string>
+    <string name="islamic_state">Daesh</string>
+    <string name="islamic_state_descriptor">(IS)</string>
     <string name="islamic_state_official">Islamic State of Iraq and the Levant</string>
     <string name="islamic_state_wikipedia_url_path">Islamic_State</string>
     <string name="islamic_state_alt_1">Islamic State of Iraq and Levant</string>
@@ -3419,7 +3436,7 @@
     <string name="knights_templar_alt_2">Order of the Temple</string>
     <string name="knights_templar_alt_3">Templars</string>
     <string name="knights_templar_alt_4">Knights Templars</string>
-    <string name="knights_of_malta">Sovereign Military Order of Malta</string>
+    <string name="knights_of_malta">Knights of Malta</string>
     <string name="knights_of_malta_official">Sovereign Military Hospitaller Order of Saint John of Jerusalem, of Rhodes and of Malta</string>
     <string name="knights_of_malta_wikipedia_url_path">Knights_of_Malta</string>
     <string name="knights_of_malta_alt_1">SMOM</string>
@@ -6532,7 +6549,8 @@
     <string name="umbria">Umbria</string>
     <string name="umbria_official">Umbria</string>
     <string name="umbria_wikipedia_url_path">Umbria</string>
-    <string name="umm_al_quwain_emirate">Umm Al Quwain (emirate)</string>
+    <string name="umm_al_quwain_emirate">Umm Al Quwain</string>
+    <string name="umm_al_quwain_emirate_descriptor">(emirate)</string>
     <string name="umm_al_quwain_emirate_official">Emirate of Umm Al Quwain</string>
     <string name="umm_al_quwain_emirate_wikipedia_url_path">Umm_Al_Quwain_(emirate)</string>
     <string name="united_arab_emirates">United Arab Emirates</string>
