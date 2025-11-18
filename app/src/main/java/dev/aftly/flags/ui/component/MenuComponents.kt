@@ -12,10 +12,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -43,7 +40,6 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,7 +53,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -271,7 +266,7 @@ fun MenuCategoryItemCard(
 }
 
 @Composable
-fun MenuCategoryItem(
+fun MenuCategoryItemSelectable(
     modifier: Modifier = Modifier,
     nestLevel: Int,
     isEnabled: Boolean = true,
@@ -304,7 +299,7 @@ fun MenuCategoryItem(
 }
 
 @Composable
-fun MenuCategoryItemCentred(
+fun MenuCategoryItemUnselectable(
     modifier: Modifier = Modifier,
     nestLevel: Int,
     isSelected: Boolean = false,
@@ -349,7 +344,7 @@ fun MenuCategoryItemCentred(
             onTextWidth = { textWidth = it },
             onSingleLineCount = onSingleLineCount,
             preTextContent = {
-                preTextContent?.let {
+                if (nestLevel != 0) preTextContent?.let {
                     preTextContent()
                 } ?: Spacer(
                     modifier = Modifier.width(width =

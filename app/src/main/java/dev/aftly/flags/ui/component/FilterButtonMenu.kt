@@ -56,6 +56,7 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 import dev.aftly.flags.model.FlagSuperCategory.Institution
+import dev.aftly.flags.model.FlagSuperCategory.OtherParameters
 import dev.aftly.flags.model.FlagSuperCategory.Political
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.menu.FlagsMenu
@@ -180,7 +181,7 @@ fun FilterButtonMenu(
                 colors = menuButtonColors,
                 contentPadding = PaddingValues(horizontal = Dimens.medium16),
             ) {
-                MenuCategoryItemCentred(
+                MenuCategoryItemUnselectable(
                     nestLevel = menuButtonNestLevel,
                     isMenuButton = true,
                     buttonTitle = buttonTitle,
@@ -409,7 +410,7 @@ private fun CategoryLazyList(
         /* Saved flags item */
         if (isSavedFlags) {
             item {
-                MenuCategoryItem(
+                MenuCategoryItemSelectable(
                     nestLevel = nestLevel,
                     isSelected = superCategories.isEmpty() && subCategories.isEmpty(),
                     fontWeight = FontWeight.Normal,
@@ -457,7 +458,7 @@ private fun CategoryLazyList(
                     isSelected = isSelected,
                     isChildSelected = isChildSelected,
                     isCategoriesMenuExpanded = isMenuExpanded,
-                    isSuperCategorySelectable = true,
+                    isSuperCategorySelectable = superCategory != OtherParameters,
                     itemSuperCategory = superCategory,
                     subCategoriesSelected = subCategories,
                     isMenuExpandedParentState = superCategory == subMenuExpand,
@@ -503,7 +504,7 @@ private fun SubItem(
     onCategorySelectSingle: (FlagCategoryBase) -> Unit,
     onCategorySelectMultiple: (FlagCategoryBase) -> Unit,
 ) {
-    MenuCategoryItem(
+    MenuCategoryItemSelectable(
         modifier = modifier,
         nestLevel = nestLevel,
         fontWeight = FontWeight.Normal,
@@ -539,7 +540,7 @@ private fun SuperItemStatic(
         else -> null
     }
 
-    MenuCategoryItem(
+    MenuCategoryItemSelectable(
         modifier = modifier,
         nestLevel = nestLevel,
         isEnabled = isEnabled,
@@ -616,7 +617,7 @@ private fun SuperItemExpandable(
 
     /* Parent content */
     if (isSuperCategorySelectable) {
-        MenuCategoryItem(
+        MenuCategoryItemSelectable(
             modifier = modifier,
             nestLevel = nestLevel,
             isSelected = isSelected,
@@ -638,7 +639,7 @@ private fun SuperItemExpandable(
             )
         }
     } else {
-        MenuCategoryItemCentred(
+        MenuCategoryItemUnselectable(
             nestLevel = nestLevel,
             isChildSelected = isChildSelected,
             category = itemSuperCategory,
@@ -759,7 +760,7 @@ private fun SuperItemOfSupers(
     ) {
         /* Parent content */
         if (isSuperSelectable) {
-            MenuCategoryItem(
+            MenuCategoryItemSelectable(
                 nestLevel = parentNestLevel,
                 isSelected = isSelected,
                 isChildSelected = isChildSelected,
@@ -775,7 +776,7 @@ private fun SuperItemOfSupers(
                 )
             }
         } else {
-            MenuCategoryItemCentred(
+            MenuCategoryItemUnselectable(
                 nestLevel = parentNestLevel,
                 fontWeight = FontWeight.ExtraBold,
                 category = itemSuperCategory,

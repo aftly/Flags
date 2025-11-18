@@ -32,6 +32,7 @@ data object DataSource {
         FlagSuperCategory.International,
         FlagSuperCategory.Institution,
         FlagSuperCategory.Cultural,
+        FlagSuperCategory.OtherParameters,
         FlagSuperCategory.Historical,
         FlagSuperCategory.Political
     )
