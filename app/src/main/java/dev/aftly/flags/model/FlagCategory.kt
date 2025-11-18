@@ -25,6 +25,7 @@ enum class FlagCategory(
     INDIGENOUS_TERRITORY (title = R.string.category_indigenous_territory_title, string = R.string.category_indigenous_territory_string),
     UNRECOGNIZED_STATE (title = R.string.category_unrecognized_state_title, string = R.string.category_unrecognized_state_string),
     ANNEXED_TERRITORY (title = R.string.category_annexed_territory_title, string = R.string.category_annexed_territory_string),
+    SOVEREIGN_ENTITY (title = R.string.category_sovereign_entity_title, string = R.string.category_sovereign_entity_string),
 
     /* Administrative units within a sovereign state (eg. federated state or unitary region) */
     CANTON (title = R.string.category_canton_title, string = R.string.category_canton_string),
@@ -117,17 +118,18 @@ enum class FlagCategory(
 
 
     /* CULTURAL ENTITIES */
-    SOCIAL (title = R.string.category_social_title, string = R.string.category_social_string),
     POLITICAL_MOVEMENT (title = R.string.category_political_movement_title, string = R.string.category_political_movement_string),
-    ETHNIC (title = R.string.category_ethnic_title, string = R.string.category_ethnic_string),
     TRIBE (title = R.string.category_tribe_title, string = R.string.category_tribe_string),
+    ETHNIC (title = R.string.category_ethnic_title, string = R.string.category_ethnic_string),
+    SOCIAL (title = R.string.category_social_title, string = R.string.category_social_string),
 
 
     /* OTHER */
     HISTORICAL (title = R.string.category_historical_title, string = R.string.category_historical_string),
     COMPOSITE (title = R.string.category_composite_title, string = R.string.category_composite_string),
     MARITIME (title = R.string.category_maritime_title, string = R.string.category_maritime_string),
-    SOVEREIGN_ENTITY (title = R.string.category_sovereign_entity_title, string = R.string.category_sovereign_entity_string),
     MICROSTATE (title = R.string.category_microstate_title, string = R.string.category_microstate_string),
+    QUASI_STATE (title = R.string.category_quasi_state_title, string = R.string.category_quasi_state_string),
+    MILITANT_ORGANIZATION (title = R.string.category_militant_organization_title, string = R.string.category_militant_organization_string),
     TERRORIST_ORGANIZATION (title = R.string.category_terrorist_organization_title, string = R.string.category_terrorist_organization_string)
 }
