@@ -441,15 +441,13 @@ class FlagViewModel(
             when {
                 category in skipCategories -> continue
 
-                category in politicalSuperEnums && isIrregularPower && !isInternational ->
-                    continue
+                category in politicalSuperEnums && isIrregularPower && !isInternational -> continue
 
                 category in IdeologicalOrientation.enums() && AUTONOMOUS_REGION in categories ->
                     continue
 
-                category in ExecutiveStructure.enums() &&
-                        !isInternational && !isConstitutional ->
-                            continue
+                category in ExecutiveStructure.enums() && !isInternational && !isConstitutional ->
+                    resIds.add(R.string.category_nominal_extra_constitutional_in_description)
 
                 category in legislatureDivisionsOfThe -> {
                     addCatString(category)
