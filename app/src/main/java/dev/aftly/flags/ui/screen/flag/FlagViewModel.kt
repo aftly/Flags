@@ -430,21 +430,40 @@ class FlagViewModel(
         val isTerriDistr = categories.any { it in TerritorialDistributionOfAuthority.enums() }
         val isSupraUnion = SUPRANATIONAL_UNION in categories
 
+        fun addCatString(category: FlagCategory) = resIds.add(category.string)
+
+        fun getFirstNonSkipCategoryOrNull(
+            category: FlagCategory = firstCategory,
+            index: Int = categories.indexOf(firstCategory),
+        ): FlagCategory? = when {
+            category !in skipCategories -> category
+            category != lastCategory -> {
+                val indexNew = index.inc()
+                getFirstNonSkipCategoryOrNull(category = categories[indexNew], index = indexNew)
+            }
+            else -> null
+        }
+
+        fun isCategoryFirst(category: FlagCategory): Boolean =
+            getFirstNonSkipCategoryOrNull() == category && !isHistorical
+
         /* ----- ITERATIONS ----- */
         for (category in categories) {
-            val isFirst = category == firstCategory
             val isLast = category == lastCategory
-
-            fun addCatString(category: FlagCategory) = resIds.add(category.string)
 
             /* category in conditions */
             when {
                 category in skipCategories -> continue
 
-                category in politicalSuperEnums && isIrregularPower && !isInternational -> continue
-
-                category in IdeologicalOrientation.enums() && AUTONOMOUS_REGION in categories ->
+                category in politicalSuperEnums && isIrregularPower && !isInternational -> {
+                    skipCategories.add(category)
                     continue
+                }
+
+                category in IdeologicalOrientation.enums() && AUTONOMOUS_REGION in categories -> {
+                    skipCategories.add(category)
+                    continue
+                }
 
                 category in ExecutiveStructure.enums() && !isInternational && !isConstitutional ->
                     resIds.add(R.string.category_nominal_extra_constitutional_in_description)
@@ -452,6 +471,7 @@ class FlagViewModel(
                 category in legislatureDivisionsOfThe -> {
                     addCatString(category)
                     resIds.add(R.string.string_of_the)
+                    skipCategories.add(category)
                     continue
                 }
 
@@ -474,15 +494,18 @@ class FlagViewModel(
 
             /* category literal conditions */
             when (category to true) {
-                AUTONOMOUS_REGION to isLimitedRecognition -> continue
-                AUTONOMOUS_REGION to !isHistorical -> {
+                AUTONOMOUS_REGION to isLimitedRecognition -> {
+                    skipCategories.add(category)
+                    continue
+                }
+                AUTONOMOUS_REGION to isCategoryFirst(category) -> {
                     resIds.add(R.string.category_autonomous_region_in_description_an)
                     addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
                 }
                 AUTONOMOUS_REGION to !isLast ->
                     resIds.add(R.string.category_autonomous_region_in_description)
 
-                UNRECOGNIZED_STATE to (isQuasi && isFirst && !isHistorical) -> {
+                UNRECOGNIZED_STATE to (isQuasi && isCategoryFirst(category)) -> {
                     resIds.add(R.string.category_unrecognized_state_short_string_an)
                     addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
                     entityCategories.remove(element = category)
@@ -491,12 +514,12 @@ class FlagViewModel(
                     resIds.add(R.string.category_unrecognized_state_short_string)
                     entityCategories.remove(element = category)
                 }
-                UNRECOGNIZED_STATE to (isFirst && !isHistorical) -> {
+                UNRECOGNIZED_STATE to (isCategoryFirst(category)) -> {
                     resIds.add(R.string.category_unrecognized_state_string_an)
                     addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
                 }
 
-                OBLAST to isFirst -> {
+                OBLAST to isCategoryFirst(category) -> {
                     resIds.add(R.string.category_oblast_string_in_description_an)
                     addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
                 }
@@ -557,25 +580,30 @@ class FlagViewModel(
                     resIds.add(R.string.string_and)
                     addCatString(category)
                 }
-                INTERNATIONAL_ORGANIZATION to (isFirst && !isLast) -> {
+                INTERNATIONAL_ORGANIZATION to (isCategoryFirst(category) && !isLast) -> {
                     resIds.add(R.string.category_international_organization_in_description_short)
                     addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
                 }
-                INTERNATIONAL_ORGANIZATION to isFirst -> {
+                INTERNATIONAL_ORGANIZATION to isCategoryFirst(category) -> {
                     resIds.add(R.string.category_international_organization_in_description)
                     addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
                 }
                 INTERNATIONAL_ORGANIZATION to !isLast ->
                     resIds.add(R.string.category_international_organization_string_short)
 
-                CONSTITUTIONAL to (MONARCHY !in categories) ->
+                CONSTITUTIONAL to (MONARCHY !in categories) -> {
+                    skipCategories.add(category)
                     continue
+                }
 
                 DEVOLVED_GOVERNMENT to !isLast ->
                     resIds.add(R.string.categories_devolved_string)
 
-                ETHNIC to isPolity -> continue
-                ETHNIC to isFirst -> {
+                ETHNIC to isPolity -> {
+                    skipCategories.add(category)
+                    continue
+                }
+                ETHNIC to isCategoryFirst(category) -> {
                     resIds.add(R.string.category_ethnic_string_an)
                     addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
                 }
