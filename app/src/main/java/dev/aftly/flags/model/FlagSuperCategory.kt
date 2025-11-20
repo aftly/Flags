@@ -272,7 +272,7 @@ sealed class FlagSuperCategory(
             ExecutiveStructure,
             LegalConstraint,
             PowerDerivation,
-            //RegimeType,
+            RegimeType,
             IdeologicalOrientation
         ),
     )
@@ -338,11 +338,11 @@ sealed class FlagSuperCategory(
         gameScoreCategoryPreview = null,
         gameScoreCategoryDetailed = null,
         subCategories = listOf(
-            FlagCategoryWrapper(enum = FlagCategory.DEMOCRACY),
-            FlagCategoryWrapper(enum = FlagCategory.AUTHORITARIAN),
+            //FlagCategoryWrapper(enum = FlagCategory.DEMOCRACY),
+            //FlagCategoryWrapper(enum = FlagCategory.AUTHORITARIAN),
             FlagCategoryWrapper(enum = FlagCategory.TOTALITARIAN),
             FlagCategoryWrapper(enum = FlagCategory.DICTATORSHIP),
-            FlagCategoryWrapper(enum = FlagCategory.OLIGARCHY)
+            //FlagCategoryWrapper(enum = FlagCategory.OLIGARCHY)
         ),
     )
 

@@ -58,7 +58,7 @@
     <string name="category_sub_executive_structure">Executive Structure and Accountability</string>
     <string name="category_sub_legal_constraint">Legal Constraint on Leaders</string>
     <string name="category_sub_power_derivation">Power Derivation</string>
-    <string name="category_sub_regime_type">Political Regime</string>
+    <string name="category_sub_regime_type">Regime</string>
     <string name="category_sub_ideological_orientation">Ideological Orientation</string>
     <string name="category_sovereign_state_title">Sovereign State</string>
     <string name="category_sovereign_state_string">sovereign state</string>
@@ -74,6 +74,7 @@
     <string name="category_devolved_government_in_description">with a devolved government</string>
     <string name="category_indigenous_territory_title">Indigenous Territory</string>
     <string name="category_indigenous_territory_string">indigenous territory</string>
+    <string name="category_indigenous_territory_string_an">n indigenous territory</string>
     <string name="category_unrecognized_state_title">Unrecognized State</string>
     <string name="category_unrecognized_state_string">unrecognized state</string>
     <string name="category_unrecognized_state_string_an">n unrecognized state</string>
@@ -268,8 +269,6 @@
     <string name="categories_devolved_string">devolved</string>
     <string name="categories_non_self_governing_territory_string">non-self-governing territory</string>
     <string name="categories_non_self_governing_territory_descriptor">(NSGT)</string>
-    <string name="categories_under_a">under a</string>
-    <string name="categories_and">\ &amp;\ </string>
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancel</string>
     <string name="dialog_close">Close</string>
@@ -413,6 +412,7 @@
     <string name="string_a">a</string>
     <string name="string_and">and</string>
     <string name="string_and_a">and a</string>
+    <string name="string_ampersand">\ &amp;\ </string>
     <string name="string_and_the_flag_of">and the flag of a</string>
     <string name="string_colon_whitespace">:\ </string>
     <string name="string_comma">,</string>
@@ -422,6 +422,7 @@
     <string name="string_de_facto_descriptor">(de facto)</string>
     <string name="string_equals_whitespace">\ = \ </string>
     <string name="string_in">in</string>
+    <string name="string_in_association_with">in association with</string>
     <string name="string_in_the">in the</string>
     <string name="string_is_a">is a</string>
     <string name="string_is_the">is the</string>
@@ -435,6 +436,7 @@
     <string name="string_the">the</string>
     <string name="string_the_capitalized">The</string>
     <string name="string_the_whitespace">the\ </string>
+    <string name="string_under_a">under a</string>
     <string name="string_was_a">was a</string>
     <string name="string_whitespace">\ </string>
     <string name="string_with_a">with a</string>

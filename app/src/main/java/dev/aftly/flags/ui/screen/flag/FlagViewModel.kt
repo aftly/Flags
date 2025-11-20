@@ -11,6 +11,7 @@ import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategory.ANNEXED_TERRITORY
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
+import dev.aftly.flags.model.FlagCategory.CITY
 import dev.aftly.flags.model.FlagCategory.CONFEDERATION
 import dev.aftly.flags.model.FlagCategory.CONSTITUTIONAL
 import dev.aftly.flags.model.FlagCategory.DEVOLVED_GOVERNMENT
@@ -38,9 +39,12 @@ import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.SUPRANATIONAL_UNION
 import dev.aftly.flags.model.FlagCategory.TERRITORY
 import dev.aftly.flags.model.FlagCategory.TERRORIST_ORGANIZATION
+import dev.aftly.flags.model.FlagCategory.THEOCRACY
+import dev.aftly.flags.model.FlagCategory.THEOCRATIC
 import dev.aftly.flags.model.FlagCategory.TRIBE
 import dev.aftly.flags.model.FlagCategory.UNICAMERAL
 import dev.aftly.flags.model.FlagCategory.UNRECOGNIZED_STATE
+import dev.aftly.flags.model.FlagCategory.VEXILLOLOGY
 import dev.aftly.flags.model.FlagScreenContent
 import dev.aftly.flags.model.FlagSuperCategory.AutonomousRegion
 import dev.aftly.flags.model.FlagSuperCategory.Civilian
@@ -229,16 +233,17 @@ class FlagViewModel(
             it in listOf(ETHNIC, SOCIAL)
         }
 
+        val isSovereign = categories.any { it in listOf(SOVEREIGN_STATE, SOVEREIGN_ENTITY) }
+        val isDependent = sovereignState != null
+        val isChild = parentUnit != null
         val isAnnexed = ANNEXED_TERRITORY in categories
         val isHistorical = HISTORICAL in categories
         val isInternational = categories.any { it in International.enums() }
         val isLegislature = categories.any { it in Legislature.enums() }
-        val isNSGT = flag.sovereignStateKey == null &&
-                categories.none { it in listOf(SOVEREIGN_STATE, QUASI_STATE) }
-        val isDependent = sovereignState != null
-        val isChild = parentUnit != null
+        val isNSGT = !isDependent && categories.none { it in listOf(SOVEREIGN_STATE, QUASI_STATE) }
         val isPowerEnums = categories.any { it in PowerDerivation.enums() }
-        val isIrregularPower = (isNSGT && isPowerEnums) || (isDependent && isPowerEnums)
+        val isIrregularPower = (!isSovereign && isPowerEnums) || (isDependent && isPowerEnums) ||
+                (isNSGT && isPowerEnums)
         val isLimitedRecognition = UNRECOGNIZED_STATE in categories
 
         /* ----------------------- Description START ----------------------- */
@@ -309,7 +314,6 @@ class FlagViewModel(
                     resIds = resIds,
                     whitespaceExceptionIndexes = whitespaceExceptionIndexes,
                     categories = categories,
-                    isIrregularPower = isIrregularPower,
                     isLimitedRecognition = isLimitedRecognition,
                     isAnnexed = isAnnexed,
                 )
@@ -324,20 +328,24 @@ class FlagViewModel(
 
             /* Append non-state irregular power information */
             if (isIrregularPower && !isInternational) {
-                val categoriesPolitical = categories.filter { it in politicalSuperEnums }
+                val categoriesPolitical = categories.filter {
+                    it in politicalSuperEnums && !(it == THEOCRATIC && THEOCRACY in categories)
+                }
 
                 resIds.add(R.string.string_comma)
                 addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
 
-                resIds.add(R.string.categories_under_a)
+                resIds.add(R.string.string_under_a)
 
                 categoriesPolitical.forEach { category ->
                     if (category in ExecutiveStructure.enums() &&
                         CONSTITUTIONAL !in categoriesPolitical) {
                         resIds.add(R.string.category_nominal_extra_constitutional_in_description)
                         resIds.add(category.string)
+
                     } else if (category == ONE_PARTY) {
                         resIds.add(R.string.category_one_party_string_short)
+
                     } else {
                         resIds.add(category.string)
                     }
@@ -400,16 +408,22 @@ class FlagViewModel(
         val firstCategory = categories.first()
         val lastCategory = categories.last()
 
-        val skipCategories = listOf(
-            HISTORICAL, SOVEREIGN_STATE, FREE_ASSOCIATION, DEVOLVED_GOVERNMENT, ANNEXED_TERRITORY
-        ).toMutableList()
-
-        val legislatureDivisionsOfThe = LegislatureDivision.enums().filterNot { it == UNICAMERAL }
+        val skipCategories = buildList {
+            if (isIrregularPower && !isInternational) addAll(elements =
+                politicalSuperEnums.filterNot { it == THEOCRATIC && THEOCRACY in categories }
+            )
+            addAll(elements =
+                listOf(
+                    HISTORICAL, SOVEREIGN_STATE, FREE_ASSOCIATION, DEVOLVED_GOVERNMENT,
+                    ANNEXED_TERRITORY
+                )
+            )
+        }.toMutableList()
 
         val entities = buildList {
             addAll(elements = Regional.enums())
             addAll(elements = PowerDerivation.enums())
-            addAll(elements = Institution.allEnums())
+            addAll(elements = Institution.allEnums().filterNot { it == VEXILLOLOGY })
             addAll(elements =
                 listOf(
                     SOVEREIGN_ENTITY, UNRECOGNIZED_STATE, MICROSTATE, QUASI_STATE,
@@ -418,8 +432,11 @@ class FlagViewModel(
                 )
             )
         }
-        val entityCategories = categories.filter { it in entities }.toMutableList()
-        val firstEntityCategory = entityCategories.first()
+        val entityCategories = categories.filter { it in entities && it !in skipCategories }
+            .toMutableList()
+        val firstEntityCategory = entityCategories.firstOrNull()
+
+        val legislatureDivisionsOfThe = LegislatureDivision.enums().filterNot { it == UNICAMERAL }
 
         val isPolity = categories.any {
             it == SOVEREIGN_STATE || it in AutonomousRegion.enums() || it in Regional.enums() ||
@@ -451,14 +468,25 @@ class FlagViewModel(
         for (category in categories) {
             val isLast = category == lastCategory
 
+            val indexC = categories.indexOf(category)
+            val indexEC = when (category) {
+                in entityCategories -> entityCategories.indexOf(category)
+                else -> null
+            }
+            val lastEntityCategory = entityCategories.lastOrNull()
+            val nextCategory = when {
+                isLast -> null
+                else -> categories[indexC.inc()]
+            }
+            val nextEntityCategory = when {
+                indexEC == null || lastEntityCategory == null -> null
+                category != lastEntityCategory -> entityCategories[indexEC.inc()]
+                else -> null
+            }
+
             /* category in conditions */
             when {
                 category in skipCategories -> continue
-
-                category in politicalSuperEnums && isIrregularPower && !isInternational -> {
-                    skipCategories.add(category)
-                    continue
-                }
 
                 category in IdeologicalOrientation.enums() && AUTONOMOUS_REGION in categories -> {
                     skipCategories.add(category)
@@ -476,8 +504,12 @@ class FlagViewModel(
                 }
 
                 category in entityCategories -> {
-                    if (category == UNRECOGNIZED_STATE && isQuasi) {
+                    if (category == UNRECOGNIZED_STATE && !isLast &&
+                        QUASI_STATE == nextCategory && QUASI_STATE == nextEntityCategory) {
                         entityCategories.remove(element = QUASI_STATE)
+                    } else if (category == RELIGIOUS &&
+                        !isLast && nextCategory == nextEntityCategory) {
+                        entityCategories.remove(element = nextEntityCategory)
                     }
                     entityCategories.remove(element = category)
 
@@ -516,6 +548,14 @@ class FlagViewModel(
                 }
                 UNRECOGNIZED_STATE to (isCategoryFirst(category)) -> {
                     resIds.add(R.string.category_unrecognized_state_string_an)
+                    addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
+                }
+
+                DEVOLVED_GOVERNMENT to !isLast ->
+                    resIds.add(R.string.categories_devolved_string)
+
+                INDIGENOUS_TERRITORY to (isCategoryFirst(category)) -> {
+                    resIds.add(R.string.category_indigenous_territory_string_an)
                     addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
                 }
 
@@ -596,8 +636,8 @@ class FlagViewModel(
                     continue
                 }
 
-                DEVOLVED_GOVERNMENT to !isLast ->
-                    resIds.add(R.string.categories_devolved_string)
+                FEDERAL to !isPolity ->
+                    resIds.add(R.string.category_federal_federation_string)
 
                 ETHNIC to isPolity -> {
                     skipCategories.add(category)
@@ -607,9 +647,6 @@ class FlagViewModel(
                     resIds.add(R.string.category_ethnic_string_an)
                     addLastIndex(from = resIds, to = whitespaceExceptionIndexes)
                 }
-
-                FEDERAL to !isPolity ->
-                    resIds.add(R.string.category_federal_federation_string)
 
                 else -> addCatString(category)
             }
@@ -622,24 +659,35 @@ class FlagViewModel(
         resIds: MutableList<Int>,
         whitespaceExceptionIndexes: MutableList<Int>,
         categories: List<FlagCategory>,
-        isIrregularPower: Boolean = false,
         isLimitedRecognition: Boolean = false,
         isAnnexed: Boolean = false,
     ) {
         val isChild = parentUnit != null
         val isDependent = sovereignState != null
-        val inCategories = Civilian.enums() + POLITICAL_MOVEMENT + CONFEDERATION + MICROSTATE
+        val isMicrostate = MICROSTATE in categories
+
+        val inCategories = buildList {
+            addAll(elements = Civilian.enums())
+            addAll(elements =
+                listOf(
+                    POLITICAL_MOVEMENT, QUASI_STATE, CONFEDERATION, INDIGENOUS_TERRITORY, TRIBE,
+                    MICRONATION, REGIONAL
+                )
+            )
+        }
+        val isIn = categories.any { it in inCategories } ||
+                (isAnnexed && CITY in categories) || isLimitedRecognition
 
         if (isChild) {
             val isParentHistorical = HISTORICAL in parentUnit.categories
+            val isParentSovereign = SOVEREIGN_STATE in parentUnit.categories
 
-            if (isAnnexed || categories.lastOrNull() in inCategories) {
-                resIds.add(R.string.string_in)
-            } else {
-                resIds.add(R.string.string_of)
+            when {
+                isMicrostate && isParentSovereign -> resIds.add(R.string.string_in_association_with)
+                isIn -> resIds.add(R.string.string_in)
+                else -> resIds.add(R.string.string_of)
             }
 
-            /* Historical name and placement of descriptor varies */
             if (isParentHistorical && parentUnit.flagOfDescriptor != null) {
                 if (parentUnit.isFlagOfOfficialThe) resIds.add(R.string.string_the)
                 resIds.add(parentUnit.flagOfOfficial) /* FLAG NAME */
@@ -659,17 +707,10 @@ class FlagViewModel(
 
         if (isDependent) {
             val isSovHistorical = HISTORICAL in sovereignState.categories
-            val isInCategories = listOf(MICRONATION, REGIONAL)
 
-            if (!isChild) {
-                if (isIrregularPower ||
-                    isLimitedRecognition ||
-                    categories.any { it in isInCategories } ||
-                    categories.lastOrNull() in inCategories) {
-                    resIds.add(R.string.string_in)
-                } else {
-                    resIds.add(R.string.string_of)
-                }
+            when {
+                !isChild && isIn -> resIds.add(R.string.string_in)
+                !isChild -> resIds.add(R.string.string_of)
             }
 
             if (isSovHistorical && sovereignState.flagOfDescriptor != null) {

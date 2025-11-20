@@ -643,7 +643,7 @@ fun getCategoriesTitleIds(
     culturalCategories.forEachIndexed { index, culturalCategory ->
         strings.add(culturalCategory.title)
 
-        if (index != culturalCategories.lastIndex) strings.add(R.string.categories_and)
+        if (index != culturalCategories.lastIndex) strings.add(R.string.string_ampersand)
         else strings.add(R.string.string_whitespace)
     }
 

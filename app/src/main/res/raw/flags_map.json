@@ -32405,7 +32405,7 @@
         ],
         "associatedState": null,
         "sovereignState": null,
-        "parentUnit": null,
+        "parentUnit": "australia",
         "latestEntities": [],
         "previousFlagOf": null,
         "categories": [
@@ -32413,7 +32413,8 @@
             "UNITARY",
             "PARLIAMENTARY",
             "CONSTITUTIONAL",
-            "REPUBLIC"
+            "REPUBLIC",
+            "MICROSTATE"
         ]
     },
     "navajoNation": {
@@ -50406,7 +50407,7 @@
         ],
         "associatedState": null,
         "sovereignState": null,
-        "parentUnit": null,
+        "parentUnit": "australia",
         "latestEntities": [],
         "previousFlagOf": null,
         "categories": [
@@ -50414,7 +50415,8 @@
             "UNITARY",
             "PARLIAMENTARY",
             "CONSTITUTIONAL",
-            "MONARCHY"
+            "MONARCHY",
+            "MICROSTATE"
         ]
     },
     "tver(Oblast)": {
