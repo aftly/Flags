@@ -468,35 +468,35 @@ fun getChronologicalRelatedFlagsContentOrNull(
             flags = getFlagsFromKeys(flag.chronologicalIndirectRelatedFlagKeys)
         )
 
-        val historicalFlags = directRelatedFlags.filter { flag ->
-            flag.previousFlagOfKey != null
+        val historicalFlags = directRelatedFlags.filter { relFlag ->
+            relFlag.previousFlagOfKey != null
         }.sortedBy { it.id }
 
-        val historicalUnits = directRelatedFlags.filter { flag ->
+        val historicalUnits = directRelatedFlags.filter { relFlag ->
             val latestKeys = directRelatedFlags.filter { it.latestEntityKeys.isEmpty() }
                 .map { inverseFlagViewMap.getValue(it) }
-            val isChild = flag.sovereignStateKey != null || flag.parentUnitKey != null
+            val isChild = relFlag.sovereignStateKey != null || relFlag.parentUnitKey != null
 
-            HISTORICAL in flag.categories && UNRECOGNIZED_STATE !in flag.categories &&
+            HISTORICAL in relFlag.categories && UNRECOGNIZED_STATE !in relFlag.categories &&
                     isChild &&
-                    flag.latestEntityKeys.none { it in latestKeys } &&
-                    flag !in historicalFlags
+                    relFlag.latestEntityKeys.none { it in latestKeys } &&
+                    relFlag !in historicalFlags
         }
 
-        val latestEntities = directRelatedFlags.filter { flag ->
-            flag.latestEntityKeys.isEmpty() && flag !in historicalFlags + historicalUnits
+        val latestEntities = directRelatedFlags.filter { relFlag ->
+            relFlag.latestEntityKeys.isEmpty() && relFlag !in historicalFlags + historicalUnits
         }
 
-        val previousEntities = directRelatedFlags.filter { flag ->
-            flag.latestEntityKeys.isNotEmpty() && flag !in historicalUnits
+        val previousEntities = directRelatedFlags.filter { relFlag ->
+            relFlag.latestEntityKeys.isNotEmpty() && relFlag !in historicalUnits
         }.sortedByDescending { it.fromYear }
 
-        val dependentsOfLatest = indirectRelatedFlags.filter { flag ->
-            latestEntities.any { flag.sovereignStateKey == inverseFlagViewMap.getValue(it) }
+        val dependentsOfLatest = indirectRelatedFlags.filter { relFlag ->
+            latestEntities.any { relFlag.sovereignStateKey == inverseFlagViewMap.getValue(it) }
         }
 
-        val previousEntitiesOfSovereign = indirectRelatedFlags.filterNot { indirectFlag ->
-            indirectFlag in dependentsOfLatest
+        val previousEntitiesOfSovereign = indirectRelatedFlags.filterNot { relFlag ->
+            relFlag in dependentsOfLatest
         }.sortedByDescending { it.fromYear }
 
         RelatedFlagsContent.Chronological(
@@ -633,38 +633,38 @@ fun getPoliticalRelatedFlagsContentOrNull(
             flags = getFlagsFromKeys(flag.politicalExternalRelatedFlagKeys)
         )
 
-        val sovereign = internalRelatedFlags.firstOrNull { flag ->
-            SOVEREIGN_STATE in flag.categories
+        val sovereign = internalRelatedFlags.firstOrNull { relFlag ->
+            SOVEREIGN_STATE in relFlag.categories
         }
 
-        val institutions = internalRelatedFlags.filter { flag ->
-            flag.categories.any { it in Institution.allEnums() + POLITICAL_MOVEMENT }
+        val institutions = internalRelatedFlags.filter { relFlag ->
+            relFlag.categories.any { it in Institution.allEnums() + POLITICAL_MOVEMENT }
         }
 
-        val legislatureInstitutions = institutions.filter { flag ->
-            flag.categories.any { it in Legislature.enums() }
+        val legislatureInstitutions = institutions.filter { relFlag ->
+            relFlag.categories.any { it in Legislature.enums() }
         }
-        val executiveInstitutions = institutions.filter { flag ->
-            flag.categories.any { it in Executive.enums() }
+        val executiveInstitutions = institutions.filter { relFlag ->
+            relFlag.categories.any { it in Executive.enums() }
         }
-        val civilianInstitutions = institutions.filter { flag ->
-            flag.categories.any { it in Civilian.enums() }
+        val civilianInstitutions = institutions.filter { relFlag ->
+            relFlag.categories.any { it in Civilian.enums() }
         }
-        val politicalMovements = institutions.filter { flag ->
-            flag.categories.any { it == POLITICAL_MOVEMENT }
-        }
-
-        val associatedStates = externalRelatedFlags.filter { flag ->
-            flag.associatedStateKey?.let { flagViewMap.getValue(it) } == flag ||
-                    flag.associatedStateKey == flagKey
+        val politicalMovements = institutions.filter { relFlag ->
+            relFlag.categories.any { it == POLITICAL_MOVEMENT }
         }
 
-        val internationalOrgs = externalRelatedFlags.filter { flag ->
-            flag.categories.any { it in International.enums() }
+        val associatedStates = externalRelatedFlags.filter { relFlag ->
+            flag.associatedStateKey?.let { flagViewMap.getValue(it) } == relFlag ||
+                    relFlag.associatedStateKey == flagKey
         }
 
-        val statesLimitedRecognition = externalRelatedFlags.filter { flag ->
-            UNRECOGNIZED_STATE in flag.categories
+        val internationalOrgs = externalRelatedFlags.filter { relFlag ->
+            relFlag.categories.any { it in International.enums() }
+        }
+
+        val statesLimitedRecognition = externalRelatedFlags.filter { relFlag ->
+            UNRECOGNIZED_STATE in relFlag.categories
         }
         val externalTerritories = externalRelatedFlags.filterNot { flag ->
             flag in listOf(
@@ -702,11 +702,11 @@ fun getPoliticalRelatedFlagsContentOrNull(
                         .distinct()
 
                     adminDivisions.forEach { division ->
-                        val divisionUnits = adminUnits.filter { flag ->
-                            division in flag.categories
+                        val divisionUnits = adminUnits.filter { relFlag ->
+                            division in relFlag.categories
                         }
-                        val divisionExclusiveUnits = divisionUnits.filter { flag ->
-                            flag.categories.all { it in listOf(division, HISTORICAL) }
+                        val divisionExclusiveUnits = divisionUnits.filter { relFlag ->
+                            relFlag.categories.all { it in listOf(division, HISTORICAL) }
                         }
                         val divisionUnitLevel = getAdminDivisionUnitLevelFromUnits(
                             units = divisionExclusiveUnits.ifEmpty { divisionUnits }
