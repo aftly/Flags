@@ -193,6 +193,8 @@
     <string name="category_militant_organization_string">militant organization</string>
     <string name="category_terrorist_organization_title">Terrorist Organization</string>
     <string name="category_terrorist_organization_string">designated terrorist organization</string>
+    <string name="category_indigenous_title">Indigenous</string>
+    <string name="category_indigenous_string">indigenous</string>
     <string name="category_unitary_title">Unitary</string>
     <string name="category_unitary_string">unitary</string>
     <string name="category_federal_title">Federal</string>

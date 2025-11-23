@@ -10,7 +10,6 @@ import dev.aftly.flags.data.DataSource.flagViewMapId
 import dev.aftly.flags.data.DataSource.inverseFlagResMap
 import dev.aftly.flags.data.DataSource.inverseFlagViewMap
 import dev.aftly.flags.data.room.savedflags.SavedFlag
-import dev.aftly.flags.model.FlagsOfCountry
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
 import dev.aftly.flags.model.FlagCategory.CANTON
 import dev.aftly.flags.model.FlagCategory.CITY
@@ -24,6 +23,8 @@ import dev.aftly.flags.model.FlagCategory.COUNTY
 import dev.aftly.flags.model.FlagCategory.DISTRICT
 import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
 import dev.aftly.flags.model.FlagCategory.HISTORICAL
+import dev.aftly.flags.model.FlagCategory.INDIGENOUS_TERRITORY
+import dev.aftly.flags.model.FlagCategory.INDIGENOUS
 import dev.aftly.flags.model.FlagCategory.INTERNATIONAL_ORGANIZATION
 import dev.aftly.flags.model.FlagCategory.ISLAND
 import dev.aftly.flags.model.FlagCategory.KRAI
@@ -40,8 +41,9 @@ import dev.aftly.flags.model.FlagCategory.REPUBLIC_UNIT
 import dev.aftly.flags.model.FlagCategory.RIDING
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.STATE
-import dev.aftly.flags.model.FlagCategory.UNRECOGNIZED_STATE
 import dev.aftly.flags.model.FlagCategory.TERRITORY
+import dev.aftly.flags.model.FlagCategory.TRIBE
+import dev.aftly.flags.model.FlagCategory.UNRECOGNIZED_STATE
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory.Civilian
 import dev.aftly.flags.model.FlagSuperCategory.Cultural
@@ -52,6 +54,7 @@ import dev.aftly.flags.model.FlagSuperCategory.Legislature
 import dev.aftly.flags.model.FlagSuperCategory.Regional
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 import dev.aftly.flags.model.FlagView
+import dev.aftly.flags.model.FlagsOfCountry
 import dev.aftly.flags.model.menu.relatedmenu.LazyColumnItem
 import dev.aftly.flags.model.menu.relatedmenu.RelatedFlagGroup
 import dev.aftly.flags.model.menu.relatedmenu.RelatedFlagsCategory
@@ -89,12 +92,6 @@ fun getSavedFlagView(
         }
     }
 }
-
-fun getSavedFlagViewSorted(
-    application: Application,
-    savedFlags: Set<SavedFlag>,
-): List<FlagView> =
-    sortFlagsAlphabetically(application = application, flags = getSavedFlagView(savedFlags))
 
 
 fun SavedFlag.getFlagView(): FlagView = flagViewMap.getValue(key = this.flagKey)
@@ -196,7 +193,8 @@ enum class ExternalCategoryExceptions(val key: String) {
     FRANCE (key = "france")
 }
 val extCatExceptions = ExternalCategoryExceptions.entries.map { it.key }
-val externalCategories = listOf(TERRITORY, REGION, COLONY, UNRECOGNIZED_STATE)
+val externalCategories =
+    listOf(TERRITORY, REGION, COLONY, UNRECOGNIZED_STATE, INDIGENOUS_TERRITORY, TRIBE)
 val internalCategories = listOf(SovereignCountry.enums(), Regional.enums(), Institution.allEnums())
     .flatten().filterNot { it in externalCategories } + CONFEDERATION + POLITICAL_MOVEMENT
 
@@ -680,12 +678,13 @@ fun getPoliticalRelatedFlagsContentOrNull(
 
         val adminUnits = internalRelatedFlags.filterNot { it == sovereign || it in institutions }
 
-        val flagInternalCategories =
+        val flagInternalCategories = buildList {
+            addAll(elements = internalCategories)
+
             if (flagKey in extCatExceptions || flag.sovereignStateKey in extCatExceptions) {
-                internalCategories + externalCategories
-            } else {
-                internalCategories
+                addAll(elements = externalCategories)
             }
+        }
 
         RelatedFlagsContent.Political(
             sovereign = sovereign?.let { sovereign ->
@@ -695,44 +694,71 @@ fun getPoliticalRelatedFlagsContentOrNull(
                     categoryKey = SOVEREIGN_STATE.name,
                 )
             },
-            adminUnits = if (adminUnits.isEmpty()) null else {
-                buildList {
-                    val adminDivisions = adminUnits.flatMap { it.categories }
-                        .filter { it in flagInternalCategories }
-                        .distinct()
+            adminUnits = if (adminUnits.isEmpty()) null else buildList {
+                val adminDivisions = adminUnits.flatMap { it.categories }
+                    .filter { it in flagInternalCategories }
+                    .distinct()
 
-                    adminDivisions.forEach { division ->
-                        val divisionUnits = adminUnits.filter { relFlag ->
-                            division in relFlag.categories
-                        }
-                        val divisionExclusiveUnits = divisionUnits.filter { relFlag ->
-                            relFlag.categories.all { it in listOf(division, HISTORICAL) }
-                        }
-                        val divisionUnitLevel = getAdminDivisionUnitLevelFromUnits(
-                            units = divisionExclusiveUnits.ifEmpty { divisionUnits }
-                        )
-
-                        add(
-                            RelatedFlagGroup.AdminUnits(
-                                flags = divisionUnits,
-                                unitLevel = divisionUnitLevel,
-                                unitCategory = division,
-                                category = division.title,
-                                categoryKey = division.name,
-                            )
-                        )
+                adminDivisions.forEach { division ->
+                    val divisionUnits = adminUnits.filter { relFlag ->
+                        division in relFlag.categories
                     }
-                }.sortedBy { perLevelAdminDivisionOrder.indexOf(it.unitCategory) }
-            },
-            externalTerritories = if (externalTerritories.isEmpty()) null else {
-                val category = externalTerritories.first().categories
-                    .first { it in externalCategories }
+                    val divisionExclusiveUnits = divisionUnits.filter { relFlag ->
+                        relFlag.categories.all { it in listOf(division, HISTORICAL) }
+                    }
+                    val divisionUnitLevel = getAdminDivisionUnitLevelFromUnits(
+                        units = divisionExclusiveUnits.ifEmpty { divisionUnits }
+                    )
 
-                RelatedFlagGroup.Multiple(
-                    flags = externalTerritories,
-                    category = category.title,
-                    categoryKey = category.name,
-                )
+                    add(
+                        RelatedFlagGroup.AdminUnits(
+                            flags = divisionUnits,
+                            unitLevel = divisionUnitLevel,
+                            unitCategory = division,
+                            category = division.title,
+                            categoryKey = division.name,
+                        )
+                    )
+                }
+            }.sortedBy {
+                perLevelAdminDivisionOrder.indexOf(it.unitCategory)
+            },
+            externalTerritories = if (externalTerritories.isEmpty()) null else buildList {
+                val indigenousCategories = listOf(INDIGENOUS_TERRITORY, TRIBE)
+                val extCategories = externalTerritories.flatMap { it.categories }
+                    .filter { it in externalCategories }
+                    .distinct()
+                    .toMutableList()
+
+                /* Combine INDIGENOUS_TERRITORY and TRIBE categories */
+                if (extCategories.isNotEmpty() &&
+                    indigenousCategories.all { it in extCategories }) {
+                    extCategories.removeAll(elements = listOf(INDIGENOUS_TERRITORY, TRIBE))
+
+                    val indigenousUnits = externalTerritories.filter { relFlag ->
+                        indigenousCategories.any { it in relFlag.categories }
+                    }
+                    add(
+                        RelatedFlagGroup.Multiple(
+                            flags = indigenousUnits,
+                            category = INDIGENOUS.title,
+                            categoryKey = INDIGENOUS.name,
+                        )
+                    )
+                }
+
+                extCategories.forEach { category ->
+                    val categoryUnits = externalTerritories.filter { relFlag ->
+                        category in relFlag.categories
+                    }
+                    add(
+                        RelatedFlagGroup.Multiple(
+                            flags = categoryUnits,
+                            category = category.title,
+                            categoryKey = category.name,
+                        )
+                    )
+                }
             },
             statesLimitedRecognition = if (statesLimitedRecognition.isEmpty()) null else {
                 RelatedFlagGroup.Multiple(

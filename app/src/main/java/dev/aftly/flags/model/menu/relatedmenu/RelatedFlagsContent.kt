@@ -20,7 +20,7 @@ sealed interface RelatedFlagsContent {
     data class Political(
         val sovereign: RelatedFlagGroup.Single?,
         val adminUnits: List<RelatedFlagGroup.AdminUnits>?,
-        val externalTerritories: RelatedFlagGroup.Multiple?,
+        val externalTerritories: List<RelatedFlagGroup.Multiple>?,
         val statesLimitedRecognition: RelatedFlagGroup.Multiple?,
         val institutions: List<RelatedFlagGroup.Multiple>?,
         val associatedStates: RelatedFlagGroup.Multiple?,
@@ -34,7 +34,9 @@ sealed interface RelatedFlagsContent {
             adminUnits?.let {
                 it.forEach { group -> add(group) }
             }
-            externalTerritories?.let { add(it) }
+            externalTerritories?.let {
+                it.forEach { group -> add(group) }
+            }
             statesLimitedRecognition?.let { add(it) }
             institutions?.let {
                 it.forEach { group -> add(group) }
