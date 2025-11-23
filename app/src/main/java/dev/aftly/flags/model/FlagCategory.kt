@@ -132,5 +132,6 @@ enum class FlagCategory(
     QUASI_STATE (title = R.string.category_quasi_state_title, string = R.string.category_quasi_state_string),
     MILITANT_ORGANIZATION (title = R.string.category_militant_organization_title, string = R.string.category_militant_organization_string),
     TERRORIST_ORGANIZATION (title = R.string.category_terrorist_organization_title, string = R.string.category_terrorist_organization_string),
-    INDIGENOUS (title = R.string.category_indigenous_title, string = R.string.category_indigenous_string)
+    INDIGENOUS (title = R.string.category_indigenous_title, string = R.string.category_indigenous_string),
+    UNRECOGNIZED_MILITARY (title = R.string.category_unrecognized_military_title, string = R.string.category_unrecognized_military_string)
 }

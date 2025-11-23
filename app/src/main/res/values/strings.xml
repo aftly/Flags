@@ -195,6 +195,8 @@
     <string name="category_terrorist_organization_string">designated terrorist organization</string>
     <string name="category_indigenous_title">Indigenous</string>
     <string name="category_indigenous_string">indigenous</string>
+    <string name="category_unrecognized_military_title">Unrecognized Military</string>
+    <string name="category_unrecognized_military_string">unrecognized military</string>
     <string name="category_unitary_title">Unitary</string>
     <string name="category_unitary_string">unitary</string>
     <string name="category_federal_title">Federal</string>

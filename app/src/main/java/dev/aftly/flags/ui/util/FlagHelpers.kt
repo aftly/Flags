@@ -23,17 +23,19 @@ import dev.aftly.flags.model.FlagCategory.COUNTY
 import dev.aftly.flags.model.FlagCategory.DISTRICT
 import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
 import dev.aftly.flags.model.FlagCategory.HISTORICAL
-import dev.aftly.flags.model.FlagCategory.INDIGENOUS_TERRITORY
 import dev.aftly.flags.model.FlagCategory.INDIGENOUS
+import dev.aftly.flags.model.FlagCategory.INDIGENOUS_TERRITORY
 import dev.aftly.flags.model.FlagCategory.INTERNATIONAL_ORGANIZATION
 import dev.aftly.flags.model.FlagCategory.ISLAND
 import dev.aftly.flags.model.FlagCategory.KRAI
 import dev.aftly.flags.model.FlagCategory.MEMBER_STATE
 import dev.aftly.flags.model.FlagCategory.MICRONATION
+import dev.aftly.flags.model.FlagCategory.MILITARY
 import dev.aftly.flags.model.FlagCategory.MUNICIPALITY
 import dev.aftly.flags.model.FlagCategory.OBLAST
 import dev.aftly.flags.model.FlagCategory.OKRUG
 import dev.aftly.flags.model.FlagCategory.POLITICAL_MOVEMENT
+import dev.aftly.flags.model.FlagCategory.POLITICAL_ORGANIZATION
 import dev.aftly.flags.model.FlagCategory.PROVINCE
 import dev.aftly.flags.model.FlagCategory.REGION
 import dev.aftly.flags.model.FlagCategory.REGIONAL
@@ -43,6 +45,7 @@ import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.STATE
 import dev.aftly.flags.model.FlagCategory.TERRITORY
 import dev.aftly.flags.model.FlagCategory.TRIBE
+import dev.aftly.flags.model.FlagCategory.UNRECOGNIZED_MILITARY
 import dev.aftly.flags.model.FlagCategory.UNRECOGNIZED_STATE
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory.Civilian
@@ -778,13 +781,40 @@ fun getPoliticalRelatedFlagsContentOrNull(
                     )
                 }
                 if (executiveInstitutions.isNotEmpty()) {
-                    add(
-                        RelatedFlagGroup.Multiple(
-                            flags = executiveInstitutions,
-                            category = Executive.title,
-                            categoryKey = "EXECUTIVE_INSTITUTIONS",
+                    val nonStateMilitary = executiveInstitutions.filter { relFlag ->
+                        val parent = relFlag.parentUnitKey?.let { flagViewMap.getValue(key = it) }
+                        val isExclusive = POLITICAL_ORGANIZATION in relFlag.categories
+                        val isParentExclusive = parent != null &&
+                                POLITICAL_ORGANIZATION in parent.categories
+
+                        MILITARY in relFlag.categories && (isExclusive || isParentExclusive) &&
+                                UNRECOGNIZED_STATE !in relFlag.categories
+                    }
+                    val executiveInstitutionsActual = executiveInstitutions.filterNot {
+                        it in nonStateMilitary ||
+                                (MILITARY in it.categories && UNRECOGNIZED_STATE in it.categories)
+                    }
+
+                    /* Add non-state military */
+                    if (nonStateMilitary.isNotEmpty()) {
+                        add(
+                            RelatedFlagGroup.Multiple(
+                                flags = nonStateMilitary,
+                                category = UNRECOGNIZED_MILITARY.title,
+                                categoryKey = UNRECOGNIZED_MILITARY.name,
+                            )
                         )
-                    )
+                    }
+
+                    if (executiveInstitutionsActual.isNotEmpty()) {
+                        add(
+                            RelatedFlagGroup.Multiple(
+                                flags = executiveInstitutionsActual,
+                                category = Executive.title,
+                                categoryKey = "EXECUTIVE_INSTITUTIONS",
+                            )
+                        )
+                    }
                 }
                 if (civilianInstitutions.isNotEmpty()) {
                     add(
