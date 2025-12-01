@@ -538,12 +538,19 @@ fun getCategoriesTitleIds(
     filterByCountry: FlagView?,
     isAppendFlags: Boolean = true,
 ): List<Int> {
-    /* ---------- Early escape --------- */
+    val strings = mutableListOf<Int>()
+
+    /* -------------- Apply country filter strings -------------- */
+    if (filterByCountry != null) {
+        strings.add(filterByCountry.flagOf)
+        strings.add(R.string.string_colon_whitespace)
+    }
+
+    /* ---------- Escape when saved flags --------- */
     if (superCategories.isEmpty() && subCategories.isEmpty()) {
-        return buildList {
-            add(R.string.saved_flags)
-            if (isAppendFlags) add(R.string.button_title_flags)
-        }
+        strings.add(R.string.saved_flags)
+        if (isAppendFlags) strings.add(R.string.button_title_flags)
+        return strings
     }
 
 
@@ -567,8 +574,6 @@ fun getCategoriesTitleIds(
 
 
     /* ------------------- Boolean exceptions ------------------- */
-    val isFilterByCategory = filterByCountry != null
-
     val isHistorical = Historical in superCategoriesFiltered
 
     val isCultural = Cultural in superCategoriesFiltered
@@ -618,13 +623,6 @@ fun getCategoriesTitleIds(
 
 
     /* -------------------------------- GET ITERATIONS -------------------------------- */
-    val strings = mutableListOf<Int>()
-
-    if (isFilterByCategory) {
-        strings.add(filterByCountry.flagOf)
-        strings.add(R.string.string_colon_whitespace)
-    }
-
     if (isHistorical) {
         superCategoriesFiltered.remove(Historical)
         strings.add(Historical.title)
