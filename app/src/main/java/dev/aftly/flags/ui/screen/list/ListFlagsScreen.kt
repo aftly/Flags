@@ -222,7 +222,8 @@ private fun ListFlagsScreen(
 
     LaunchedEffect(key1 = onDrawerNavigateToList) {
         if (onDrawerNavigateToList) {
-            val isOnlySovereign = uiState.currentSuperCategories
+            val currentSupers = uiState.currentSuperCategories
+            val isOnlySovereign = currentSupers.isNotEmpty() && currentSupers
                 .none { it != SovereignCountry } && uiState.currentSubCategories.isEmpty()
 
             if (!isOnlySovereign) onResetScreen()
@@ -241,7 +242,10 @@ private fun ListFlagsScreen(
 
     /* Handle isSearchBar effects */
     LaunchedEffect(key1 = isSearchBar) {
-        if (!isSearchBar) {
+        val isNavigatedBack =
+            currentBackStackEntry?.savedStateHandle?.get<Boolean>(key = "isNavigateBack") ?: false
+
+        if (!isSearchBar && !isNavigatedBack) {
             /* Includes updates from/to category states */
             onIsSearchBarInit(false)
             onIsSearchBarInitTopBar(false)
@@ -278,9 +282,6 @@ private fun ListFlagsScreen(
 
         } else if (!isNavigatedBack && isCompInit) {
             coroutineScope.launch { listState.animateScrollToItem(index = 0) }
-
-        } else if (isNavigatedBack) {
-            currentBackStackEntry.savedStateHandle.set(key = "isNavigateBack", value = false)
         }
 
         isCompInit = true
@@ -304,8 +305,11 @@ private fun ListFlagsScreen(
                 }
                 onResetFlagNavState()
             }
+            /* Reset navigation state */
             currentBackStackEntry.savedStateHandle.set(key = "scrollToFlagId", value = 0)
         }
+        /* Reset navigation state */
+        currentBackStackEntry?.savedStateHandle?.set(key = "isNavigateBack", value = false)
     }
 
 
