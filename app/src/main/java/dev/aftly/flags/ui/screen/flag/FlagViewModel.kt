@@ -666,6 +666,7 @@ class FlagViewModel(
         val isDependent = sovereignState != null
         val isMicrostate = MICROSTATE in categories
 
+        val units = Regional.enums().filterNot { it == REGIONAL }
         val inCategories = buildList {
             addAll(elements = Civilian.enums())
             addAll(elements =
@@ -675,15 +676,19 @@ class FlagViewModel(
                 )
             )
         }
-        val isIn = categories.any { it in inCategories } ||
+        val isIn = categories.any { it in inCategories } && categories.none { it in units } ||
                 (isAnnexed && CITY in categories) || isLimitedRecognition
 
         if (isChild) {
             val isParentHistorical = HISTORICAL in parentUnit.categories
             val isParentSovereign = SOVEREIGN_STATE in parentUnit.categories
+            val isParentOfSameUnit = categories.filter { it in Regional.enums() }.any {
+                it in parentUnit.categories
+            }
 
             when {
                 isMicrostate && isParentSovereign -> resIds.add(R.string.string_in_association_with)
+                isParentOfSameUnit -> resIds.add(R.string.string_in)
                 isIn -> resIds.add(R.string.string_in)
                 else -> resIds.add(R.string.string_of)
             }
