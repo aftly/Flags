@@ -671,7 +671,7 @@ class FlagViewModel(
             addAll(elements =
                 listOf(
                     POLITICAL_MOVEMENT, QUASI_STATE, CONFEDERATION, INDIGENOUS_TERRITORY, TRIBE,
-                    MICRONATION, REGIONAL
+                    MICRONATION, MICROSTATE, REGIONAL
                 )
             )
         }
