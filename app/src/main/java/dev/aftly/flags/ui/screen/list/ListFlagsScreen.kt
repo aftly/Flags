@@ -575,17 +575,33 @@ private fun ListItem(
     val shape = MaterialTheme.shapes.large
 
     /* Item strings */
-    val flagOf = stringResource(flag.flagOf)
-    val descriptor = buildString {
-        flag.flagOfDescriptor?.let {
-            append(stringResource(R.string.string_whitespace))
-            append(stringResource(it))
+    val flagOf = stringResource(id = flag.flagOf)
+    val itemAnnotatedString = buildAnnotatedString {
+        withStyle(
+            style = MaterialTheme.typography.titleMedium.toSpanStyle().copy(color = textColor)
+        ) {
+            append(text = flagOf)
         }
-    }
-    val fromToYear = buildString {
+
+        flag.flagOfDescriptor?.let {
+            withStyle(
+                style = SpanStyle(color = textColor, fontWeight = FontWeight.Light)
+            ){
+                append(stringResource(id = R.string.string_whitespace))
+                append(stringResource(id = it))
+            }
+        }
+
         if (flag.previousFlagOfKey != null && flag.isDated) {
-            append(stringResource(R.string.string_whitespace))
-            append(flagDatesString(flag))
+            withStyle(
+                style = MaterialTheme.typography.titleSmall.toSpanStyle().copy(
+                    color = Color.Gray,
+                    fontWeight = FontWeight.Light,
+                )
+            ) {
+                append(stringResource(id = R.string.string_whitespace))
+                append(flagDatesString(flag))
+            }
         }
     }
 
@@ -634,26 +650,9 @@ private fun ListItem(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = flagOf,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = textColor,
+                            text = itemAnnotatedString,
+                            lineHeight = MaterialTheme.typography.titleSmall.lineHeight,
                         )
-                        if (descriptor.isNotEmpty()) {
-                            Text(
-                                text = descriptor,
-                                fontWeight = FontWeight.Light,
-                                color = textColor,
-                            )
-                        }
-                        if (fromToYear.isNotEmpty()) {
-                            Text(
-                                text = fromToYear,
-                                modifier = Modifier.padding(top = 1.dp),
-                                fontWeight = FontWeight.Light,
-                                style = MaterialTheme.typography.titleSmall,
-                                color = Color.Gray,
-                            )
-                        }
                     }
                 }
                 Image(
