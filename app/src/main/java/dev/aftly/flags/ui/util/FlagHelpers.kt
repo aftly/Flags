@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import dev.aftly.flags.data.DataSource.NAV_SEPARATOR
 import dev.aftly.flags.data.DataSource.annexedFlagResMap
+import dev.aftly.flags.data.DataSource.unrecognizedStateFlagResMap
 import dev.aftly.flags.data.DataSource.flagResMap
 import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.data.DataSource.flagViewMapId
@@ -126,14 +127,15 @@ private fun isSovereignKeyFromParentKey(
 ): Boolean {
     val parent = flagResMap.getValue(parentKey)
 
-    return if (parentKey == sovereignKey) true
-
-    else if (parent.sovereignState == sovereignKey) true
-
-    else if (parent.parentUnit != null && isSovereignKeyFromParentKey(
+    return when {
+        parentKey == sovereignKey -> true
+        parent.sovereignState == sovereignKey -> true
+        parent.parentUnit != null && isSovereignKeyFromParentKey(
             parentKey = parent.parentUnit,
-            sovereignKey = sovereignKey)) true
-    else false
+            sovereignKey = sovereignKey
+        ) -> true
+        else -> false
+    }
 }
 
 private fun isFlagAnnexedChild(
@@ -209,11 +211,20 @@ fun getPoliticalInternalRelatedFlagKeys(
         emptyList()
 
     } else {
-        val sovereignKey = flagRes.sovereignState ?: flagKey
+        val sovereignKey = unrecognizedStateFlagResMap[flagRes.sovereignState]?.sovereignState
+            ?: flagRes.sovereignState ?: flagKey
+
+        val unrecognizedSovereignKey = when {
+            flagKey in unrecognizedStateFlagResMap.keys -> flagKey
+            flagRes.sovereignState in unrecognizedStateFlagResMap.keys -> flagRes.sovereignState
+            else -> null
+        }
 
         val childKeys = flagResMap.values.filter { flag ->
             flag.sovereignState == sovereignKey || flagKey in flag.internationalOrganisations ||
-                    isFlagAnnexedChild(flag, sovereignKey)
+                    isFlagAnnexedChild(flag, sovereignKey) ||
+                    (unrecognizedSovereignKey != null &&
+                    flag.sovereignState == unrecognizedSovereignKey)
         }.filterNot { flag ->
             /* Exclude non-internal (external) categories unless in exceptions */
             (flag.categories.none { it in internalCategories } &&
@@ -246,6 +257,12 @@ fun getPoliticalExternalRelatedFlagKeys(
     } else {
         val sovereignKey = flagRes.sovereignState ?: flagKey
 
+        val unrecognizedSovereignKey = when {
+            flagKey in unrecognizedStateFlagResMap.keys -> flagKey
+            flagRes.sovereignState in unrecognizedStateFlagResMap.keys -> flagRes.sovereignState
+            else -> null
+        }
+
         val internationalOrgKeys = buildList {
             addAll(elements = flagRes.internationalOrganisations)
         }
@@ -268,6 +285,7 @@ fun getPoliticalExternalRelatedFlagKeys(
 
         /* Return expression */
         buildList {
+            unrecognizedSovereignKey?.let { add(it) }
             flagRes.associatedState?.let { add(it) }
             addAll(elements = internationalOrgKeys)
             addAll(elements = childKeys)
@@ -280,25 +298,19 @@ fun <T> getBooleanExplicitOrInherit(
     flagRes: FlagResources,
     prop: (FlagResources) -> T,
     propName: String,
-): Boolean {
-    val boolSrc = prop(flagRes)
-
-    return when (boolSrc) {
-        is BooleanSource.Explicit -> boolSrc.bool
-        is BooleanSource.Inherit ->
-            flagRes.previousFlagOf?.let { parentKey ->
-                flagResMap.getValue(parentKey).let { parentFlagRes ->
-                    val parentBoolSrc = prop(parentFlagRes)
-
-                    when (parentBoolSrc) {
-                        is BooleanSource.Explicit -> parentBoolSrc.bool
-                        is BooleanSource.Inherit -> error("$flagKey & $parentKey: No $propName")
-                        else -> error("flagResProp not StringResSource type")
-                    }
+): Boolean = when (val boolSrc = prop(flagRes)) {
+    is BooleanSource.Explicit -> boolSrc.bool
+    is BooleanSource.Inherit ->
+        flagRes.previousFlagOf?.let { parentKey ->
+            flagResMap.getValue(parentKey).let { parentFlagRes ->
+                when (val parentBoolSrc = prop(parentFlagRes)) {
+                    is BooleanSource.Explicit -> parentBoolSrc.bool
+                    is BooleanSource.Inherit -> error("$flagKey & $parentKey: No $propName")
+                    else -> error("flagResProp not StringResSource type")
                 }
-            } ?: error("$flagKey has no previousFlagOf key")
-        else -> error("flagResProp not BooleanSource type")
-    }
+            }
+        } ?: error("$flagKey has no previousFlagOf key")
+    else -> error("flagResProp not BooleanSource type")
 }
 
 fun <T> getStringResExplicitOrInherit(
@@ -307,25 +319,19 @@ fun <T> getStringResExplicitOrInherit(
     prop: (FlagResources) -> T,
     propName: String,
     context: Context,
-): Int {
-    val strResSrc = prop(flagRes)
-
-    return when (strResSrc) {
-        is StringResSource.Explicit -> strResSrc.resName.resId(context)
-        is StringResSource.Inherit? ->
-            flagRes.previousFlagOf?.let { parentKey ->
-                flagResMap.getValue(parentKey).let { parentFlagRes ->
-                    val parentStrResSrc = prop(parentFlagRes)
-
-                    when (parentStrResSrc) {
-                        is StringResSource.Explicit -> parentStrResSrc.resName.resId(context)
-                        is StringResSource.Inherit -> error("$flagKey & $parentKey: No $propName")
-                        else -> error("flagResProp not StringResSource type")
-                    }
+): Int = when (val strResSrc = prop(flagRes)) {
+    is StringResSource.Explicit -> strResSrc.resName.resId(context)
+    is StringResSource.Inherit? ->
+        flagRes.previousFlagOf?.let { parentKey ->
+            flagResMap.getValue(parentKey).let { parentFlagRes ->
+                when (val parentStrResSrc = prop(parentFlagRes)) {
+                    is StringResSource.Explicit -> parentStrResSrc.resName.resId(context)
+                    is StringResSource.Inherit -> error("$flagKey & $parentKey: No $propName")
+                    else -> error("flagResProp not StringResSource type")
                 }
-            } ?: error("$flagKey has no previousFlagOf key")
-        else -> error("flagResProp not StringResSource type")
-    }
+            }
+        } ?: error("$flagKey has no previousFlagOf key")
+    else -> error("flagResProp not StringResSource type")
 }
 
 fun <T> getStringResExplicitOrInheritOrNull(
@@ -334,27 +340,21 @@ fun <T> getStringResExplicitOrInheritOrNull(
     prop: (FlagResources) -> T,
     propName: String,
     context: Context,
-): Int? {
-    val strResSrc = prop(flagRes)
-
-    return when (strResSrc) {
-        null -> null
-        is StringResSource.Explicit -> strResSrc.resName.resId(context)
-        is StringResSource.Inherit ->
-            flagRes.previousFlagOf?.let { parentKey ->
-                flagResMap.getValue(parentKey).let { parentFlagRes ->
-                    val parentStrResSrc = prop(parentFlagRes)
-
-                    when (parentStrResSrc) {
-                        null -> null
-                        is StringResSource.Explicit -> parentStrResSrc.resName.resId(context)
-                        is StringResSource.Inherit -> error("$flagKey & $parentKey: No $propName")
-                        else -> error("flagResProp not StringResSource type")
-                    }
+): Int? = when (val strResSrc = prop(flagRes)) {
+    null -> null
+    is StringResSource.Explicit -> strResSrc.resName.resId(context)
+    is StringResSource.Inherit ->
+        flagRes.previousFlagOf?.let { parentKey ->
+            flagResMap.getValue(parentKey).let { parentFlagRes ->
+                when (val parentStrResSrc = prop(parentFlagRes)) {
+                    null -> null
+                    is StringResSource.Explicit -> parentStrResSrc.resName.resId(context)
+                    is StringResSource.Inherit -> error("$flagKey & $parentKey: No $propName")
+                    else -> error("flagResProp not StringResSource type")
                 }
             }
-        else -> error("flagResProp not StringResSource type")
-    }
+        }
+    else -> error("flagResProp not StringResSource type")
 }
 
 fun getFlagOfAlternativeResIds(
