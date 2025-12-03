@@ -25,11 +25,10 @@ import dev.aftly.flags.ui.util.getFlagKey
 import dev.aftly.flags.ui.util.getFlagsFromCategories
 import dev.aftly.flags.ui.util.getFlagsFromCategory
 import dev.aftly.flags.ui.util.getFlagsFromKeys
-import dev.aftly.flags.ui.util.getPoliticalRelatedFlags
 import dev.aftly.flags.ui.util.getSavedFlagView
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
-import dev.aftly.flags.ui.util.normalizeLower
+import dev.aftly.flags.ui.util.normalizeStringLower
 import dev.aftly.flags.ui.util.normalizeString
 import dev.aftly.flags.ui.util.sortFlagsAlphabetically
 import dev.aftly.flags.ui.util.toSavedFlag
@@ -101,14 +100,14 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
                 /* Get flag strings to match query against */
                 val isFlagInFlags = flag in flags
                 val descriptorString = flag.flagOfDescriptor?.let {
-                    normalizeLower(res.getString(it))
+                    normalizeStringLower(res.getString(it))
                 }
                 val fullFlagOfString = buildString {
-                    append(normalizeLower(res.getString(flag.flagOf)))
+                    append(normalizeStringLower(res.getString(flag.flagOf)))
                     descriptorString?.let { append(it) }
                 }
                 val flagStrings = flag.flagStringResIds
-                    .map { normalizeLower(res.getString(it)) } + fullFlagOfString
+                    .map { normalizeStringLower(res.getString(it)) } + fullFlagOfString
                 val flagStringsExact = if (descriptorString == null) flagStrings else
                     flagStrings.filterNot { it == descriptorString }
 

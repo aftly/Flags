@@ -28,11 +28,10 @@ import dev.aftly.flags.ui.util.filterRedundantSuperCategories
 import dev.aftly.flags.ui.util.filterFlagsByCountry
 import dev.aftly.flags.ui.util.getFlagsFromCategories
 import dev.aftly.flags.ui.util.getFlagsFromCategory
-import dev.aftly.flags.ui.util.getPoliticalRelatedFlags
 import dev.aftly.flags.ui.util.getSavedFlagView
 import dev.aftly.flags.ui.util.isSubCategoryExit
 import dev.aftly.flags.ui.util.isSuperCategoryExit
-import dev.aftly.flags.ui.util.normalizeLower
+import dev.aftly.flags.ui.util.normalizeStringLower
 import dev.aftly.flags.ui.util.normalizeString
 import dev.aftly.flags.ui.util.sortFlagsAlphabetically
 import dev.aftly.flags.ui.util.toFlagsOfCountry
@@ -435,7 +434,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         val normalizedAnswers = when (uiState.value.answerMode) {
             AnswerMode.NAMES ->
                 uiState.value.currentFlagStrings.map {
-                    normalizeLower(string = it)
+                    normalizeStringLower(string = it)
                 }
             AnswerMode.DATES ->
                 uiState.value.currentFlags.flatMap { flag ->
@@ -453,7 +452,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
                             add(fromToString)
                         }
                     }
-                }.map { normalizeLower(string = it) }
+                }.map { normalizeStringLower(string = it) }
         }
 
         if (normalizedUserGuess.isEmpty()) {

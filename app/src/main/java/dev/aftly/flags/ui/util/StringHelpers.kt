@@ -17,7 +17,7 @@ fun normalizeString(string: String): String {
     return decomposed.filter { it.isLetterOrDigit() }
 }
 
-fun normalizeLower(string: String): String = normalizeString(string).lowercase()
+fun normalizeStringLower(string: String): String = normalizeString(string).lowercase()
 
 
 @Composable
