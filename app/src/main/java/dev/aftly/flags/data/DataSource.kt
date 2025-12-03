@@ -38,7 +38,7 @@ data object DataSource {
     )
 
     /* For use in updating flags list when selecting category in Filter Menu */
-    val historicalSuperCategoryExceptions = listOf(
+    val historicalSuperCategoryBlacklist = listOf(
         FlagSuperCategory.SovereignCountry,
         FlagSuperCategory.AutonomousRegion,
         FlagSuperCategory.Regional,
@@ -90,8 +90,46 @@ data object DataSource {
     }
     val subsExclusiveOfCountry = listOf(
         FlagCategory.AUTONOMOUS_REGION,
-        FlagCategory.DEVOLVED_GOVERNMENT
+        FlagCategory.DEVOLVED_GOVERNMENT,
+        FlagCategory.INDIGENOUS_TERRITORY,
+        FlagCategory.UNRECOGNIZED_STATE,
+        FlagCategory.SOVEREIGN_ENTITY,
+        FlagCategory.MARITIME,
+        FlagCategory.QUASI_STATE,
+        FlagCategory.MILITANT_ORGANIZATION,
+        FlagCategory.TERRORIST_ORGANIZATION
     )
+    val subsExclusiveOfAutonomousRegion = listOf(
+        FlagCategory.MICROSTATE,
+        FlagCategory.MARITIME
+    )
+    val subsExclusiveOfRegional = listOf(
+        FlagCategory.MICROSTATE,
+        FlagCategory.MARITIME,
+        FlagCategory.QUASI_STATE,
+        FlagCategory.MILITANT_ORGANIZATION,
+        FlagCategory.TERRORIST_ORGANIZATION,
+        FlagCategory.INDIGENOUS_TERRITORY,
+        FlagCategory.SOVEREIGN_ENTITY
+    )
+    val subsExclusiveOfInternational = listOf(
+        FlagCategory.MICROSTATE,
+        FlagCategory.QUASI_STATE
+    )
+    val subsExclusiveOfInstitution = listOf(FlagCategory.MICROSTATE)
+    val subsExclusiveOfLegislature = listOf(
+        FlagCategory.MARITIME,
+        FlagCategory.QUASI_STATE,
+        FlagCategory.MILITANT_ORGANIZATION,
+        FlagCategory.TERRORIST_ORGANIZATION
+    )
+    val subsExclusiveOfExecutive = listOf(FlagCategory.MILITANT_ORGANIZATION)
+    val subsExclusiveOfCultural = listOf(
+        FlagCategory.MICROSTATE,
+        FlagCategory.ANNEXED_TERRITORY
+    )
+    val subsExclusiveOfOtherParameters = listOf(FlagCategory.SOVEREIGN_ENTITY)
+    val subsExclusiveOfPolitical = listOf(FlagCategory.MARITIME)
     val switchSupersSuperCategories = listOf(
         FlagSuperCategory.Institution
     )

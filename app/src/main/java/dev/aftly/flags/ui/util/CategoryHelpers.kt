@@ -126,7 +126,7 @@ fun getFlagsFromCategory(
 
     /* For skipping historical flags when category in exception */
     val parentCategory = getParentSuperCategory(category)
-    val isHistoricalException = parentCategory in DataSource.historicalSuperCategoryExceptions &&
+    val isHistoricalException = parentCategory in DataSource.historicalSuperCategoryBlacklist &&
             if (category is FlagCategoryWrapper) category.enum !in historicalSubCategoryWhitelist
             else true
 
