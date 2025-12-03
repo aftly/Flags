@@ -81,20 +81,15 @@ fun sortFlagsAlphabetically(
     normalizeString(string = application.resources.getString(flag.flagOf))
 }
 
-fun getSavedFlagView(
-    savedFlags: Set<SavedFlag>,
-    filterByCountry: FlagView? = null,
+fun getSavedFlagView(savedFlags: Set<SavedFlag>): List<FlagView> =
+    savedFlags.map { it.getFlagView() }
+
+fun filterFlagsByCountry(
+    flags: List<FlagView>,
+    country: FlagView,
 ): List<FlagView> {
-    val savedFlagView = savedFlags.map { it.getFlagView() }
-
-    return when (filterByCountry) {
-        null -> savedFlagView
-        else -> {
-            val relatedFlags = getPoliticalRelatedFlags(flag = filterByCountry)
-
-            savedFlagView.filter { it in relatedFlags }
-        }
-    }
+    val relatedFlags = getPoliticalRelatedFlags(flag = country)
+    return flags.filter { it in relatedFlags }
 }
 
 

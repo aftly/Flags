@@ -158,9 +158,11 @@ fun GameScreen(
     val isDarkTheme = LocalDarkTheme.current
 
     /* When language configuration changes, update strings in uiState */
+    /*
     val configuration = LocalConfiguration.current
     val locale = configuration.locales[0]
-    //LaunchedEffect(locale) { viewModel.setFlagStrings() }
+    LaunchedEffect(locale) { viewModel.setFlagStrings() }
+     */
 
     val focusManager = LocalFocusManager.current
 

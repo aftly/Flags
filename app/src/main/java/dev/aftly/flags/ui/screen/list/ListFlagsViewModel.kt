@@ -20,6 +20,7 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
 import dev.aftly.flags.model.FlagView
+import dev.aftly.flags.ui.util.filterFlagsByCountry
 import dev.aftly.flags.ui.util.getFlagKey
 import dev.aftly.flags.ui.util.getFlagsFromCategories
 import dev.aftly.flags.ui.util.getFlagsFromCategory
@@ -63,11 +64,7 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
         val isFilterByCountry = state.filterByCountry != null
 
         when {
-            isFilterByCountry -> {
-                val relatedFlags = getPoliticalRelatedFlags(flag = state.filterByCountry)
-
-                savedFlags.filter { it in relatedFlags }
-            }
+            isFilterByCountry -> filterFlagsByCountry(savedFlags, state.filterByCountry)
             else -> savedFlags
         }
     }.stateIn(
@@ -399,7 +396,7 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
         /* Filter by new country */
         if (isNew) {
             if (isCountry) updateCurrentCategory(category = All)
-            setFilterByCountry(country = country, isFilterFlags = !isSaved)
+            setFilterByCountry(country, isSaved)
 
         } else if (isAll) {
             updateCurrentCategory(category = SovereignCountry)
@@ -493,14 +490,12 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
 
     private fun setFilterByCountry(
         country: FlagView,
-        isFilterFlags: Boolean = true,
+        isSaved: Boolean = false,
     ) = _uiState.update { state ->
         state.copy(
             currentFlags = when {
-                isFilterFlags -> getPoliticalRelatedFlags(flag = country).let { relatedFlags ->
-                    state.currentFlags.filter { it in relatedFlags }
-                }
-                else -> state.currentFlags
+                isSaved -> state.currentFlags
+                else -> filterFlagsByCountry(state.currentFlags, country)
             },
             filterByCountry = country,
         )

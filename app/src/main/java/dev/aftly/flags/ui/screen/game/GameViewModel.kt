@@ -25,6 +25,7 @@ import dev.aftly.flags.model.game.DifficultyMode
 import dev.aftly.flags.model.game.ScoreData
 import dev.aftly.flags.model.game.TimeMode
 import dev.aftly.flags.ui.util.filterRedundantSuperCategories
+import dev.aftly.flags.ui.util.filterFlagsByCountry
 import dev.aftly.flags.ui.util.getFlagsFromCategories
 import dev.aftly.flags.ui.util.getFlagsFromCategory
 import dev.aftly.flags.ui.util.getPoliticalRelatedFlags
@@ -40,8 +41,11 @@ import dev.aftly.flags.ui.util.updateCategoriesFromSuper
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -62,6 +66,13 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
 
     private val _savedFlags = MutableStateFlow(value = emptySet<SavedFlag>())
     val savedFlags = _savedFlags.asStateFlow()
+    private val savedFlagView = savedFlags.map {
+        getSavedFlagView(savedFlags = it)
+    }.stateIn(
+        scope = viewModelScope,
+        initialValue = emptyList(),
+        started = SharingStarted.Eagerly,
+    )
 
     private val _guessedFlags = mutableListOf<FlagView>()
     val guessedFlags: List<FlagView> get() = _guessedFlags
@@ -357,10 +368,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
             _uiState.update {
                 it.copy(
                     currentFlags = when {
-                        isSaved -> getSavedFlagView(
-                            savedFlags = savedFlags.value,
-                            filterByCountry = null,
-                        )
+                        isSaved -> savedFlagView.value
                         else -> getFlagsFromCategories(
                             allFlags = it.allFlags,
                             currentFlags = it.currentFlags,
@@ -378,7 +386,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         /* Filter by new country */
         if (isNew) {
             if (isCountry) updateCurrentCategory(category = All)
-            setFilterByCountry(country = country, isFilterFlags = !isSaved)
+            setFilterByCountry(country, isSaved)
 
         } else if (isAll) {
             updateCurrentCategory(category = SovereignCountry)
@@ -389,12 +397,17 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
 
 
     fun selectSavedFlags() {
-        _uiState.update {
-            it.copy(
-                currentFlags = getSavedFlagView(
-                    savedFlags = savedFlags.value,
-                    filterByCountry = it.filterByCountry,
-                ),
+        _uiState.update { state ->
+            val isFilterByCountry = state.filterByCountry != null
+
+            state.copy(
+                currentFlags = when {
+                    isFilterByCountry -> filterFlagsByCountry(
+                        flags = savedFlagView.value,
+                        country = state.filterByCountry,
+                    )
+                    else -> savedFlagView.value
+                },
                 isSavedFlags = true,
                 currentSuperCategories = emptyList(),
                 currentSubCategories = emptyList(),
@@ -597,15 +610,12 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
 
     private fun setFilterByCountry(
         country: FlagView,
-        isFilterFlags: Boolean = true,
+        isSaved: Boolean = false,
     ) = _uiState.update { state ->
+        val flags = if (isSaved) savedFlagView.value else state.currentFlags
+
         state.copy(
-            currentFlags = when {
-                isFilterFlags -> getPoliticalRelatedFlags(flag = country).let { relatedFlags ->
-                    state.currentFlags.filter { it in relatedFlags }
-                }
-                else -> state.currentFlags
-            },
+            currentFlags = filterFlagsByCountry(flags, country),
             filterByCountry = country,
         )
     }
