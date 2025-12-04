@@ -233,15 +233,6 @@ fun MenuItemExpandableArrowIcon(
     val modifierClickable =
         if (isEnabled && isClickable) modifier.clickable(onClick = onClick) else modifier
 
-    /*
-    val colors = getNestedColors(nestLevel)
-    val tint = if (isEnabled) colors.contentColor else lerp(
-        start = colors.contentColor,
-        stop = colors.containerColor,
-        fraction = 0.5f
-    )
-     */
-
     Icon(
         imageVector =
             if (isExpanded) Icons.Default.KeyboardArrowUp
