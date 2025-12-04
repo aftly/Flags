@@ -12,7 +12,7 @@ import dev.aftly.flags.data.DataSource.menuSuperCategoryList
 import dev.aftly.flags.data.DataSource.switchSubsSuperCategories
 import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories1
 import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories2
-import dev.aftly.flags.data.DataSource.subsExclusiveOfCountry
+import dev.aftly.flags.data.DataSource.subsExclusiveOfSovereign
 import dev.aftly.flags.data.DataSource.supersExclusiveOfCultural
 import dev.aftly.flags.data.DataSource.supersExclusiveOfInstitution
 import dev.aftly.flags.data.DataSource.supersExclusiveOfInternational
@@ -29,6 +29,7 @@ import dev.aftly.flags.model.FlagCategory.HISTORICAL
 import dev.aftly.flags.model.FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL
 import dev.aftly.flags.model.FlagCategory.ONE_PARTY
 import dev.aftly.flags.model.FlagCategory.PROVISIONAL_GOVERNMENT
+import dev.aftly.flags.model.FlagCategory.SOVEREIGN_ENTITY
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
 import dev.aftly.flags.model.FlagCategory.THEOCRATIC
@@ -48,7 +49,7 @@ import dev.aftly.flags.model.FlagSuperCategory.LegalConstraint
 import dev.aftly.flags.model.FlagSuperCategory.Political
 import dev.aftly.flags.model.FlagSuperCategory.PowerDerivation
 import dev.aftly.flags.model.FlagSuperCategory.Regional
-import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
+import dev.aftly.flags.model.FlagSuperCategory.Sovereign
 import dev.aftly.flags.model.FlagSuperCategory.TerritorialDistributionOfAuthority
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.menu.FlagsMenu
@@ -171,7 +172,7 @@ fun isSuperCategoryExit(
     val cultSubs = Cultural.enums()
     val polExclusiveSupers = supersExclusiveOfPolitical
     val polSubs = Political.allEnums()
-    val countryExclusiveSubs = subsExclusiveOfCountry
+    val sovereignExclusiveSubs = subsExclusiveOfSovereign
 
     return if (superCategories.isEmpty() && subCategories.isEmpty()) {
         true /* SavedFlags (currently) represented by no selected categories */
@@ -202,9 +203,9 @@ fun isSuperCategoryExit(
 
         ) || isCategoryExclusive(
             category = superCategory,
-            superCategoryExclusives = listOf(SovereignCountry),
+            superCategoryExclusives = listOf(Sovereign),
             selectedSubCategories = subCategories,
-            selectedSubsExclusives = countryExclusiveSubs,
+            selectedSubsExclusives = sovereignExclusiveSubs,
 
         ) || isCategoryExclusive(
             category = superCategory,
@@ -289,7 +290,7 @@ fun isSubCategoryExit(
     val polExclusiveSubs = polExclusiveSupers.flatMap { it.enums() } +
             AUTONOMOUS_REGION + DEVOLVED_GOVERNMENT
     val polSubs = Political.allEnums()
-    val countryExclusiveSubs = subsExclusiveOfCountry
+    val sovereignExclusiveSubs = subsExclusiveOfSovereign
 
     return if (subCategories.isEmpty() && superCategories.isEmpty()) {
         true /* SavedFlags (currently) represented by no selected categories */
@@ -316,9 +317,9 @@ fun isSubCategoryExit(
 
         ) || isCategoryExclusive(
             category = subCategory.toWrapper(),
-            subCategoryExclusives = countryExclusiveSubs,
+            subCategoryExclusives = sovereignExclusiveSubs,
             selectedSuperCategories = superCategories,
-            selectedSupersExclusives = listOf(SovereignCountry),
+            selectedSupersExclusives = listOf(Sovereign),
 
         ) || isCategoryExclusive(
             category = subCategory.toWrapper(),
@@ -583,8 +584,11 @@ fun getCategoriesTitleIds(
                     Institution.allEnums().any { it in subCategories } ||
                     CONFEDERATION in subCategories)
 
+    val isSovereignState = SOVEREIGN_STATE in subCategories
+    val isSovereignEntity = SOVEREIGN_ENTITY in subCategories
+
     /* For string exceptions when supers or subs mean associated countries */
-    val isAssociatedCountry = SovereignCountry in superCategoriesFiltered &&
+    val isAssociatedCountry = (Sovereign in superCategoriesFiltered || isSovereignState) &&
             (AutonomousRegion in superCategoriesFiltered || FREE_ASSOCIATION in subCategories)
 
     /* For string exceptions when supers mean non-sovereign autonomous and associated regions */
@@ -624,13 +628,13 @@ fun getCategoriesTitleIds(
 
     /* -------------------------------- GET ITERATIONS -------------------------------- */
     if (isHistorical) {
-        superCategoriesFiltered.remove(Historical)
+        superCategoriesFiltered.remove(element = Historical)
         strings.add(Historical.title)
         strings.add(R.string.string_whitespace)
     }
 
     if (isCultural) {
-        superCategoriesFiltered.remove(Cultural)
+        superCategoriesFiltered.remove(element = Cultural)
         strings.add(Cultural.title)
         if (superCategoriesFiltered.isNotEmpty() || politicalCategories.isNotEmpty() ||
             remainingCategories.isNotEmpty()) {
@@ -653,56 +657,64 @@ fun getCategoriesTitleIds(
         }
         strings.add(R.string.string_whitespace)
 
-        /* On last iteration, if not international, remove SovereignCountry super and
+        /* On last iteration, if not international or sov entity, remove Sovereign super and
          * append "State" if not exception */
         if (index == politicalCategories.lastIndex && International !in superCategoriesFiltered) {
-            superCategoriesFiltered.remove(SovereignCountry)
+            superCategoriesFiltered.remove(element = Sovereign)
+            remainingCategories.remove(element = SOVEREIGN_STATE)
+            remainingCategories.remove(element = SOVEREIGN_ENTITY)
 
-            if (politicalCategory !in PowerDerivation.enums()
-                    .filterNot { it in listOf(ONE_PARTY, PROVISIONAL_GOVERNMENT) } &&
-                politicalCategory != CONFEDERATION &&
-                AutonomousRegion !in superCategories &&
-                AutonomousRegion.enums().none { it in subCategories } &&
-                !isConfederationException) {
-                strings.add(R.string.category_state_title)
+            val isNotPowerException = politicalCategory !in PowerDerivation.enums()
+                .filterNot { it in listOf(ONE_PARTY, PROVISIONAL_GOVERNMENT) }
+            val isNotConfederation = politicalCategory != CONFEDERATION
+            val isNotAutonomous = AutonomousRegion !in superCategories &&
+                    AutonomousRegion.enums().none { it in subCategories }
+
+            if (isNotPowerException && isNotAutonomous &&
+                isNotConfederation && !isConfederationException) {
+                when {
+                    isSovereignEntity -> strings.add(R.string.category_entity_title)
+                    else -> strings.add(R.string.category_state_title)
+                }
             }
         }
     }
 
     if (isInternational) {
-        superCategoriesFiltered.remove(International)
+        superCategoriesFiltered.remove(element = International)
         strings.add(International.title)
         strings.add(R.string.string_whitespace)
     }
 
     if (isAssociatedCountry) {
-        superCategoriesFiltered.remove(SovereignCountry)
-        superCategoriesFiltered.remove(AutonomousRegion)
-        remainingCategories.remove(FREE_ASSOCIATION)
+        superCategoriesFiltered.remove(element = Sovereign)
+        superCategoriesFiltered.remove(element = AutonomousRegion)
+        remainingCategories.remove(element = SOVEREIGN_STATE)
+        remainingCategories.remove(element = FREE_ASSOCIATION)
         strings.add(R.string.categories_associated_country)
         strings.add(R.string.string_whitespace)
     }
 
     if (isDevolvedRegion) {
-        remainingCategories.remove(DEVOLVED_GOVERNMENT)
+        remainingCategories.remove(element = DEVOLVED_GOVERNMENT)
         strings.add(R.string.categories_devolved_title)
         strings.add(R.string.string_whitespace)
     }
 
     if (isAutonomousRegionalSupers) {
-        superCategoriesFiltered.remove(AutonomousRegion)
-        superCategoriesFiltered.remove(Regional)
+        superCategoriesFiltered.remove(element = AutonomousRegion)
+        superCategoriesFiltered.remove(element = Regional)
         strings.add(R.string.categories_autonomous_regional)
         strings.add(R.string.string_whitespace)
 
     } else if (isAutonomousRegion) {
-        superCategoriesFiltered.remove(AutonomousRegion)
-        remainingCategories.remove(AUTONOMOUS_REGION)
+        superCategoriesFiltered.remove(element = AutonomousRegion)
+        remainingCategories.remove(element = AUTONOMOUS_REGION)
         strings.add(R.string.categories_autonomous_title)
         strings.add(R.string.string_whitespace)
     }
 
-    superCategoriesFiltered.forEachIndexed { index, superCategory ->
+    superCategoriesFiltered.forEach { superCategory ->
         if (superCategory == Regional &&
             (isHistorical || isCultural || isAutonomousRegion ||
             isDevolvedRegion || culturalCategories.isNotEmpty())) {
@@ -715,7 +727,7 @@ fun getCategoriesTitleIds(
     }
 
     if (VEXILLOLOGY in remainingCategories && remainingCategories.size > 1) {
-        remainingCategories.remove(VEXILLOLOGY)
+        remainingCategories.remove(element = VEXILLOLOGY)
         strings.add(R.string.category_vexillology_description_title)
         strings.add(R.string.string_whitespace)
     }

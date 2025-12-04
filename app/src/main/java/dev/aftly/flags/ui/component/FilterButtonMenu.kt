@@ -54,7 +54,7 @@ import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategoryBase
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
-import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
+import dev.aftly.flags.model.FlagSuperCategory.Sovereign
 import dev.aftly.flags.model.FlagSuperCategory.Institution
 import dev.aftly.flags.model.FlagSuperCategory.OtherParameters
 import dev.aftly.flags.model.FlagSuperCategory.Political
@@ -99,7 +99,11 @@ fun FilterButtonMenu(
     /* Color properties */
     val nestLevel = 0 /* Sets the starting nest level to control colors */
     val menuButtonNestLevel = nestLevel.inc() /* For alternative color */
-    val menuButtonColors = getNestedColors(nestLevel = menuButtonNestLevel, menu = FlagsMenu.FILTER)
+    val menuButtonColors = getNestedColors(
+        nestLevel = menuButtonNestLevel,
+        isEnabled = true,
+        menu = FlagsMenu.FILTER,
+    )
 
     /* Button height properties */
     val fontScale = LocalConfiguration.current.fontScale
@@ -183,6 +187,7 @@ fun FilterButtonMenu(
             ) {
                 MenuCategoryItemUnselectable(
                     nestLevel = menuButtonNestLevel,
+                    isEnabled = true,
                     isMenuButton = true,
                     buttonTitle = buttonTitle,
                     category = null,
@@ -216,6 +221,7 @@ fun FilterButtonMenu(
                         ) {
                             MenuItemExpandableArrowIcon(
                                 nestLevel = menuButtonNestLevel,
+                                isEnabled = true,
                                 isExpanded = isMenuExpanded,
                                 isMenuButton = true,
                             )
@@ -380,9 +386,8 @@ private fun CountryLazyList(
                 menu = FlagsMenu.FILTER,
                 isShowDates = false,
                 onFlagSelect = { flag ->
-                    val current = selectedFlag
                     onFlagSelect(flag)
-                    if (flag != current) onMenuExpand()
+                    if (flag != selectedFlag) onMenuExpand()
                 },
             )
         }
@@ -431,7 +436,7 @@ private fun CategoryLazyList(
             val isChildSelected = superCategory.allEnums().any { it in subCategories } ||
                     superCategory.supers().any { it in superCategories }
 
-            val isEnabled = !(isFilterByCountry && superCategory == SovereignCountry)
+            val isEnabled = !(isFilterByCountry && superCategory == Sovereign)
 
             val isItemNested = superCategory == Political
             val tier3MenuTopPadding = if (isItemNested) Dimens.extraSmall4 else 0.dp
@@ -455,6 +460,7 @@ private fun CategoryLazyList(
                  * use 2 tier (expandable) menu item */
                 SuperItemExpandable(
                     nestLevel = nestLevel,
+                    isEnabled = isEnabled,
                     isSelected = isSelected,
                     isChildSelected = isChildSelected,
                     isCategoriesMenuExpanded = isMenuExpanded,
@@ -474,6 +480,7 @@ private fun CategoryLazyList(
                 SuperItemOfSupers(
                     modifier = Modifier.padding(top = tier3MenuTopPadding),
                     nestLevel = nestLevel,
+                    isEnabled = isEnabled,
                     isSelected = isSelected,
                     isChildSelected = isChildSelected,
                     isCategoriesMenuExpanded = isMenuExpanded,
@@ -499,6 +506,7 @@ private fun CategoryLazyList(
 private fun SubItem(
     modifier: Modifier = Modifier,
     nestLevel: Int,
+    isEnabled: Boolean,
     subCategory: FlagCategory,
     selectedSubCategories: List<FlagCategory>,
     onCategorySelectSingle: (FlagCategoryBase) -> Unit,
@@ -507,6 +515,7 @@ private fun SubItem(
     MenuCategoryItemSelectable(
         modifier = modifier,
         nestLevel = nestLevel,
+        isEnabled = isEnabled,
         fontWeight = FontWeight.Normal,
         category = subCategory.toWrapper(),
         onClick = { onCategorySelectSingle(subCategory.toWrapper()) },
@@ -519,7 +528,7 @@ private fun SubItem(
                 modifier = Modifier
                     .padding(end = textButtonEndPadding(layDir = LocalLayoutDirection.current))
                     .size(Dimens.iconSize24 * 0.9f),
-                tint = getNestedColors(nestLevel).contentColor,
+                tint = getNestedColors(nestLevel, isEnabled).contentColor,
             )
         }
     }
@@ -529,7 +538,7 @@ private fun SubItem(
 private fun SuperItemStatic(
     modifier: Modifier = Modifier,
     nestLevel: Int,
-    isEnabled: Boolean = true,
+    isEnabled: Boolean,
     isSelected: Boolean,
     superCategory: FlagSuperCategory,
     onCategorySelectSingle: (FlagCategoryBase) -> Unit,
@@ -556,6 +565,7 @@ private fun SuperItemStatic(
 private fun SuperItemExpandable(
     modifier: Modifier = Modifier,
     nestLevel: Int,
+    isEnabled: Boolean,
     isSelected: Boolean,
     isChildSelected: Boolean,
     isCategoriesMenuExpanded: Boolean,
@@ -620,6 +630,7 @@ private fun SuperItemExpandable(
         MenuCategoryItemSelectable(
             modifier = modifier,
             nestLevel = nestLevel,
+            isEnabled = isEnabled,
             isSelected = isSelected,
             isChildSelected = isChildSelected,
             category = itemSuperCategory,
@@ -633,14 +644,17 @@ private fun SuperItemExpandable(
         ) {
             /* Local state takes priority for icon shown */
             MenuItemExpandableArrowIcon(
-                modifier = Modifier.clickable(onClick = onExpandClick),
                 nestLevel = nestLevel,
+                isEnabled = isEnabled,
+                isClickable = true,
                 isExpanded = isMenuExpandedLocalState ?: isMenuExpandedParentState,
+                onClick = onExpandClick,
             )
         }
     } else {
         MenuCategoryItemUnselectable(
             nestLevel = nestLevel,
+            isEnabled = isEnabled,
             isChildSelected = isChildSelected,
             category = itemSuperCategory,
             onClick = onExpandClick,
@@ -648,6 +662,7 @@ private fun SuperItemExpandable(
             /* Local state takes priority for icon shown */
             MenuItemExpandableArrowIcon(
                 nestLevel = nestLevel,
+                isEnabled = isEnabled,
                 isExpanded = isMenuExpandedLocalState ?: isMenuExpandedParentState,
             )
         }
@@ -664,6 +679,7 @@ private fun SuperItemExpandable(
             subCategories.forEach { subCategory ->
                 SubItem(
                     nestLevel = childNestLevel,
+                    isEnabled = isEnabled,
                     subCategory = subCategory,
                     selectedSubCategories = subCategoriesSelected,
                     onCategorySelectSingle = onCategorySelectSingle,
@@ -700,6 +716,7 @@ private fun SuperItemsContainer(
 private fun SuperItemOfSupers(
     modifier: Modifier = Modifier,
     nestLevel: Int,
+    isEnabled: Boolean,
     isSelected: Boolean,
     isChildSelected: Boolean,
     isCategoriesMenuExpanded: Boolean,
@@ -762,6 +779,7 @@ private fun SuperItemOfSupers(
         if (isSuperSelectable) {
             MenuCategoryItemSelectable(
                 nestLevel = parentNestLevel,
+                isEnabled = isEnabled,
                 isSelected = isSelected,
                 isChildSelected = isChildSelected,
                 category = itemSuperCategory,
@@ -770,20 +788,24 @@ private fun SuperItemOfSupers(
                 ) {
                 /* Local state takes priority for icon shown */
                 MenuItemExpandableArrowIcon(
-                    modifier = Modifier.clickable(onClick = onExpandClick),
                     nestLevel = parentNestLevel,
+                    isEnabled = isEnabled,
+                    isClickable = true,
                     isExpanded = isMenuExpandedLocalState ?: isSuperItemExpanded,
+                    onClick = onExpandClick,
                 )
             }
         } else {
             MenuCategoryItemUnselectable(
                 nestLevel = parentNestLevel,
+                isEnabled = isEnabled,
                 fontWeight = FontWeight.ExtraBold,
                 category = itemSuperCategory,
                 onClick = onExpandClick,
             ) {
                 MenuItemExpandableArrowIcon(
                     nestLevel = parentNestLevel,
+                    isEnabled = isEnabled,
                     isExpanded = isMenuExpandedLocalState ?: isSuperItemExpanded,
                 )
             }
@@ -806,6 +828,7 @@ private fun SuperItemOfSupers(
 
                     SuperItemExpandable(
                         nestLevel = childNestLevel,
+                        isEnabled = isEnabled,
                         isSelected = isSuperSelected,
                         isChildSelected = isSuperChildSelected,
                         isCategoriesMenuExpanded = isCategoriesMenuExpanded,

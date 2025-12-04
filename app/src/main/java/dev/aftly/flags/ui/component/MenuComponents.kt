@@ -221,12 +221,26 @@ fun MenuButton(
 fun MenuItemExpandableArrowIcon(
     modifier: Modifier = Modifier,
     nestLevel: Int,
+    isEnabled: Boolean,
+    isClickable: Boolean = false,
     isExpanded: Boolean,
     isMenuButton: Boolean = false,
+    onClick: () -> Unit = {},
 ) {
     val endPadding = if (isMenuButton) 0.dp else {
         textButtonEndPadding(layDir = LocalLayoutDirection.current)
     }
+    val modifierClickable =
+        if (isEnabled && isClickable) modifier.clickable(onClick = onClick) else modifier
+
+    /*
+    val colors = getNestedColors(nestLevel)
+    val tint = if (isEnabled) colors.contentColor else lerp(
+        start = colors.contentColor,
+        stop = colors.containerColor,
+        fraction = 0.5f
+    )
+     */
 
     Icon(
         imageVector =
@@ -235,8 +249,8 @@ fun MenuItemExpandableArrowIcon(
         contentDescription =
             if (isExpanded) stringResource(R.string.menu_sub_icon_collapse)
             else stringResource(R.string.menu_sub_icon_expand),
-        modifier = modifier.padding(end = endPadding),
-        tint = getNestedColors(nestLevel).contentColor,
+        modifier = modifierClickable.padding(end = endPadding),
+        tint = getNestedColors(nestLevel, isEnabled).contentColor,
     )
 }
 
@@ -302,6 +316,7 @@ fun MenuCategoryItemSelectable(
 fun MenuCategoryItemUnselectable(
     modifier: Modifier = Modifier,
     nestLevel: Int,
+    isEnabled: Boolean,
     isSelected: Boolean = false,
     isChildSelected: Boolean = false,
     isMenuButton: Boolean = false,
@@ -317,7 +332,8 @@ fun MenuCategoryItemUnselectable(
         .fillMaxWidth()
         .padding(vertical = Dimens.menuItemVertPad)
 
-    val buttonModifier = if (isMenuButton) Modifier else Modifier.clickable(onClick = onClick)
+    val buttonModifier =
+        if (isMenuButton || !isEnabled) Modifier else Modifier.clickable(onClick = onClick)
 
     val iconPadding = if (isMenuButton) 2.dp else {
         textButtonEndPadding(layDir = LocalLayoutDirection.current)
@@ -334,6 +350,7 @@ fun MenuCategoryItemUnselectable(
         MenuCategoryItemContent(
             modifier = buttonModifier,
             nestLevel = nestLevel,
+            isEnabled = isEnabled,
             isSelected = isSelected,
             isChildSelected = isChildSelected,
             isMenuButton = isMenuButton,
@@ -361,7 +378,7 @@ fun MenuCategoryItemUnselectable(
 fun MenuCategoryItemContent(
     modifier: Modifier = Modifier,
     nestLevel: Int,
-    isEnabled: Boolean = true,
+    isEnabled: Boolean,
     isSelected: Boolean,
     isChildSelected: Boolean,
     isMenuButton: Boolean = false,
@@ -374,11 +391,7 @@ fun MenuCategoryItemContent(
     preTextContent: (@Composable RowScope.() -> Unit)? = null,
     postTextContent: @Composable RowScope.() -> Unit = {},
 ) {
-    val buttonColors = getNestedColors(
-        nestLevel = nestLevel,
-        isSelected = isSelected,
-        isChildSelected = isChildSelected,
-    )
+    val buttonColors = getNestedColors(nestLevel, isEnabled, isSelected, isChildSelected)
 
     val density = LocalDensity.current
     val rowModifier = if (isMenuButton) modifier.fillMaxSize() else modifier.fillMaxWidth()
@@ -444,9 +457,10 @@ fun MenuCategoryItemContent(
 @Composable
 fun getNestedColors(
     nestLevel: Int,
-    menu: FlagsMenu = FlagsMenu.FILTER,
+    isEnabled: Boolean,
     isSelected: Boolean = false,
     isChildSelected: Boolean = false,
+    menu: FlagsMenu = FlagsMenu.FILTER,
 ): ButtonColors {
     val isDarkTheme = LocalDarkTheme.current
     val baseColor1 = menu.color()
@@ -474,13 +488,24 @@ fun getNestedColors(
         },
     )
 
-    return getButtonColors(
+    val buttonColors = getButtonColors(
         containerColor = when {
             isSelected -> colorSelect
             isChildSelected -> colorChildSelect
             else -> color
         }
     )
+
+    return when {
+        isEnabled -> buttonColors
+        else -> buttonColors.copy(
+            contentColor = lerp(
+                start = buttonColors.contentColor,
+                stop = buttonColors.containerColor,
+                fraction = 0.5f,
+            )
+        )
+    }
 }
 /* ------------------------------------- */
 

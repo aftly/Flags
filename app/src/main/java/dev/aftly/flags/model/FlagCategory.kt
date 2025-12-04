@@ -71,10 +71,10 @@ enum class FlagCategory(
     MILITARY (title = R.string.category_military_title, string = R.string.category_military_string),
     POLICE (title = R.string.category_police_title, string = R.string.category_police_string),
     POLITICAL_ORGANIZATION (title = R.string.category_political_organization_title, string = R.string.category_political_organization_string),
-    CHARITY (title = R.string.category_charity_title, string = R.string.category_charity_string),
-    UNIVERSITY (title = R.string.category_university_title, string = R.string.category_university_string),
-    VEXILLOLOGY (title = R.string.category_vexillology_title, string = R.string.category_vexillology_string),
     RELIGIOUS (title = R.string.category_religious_title, string = R.string.category_religious_string),
+    UNIVERSITY (title = R.string.category_university_title, string = R.string.category_university_string),
+    CHARITY (title = R.string.category_charity_title, string = R.string.category_charity_string),
+    VEXILLOLOGY (title = R.string.category_vexillology_title, string = R.string.category_vexillology_string),
 
 
     /* POLITICAL CATEGORIES: */

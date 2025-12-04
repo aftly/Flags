@@ -6,10 +6,10 @@
     <string name="category_super_all_menu_button">All</string>
     <string name="category_super_all_score_preview">All</string>
     <string name="category_super_all_score_detailed">All flags</string>
-    <string name="category_super_sovereign_country">Country (sovereign)</string>
-    <string name="category_super_sovereign_country_menu_button">Country</string>
-    <string name="category_super_sovereign_country_score_preview">Country</string>
-    <string name="category_super_sovereign_country_score_detailed">Sovereign Country</string>
+    <string name="category_super_sovereign">Sovereign</string>
+    <string name="category_super_sovereign_menu_button">Sovereign</string>
+    <string name="category_super_sovereign_score_preview">Sovereign</string>
+    <string name="category_super_sovereign_score_detailed">Sovereign</string>
     <string name="category_super_autonomous_region">Autonomous or Associated Region</string>
     <string name="category_super_autonomous_region_menu_button">Autonomous or Associated Region</string>
     <string name="category_super_autonomous_region_score_preview">Autonomous Region</string>

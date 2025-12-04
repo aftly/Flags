@@ -94,7 +94,7 @@ import androidx.navigation.NavBackStackEntry
 import dev.aftly.flags.R
 import dev.aftly.flags.model.FlagCategoryBase
 import dev.aftly.flags.model.FlagSuperCategory.All
-import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
+import dev.aftly.flags.model.FlagSuperCategory.Sovereign
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.ui.component.FilterButtonMenu
 import dev.aftly.flags.ui.component.NoResultsFound
@@ -224,7 +224,7 @@ private fun ListFlagsScreen(
         if (onDrawerNavigateToList) {
             val currentSupers = uiState.currentSuperCategories
             val isOnlySovereign = currentSupers.isNotEmpty() && currentSupers
-                .none { it != SovereignCountry } && uiState.currentSubCategories.isEmpty()
+                .none { it != Sovereign } && uiState.currentSubCategories.isEmpty()
 
             if (!isOnlySovereign) onResetScreen()
             else coroutineScope.launch { listState.animateScrollToItem(index = 0) }

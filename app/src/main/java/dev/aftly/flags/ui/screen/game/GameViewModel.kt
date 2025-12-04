@@ -18,7 +18,7 @@ import dev.aftly.flags.model.FlagCategoryBase
 import dev.aftly.flags.model.FlagCategoryWrapper
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
-import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
+import dev.aftly.flags.model.FlagSuperCategory.Sovereign
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.game.AnswerMode
 import dev.aftly.flags.model.game.DifficultyMode
@@ -114,7 +114,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         _uiState.update { it.copy(filterByCountry = null) }
 
         updateCurrentCategory(
-            category = SovereignCountry,
+            category = Sovereign,
             answerModeNew = AnswerMode.NAMES,
             difficultyModeNew = DifficultyMode.EASY,
             timeModeNew = TimeMode.STANDARD,
@@ -204,7 +204,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
     ) {
         if (answerMode != uiState.value.answerMode) {
             updateCurrentCategory(
-                category = SovereignCountry,
+                category = Sovereign,
                 answerModeNew = answerMode,
                 difficultyModeNew = difficultyMode,
             )
@@ -359,7 +359,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
         val isNew = country != uiState.value.filterByCountry
         val isAll = supers.isNotEmpty() && supers.all { it == All } && subs.isEmpty()
         val isCountry =
-            supers.isNotEmpty() && supers.all { it == SovereignCountry } && subs.isEmpty()
+            supers.isNotEmpty() && supers.all { it == Sovereign } && subs.isEmpty()
         val isSaved = supers.isEmpty() && subs.isEmpty()
 
         /* Deselect current filter country */
@@ -388,7 +388,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
             setFilterByCountry(country, isSaved)
 
         } else if (isAll) {
-            updateCurrentCategory(category = SovereignCountry)
+            updateCurrentCategory(category = Sovereign)
         }
 
         resetGame(startGame = isNew)

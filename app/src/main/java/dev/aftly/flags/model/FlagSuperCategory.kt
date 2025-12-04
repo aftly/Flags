@@ -61,13 +61,14 @@ sealed class FlagSuperCategory(
 
     @Serializable
     @SerialName(value = "sovereign_country")
-    data object SovereignCountry : FlagSuperCategory(
-        title = R.string.category_super_sovereign_country,
-        categoriesMenuButton = R.string.category_super_sovereign_country_menu_button,
-        gameScoreCategoryPreview = R.string.category_super_sovereign_country_score_preview,
-        gameScoreCategoryDetailed = R.string.category_super_sovereign_country_score_detailed,
+    data object Sovereign : FlagSuperCategory(
+        title = R.string.category_super_sovereign,
+        categoriesMenuButton = R.string.category_super_sovereign_menu_button,
+        gameScoreCategoryPreview = R.string.category_super_sovereign_score_preview,
+        gameScoreCategoryDetailed = R.string.category_super_sovereign_score_detailed,
         subCategories = listOf(
-            FlagCategoryWrapper(enum = FlagCategory.SOVEREIGN_STATE)
+            FlagCategoryWrapper(enum = FlagCategory.SOVEREIGN_STATE),
+            FlagCategoryWrapper(enum = FlagCategory.SOVEREIGN_ENTITY)
         ),
     )
 
@@ -85,7 +86,7 @@ sealed class FlagSuperCategory(
             FlagCategoryWrapper(enum = FlagCategory.INDIGENOUS_TERRITORY),
             FlagCategoryWrapper(enum = FlagCategory.UNRECOGNIZED_STATE),
             FlagCategoryWrapper(enum = FlagCategory.ANNEXED_TERRITORY),
-            FlagCategoryWrapper(enum = FlagCategory.SOVEREIGN_ENTITY)
+            //FlagCategoryWrapper(enum = FlagCategory.SOVEREIGN_ENTITY)
         ),
     )
 

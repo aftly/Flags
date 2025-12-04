@@ -26,7 +26,7 @@ data object DataSource {
     /* For use in Filter Menu */
     val menuSuperCategoryList = listOf(
         FlagSuperCategory.All,
-        FlagSuperCategory.SovereignCountry,
+        FlagSuperCategory.Sovereign,
         FlagSuperCategory.AutonomousRegion,
         FlagSuperCategory.Regional,
         FlagSuperCategory.International,
@@ -39,7 +39,7 @@ data object DataSource {
 
     /* For use in updating flags list when selecting category in Filter Menu */
     val historicalSuperCategoryBlacklist = listOf(
-        FlagSuperCategory.SovereignCountry,
+        FlagSuperCategory.Sovereign,
         FlagSuperCategory.AutonomousRegion,
         FlagSuperCategory.Regional,
         FlagSuperCategory.International,
@@ -53,18 +53,18 @@ data object DataSource {
         FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL to listOf(FlagCategory.CONSTITUTIONAL)
     )
     val absenceCategoriesAddAnyMap = mapOf(
-        FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL to FlagSuperCategory.SovereignCountry.enums()
+        FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL to FlagSuperCategory.Sovereign.enums()
     )
 
     /* ----- For use in multi-selection in Filter Menu ----- */
     val mutuallyExclusiveSuperCategories1 = listOf(
-        FlagSuperCategory.SovereignCountry,
+        FlagSuperCategory.Sovereign,
         FlagSuperCategory.Regional,
         FlagSuperCategory.International
     )
     val mutuallyExclusiveSuperCategories2 = listOf(
         FlagSuperCategory.Cultural,
-        FlagSuperCategory.SovereignCountry,
+        FlagSuperCategory.Sovereign,
         FlagSuperCategory.International
     )
     val supersExclusiveOfInternational = listOf(
@@ -75,7 +75,7 @@ data object DataSource {
 
     )
     val supersExclusiveOfInstitution = listOf(
-        FlagSuperCategory.SovereignCountry,
+        FlagSuperCategory.Sovereign,
         FlagSuperCategory.AutonomousRegion,
         FlagSuperCategory.Regional
     )
@@ -88,7 +88,7 @@ data object DataSource {
         addAll(elements = FlagSuperCategory.Institution.allSupers())
         add(FlagSuperCategory.Cultural)
     }
-    val subsExclusiveOfCountry = listOf(
+    val subsExclusiveOfSovereign = listOf(
         FlagCategory.AUTONOMOUS_REGION,
         FlagCategory.DEVOLVED_GOVERNMENT,
         FlagCategory.INDIGENOUS_TERRITORY,
@@ -100,6 +100,7 @@ data object DataSource {
         FlagCategory.TERRORIST_ORGANIZATION
     )
     val subsExclusiveOfAutonomousRegion = listOf(
+        FlagCategory.SOVEREIGN_ENTITY,
         FlagCategory.MICROSTATE,
         FlagCategory.MARITIME
     )
@@ -134,6 +135,7 @@ data object DataSource {
         FlagSuperCategory.Institution
     )
     val switchSubsSuperCategories = listOf(
+        FlagSuperCategory.Sovereign,
         FlagSuperCategory.LegislatureDivision,
         FlagSuperCategory.LegislatureBody,
         FlagSuperCategory.Executive,

@@ -56,7 +56,7 @@ import dev.aftly.flags.model.FlagSuperCategory.Institution
 import dev.aftly.flags.model.FlagSuperCategory.International
 import dev.aftly.flags.model.FlagSuperCategory.Legislature
 import dev.aftly.flags.model.FlagSuperCategory.Regional
-import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
+import dev.aftly.flags.model.FlagSuperCategory.Sovereign
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.model.FlagsOfCountry
 import dev.aftly.flags.model.menu.relatedmenu.LazyColumnItem
@@ -195,7 +195,7 @@ enum class ExternalCategoryExceptions(val key: String) {
 val extCatExceptions = ExternalCategoryExceptions.entries.map { it.key }
 val externalCategories =
     listOf(TERRITORY, REGION, COLONY, UNRECOGNIZED_STATE, INDIGENOUS_TERRITORY, TRIBE)
-val internalCategories = listOf(SovereignCountry.enums(), Regional.enums(), Institution.allEnums())
+val internalCategories = listOf(Sovereign.enums(), Regional.enums(), Institution.allEnums())
     .flatten().filterNot { it in externalCategories } + CONFEDERATION + POLITICAL_MOVEMENT
 
 fun getPoliticalInternalRelatedFlagKeys(

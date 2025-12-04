@@ -16,9 +16,10 @@ import dev.aftly.flags.data.DataSource.inverseFlagViewMap
 import dev.aftly.flags.model.FlagsOfCountry
 import dev.aftly.flags.model.FlagCategoryBase
 import dev.aftly.flags.model.FlagCategoryWrapper
+import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
-import dev.aftly.flags.model.FlagSuperCategory.SovereignCountry
+import dev.aftly.flags.model.FlagSuperCategory.Sovereign
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.ui.util.filterFlagsByCountry
 import dev.aftly.flags.ui.util.getFlagKey
@@ -244,7 +245,7 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
     }
 
     fun resetScreen() {
-        updateCurrentCategory(category = SovereignCountry)
+        updateCurrentCategory(category = FlagCategoryWrapper(enum = SOVEREIGN_STATE))
     }
 
     //fun sortFlagsAlphabetically(flags: List<FlagView>): List<FlagView> =
@@ -365,11 +366,18 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
         val supers = uiState.value.currentSuperCategories
         val subs = uiState.value.currentSubCategories
 
+        val isSaved = supers.isEmpty() && subs.isEmpty()
         val isNew = country != uiState.value.filterByCountry
         val isAll = supers.isNotEmpty() && supers.all { it == All } && subs.isEmpty()
-        val isCountry =
-            supers.isNotEmpty() && supers.all { it == SovereignCountry } && subs.isEmpty()
-        val isSaved = supers.isEmpty() && subs.isEmpty()
+
+        val isOnlySovereignSuper = supers.isNotEmpty() && supers.all { it == Sovereign }
+        val isOnlySovereignSubs = subs.isNotEmpty() && subs.all { it in Sovereign.enums() }
+        val isSovereign = when {
+            isOnlySovereignSuper && isOnlySovereignSubs -> true
+            isOnlySovereignSuper && subs.isEmpty() -> true
+            isOnlySovereignSubs && supers.isEmpty() -> true
+            else -> false
+        }
 
         /* Deselect current filter country */
         if (uiState.value.filterByCountry != null) {
@@ -394,11 +402,11 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
 
         /* Filter by new country */
         if (isNew) {
-            if (isCountry) updateCurrentCategory(category = All)
+            if (isSovereign) updateCurrentCategory(category = All)
             setFilterByCountry(country, isSaved)
 
         } else if (isAll) {
-            updateCurrentCategory(category = SovereignCountry)
+            updateCurrentCategory(category = FlagCategoryWrapper(enum = SOVEREIGN_STATE))
         }
     }
 
