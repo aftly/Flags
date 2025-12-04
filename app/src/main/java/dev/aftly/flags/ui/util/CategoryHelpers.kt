@@ -7,6 +7,7 @@ import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.data.DataSource.absenceCategoriesAddAnyMap
 import dev.aftly.flags.data.DataSource.absenceCategoriesMap
+import dev.aftly.flags.data.DataSource.categoriesInclusiveOfMicrostate
 import dev.aftly.flags.data.DataSource.historicalSubCategoryWhitelist
 import dev.aftly.flags.data.DataSource.menuSuperCategoryList
 import dev.aftly.flags.data.DataSource.switchSubsSuperCategories
@@ -26,6 +27,7 @@ import dev.aftly.flags.model.FlagCategory.CONFEDERATION
 import dev.aftly.flags.model.FlagCategory.DEVOLVED_GOVERNMENT
 import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
 import dev.aftly.flags.model.FlagCategory.HISTORICAL
+import dev.aftly.flags.model.FlagCategory.MICROSTATE
 import dev.aftly.flags.model.FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL
 import dev.aftly.flags.model.FlagCategory.ONE_PARTY
 import dev.aftly.flags.model.FlagCategory.PROVISIONAL_GOVERNMENT
@@ -162,17 +164,25 @@ fun isSuperCategoryExit(
     val mutuallyExclusive1Subs = mutuallyExclusive1Supers.flatMap { it.enums() }
     val mutuallyExclusive2Supers = mutuallyExclusiveSuperCategories2
     val mutuallyExclusive2Subs = mutuallyExclusive2Supers.flatMap { it.enums() }
+
     val intExclusiveSupers = supersExclusiveOfInternational
     val intExclusiveSubs = intExclusiveSupers.flatMap { it.enums() }
         .filterNot { it == CONFEDERATION }
+
     val instExclusiveSupers = supersExclusiveOfInstitution
     val instExclusiveSubs = instExclusiveSupers.flatMap { it.enums() }
+
     val cultExclusiveSupers = supersExclusiveOfCultural
     val cultExclusiveSubs = cultExclusiveSupers.flatMap { it.enums() }
     val cultSubs = Cultural.enums()
+
     val polExclusiveSupers = supersExclusiveOfPolitical
     val polSubs = Political.allEnums()
+
     val sovereignExclusiveSubs = subsExclusiveOfSovereign
+
+    val microstateInclusiveCategories = categoriesInclusiveOfMicrostate
+
 
     return if (superCategories.isEmpty() && subCategories.isEmpty()) {
         true /* SavedFlags (currently) represented by no selected categories */
@@ -262,6 +272,13 @@ fun isSuperCategoryExit(
             superCategoryExclusives = polExclusiveSupers,
             selectedSubCategories = subCategories,
             selectedSubsExclusives = polSubs,
+
+        ) || !isCategoryInclusive(
+            category = superCategory,
+            inclusiveOf = listOf(FlagCategoryWrapper(enum = MICROSTATE)),
+            categories = microstateInclusiveCategories,
+            selectedSuperCategories = superCategories,
+            selectedSubCategories = subCategories,
         )
     }
 }
@@ -271,6 +288,8 @@ fun isSubCategoryExit(
     subCategories: MutableList<FlagCategory>,
     superCategories: MutableList<FlagSuperCategory>,
 ): Boolean {
+    val subCategoryWrapper = subCategory.toWrapper()
+
     val mutuallyExclusive1Supers =
         mutuallyExclusiveSuperCategories1.filterNot { subCategory in it.enums() }
     val mutuallyExclusive1Subs = mutuallyExclusiveSuperCategories1.flatMap { it.enums() }
@@ -279,18 +298,27 @@ fun isSubCategoryExit(
         mutuallyExclusiveSuperCategories2.filterNot { subCategory in it.enums() }
     val mutuallyExclusive2Subs = mutuallyExclusiveSuperCategories2.flatMap { it.enums() }
     val mutuallyExclusive2SubsSansSuper = mutuallyExclusive2Supers.flatMap { it.enums() }
+
     val intExclusiveSubs = supersExclusiveOfInternational.flatMap { it.enums() }
         .filterNot { it == CONFEDERATION }
+
     val instExclusiveSupers = supersExclusiveOfInstitution
     val instExclusiveSubs = supersExclusiveOfInstitution.flatMap { it.enums() }
+
     val cultExclusiveSupers = supersExclusiveOfCultural
     val cultExclusiveSubs = cultExclusiveSupers.flatMap { it.enums() }
     val cultSubs = Cultural.enums()
+
     val polExclusiveSupers = supersExclusiveOfPolitical
     val polExclusiveSubs = polExclusiveSupers.flatMap { it.enums() } +
             AUTONOMOUS_REGION + DEVOLVED_GOVERNMENT
     val polSubs = Political.allEnums()
+
     val sovereignExclusiveSubs = subsExclusiveOfSovereign
+
+    val microstateInclusiveOf = listOf(FlagCategoryWrapper(enum = MICROSTATE))
+    val microstateInclusiveCategories = categoriesInclusiveOfMicrostate
+
 
     return if (subCategories.isEmpty() && superCategories.isEmpty()) {
         true /* SavedFlags (currently) represented by no selected categories */
@@ -300,7 +328,7 @@ fun isSubCategoryExit(
 
     } else {
         isCategoryExclusive(
-            category = subCategory.toWrapper(),
+            category = subCategoryWrapper,
             subCategoryExclusives = mutuallyExclusive1Subs,
             selectedSuperCategories = superCategories,
             selectedSupersExclusives = mutuallyExclusive1Supers,
@@ -308,7 +336,7 @@ fun isSubCategoryExit(
             selectedSubsExclusives = mutuallyExclusive1SubsSansSuper,
 
         ) || isCategoryExclusive(
-            category = subCategory.toWrapper(),
+            category = subCategoryWrapper,
             subCategoryExclusives = mutuallyExclusive2Subs,
             selectedSuperCategories = superCategories,
             selectedSupersExclusives = mutuallyExclusive2Supers,
@@ -316,19 +344,21 @@ fun isSubCategoryExit(
             selectedSubsExclusives = mutuallyExclusive2SubsSansSuper,
 
         ) || isCategoryExclusive(
-            category = subCategory.toWrapper(),
+            category = subCategoryWrapper,
             subCategoryExclusives = sovereignExclusiveSubs,
             selectedSuperCategories = superCategories,
             selectedSupersExclusives = listOf(Sovereign),
+            selectedSubCategories = subCategories,
+            selectedSubsExclusives = Sovereign.enums(),
 
         ) || isCategoryExclusive(
-            category = subCategory.toWrapper(),
+            category = subCategoryWrapper,
             subCategoryExclusives = intExclusiveSubs,
             selectedSuperCategories = superCategories,
             selectedSupersExclusives = listOf(International),
 
         ) || isCategoryExclusive(
-            category = subCategory.toWrapper(),
+            category = subCategoryWrapper,
             subCategoryExclusives = instExclusiveSubs,
             selectedSuperCategories = superCategories,
             selectedSupersExclusives = Institution.allSupers(),
@@ -336,7 +366,7 @@ fun isSubCategoryExit(
             selectedSubsExclusives = Institution.allEnums(),
 
         ) || isCategoryExclusive(
-            category = subCategory.toWrapper(),
+            category = subCategoryWrapper,
             subCategoryExclusives = Institution.allEnums(),
             selectedSuperCategories = superCategories,
             selectedSupersExclusives = instExclusiveSupers,
@@ -350,7 +380,7 @@ fun isSubCategoryExit(
             },
 
         ) || isCategoryExclusive(
-            category = subCategory.toWrapper(),
+            category = subCategoryWrapper,
             subCategoryExclusives = cultSubs,
             selectedSuperCategories = superCategories,
             selectedSupersExclusives = cultExclusiveSupers,
@@ -358,7 +388,7 @@ fun isSubCategoryExit(
             selectedSubsExclusives = cultExclusiveSubs,
 
         ) || isCategoryExclusive(
-            category = subCategory.toWrapper(),
+            category = subCategoryWrapper,
             subCategoryExclusives = cultExclusiveSubs,
             selectedSuperCategories = superCategories,
             selectedSupersExclusives = listOf(Cultural),
@@ -366,7 +396,7 @@ fun isSubCategoryExit(
             selectedSubsExclusives = cultSubs,
 
         ) || isCategoryExclusive(
-            category = subCategory.toWrapper(),
+            category = subCategoryWrapper,
             subCategoryExclusives = polSubs,
             selectedSuperCategories = superCategories,
             selectedSupersExclusives = polExclusiveSupers,
@@ -374,11 +404,22 @@ fun isSubCategoryExit(
             selectedSubsExclusives = polExclusiveSubs,
 
         ) || isCategoryExclusive(
-            category = subCategory.toWrapper(),
+            category = subCategoryWrapper,
             subCategoryExclusives = polExclusiveSubs,
             selectedSubCategories = subCategories,
             selectedSubsExclusives = polSubs,
-        )
+
+        )/* || !isCategoryInclusive(
+            category = subCategoryWrapper,
+            inclusiveOf = listOf(FlagCategoryWrapper(enum = MICROSTATE)),
+            categories = microstateInclusiveCategories,
+            selectedSuperCategories = superCategories,
+            selectedSubCategories = subCategories,
+        ) && (MICROSTATE == subCategory || MICROSTATE in subCategories)*/ /* && isCategoryInclusiveRelevant(
+            category = subCategoryWrapper,
+            inclusiveOf = microstateInclusiveOf,
+            selectedCategories = subCategories.map { it.toWrapper() },
+        )*/
     }
 }
 
@@ -407,6 +448,59 @@ private fun isCategoryExclusive(
     }
 
     return isCategory && anySelected.any { it == true }
+}
+
+private fun isCategoryInclusiveRelevant(
+    category: FlagCategoryBase,
+    inclusiveOf: List<FlagCategoryBase>,
+    selectedCategories: List<FlagCategoryBase>,
+): Boolean {
+    /* flatten inclusiveOf to include super's subs */
+    val flatInclusiveOf = inclusiveOf.flatMap { base ->
+        if (base is FlagSuperCategory) base.allEnums().map { it.toWrapper() } + base
+        else listOf(base)
+    }
+    return category in inclusiveOf || category in selectedCategories
+}
+
+private fun isCategoryInclusive(
+    category: FlagCategoryBase, /* New selection */
+    inclusiveOf: List<FlagCategoryBase>,
+    categories: List<FlagCategoryBase>,
+    selectedSuperCategories: List<FlagSuperCategory>? = null, /* Currently selected */
+    selectedSubCategories: List<FlagCategory>? = null, /* Currently selected */
+): Boolean {
+    /* flatten categories to include super's subs */
+    val flatCategories = categories.flatMap { base ->
+        if (base is FlagSuperCategory) base.allEnums().map { it.toWrapper() } + base
+        else listOf(base)
+    }
+
+    val inclusiveOfSupers = inclusiveOf.filterIsInstance<FlagSuperCategory>()
+    val inclusiveOfSubs = inclusiveOf.flatMap { base ->
+        when (base) {
+            is FlagSuperCategory -> base.allEnums()
+            is FlagCategoryWrapper -> listOf(base.enum)
+            is FlagsOfCountry -> emptyList()
+        }
+    }
+
+    val isCategoryInclusiveOf = category in inclusiveOf
+    val isSelectedInclusiveOf = when {
+        selectedSuperCategories?.any { it in inclusiveOfSupers } == true -> true
+        selectedSubCategories?.any { it in inclusiveOfSubs } == true -> true
+        else -> false
+    }
+
+    val categoriesSupers = flatCategories.filterIsInstance<FlagSuperCategory>()
+    val categoriesSubs = flatCategories.filterIsInstance<FlagCategoryWrapper>().map { it.enum }
+    val anyCategoriesSelected = buildList {
+        add(selectedSuperCategories?.any { it in categoriesSupers } == true)
+        add(selectedSubCategories?.any { it in categoriesSubs } == true)
+    }
+
+    return (isCategoryInclusiveOf && anyCategoriesSelected.any { it }) ||
+            (isSelectedInclusiveOf && category in flatCategories)
 }
 
 /* Returns bool pair, first if update deselects a category, second if update replaces a category */

@@ -3,6 +3,7 @@ package dev.aftly.flags.data
 import android.content.Context
 import dev.aftly.flags.R
 import dev.aftly.flags.model.FlagCategory
+import dev.aftly.flags.model.FlagCategoryWrapper
 import dev.aftly.flags.model.FlagResources
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagView
@@ -131,6 +132,17 @@ data object DataSource {
     )
     val subsExclusiveOfOtherParameters = listOf(FlagCategory.SOVEREIGN_ENTITY)
     val subsExclusiveOfPolitical = listOf(FlagCategory.MARITIME)
+    val categoriesInclusiveOfMicrostate = listOf(
+        FlagSuperCategory.Sovereign,
+        FlagCategoryWrapper(enum = FlagCategory.FREE_ASSOCIATION),
+        FlagCategoryWrapper(enum = FlagCategory.UNRECOGNIZED_STATE),
+        FlagCategoryWrapper(enum = FlagCategory.ANNEXED_TERRITORY),
+        FlagCategoryWrapper(enum = FlagCategory.QUASI_STATE),
+        FlagCategoryWrapper(enum = FlagCategory.POLITICAL_ORGANIZATION),
+        FlagCategoryWrapper(enum = FlagCategory.MILITARY),
+        FlagCategoryWrapper(enum = FlagCategory.MILITANT_ORGANIZATION),
+        FlagCategoryWrapper(enum = FlagCategory.TERRORIST_ORGANIZATION)
+    )
     val switchSupersSuperCategories = listOf(
         FlagSuperCategory.Institution
     )
