@@ -471,12 +471,12 @@ private fun isCategoryNotInclusive(
 
     val isCategoryInclusiveOf = category in flatInclusiveOf
     val isCategoryRelevant = category in flatCategories
-    val isInclusiveOfSelected = flatInclusiveOf.any { it in flatSelectedCategories }
+    val isAnyInclusiveOfSelected = flatInclusiveOf.any { it in flatSelectedCategories }
     val isOnlyInclusiveCategoriesSelected = flatSelectedCategories.none { it !in flatCategories }
 
     return when {
         isCategoryInclusiveOf && !isOnlyInclusiveCategoriesSelected -> true
-        isInclusiveOfSelected && !isCategoryRelevant -> true
+        isAnyInclusiveOfSelected && !isCategoryRelevant -> true
         else -> false
     }
 }
