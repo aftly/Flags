@@ -94,7 +94,6 @@ data object DataSource {
         FlagCategory.DEVOLVED_GOVERNMENT,
         FlagCategory.INDIGENOUS_TERRITORY,
         FlagCategory.UNRECOGNIZED_STATE,
-        FlagCategory.SOVEREIGN_ENTITY,
         FlagCategory.MARITIME,
         FlagCategory.QUASI_STATE,
         FlagCategory.MILITANT_ORGANIZATION,

@@ -341,7 +341,7 @@ fun isSubCategoryExit(
             selectedSuperCategories = superCategories,
             selectedSupersExclusives = mutuallyExclusive2Supers,
             selectedSubCategories = subCategories,
-            selectedSubsExclusives = mutuallyExclusive2SubsSansSuper,
+            selectedSubsExclusives = mutuallyExclusive2SubsSansSuper
 
         ) || isCategoryExclusive(
             category = subCategoryWrapper,
@@ -520,7 +520,7 @@ fun updateCategoriesFromSub(
     val isSwitchSuper = switchSubsSuperCategories.find { subCategory in it.enums() }
 
     return if (isDeselect) {
-        subCategories.remove(subCategory)
+        subCategories.remove(element = subCategory)
         true to false // isDeselect
 
     } else if (isSwitchSuper != null) {
