@@ -453,15 +453,7 @@ private fun isCategoryNotInclusive(
     selectedSuperCategories: List<FlagSuperCategory>? = null, /* Currently selected */
     selectedSubCategories: List<FlagCategory>? = null, /* Currently selected */
 ): Boolean {
-    /* flatten categories to include super's subs */
-    val flatCategories = categories.flatMap { base ->
-        if (base is FlagSuperCategory) base.allEnums().map { it.toWrapper() } + base
-        else listOf(base)
-    }
-    val flatInclusiveOf = inclusiveOf.flatMap { base ->
-        if (base is FlagSuperCategory) base.allEnums().map { it.toWrapper() } + base
-        else listOf(base)
-    }
+    /* flatten selected categories for simpler parsing */
     val flatSelectedCategories = buildList {
         selectedSuperCategories?.let { addAll(elements = it) }
         selectedSubCategories?.let { subs ->
@@ -469,10 +461,10 @@ private fun isCategoryNotInclusive(
         }
     }
 
-    val isCategoryInclusiveOf = category in flatInclusiveOf
-    val isCategoryRelevant = category in flatCategories
-    val isAnyInclusiveOfSelected = flatInclusiveOf.any { it in flatSelectedCategories }
-    val isOnlyInclusiveCategoriesSelected = flatSelectedCategories.none { it !in flatCategories }
+    val isCategoryInclusiveOf = category in inclusiveOf
+    val isCategoryRelevant = category in categories
+    val isAnyInclusiveOfSelected = inclusiveOf.any { it in flatSelectedCategories }
+    val isOnlyInclusiveCategoriesSelected = flatSelectedCategories.none { it !in categories }
 
     return when {
         isCategoryInclusiveOf && !isOnlyInclusiveCategoriesSelected -> true

@@ -100,7 +100,6 @@ data object DataSource {
         FlagCategory.TERRORIST_ORGANIZATION
     )
     val subsExclusiveOfAutonomousRegion = listOf(
-        FlagCategory.SOVEREIGN_ENTITY,
         FlagCategory.MICROSTATE,
         FlagCategory.MARITIME
     )
@@ -111,7 +110,6 @@ data object DataSource {
         FlagCategory.MILITANT_ORGANIZATION,
         FlagCategory.TERRORIST_ORGANIZATION,
         FlagCategory.INDIGENOUS_TERRITORY,
-        FlagCategory.SOVEREIGN_ENTITY
     )
     val subsExclusiveOfInternational = listOf(
         FlagCategory.MICROSTATE,
@@ -129,10 +127,10 @@ data object DataSource {
         FlagCategory.MICROSTATE,
         FlagCategory.ANNEXED_TERRITORY
     )
-    val subsExclusiveOfOtherParameters = listOf(FlagCategory.SOVEREIGN_ENTITY)
     val subsExclusiveOfPolitical = listOf(FlagCategory.MARITIME)
     val categoriesInclusiveOfMicrostate = listOf(
         FlagSuperCategory.Sovereign,
+        FlagCategoryWrapper(enum = FlagCategory.SOVEREIGN_STATE),
         FlagCategoryWrapper(enum = FlagCategory.FREE_ASSOCIATION),
         FlagCategoryWrapper(enum = FlagCategory.UNRECOGNIZED_STATE),
         FlagCategoryWrapper(enum = FlagCategory.ANNEXED_TERRITORY),
