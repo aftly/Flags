@@ -36,7 +36,6 @@ import dev.aftly.flags.model.FlagCategory.CONFEDERATION
 import dev.aftly.flags.model.FlagCategory.DEVOLVED_GOVERNMENT
 import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
 import dev.aftly.flags.model.FlagCategory.HISTORICAL
-import dev.aftly.flags.model.FlagCategory.MICROSTATE
 import dev.aftly.flags.model.FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL
 import dev.aftly.flags.model.FlagCategory.ONE_PARTY
 import dev.aftly.flags.model.FlagCategory.PROVISIONAL_GOVERNMENT
@@ -169,6 +168,8 @@ fun isSuperCategoryExit(
     superCategories: MutableList<FlagSuperCategory>,
     subCategories: MutableList<FlagCategory>,
 ): Boolean {
+    val switchSupers = switchSupersSuperCategories
+
     return if (superCategories.isEmpty() && subCategories.isEmpty()) {
         true /* SavedFlags (currently) represented by no selected categories */
 
@@ -186,6 +187,7 @@ fun isSuperCategoryExit(
             categories = categoriesMutuallyExclusive,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
+            switchSupers = switchSupers,
 
         ) || isCategoryExcusive(
             category = superCategory,
@@ -194,6 +196,7 @@ fun isSuperCategoryExit(
             pairExceptions = categoriesSovereignExceptionPairs,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
+            switchSupers = switchSupers,
 
         ) || isCategoryExcusive(
             category = superCategory,
@@ -201,6 +204,7 @@ fun isSuperCategoryExit(
             categories = categoriesExclusiveOfAutonomousRegion,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
+            switchSupers = switchSupers,
 
         ) || isCategoryExcusive(
             category = superCategory,
@@ -208,6 +212,7 @@ fun isSuperCategoryExit(
             categories = categoriesExclusiveOfRegional,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
+            switchSupers = switchSupers,
 
         ) || isCategoryExcusive(
             category = superCategory,
@@ -215,6 +220,7 @@ fun isSuperCategoryExit(
             categories = categoriesExclusiveOfInternational,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
+            switchSupers = switchSupers,
 
         ) || isCategoryExcusive(
             category = superCategory,
@@ -222,6 +228,7 @@ fun isSuperCategoryExit(
             categories = categoriesExclusiveOfLegislature,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
+            switchSupers = switchSupers,
 
         ) || isCategoryExcusive(
             category = superCategory,
@@ -229,6 +236,7 @@ fun isSuperCategoryExit(
             categories = categoriesExclusiveOfExecutive,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
+            switchSupers = switchSupers,
 
         ) || isCategoryExcusive(
             category = superCategory,
@@ -236,6 +244,7 @@ fun isSuperCategoryExit(
             categories = categoriesExclusiveOfPolitical,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
+            switchSupers = switchSupers,
 
         ) || isCategoryNotInclusive(
             category = superCategory,
@@ -243,6 +252,7 @@ fun isSuperCategoryExit(
             categories = categoriesInclusiveOfMicrostate,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
+            switchSupers = switchSupers,
         )
     }
 }
@@ -253,6 +263,7 @@ fun isSubCategoryExit(
     superCategories: MutableList<FlagSuperCategory>,
 ): Boolean {
     val subCategoryWrapper = subCategory.toWrapper()
+    val switchSupers = switchSubsSuperCategories
 
     return if (subCategories.isEmpty() && superCategories.isEmpty()) {
         true /* SavedFlags (currently) represented by no selected categories */
@@ -267,6 +278,7 @@ fun isSubCategoryExit(
             categories = categoriesMutuallyExclusive,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
+            switchSupers = switchSupers,
 
         ) || isCategoryExcusive(
             category = subCategoryWrapper,
@@ -275,6 +287,7 @@ fun isSubCategoryExit(
             pairExceptions = categoriesSovereignExceptionPairs,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
+            switchSupers = switchSupers,
 
         ) || isCategoryExcusive(
             category = subCategoryWrapper,
@@ -282,6 +295,7 @@ fun isSubCategoryExit(
             categories = categoriesExclusiveOfAutonomousRegion,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
+            switchSupers = switchSupers,
 
         ) || isCategoryExcusive(
             category = subCategoryWrapper,
@@ -289,6 +303,7 @@ fun isSubCategoryExit(
             categories = categoriesExclusiveOfRegional,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
+            switchSupers = switchSupers,
 
         ) || isCategoryExcusive(
             category = subCategoryWrapper,
@@ -296,6 +311,7 @@ fun isSubCategoryExit(
             categories = categoriesExclusiveOfInternational,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
+            switchSupers = switchSupers,
 
         ) || isCategoryExcusive(
             category = subCategoryWrapper,
@@ -303,6 +319,7 @@ fun isSubCategoryExit(
             categories = categoriesExclusiveOfLegislature,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
+            switchSupers = switchSupers,
 
         ) || isCategoryExcusive(
             category = subCategoryWrapper,
@@ -310,6 +327,7 @@ fun isSubCategoryExit(
             categories = categoriesExclusiveOfExecutive,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
+            switchSupers = switchSupers,
 
         ) || isCategoryExcusive(
             category = subCategoryWrapper,
@@ -317,6 +335,7 @@ fun isSubCategoryExit(
             categories = categoriesExclusiveOfPolitical,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
+            switchSupers = switchSupers,
 
         ) || isCategoryNotInclusive(
             category = subCategoryWrapper,
@@ -324,6 +343,8 @@ fun isSubCategoryExit(
             categories = categoriesInclusiveOfMicrostate,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
+            switchSupers = switchSupers,
+
         )
     }
 }
@@ -335,6 +356,7 @@ private fun isCategoryExcusive(
     pairExceptions: List<Pair<FlagCategoryBase, FlagCategoryBase>> = emptyList(),
     selectedSuperCategories: List<FlagSuperCategory>, /* Currently selected */
     selectedSubCategories: List<FlagCategory>, /* Currently selected */
+    switchSupers: List<FlagSuperCategory>, /* For switch exceptions */
 ): Boolean {
     /* flatten selected categories for simpler parsing */
     val flatSelectedCategories = buildList {
@@ -345,7 +367,7 @@ private fun isCategoryExcusive(
     val isCategoryExclusiveOf = category in exclusiveOf
     val isCategoryRelevant = category in categories
     val isAnyExclusiveOfSelected = exclusiveOf.any { it in flatSelectedCategories }
-    val isAnyExclusiveCategoriesSelected = flatSelectedCategories.any { it in categories }
+    val isAnyCategoriesSelected = flatSelectedCategories.any { it in categories }
 
     val isPairException = pairExceptions.let { exceptions ->
         for (pair in exceptions) {
@@ -372,9 +394,27 @@ private fun isCategoryExcusive(
         return@let false
     }
 
+    val isSwitch = when (category) {
+        is FlagSuperCategory -> {
+            val categorySwitchSuper = switchSupers.find { category in it.supers() }
+            val categorySwitchChildSupers = categorySwitchSuper?.supers()
+
+            categorySwitchChildSupers?.any { it in selectedSuperCategories } == true &&
+                    category in categorySwitchChildSupers
+        }
+        is FlagCategoryWrapper -> {
+            val categorySwitchSuper = switchSupers.find { category.enum in it.enums() }
+            val categorySwitchSubs = categorySwitchSuper?.enums()
+
+            categorySwitchSubs?.any { it in selectedSubCategories } == true &&
+                    category.enum in categorySwitchSubs
+        }
+        is FlagsOfCountry -> false
+    }
+
     return when {
-        isCategoryExclusiveOf && isAnyExclusiveCategoriesSelected && !isPairException -> true
-        isAnyExclusiveOfSelected && isCategoryRelevant && !isPairException -> true
+        isCategoryExclusiveOf && isAnyCategoriesSelected && !isPairException && !isSwitch -> true
+        isAnyExclusiveOfSelected && isCategoryRelevant && !isPairException && !isSwitch -> true
         else -> false
     }
 }
@@ -383,15 +423,14 @@ private fun isCategoryNotInclusive(
     category: FlagCategoryBase, /* New selection */
     inclusiveOf: List<FlagCategoryBase>,
     categories: List<FlagCategoryBase>, /* All categories inclusive of any inclusiveOf category */
-    selectedSuperCategories: List<FlagSuperCategory>? = null, /* Currently selected */
-    selectedSubCategories: List<FlagCategory>? = null, /* Currently selected */
+    selectedSuperCategories: List<FlagSuperCategory>, /* Currently selected */
+    selectedSubCategories: List<FlagCategory>, /* Currently selected */
+    switchSupers: List<FlagSuperCategory>, /* For switch exceptions */
 ): Boolean {
     /* flatten selected categories for simpler parsing */
     val flatSelectedCategories = buildList {
-        selectedSuperCategories?.let { addAll(elements = it) }
-        selectedSubCategories?.let { subs ->
-            addAll(elements = subs.map { it.toWrapper() })
-        }
+        addAll(elements = selectedSuperCategories)
+        addAll(elements = selectedSubCategories.map { it.toWrapper() })
     }
 
     val isCategoryInclusiveOf = category in inclusiveOf
