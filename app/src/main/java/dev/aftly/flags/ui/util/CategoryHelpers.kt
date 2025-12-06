@@ -7,11 +7,14 @@ import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.data.DataSource.absenceCategoriesAddAnyMap
 import dev.aftly.flags.data.DataSource.absenceCategoriesMap
+import dev.aftly.flags.data.DataSource.categoriesExclusiveOfSovereign
 import dev.aftly.flags.data.DataSource.categoriesInclusiveOfMicrostate
+import dev.aftly.flags.data.DataSource.categoriesSovereignExclusiveExceptionPairs
 import dev.aftly.flags.data.DataSource.historicalSubCategoryWhitelist
 import dev.aftly.flags.data.DataSource.menuSuperCategoryList
 import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories1
 import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories2
+import dev.aftly.flags.data.DataSource.categoriesSovereignForExclusive
 import dev.aftly.flags.data.DataSource.subsExclusiveOfSovereign
 import dev.aftly.flags.data.DataSource.supersExclusiveOfCultural
 import dev.aftly.flags.data.DataSource.supersExclusiveOfInstitution
@@ -180,7 +183,11 @@ fun isSuperCategoryExit(
 
     val sovereignExclusiveSubs = subsExclusiveOfSovereign
 
-    val microstateInclusiveOf = listOf(FlagCategoryWrapper(enum = MICROSTATE))
+    val sovereignExclusiveOf = categoriesSovereignForExclusive
+    val sovereignExclusiveCategories = categoriesExclusiveOfSovereign
+    val sovereignExclusiveExceptions = categoriesSovereignExclusiveExceptionPairs
+
+    val microstateInclusiveOf = listOf(MICROSTATE.toWrapper())
     val microstateInclusiveCategories = categoriesInclusiveOfMicrostate
 
 
@@ -211,13 +218,21 @@ fun isSuperCategoryExit(
             selectedSubCategories = subCategories,
             selectedSubsExclusives = mutuallyExclusive2Subs,
 
-        ) || isCategoryExclusive(
+        ) || isCategoryExcusive2(
+            category = superCategory,
+            exclusiveOf = sovereignExclusiveOf,
+            categories = sovereignExclusiveCategories,
+            pairExceptions = sovereignExclusiveExceptions,
+            selectedSuperCategories = superCategories,
+            selectedSubCategories = subCategories,
+
+        ) /* || isCategoryExclusive(
             category = superCategory,
             superCategoryExclusives = listOf(Sovereign),
             selectedSubCategories = subCategories,
             selectedSubsExclusives = sovereignExclusiveSubs,
 
-        ) || isCategoryExclusive(
+        ) */ || isCategoryExclusive(
             category = superCategory,
             superCategoryExclusives = listOf(International),
             selectedSuperCategories = superCategories,
@@ -316,7 +331,11 @@ fun isSubCategoryExit(
 
     val sovereignExclusiveSubs = subsExclusiveOfSovereign
 
-    val microstateInclusiveOf = listOf(FlagCategoryWrapper(enum = MICROSTATE))
+    val sovereignExclusiveOf = categoriesSovereignForExclusive
+    val sovereignExclusiveCategories = categoriesExclusiveOfSovereign
+    val sovereignExclusiveExceptions = categoriesSovereignExclusiveExceptionPairs
+
+    val microstateInclusiveOf = listOf(MICROSTATE.toWrapper())
     val microstateInclusiveCategories = categoriesInclusiveOfMicrostate
 
 
@@ -343,7 +362,15 @@ fun isSubCategoryExit(
             selectedSubCategories = subCategories,
             selectedSubsExclusives = mutuallyExclusive2SubsSansSuper
 
-        ) || isCategoryExclusive(
+        ) || isCategoryExcusive2(
+            category = subCategoryWrapper,
+            exclusiveOf = sovereignExclusiveOf,
+            categories = sovereignExclusiveCategories,
+            pairExceptions = sovereignExclusiveExceptions,
+            selectedSuperCategories = superCategories,
+            selectedSubCategories = subCategories,
+
+        ) /* || isCategoryExclusive(
             category = subCategoryWrapper,
             subCategoryExclusives = sovereignExclusiveSubs,
             selectedSuperCategories = superCategories,
@@ -351,7 +378,7 @@ fun isSubCategoryExit(
             selectedSubCategories = subCategories,
             selectedSubsExclusives = Sovereign.enums(),
 
-        ) || isCategoryExclusive(
+        ) */ || isCategoryExclusive(
             category = subCategoryWrapper,
             subCategoryExclusives = intExclusiveSubs,
             selectedSuperCategories = superCategories,
@@ -446,10 +473,63 @@ private fun isCategoryExclusive(
     return isCategory && anySelected.any { it == true }
 }
 
+private fun isCategoryExcusive2(
+    category: FlagCategoryBase, /* New selection */
+    exclusiveOf: List<FlagCategoryBase>,
+    categories: List<FlagCategoryBase>, /* All categories exclusive of any exclusiveOf category */
+    pairExceptions: List<Pair<FlagCategoryBase, FlagCategoryBase>> = emptyList(),
+    selectedSuperCategories: List<FlagSuperCategory>? = null, /* Currently selected */
+    selectedSubCategories: List<FlagCategory>? = null, /* Currently selected */
+): Boolean {
+    /* flatten selected categories for simpler parsing */
+    val flatSelectedCategories = buildList {
+        selectedSuperCategories?.let { addAll(elements = it) }
+        selectedSubCategories?.let { subs ->
+            addAll(elements = subs.map { it.toWrapper() })
+        }
+    }
+
+    val isCategoryExclusiveOf = category in exclusiveOf
+    val isCategoryRelevant = category in categories
+    val isAnyExclusiveOfSelected = exclusiveOf.any { it in flatSelectedCategories }
+    val isAnyExclusiveCategoriesSelected = flatSelectedCategories.any { it in categories }
+
+    val isPairException = pairExceptions.let { exceptions ->
+        for (pair in exceptions) {
+            val isPairValid = pair.first in exclusiveOf && pair.second in categories
+
+            val isCatPairFirst = pair.first == category
+            val isCatPairSecond = pair.second == category
+
+            val isOnlyPairFirstSelected = flatSelectedCategories.none {
+                it != pair.first && it in exclusiveOf
+            }
+            val isOnlyPairSecondSelected = flatSelectedCategories.none {
+                it != pair.second && it in categories
+            }
+
+            /* If pair exception is relevant return true to let */
+            when {
+                isPairValid && isCatPairFirst && isOnlyPairSecondSelected -> return@let true
+                isPairValid && isCatPairSecond && isOnlyPairFirstSelected -> return@let true
+                else -> continue
+            }
+        }
+        /* If no pair exception is relevant return false to let */
+        return@let false
+    }
+
+    return when {
+        isCategoryExclusiveOf && isAnyExclusiveCategoriesSelected && !isPairException -> true
+        isAnyExclusiveOfSelected && isCategoryRelevant && !isPairException -> true
+        else -> false
+    }
+}
+
 private fun isCategoryNotInclusive(
     category: FlagCategoryBase, /* New selection */
     inclusiveOf: List<FlagCategoryBase>,
-    categories: List<FlagCategoryBase>,
+    categories: List<FlagCategoryBase>, /* All categories inclusive of any inclusiveOf category */
     selectedSuperCategories: List<FlagSuperCategory>? = null, /* Currently selected */
     selectedSubCategories: List<FlagCategory>? = null, /* Currently selected */
 ): Boolean {
