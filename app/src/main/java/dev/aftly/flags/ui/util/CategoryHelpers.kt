@@ -7,19 +7,26 @@ import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.data.DataSource.absenceCategoriesAddAnyMap
 import dev.aftly.flags.data.DataSource.absenceCategoriesMap
+import dev.aftly.flags.data.DataSource.categoriesAutonomousRegion
+import dev.aftly.flags.data.DataSource.categoriesExclusiveOfAutonomousRegion
+import dev.aftly.flags.data.DataSource.categoriesExclusiveOfExecutive
+import dev.aftly.flags.data.DataSource.categoriesExclusiveOfInternational
+import dev.aftly.flags.data.DataSource.categoriesExclusiveOfLegislature
+import dev.aftly.flags.data.DataSource.categoriesExclusiveOfPolitical
+import dev.aftly.flags.data.DataSource.categoriesExclusiveOfRegional
 import dev.aftly.flags.data.DataSource.categoriesExclusiveOfSovereign
+import dev.aftly.flags.data.DataSource.categoriesExecutive
 import dev.aftly.flags.data.DataSource.categoriesInclusiveOfMicrostate
-import dev.aftly.flags.data.DataSource.categoriesSovereignExclusiveExceptionPairs
+import dev.aftly.flags.data.DataSource.categoriesInternational
+import dev.aftly.flags.data.DataSource.categoriesLegislature
+import dev.aftly.flags.data.DataSource.categoriesMicrostate
+import dev.aftly.flags.data.DataSource.categoriesMutuallyExclusive
+import dev.aftly.flags.data.DataSource.categoriesPolitical
+import dev.aftly.flags.data.DataSource.categoriesRegional
+import dev.aftly.flags.data.DataSource.categoriesSovereign
+import dev.aftly.flags.data.DataSource.categoriesSovereignExceptionPairs
 import dev.aftly.flags.data.DataSource.historicalSubCategoryWhitelist
 import dev.aftly.flags.data.DataSource.menuSuperCategoryList
-import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories1
-import dev.aftly.flags.data.DataSource.mutuallyExclusiveSuperCategories2
-import dev.aftly.flags.data.DataSource.categoriesSovereignForExclusive
-import dev.aftly.flags.data.DataSource.subsExclusiveOfSovereign
-import dev.aftly.flags.data.DataSource.supersExclusiveOfCultural
-import dev.aftly.flags.data.DataSource.supersExclusiveOfInstitution
-import dev.aftly.flags.data.DataSource.supersExclusiveOfInternational
-import dev.aftly.flags.data.DataSource.supersExclusiveOfPolitical
 import dev.aftly.flags.data.DataSource.switchSubsSuperCategories
 import dev.aftly.flags.data.DataSource.switchSupersSuperCategories
 import dev.aftly.flags.data.room.scorehistory.ScoreItem
@@ -162,35 +169,6 @@ fun isSuperCategoryExit(
     superCategories: MutableList<FlagSuperCategory>,
     subCategories: MutableList<FlagCategory>,
 ): Boolean {
-    val mutuallyExclusive1Supers = mutuallyExclusiveSuperCategories1
-    val mutuallyExclusive1Subs = mutuallyExclusive1Supers.flatMap { it.enums() }
-    val mutuallyExclusive2Supers = mutuallyExclusiveSuperCategories2
-    val mutuallyExclusive2Subs = mutuallyExclusive2Supers.flatMap { it.enums() }
-
-    val intExclusiveSupers = supersExclusiveOfInternational
-    val intExclusiveSubs = intExclusiveSupers.flatMap { it.enums() }
-        .filterNot { it == CONFEDERATION }
-
-    val instExclusiveSupers = supersExclusiveOfInstitution
-    val instExclusiveSubs = instExclusiveSupers.flatMap { it.enums() }
-
-    val cultExclusiveSupers = supersExclusiveOfCultural
-    val cultExclusiveSubs = cultExclusiveSupers.flatMap { it.enums() }
-    val cultSubs = Cultural.enums()
-
-    val polExclusiveSupers = supersExclusiveOfPolitical
-    val polSubs = Political.allEnums()
-
-    val sovereignExclusiveSubs = subsExclusiveOfSovereign
-
-    val sovereignExclusiveOf = categoriesSovereignForExclusive
-    val sovereignExclusiveCategories = categoriesExclusiveOfSovereign
-    val sovereignExclusiveExceptions = categoriesSovereignExclusiveExceptionPairs
-
-    val microstateInclusiveOf = listOf(MICROSTATE.toWrapper())
-    val microstateInclusiveCategories = categoriesInclusiveOfMicrostate
-
-
     return if (superCategories.isEmpty() && subCategories.isEmpty()) {
         true /* SavedFlags (currently) represented by no selected categories */
 
@@ -202,96 +180,67 @@ fun isSuperCategoryExit(
         true
 
     } else {
-        isCategoryExclusive(
+        isCategoryExcusive(
             category = superCategory,
-            superCategoryExclusives = mutuallyExclusive1Supers,
-            selectedSuperCategories = superCategories,
-            selectedSupersExclusives = mutuallyExclusive1Supers,
-            selectedSubCategories = subCategories,
-            selectedSubsExclusives = mutuallyExclusive1Subs,
-
-        ) || isCategoryExclusive(
-            category = superCategory,
-            superCategoryExclusives = mutuallyExclusive2Supers,
-            selectedSuperCategories = superCategories,
-            selectedSupersExclusives = mutuallyExclusive2Supers,
-            selectedSubCategories = subCategories,
-            selectedSubsExclusives = mutuallyExclusive2Subs,
-
-        ) || isCategoryExcusive2(
-            category = superCategory,
-            exclusiveOf = sovereignExclusiveOf,
-            categories = sovereignExclusiveCategories,
-            pairExceptions = sovereignExclusiveExceptions,
+            exclusiveOf = categoriesMutuallyExclusive,
+            categories = categoriesMutuallyExclusive,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
 
-        ) /* || isCategoryExclusive(
+        ) || isCategoryExcusive(
             category = superCategory,
-            superCategoryExclusives = listOf(Sovereign),
-            selectedSubCategories = subCategories,
-            selectedSubsExclusives = sovereignExclusiveSubs,
-
-        ) */ || isCategoryExclusive(
-            category = superCategory,
-            superCategoryExclusives = listOf(International),
+            exclusiveOf = categoriesSovereign,
+            categories = categoriesExclusiveOfSovereign,
+            pairExceptions = categoriesSovereignExceptionPairs,
             selectedSuperCategories = superCategories,
-            selectedSupersExclusives = intExclusiveSupers,
             selectedSubCategories = subCategories,
-            selectedSubsExclusives = intExclusiveSubs,
 
-        ) || isCategoryExclusive(
+        ) || isCategoryExcusive(
             category = superCategory,
-            superCategoryExclusives = intExclusiveSupers,
+            exclusiveOf = categoriesAutonomousRegion,
+            categories = categoriesExclusiveOfAutonomousRegion,
             selectedSuperCategories = superCategories,
-            selectedSupersExclusives = listOf(International),
+            selectedSubCategories = subCategories,
 
-        ) || isCategoryExclusive(
+        ) || isCategoryExcusive(
             category = superCategory,
-            superCategoryExclusives = Institution.allSupers(),
+            exclusiveOf = categoriesRegional,
+            categories = categoriesExclusiveOfRegional,
             selectedSuperCategories = superCategories,
-            selectedSupersExclusives = instExclusiveSupers,
             selectedSubCategories = subCategories,
-            selectedSubsExclusives = instExclusiveSubs,
 
-        ) || isCategoryExclusive(
+        ) || isCategoryExcusive(
             category = superCategory,
-            superCategoryExclusives = instExclusiveSupers,
+            exclusiveOf = categoriesInternational,
+            categories = categoriesExclusiveOfInternational,
             selectedSuperCategories = superCategories,
-            selectedSupersExclusives = Institution.allSupers(),
-
-        ) || isCategoryExclusive(
-            category = superCategory,
-            superCategoryExclusives = Institution.supers(),
             selectedSubCategories = subCategories,
-            selectedSubsExclusives = Institution.allEnums(),
 
-        ) || isCategoryExclusive(
+        ) || isCategoryExcusive(
             category = superCategory,
-            superCategoryExclusives = listOf(Cultural),
+            exclusiveOf = categoriesLegislature,
+            categories = categoriesExclusiveOfLegislature,
             selectedSuperCategories = superCategories,
-            selectedSupersExclusives = cultExclusiveSupers,
             selectedSubCategories = subCategories,
-            selectedSubsExclusives = cultExclusiveSubs,
 
-        ) || isCategoryExclusive(
+        ) || isCategoryExcusive(
             category = superCategory,
-            superCategoryExclusives = cultExclusiveSupers,
+            exclusiveOf = categoriesExecutive,
+            categories = categoriesExclusiveOfExecutive,
             selectedSuperCategories = superCategories,
-            selectedSupersExclusives = listOf(Cultural),
             selectedSubCategories = subCategories,
-            selectedSubsExclusives = cultSubs,
 
-        ) || isCategoryExclusive(
+        ) || isCategoryExcusive(
             category = superCategory,
-            superCategoryExclusives = polExclusiveSupers,
+            exclusiveOf = categoriesPolitical,
+            categories = categoriesExclusiveOfPolitical,
+            selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
-            selectedSubsExclusives = polSubs,
 
         ) || isCategoryNotInclusive(
             category = superCategory,
-            inclusiveOf = microstateInclusiveOf,
-            categories = microstateInclusiveCategories,
+            inclusiveOf = categoriesMicrostate,
+            categories = categoriesInclusiveOfMicrostate,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
         )
@@ -305,40 +254,6 @@ fun isSubCategoryExit(
 ): Boolean {
     val subCategoryWrapper = subCategory.toWrapper()
 
-    val mutuallyExclusive1Supers =
-        mutuallyExclusiveSuperCategories1.filterNot { subCategory in it.enums() }
-    val mutuallyExclusive1Subs = mutuallyExclusiveSuperCategories1.flatMap { it.enums() }
-    val mutuallyExclusive1SubsSansSuper = mutuallyExclusive1Supers.flatMap { it.enums() }
-    val mutuallyExclusive2Supers =
-        mutuallyExclusiveSuperCategories2.filterNot { subCategory in it.enums() }
-    val mutuallyExclusive2Subs = mutuallyExclusiveSuperCategories2.flatMap { it.enums() }
-    val mutuallyExclusive2SubsSansSuper = mutuallyExclusive2Supers.flatMap { it.enums() }
-
-    val intExclusiveSubs = supersExclusiveOfInternational.flatMap { it.enums() }
-        .filterNot { it == CONFEDERATION }
-
-    val instExclusiveSupers = supersExclusiveOfInstitution
-    val instExclusiveSubs = supersExclusiveOfInstitution.flatMap { it.enums() }
-
-    val cultExclusiveSupers = supersExclusiveOfCultural
-    val cultExclusiveSubs = cultExclusiveSupers.flatMap { it.enums() }
-    val cultSubs = Cultural.enums()
-
-    val polExclusiveSupers = supersExclusiveOfPolitical
-    val polExclusiveSubs = polExclusiveSupers.flatMap { it.enums() } +
-            AUTONOMOUS_REGION + DEVOLVED_GOVERNMENT
-    val polSubs = Political.allEnums()
-
-    val sovereignExclusiveSubs = subsExclusiveOfSovereign
-
-    val sovereignExclusiveOf = categoriesSovereignForExclusive
-    val sovereignExclusiveCategories = categoriesExclusiveOfSovereign
-    val sovereignExclusiveExceptions = categoriesSovereignExclusiveExceptionPairs
-
-    val microstateInclusiveOf = listOf(MICROSTATE.toWrapper())
-    val microstateInclusiveCategories = categoriesInclusiveOfMicrostate
-
-
     return if (subCategories.isEmpty() && superCategories.isEmpty()) {
         true /* SavedFlags (currently) represented by no selected categories */
 
@@ -346,147 +261,85 @@ fun isSubCategoryExit(
         false /* Escape function if subcategory already selected (so it can be deselected) */
 
     } else {
-        isCategoryExclusive(
+        isCategoryExcusive(
             category = subCategoryWrapper,
-            subCategoryExclusives = mutuallyExclusive1Subs,
-            selectedSuperCategories = superCategories,
-            selectedSupersExclusives = mutuallyExclusive1Supers,
-            selectedSubCategories = subCategories,
-            selectedSubsExclusives = mutuallyExclusive1SubsSansSuper,
-
-        ) || isCategoryExclusive(
-            category = subCategoryWrapper,
-            subCategoryExclusives = mutuallyExclusive2Subs,
-            selectedSuperCategories = superCategories,
-            selectedSupersExclusives = mutuallyExclusive2Supers,
-            selectedSubCategories = subCategories,
-            selectedSubsExclusives = mutuallyExclusive2SubsSansSuper
-
-        ) || isCategoryExcusive2(
-            category = subCategoryWrapper,
-            exclusiveOf = sovereignExclusiveOf,
-            categories = sovereignExclusiveCategories,
-            pairExceptions = sovereignExclusiveExceptions,
+            exclusiveOf = categoriesMutuallyExclusive,
+            categories = categoriesMutuallyExclusive,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
 
-        ) /* || isCategoryExclusive(
+        ) || isCategoryExcusive(
             category = subCategoryWrapper,
-            subCategoryExclusives = sovereignExclusiveSubs,
+            exclusiveOf = categoriesSovereign,
+            categories = categoriesExclusiveOfSovereign,
+            pairExceptions = categoriesSovereignExceptionPairs,
             selectedSuperCategories = superCategories,
-            selectedSupersExclusives = listOf(Sovereign),
             selectedSubCategories = subCategories,
-            selectedSubsExclusives = Sovereign.enums(),
 
-        ) */ || isCategoryExclusive(
+        ) || isCategoryExcusive(
             category = subCategoryWrapper,
-            subCategoryExclusives = intExclusiveSubs,
+            exclusiveOf = categoriesAutonomousRegion,
+            categories = categoriesExclusiveOfAutonomousRegion,
             selectedSuperCategories = superCategories,
-            selectedSupersExclusives = listOf(International),
+            selectedSubCategories = subCategories,
 
-        ) || isCategoryExclusive(
+        ) || isCategoryExcusive(
             category = subCategoryWrapper,
-            subCategoryExclusives = instExclusiveSubs,
+            exclusiveOf = categoriesRegional,
+            categories = categoriesExclusiveOfRegional,
             selectedSuperCategories = superCategories,
-            selectedSupersExclusives = Institution.allSupers(),
             selectedSubCategories = subCategories,
-            selectedSubsExclusives = Institution.allEnums(),
 
-        ) || isCategoryExclusive(
+        ) || isCategoryExcusive(
             category = subCategoryWrapper,
-            subCategoryExclusives = Institution.allEnums(),
+            exclusiveOf = categoriesInternational,
+            categories = categoriesExclusiveOfInternational,
             selectedSuperCategories = superCategories,
-            selectedSupersExclusives = instExclusiveSupers,
-            selectedSupersExclusives2 =
-                Institution.supers().filterNot { subCategory in it.enums() },
             selectedSubCategories = subCategories,
-            selectedSubsExclusives = instExclusiveSubs,
-            selectedSubsExclusives2 = Institution.allEnums().filterNot { enum ->
-                Institution.supers().find { subCategory in it.enums() }
-                    ?.enums()?.contains(enum) == true
-            },
 
-        ) || isCategoryExclusive(
+        ) || isCategoryExcusive(
             category = subCategoryWrapper,
-            subCategoryExclusives = cultSubs,
+            exclusiveOf = categoriesLegislature,
+            categories = categoriesExclusiveOfLegislature,
             selectedSuperCategories = superCategories,
-            selectedSupersExclusives = cultExclusiveSupers,
             selectedSubCategories = subCategories,
-            selectedSubsExclusives = cultExclusiveSubs,
 
-        ) || isCategoryExclusive(
+        ) || isCategoryExcusive(
             category = subCategoryWrapper,
-            subCategoryExclusives = cultExclusiveSubs,
+            exclusiveOf = categoriesExecutive,
+            categories = categoriesExclusiveOfExecutive,
             selectedSuperCategories = superCategories,
-            selectedSupersExclusives = listOf(Cultural),
             selectedSubCategories = subCategories,
-            selectedSubsExclusives = cultSubs,
 
-        ) || isCategoryExclusive(
+        ) || isCategoryExcusive(
             category = subCategoryWrapper,
-            subCategoryExclusives = polSubs,
+            exclusiveOf = categoriesPolitical,
+            categories = categoriesExclusiveOfPolitical,
             selectedSuperCategories = superCategories,
-            selectedSupersExclusives = polExclusiveSupers,
             selectedSubCategories = subCategories,
-            selectedSubsExclusives = polExclusiveSubs,
-
-        ) || isCategoryExclusive(
-            category = subCategoryWrapper,
-            subCategoryExclusives = polExclusiveSubs,
-            selectedSubCategories = subCategories,
-            selectedSubsExclusives = polSubs,
 
         ) || isCategoryNotInclusive(
             category = subCategoryWrapper,
-            inclusiveOf = microstateInclusiveOf,
-            categories = microstateInclusiveCategories,
+            inclusiveOf = categoriesMicrostate,
+            categories = categoriesInclusiveOfMicrostate,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
         )
     }
 }
 
-private fun isCategoryExclusive(
-    category: FlagCategoryBase, /* New selection */
-    superCategoryExclusives: List<FlagSuperCategory>? = null, /* Exclusion group (for category) */
-    subCategoryExclusives: List<FlagCategory>? = null, /* Exclusion group (for category) */
-    selectedSuperCategories: List<FlagSuperCategory>? = null, /* Currently selected */
-    selectedSupersExclusives: List<FlagSuperCategory>? = null, /* Exclusion group */
-    selectedSupersExclusives2: List<FlagSuperCategory>? = null, /* Exclusion group */
-    selectedSubCategories: List<FlagCategory>? = null, /* Currently selected */
-    selectedSubsExclusives: List<FlagCategory>? = null, /* Exclusion group */
-    selectedSubsExclusives2: List<FlagCategory>? = null, /* Exclusion group */
-): Boolean {
-    val isCategory = when (category) {
-        is FlagSuperCategory -> superCategoryExclusives?.contains(category) ?: false
-        is FlagCategoryWrapper -> subCategoryExclusives?.contains(category.enum) ?: false
-        is FlagsOfCountry -> false
-    }
-
-    val anySelected = buildList {
-        add(selectedSupersExclusives?.any { selectedSuperCategories?.contains(it) == true })
-        add(selectedSupersExclusives2?.any { selectedSuperCategories?.contains(it) == true })
-        add(selectedSubsExclusives?.any { selectedSubCategories?.contains(it) == true })
-        add(selectedSubsExclusives2?.any { selectedSubCategories?.contains(it) == true })
-    }
-
-    return isCategory && anySelected.any { it == true }
-}
-
-private fun isCategoryExcusive2(
+private fun isCategoryExcusive(
     category: FlagCategoryBase, /* New selection */
     exclusiveOf: List<FlagCategoryBase>,
     categories: List<FlagCategoryBase>, /* All categories exclusive of any exclusiveOf category */
     pairExceptions: List<Pair<FlagCategoryBase, FlagCategoryBase>> = emptyList(),
-    selectedSuperCategories: List<FlagSuperCategory>? = null, /* Currently selected */
-    selectedSubCategories: List<FlagCategory>? = null, /* Currently selected */
+    selectedSuperCategories: List<FlagSuperCategory>, /* Currently selected */
+    selectedSubCategories: List<FlagCategory>, /* Currently selected */
 ): Boolean {
     /* flatten selected categories for simpler parsing */
     val flatSelectedCategories = buildList {
-        selectedSuperCategories?.let { addAll(elements = it) }
-        selectedSubCategories?.let { subs ->
-            addAll(elements = subs.map { it.toWrapper() })
-        }
+        addAll(elements = selectedSuperCategories)
+        addAll(elements = selectedSubCategories.map { it.toWrapper() })
     }
 
     val isCategoryExclusiveOf = category in exclusiveOf
