@@ -8,10 +8,14 @@ import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.data.DataSource.absenceCategoriesAddAnyMap
 import dev.aftly.flags.data.DataSource.absenceCategoriesMap
 import dev.aftly.flags.data.DataSource.categoriesAutonomousRegion
+import dev.aftly.flags.data.DataSource.categoriesAutonomousRegionPairs
+import dev.aftly.flags.data.DataSource.categoriesCivilian
+import dev.aftly.flags.data.DataSource.categoriesCivilianPairs
 import dev.aftly.flags.data.DataSource.categoriesCultural
 import dev.aftly.flags.data.DataSource.categoriesCulturalPairs
 import dev.aftly.flags.data.DataSource.categoriesDevolvedGovernment
 import dev.aftly.flags.data.DataSource.categoriesExclusiveOfAutonomousRegion
+import dev.aftly.flags.data.DataSource.categoriesExclusiveOfCivilian
 import dev.aftly.flags.data.DataSource.categoriesExclusiveOfCultural
 import dev.aftly.flags.data.DataSource.categoriesExclusiveOfDevolvedGovernment
 import dev.aftly.flags.data.DataSource.categoriesExclusiveOfExecutive
@@ -22,6 +26,7 @@ import dev.aftly.flags.data.DataSource.categoriesExclusiveOfPolitical
 import dev.aftly.flags.data.DataSource.categoriesExclusiveOfRegional
 import dev.aftly.flags.data.DataSource.categoriesExclusiveOfSovereign
 import dev.aftly.flags.data.DataSource.categoriesExecutive
+import dev.aftly.flags.data.DataSource.categoriesExecutivePairs
 import dev.aftly.flags.data.DataSource.categoriesInclusiveOfMicrostate
 import dev.aftly.flags.data.DataSource.categoriesIndigenousTerritory
 import dev.aftly.flags.data.DataSource.categoriesInternational
@@ -203,6 +208,7 @@ fun isCategoryExit(
         category = category,
         exclusiveOf = categoriesAutonomousRegion,
         categories = categoriesExclusiveOfAutonomousRegion,
+        pairExceptions = categoriesAutonomousRegionPairs,
         selectedSuperCategories = superCategories,
         selectedSubCategories = subCategories
 
@@ -232,6 +238,15 @@ fun isCategoryExit(
         category = category,
         exclusiveOf = categoriesExecutive,
         categories = categoriesExclusiveOfExecutive,
+        pairExceptions = categoriesExecutivePairs,
+        selectedSuperCategories = superCategories,
+        selectedSubCategories = subCategories
+
+    ) || isCategoryExclusive(
+        category = category,
+        exclusiveOf = categoriesCivilian,
+        categories = categoriesExclusiveOfCivilian,
+        pairExceptions = categoriesCivilianPairs,
         selectedSuperCategories = superCategories,
         selectedSubCategories = subCategories
 

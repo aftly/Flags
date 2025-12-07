@@ -114,13 +114,33 @@ data object DataSource {
         addAll(
             elements = listOf(
                 FlagSuperCategory.Institution,
-                FlagCategory.MARITIME.toWrapper(),
-                FlagCategory.SOCIAL.toWrapper()
+                FlagCategory.POLITICAL_MOVEMENT.toWrapper(),
+                FlagCategory.TRIBE.toWrapper(),
+                FlagCategory.SOCIAL.toWrapper(),
+                FlagCategory.MARITIME.toWrapper()
             )
         )
         addAll(elements = FlagSuperCategory.Institution.allChildSupers())
         addAll(elements = FlagSuperCategory.Institution.allEnums().map { it.toWrapper() })
     }
+    val categoriesAutonomousRegionPairs: List<Pair<FlagCategoryBase, FlagCategoryBase>> = listOf(
+        Pair(
+            first = FlagCategory.UNRECOGNIZED_STATE.toWrapper(),
+            second = FlagCategory.POLITICAL_MOVEMENT.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.AUTONOMOUS_REGION.toWrapper(),
+            second = FlagCategory.TRIBE.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.INDIGENOUS_TERRITORY.toWrapper(),
+            second = FlagCategory.TRIBE.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.UNRECOGNIZED_STATE.toWrapper(),
+            second = FlagCategory.TRIBE.toWrapper()
+        ),
+    )
 
     val categoriesRegional: List<FlagCategoryBase> = buildList {
         add(FlagSuperCategory.Regional)
@@ -201,49 +221,91 @@ data object DataSource {
         add(FlagSuperCategory.Cultural)
         addAll(elements = FlagSuperCategory.Cultural.enums().map { it.toWrapper() })
         add(FlagCategory.MILITANT_ORGANIZATION.toWrapper())
+        add(FlagCategory.TERRORIST_ORGANIZATION.toWrapper())
     }
+    val categoriesExecutivePairs: List<Pair<FlagCategoryBase, FlagCategoryBase>> = listOf(
+        Pair(
+            first = FlagCategory.MILITARY.toWrapper(),
+            second = FlagCategory.MILITANT_ORGANIZATION.toWrapper()
+        ),
+        Pair(
+            first = FlagSuperCategory.Executive,
+            second = FlagCategory.TERRORIST_ORGANIZATION.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.MILITARY.toWrapper(),
+            second = FlagCategory.TERRORIST_ORGANIZATION.toWrapper()
+        ),
+    )
+
+
+    val categoriesCivilian: List<FlagCategoryBase> = buildList {
+        add(FlagSuperCategory.Civilian)
+        addAll(
+            elements = FlagSuperCategory.Civilian.enums().filterNot { it == FlagCategory.RELIGIOUS }
+                .map { it.toWrapper() }
+        )
+    }
+    val categoriesExclusiveOfCivilian: List<FlagCategoryBase> = listOf(
+        FlagCategory.POLITICAL_MOVEMENT.toWrapper(),
+        FlagCategory.RELIGIOUS.toWrapper(),
+        FlagCategory.ETHNIC.toWrapper(),
+        FlagCategory.SOCIAL.toWrapper(),
+    )
+    val categoriesCivilianPairs: List<Pair<FlagCategoryBase, FlagCategoryBase>> = listOf(
+        Pair(
+            first = FlagSuperCategory.Civilian,
+            second = FlagCategory.POLITICAL_MOVEMENT.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.CHARITY.toWrapper(),
+            second = FlagCategory.POLITICAL_MOVEMENT.toWrapper()
+        ),
+        Pair(
+            first = FlagSuperCategory.Civilian,
+            second = FlagCategory.RELIGIOUS.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.POLITICAL_ORGANIZATION.toWrapper(),
+            second = FlagCategory.RELIGIOUS.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.CHARITY.toWrapper(),
+            second = FlagCategory.RELIGIOUS.toWrapper()
+        ),
+        Pair(
+            first = FlagSuperCategory.Civilian,
+            second = FlagCategory.ETHNIC.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.POLITICAL_ORGANIZATION.toWrapper(),
+            second = FlagCategory.ETHNIC.toWrapper()
+        ),
+        Pair(
+            first = FlagSuperCategory.Civilian,
+            second = FlagCategory.SOCIAL.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.POLITICAL_ORGANIZATION.toWrapper(),
+            second = FlagCategory.SOCIAL.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.CHARITY.toWrapper(),
+            second = FlagCategory.SOCIAL.toWrapper()
+        )
+    )
 
     val categoriesCultural: List<FlagCategoryBase> = buildList {
         add(FlagSuperCategory.Cultural)
         addAll(elements = FlagSuperCategory.Cultural.enums().map { it.toWrapper() })
     }
     val categoriesExclusiveOfCultural: List<FlagCategoryBase> = listOf(
-        FlagCategory.INDIGENOUS_TERRITORY.toWrapper(),
-        FlagCategory.UNRECOGNIZED_STATE.toWrapper(),
         FlagCategory.MARITIME.toWrapper(),
         FlagCategory.QUASI_STATE.toWrapper(),
         FlagCategory.MILITANT_ORGANIZATION.toWrapper(),
         FlagCategory.TERRORIST_ORGANIZATION.toWrapper()
     )
     val categoriesCulturalPairs: List<Pair<FlagCategoryBase, FlagCategoryBase>> = listOf(
-        Pair(
-            first = FlagSuperCategory.Cultural,
-            second = FlagCategory.INDIGENOUS_TERRITORY.toWrapper()
-        ),
-        Pair(
-            first = FlagCategory.POLITICAL_MOVEMENT.toWrapper(),
-            second = FlagCategory.INDIGENOUS_TERRITORY.toWrapper()
-        ),
-        Pair(
-            first = FlagCategory.TRIBE.toWrapper(),
-            second = FlagCategory.INDIGENOUS_TERRITORY.toWrapper()
-        ),
-        Pair(
-            first = FlagCategory.ETHNIC.toWrapper(),
-            second = FlagCategory.INDIGENOUS_TERRITORY.toWrapper()
-        ),
-        Pair(
-            first = FlagSuperCategory.Cultural,
-            second = FlagCategory.UNRECOGNIZED_STATE.toWrapper()
-        ),
-        Pair(
-            first = FlagCategory.POLITICAL_MOVEMENT.toWrapper(),
-            second = FlagCategory.UNRECOGNIZED_STATE.toWrapper()
-        ),
-        Pair(
-            first = FlagCategory.ETHNIC.toWrapper(),
-            second = FlagCategory.UNRECOGNIZED_STATE.toWrapper()
-        ),
         Pair(
             first = FlagSuperCategory.Cultural,
             second = FlagCategory.MARITIME.toWrapper()
