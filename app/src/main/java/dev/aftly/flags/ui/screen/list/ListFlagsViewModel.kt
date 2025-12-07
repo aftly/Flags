@@ -13,24 +13,23 @@ import dev.aftly.flags.FlagsApplication
 import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.flagViewMap
 import dev.aftly.flags.data.DataSource.inverseFlagViewMap
-import dev.aftly.flags.model.FlagsOfCountry
+import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategoryBase
 import dev.aftly.flags.model.FlagCategoryWrapper
-import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagSuperCategory.Sovereign
 import dev.aftly.flags.model.FlagView
+import dev.aftly.flags.model.FlagsOfCountry
 import dev.aftly.flags.ui.util.filterFlagsByCountry
 import dev.aftly.flags.ui.util.getFlagKey
 import dev.aftly.flags.ui.util.getFlagsFromCategories
 import dev.aftly.flags.ui.util.getFlagsFromCategory
 import dev.aftly.flags.ui.util.getFlagsFromKeys
 import dev.aftly.flags.ui.util.getSavedFlagView
-import dev.aftly.flags.ui.util.isSubCategoryExit
-import dev.aftly.flags.ui.util.isSuperCategoryExit
-import dev.aftly.flags.ui.util.normalizeStringLower
+import dev.aftly.flags.ui.util.isCategoryExit
 import dev.aftly.flags.ui.util.normalizeString
+import dev.aftly.flags.ui.util.normalizeStringLower
 import dev.aftly.flags.ui.util.sortFlagsAlphabetically
 import dev.aftly.flags.ui.util.toSavedFlag
 import dev.aftly.flags.ui.util.toWrapper
@@ -301,8 +300,7 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
          * Else, add/remove category argument to/from categories lists */
         when (category) {
             is FlagSuperCategory -> {
-                if (isSuperCategoryExit(category, superCategories, subCategories))
-                    return
+                if (isCategoryExit(category, superCategories, subCategories)) return
 
                 isDeselectSwitch = updateCategoriesFromSuper(
                     superCategory = category,
@@ -311,8 +309,7 @@ class ListFlagsViewModel(app: Application) : AndroidViewModel(application = app)
                 )
             }
             is FlagCategoryWrapper -> {
-                if (isSubCategoryExit(category.enum, subCategories, superCategories))
-                    return
+                if (isCategoryExit(category, superCategories, subCategories)) return
 
                 isDeselectSwitch = updateCategoriesFromSub(
                     subCategory = category.enum,

@@ -12,7 +12,6 @@ import dev.aftly.flags.R
 import dev.aftly.flags.data.DataSource.nullFlag
 import dev.aftly.flags.data.datastore.GamePreferencesRepository
 import dev.aftly.flags.data.room.savedflags.SavedFlag
-import dev.aftly.flags.model.FlagsOfCountry
 import dev.aftly.flags.model.FlagCategory
 import dev.aftly.flags.model.FlagCategoryBase
 import dev.aftly.flags.model.FlagCategoryWrapper
@@ -20,19 +19,19 @@ import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagSuperCategory.Sovereign
 import dev.aftly.flags.model.FlagView
+import dev.aftly.flags.model.FlagsOfCountry
 import dev.aftly.flags.model.game.AnswerMode
 import dev.aftly.flags.model.game.DifficultyMode
 import dev.aftly.flags.model.game.ScoreData
 import dev.aftly.flags.model.game.TimeMode
-import dev.aftly.flags.ui.util.filterRedundantSuperCategories
 import dev.aftly.flags.ui.util.filterFlagsByCountry
+import dev.aftly.flags.ui.util.filterRedundantSuperCategories
 import dev.aftly.flags.ui.util.getFlagsFromCategories
 import dev.aftly.flags.ui.util.getFlagsFromCategory
 import dev.aftly.flags.ui.util.getSavedFlagView
-import dev.aftly.flags.ui.util.isSubCategoryExit
-import dev.aftly.flags.ui.util.isSuperCategoryExit
-import dev.aftly.flags.ui.util.normalizeStringLower
+import dev.aftly.flags.ui.util.isCategoryExit
 import dev.aftly.flags.ui.util.normalizeString
+import dev.aftly.flags.ui.util.normalizeStringLower
 import dev.aftly.flags.ui.util.sortFlagsAlphabetically
 import dev.aftly.flags.ui.util.toFlagsOfCountry
 import dev.aftly.flags.ui.util.updateCategoriesFromSub
@@ -273,8 +272,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
          * Else, add/remove category argument to/from categories lists */
         when (category) {
             is FlagSuperCategory -> {
-                if (isSuperCategoryExit(category, superCategories, subCategories))
-                    return
+                if (isCategoryExit(category, superCategories, subCategories)) return
 
                 isDeselectSwitch = updateCategoriesFromSuper(
                     superCategory = category,
@@ -283,8 +281,7 @@ class GameViewModel(app: Application) : AndroidViewModel(application = app) {
                 )
             }
             is FlagCategoryWrapper -> {
-                if (isSubCategoryExit(category.enum, subCategories, superCategories))
-                    return
+                if (isCategoryExit(category, superCategories, subCategories)) return
 
                 isDeselectSwitch = updateCategoriesFromSub(
                     subCategory = category.enum,

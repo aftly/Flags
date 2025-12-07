@@ -163,169 +163,83 @@ fun getParentSuperCategory(
 
 /* ------ For updateCurrentCategories() in ViewModels ------ */
 
-fun isSuperCategoryExit(
-    superCategory: FlagSuperCategory,
+fun isCategoryExit(
+    category: FlagCategoryBase,
     superCategories: MutableList<FlagSuperCategory>,
     subCategories: MutableList<FlagCategory>,
-): Boolean {
-    return if (superCategories.isEmpty() && subCategories.isEmpty()) {
-        true /* SavedFlags (currently) represented by no selected categories */
+): Boolean = when {
+    subCategories.isEmpty() && superCategories.isEmpty() -> true /* If SavedFlags */
 
-    } else if (superCategory in superCategories) {
-        false /* Escape function if supercategory already selected (so it can be deselected) */
+    category is FlagSuperCategory && category in superCategories -> false /* For deselection */
+    category is FlagCategoryWrapper && category.enum in subCategories -> false /* For deselection */
 
-    } else if (superCategory != All &&
-        subCategories.any { it in superCategory.enums() }) {
-        true
+    category is FlagSuperCategory && category != All &&
+            subCategories.any { it in category.enums() } -> true /* If category is selected parent */
 
-    } else {
-        isCategoryExclusive(
-            category = superCategory,
-            exclusiveOf = categoriesMutuallyExclusive,
-            categories = categoriesMutuallyExclusive,
-            selectedSuperCategories = superCategories,
-            selectedSubCategories = subCategories,
+    else -> isCategoryExclusive(
+        category = category,
+        exclusiveOf = categoriesMutuallyExclusive,
+        categories = categoriesMutuallyExclusive,
+        selectedSuperCategories = superCategories,
+        selectedSubCategories = subCategories
 
-        ) || isCategoryExclusive(
-            category = superCategory,
-            exclusiveOf = categoriesSovereign,
-            categories = categoriesExclusiveOfSovereign,
-            pairExceptions = categoriesSovereignExceptionPairs,
-            selectedSuperCategories = superCategories,
-            selectedSubCategories = subCategories,
+    ) || isCategoryExclusive(
+        category = category,
+        exclusiveOf = categoriesSovereign,
+        categories = categoriesExclusiveOfSovereign,
+        pairExceptions = categoriesSovereignExceptionPairs,
+        selectedSuperCategories = superCategories,
+        selectedSubCategories = subCategories
 
-        ) || isCategoryExclusive(
-            category = superCategory,
-            exclusiveOf = categoriesAutonomousRegion,
-            categories = categoriesExclusiveOfAutonomousRegion,
-            selectedSuperCategories = superCategories,
-            selectedSubCategories = subCategories,
+    ) || isCategoryExclusive(
+        category = category,
+        exclusiveOf = categoriesAutonomousRegion,
+        categories = categoriesExclusiveOfAutonomousRegion,
+        selectedSuperCategories = superCategories,
+        selectedSubCategories = subCategories
 
-        ) || isCategoryExclusive(
-            category = superCategory,
-            exclusiveOf = categoriesRegional,
-            categories = categoriesExclusiveOfRegional,
-            selectedSuperCategories = superCategories,
-            selectedSubCategories = subCategories,
+    ) || isCategoryExclusive(
+        category = category,
+        exclusiveOf = categoriesRegional,
+        categories = categoriesExclusiveOfRegional,
+        selectedSuperCategories = superCategories,
+        selectedSubCategories = subCategories
 
-        ) || isCategoryExclusive(
-            category = superCategory,
-            exclusiveOf = categoriesInternational,
-            categories = categoriesExclusiveOfInternational,
-            selectedSuperCategories = superCategories,
-            selectedSubCategories = subCategories,
+    ) || isCategoryExclusive(
+        category = category,
+        exclusiveOf = categoriesInternational,
+        categories = categoriesExclusiveOfInternational,
+        selectedSuperCategories = superCategories,
+        selectedSubCategories = subCategories
 
-        ) || isCategoryExclusive(
-            category = superCategory,
-            exclusiveOf = categoriesLegislature,
-            categories = categoriesExclusiveOfLegislature,
-            selectedSuperCategories = superCategories,
-            selectedSubCategories = subCategories,
+    ) || isCategoryExclusive(
+        category = category,
+        exclusiveOf = categoriesLegislature,
+        categories = categoriesExclusiveOfLegislature,
+        selectedSuperCategories = superCategories,
+        selectedSubCategories = subCategories
 
-        ) || isCategoryExclusive(
-            category = superCategory,
-            exclusiveOf = categoriesExecutive,
-            categories = categoriesExclusiveOfExecutive,
-            selectedSuperCategories = superCategories,
-            selectedSubCategories = subCategories,
+    ) || isCategoryExclusive(
+        category = category,
+        exclusiveOf = categoriesExecutive,
+        categories = categoriesExclusiveOfExecutive,
+        selectedSuperCategories = superCategories,
+        selectedSubCategories = subCategories
 
-        ) || isCategoryExclusive(
-            category = superCategory,
-            exclusiveOf = categoriesPolitical,
-            categories = categoriesExclusiveOfPolitical,
-            selectedSuperCategories = superCategories,
-            selectedSubCategories = subCategories,
+    ) || isCategoryExclusive(
+        category = category,
+        exclusiveOf = categoriesPolitical,
+        categories = categoriesExclusiveOfPolitical,
+        selectedSuperCategories = superCategories,
+        selectedSubCategories = subCategories
 
-        ) || isCategoryNotInclusive(
-            category = superCategory,
-            inclusiveOf = categoriesMicrostate,
-            categories = categoriesInclusiveOfMicrostate,
-            selectedSuperCategories = superCategories,
-            selectedSubCategories = subCategories,
-        )
-    }
-}
-
-fun isSubCategoryExit(
-    subCategory: FlagCategory,
-    subCategories: MutableList<FlagCategory>,
-    superCategories: MutableList<FlagSuperCategory>,
-): Boolean {
-    val subCategoryWrapper = subCategory.toWrapper()
-
-    return if (subCategories.isEmpty() && superCategories.isEmpty()) {
-        true /* SavedFlags (currently) represented by no selected categories */
-
-    } else if (subCategory in subCategories) {
-        false /* Escape function if subcategory already selected (so it can be deselected) */
-
-    } else {
-        isCategoryExclusive(
-            category = subCategoryWrapper,
-            exclusiveOf = categoriesMutuallyExclusive,
-            categories = categoriesMutuallyExclusive,
-            selectedSuperCategories = superCategories,
-            selectedSubCategories = subCategories,
-
-        ) || isCategoryExclusive(
-            category = subCategoryWrapper,
-            exclusiveOf = categoriesSovereign,
-            categories = categoriesExclusiveOfSovereign,
-            pairExceptions = categoriesSovereignExceptionPairs,
-            selectedSuperCategories = superCategories,
-            selectedSubCategories = subCategories,
-
-        ) || isCategoryExclusive(
-            category = subCategoryWrapper,
-            exclusiveOf = categoriesAutonomousRegion,
-            categories = categoriesExclusiveOfAutonomousRegion,
-            selectedSuperCategories = superCategories,
-            selectedSubCategories = subCategories,
-
-        ) || isCategoryExclusive(
-            category = subCategoryWrapper,
-            exclusiveOf = categoriesRegional,
-            categories = categoriesExclusiveOfRegional,
-            selectedSuperCategories = superCategories,
-            selectedSubCategories = subCategories,
-
-        ) || isCategoryExclusive(
-            category = subCategoryWrapper,
-            exclusiveOf = categoriesInternational,
-            categories = categoriesExclusiveOfInternational,
-            selectedSuperCategories = superCategories,
-            selectedSubCategories = subCategories,
-
-        ) || isCategoryExclusive(
-            category = subCategoryWrapper,
-            exclusiveOf = categoriesLegislature,
-            categories = categoriesExclusiveOfLegislature,
-            selectedSuperCategories = superCategories,
-            selectedSubCategories = subCategories,
-
-        ) || isCategoryExclusive(
-            category = subCategoryWrapper,
-            exclusiveOf = categoriesExecutive,
-            categories = categoriesExclusiveOfExecutive,
-            selectedSuperCategories = superCategories,
-            selectedSubCategories = subCategories,
-
-        ) || isCategoryExclusive(
-            category = subCategoryWrapper,
-            exclusiveOf = categoriesPolitical,
-            categories = categoriesExclusiveOfPolitical,
-            selectedSuperCategories = superCategories,
-            selectedSubCategories = subCategories,
-
-        ) || isCategoryNotInclusive(
-            category = subCategoryWrapper,
-            inclusiveOf = categoriesMicrostate,
-            categories = categoriesInclusiveOfMicrostate,
-            selectedSuperCategories = superCategories,
-            selectedSubCategories = subCategories,
-
-        )
-    }
+    ) || isCategoryNotInclusive(
+        category = category,
+        inclusiveOf = categoriesMicrostate,
+        categories = categoriesInclusiveOfMicrostate,
+        selectedSuperCategories = superCategories,
+        selectedSubCategories = subCategories
+    )
 }
 
 private fun isCategoryExclusive(
