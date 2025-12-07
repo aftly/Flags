@@ -252,7 +252,6 @@ fun isSubCategoryExit(
     superCategories: MutableList<FlagSuperCategory>,
 ): Boolean {
     val subCategoryWrapper = subCategory.toWrapper()
-    val subSwitchSupers = switchSubsSuperCategories
 
     return if (subCategories.isEmpty() && superCategories.isEmpty()) {
         true /* SavedFlags (currently) represented by no selected categories */
@@ -267,7 +266,6 @@ fun isSubCategoryExit(
             categories = categoriesMutuallyExclusive,
             selectedSuperCategories = superCategories,
             selectedSubCategories = subCategories,
-            subSwitchSupers = subSwitchSupers,
 
         ) || isCategoryExclusive(
             category = subCategoryWrapper,
@@ -337,7 +335,6 @@ private fun isCategoryExclusive(
     pairExceptions: List<Pair<FlagCategoryBase, FlagCategoryBase>> = emptyList(),
     selectedSuperCategories: List<FlagSuperCategory>, /* Currently selected */
     selectedSubCategories: List<FlagCategory>, /* Currently selected */
-    subSwitchSupers: List<FlagSuperCategory>? = null, /* For when comparators are the same */
 ): Boolean {
     /* flatten selected categories for simpler parsing */
     val flatSelectedCategories = buildList {
@@ -375,13 +372,16 @@ private fun isCategoryExclusive(
         return@let false
     }
 
-    /* For when exclusiveOf and categories are the same to enforce switch exceptions */
-    val isSwitch = if (!(subSwitchSupers != null && category is FlagCategoryWrapper)) false else {
-        val categorySwitchSuper = subSwitchSupers.find { category.enum in it.enums() }
-        val categorySwitchSubs = categorySwitchSuper?.enums()
+    /* Enforce switch exceptions when exclusiveOf and categories are the same */
+    val isSwitch = when {
+        exclusiveOf == categories && category is FlagCategoryWrapper -> {
+            val categorySwitchSuper = switchSubsSuperCategories.find { category.enum in it.enums() }
+            val categorySwitchSubs = categorySwitchSuper?.enums()
 
-        categorySwitchSubs?.any { it in selectedSubCategories } == true &&
-                category.enum in categorySwitchSubs
+            categorySwitchSubs?.any { it in selectedSubCategories } == true &&
+                    category.enum in categorySwitchSubs
+        }
+        else -> false
     }
 
     return when {
