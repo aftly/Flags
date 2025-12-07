@@ -134,13 +134,24 @@ data object DataSource {
                 FlagCategory.QUASI_STATE.toWrapper(),
                 FlagCategory.MILITANT_ORGANIZATION.toWrapper(),
                 FlagCategory.TERRORIST_ORGANIZATION.toWrapper(),
-                FlagCategory.INDIGENOUS_TERRITORY.toWrapper()
+                FlagCategory.INDIGENOUS_TERRITORY.toWrapper(),
+                FlagCategory.UNRECOGNIZED_STATE.toWrapper()
             )
         )
         addAll(elements = FlagSuperCategory.Institution.allChildSupers())
         addAll(elements = FlagSuperCategory.Institution.allEnums().map { it.toWrapper() })
         addAll(elements = FlagSuperCategory.Political.allEnums().map { it.toWrapper() })
     }
+    val categoriesRegionalPairs: List<Pair<FlagCategoryBase, FlagCategoryBase>> = listOf(
+        Pair(
+            first = FlagSuperCategory.Regional,
+            second = FlagCategory.UNRECOGNIZED_STATE.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.TERRITORY.toWrapper(),
+            second = FlagCategory.UNRECOGNIZED_STATE.toWrapper()
+        )
+    )
 
     val categoriesInternational: List<FlagCategoryBase> = buildList {
         add(FlagSuperCategory.International)
@@ -165,8 +176,10 @@ data object DataSource {
         addAll(elements = FlagSuperCategory.IdeologicalOrientation.enums().map { it.toWrapper() })
     }
 
-    val categoriesLegislature: List<FlagCategoryBase> =
-        FlagSuperCategory.Legislature.enums().map { it.toWrapper() }
+    val categoriesLegislature: List<FlagCategoryBase> = buildList {
+        add(FlagSuperCategory.Legislature)
+        addAll(elements = FlagSuperCategory.Legislature.enums().map { it.toWrapper() })
+    }
     val categoriesExclusiveOfLegislature: List<FlagCategoryBase> = buildList {
         addAll(
             elements = listOf(
@@ -180,13 +193,78 @@ data object DataSource {
         addAll(elements = FlagSuperCategory.Cultural.enums().map { it.toWrapper() })
     }
 
-    val categoriesExecutive: List<FlagCategoryBase> =
-        FlagSuperCategory.Executive.enums().map { it.toWrapper() }
+    val categoriesExecutive: List<FlagCategoryBase> = buildList {
+        add(FlagSuperCategory.Executive)
+        addAll(elements = FlagSuperCategory.Executive.enums().map { it.toWrapper() })
+    }
     val categoriesExclusiveOfExecutive: List<FlagCategoryBase> = buildList {
         add(FlagSuperCategory.Cultural)
         addAll(elements = FlagSuperCategory.Cultural.enums().map { it.toWrapper() })
         add(FlagCategory.MILITANT_ORGANIZATION.toWrapper())
     }
+
+    val categoriesCultural: List<FlagCategoryBase> = buildList {
+        add(FlagSuperCategory.Cultural)
+        addAll(elements = FlagSuperCategory.Cultural.enums().map { it.toWrapper() })
+    }
+    val categoriesExclusiveOfCultural: List<FlagCategoryBase> = listOf(
+        FlagCategory.INDIGENOUS_TERRITORY.toWrapper(),
+        FlagCategory.UNRECOGNIZED_STATE.toWrapper(),
+        FlagCategory.MARITIME.toWrapper(),
+        FlagCategory.QUASI_STATE.toWrapper(),
+        FlagCategory.MILITANT_ORGANIZATION.toWrapper(),
+        FlagCategory.TERRORIST_ORGANIZATION.toWrapper()
+    )
+    val categoriesCulturalPairs: List<Pair<FlagCategoryBase, FlagCategoryBase>> = listOf(
+        Pair(
+            first = FlagSuperCategory.Cultural,
+            second = FlagCategory.INDIGENOUS_TERRITORY.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.POLITICAL_MOVEMENT.toWrapper(),
+            second = FlagCategory.INDIGENOUS_TERRITORY.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.TRIBE.toWrapper(),
+            second = FlagCategory.INDIGENOUS_TERRITORY.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.ETHNIC.toWrapper(),
+            second = FlagCategory.INDIGENOUS_TERRITORY.toWrapper()
+        ),
+        Pair(
+            first = FlagSuperCategory.Cultural,
+            second = FlagCategory.UNRECOGNIZED_STATE.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.POLITICAL_MOVEMENT.toWrapper(),
+            second = FlagCategory.UNRECOGNIZED_STATE.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.ETHNIC.toWrapper(),
+            second = FlagCategory.UNRECOGNIZED_STATE.toWrapper()
+        ),
+        Pair(
+            first = FlagSuperCategory.Cultural,
+            second = FlagCategory.MARITIME.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.POLITICAL_MOVEMENT.toWrapper(),
+            second = FlagCategory.MARITIME.toWrapper()
+        ),
+        Pair(
+            first = FlagSuperCategory.Cultural,
+            second = FlagCategory.QUASI_STATE.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.POLITICAL_MOVEMENT.toWrapper(),
+            second = FlagCategory.QUASI_STATE.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.ETHNIC.toWrapper(),
+            second = FlagCategory.QUASI_STATE.toWrapper()
+        )
+    )
 
     val categoriesPolitical: List<FlagCategoryBase> =
         FlagSuperCategory.Political.allEnums().map { it.toWrapper() }
@@ -196,6 +274,23 @@ data object DataSource {
         add(FlagSuperCategory.Cultural)
         add(FlagCategory.MARITIME.toWrapper())
     }
+
+    val categoriesDevolvedGovernment: List<FlagCategoryBase> = listOf(
+        FlagCategory.DEVOLVED_GOVERNMENT.toWrapper()
+    )
+    val categoriesExclusiveOfDevolvedGovernment: List<FlagCategoryBase> = listOf(
+        FlagCategory.INDIGENOUS_TERRITORY.toWrapper(),
+        FlagCategory.UNRECOGNIZED_STATE.toWrapper(),
+        FlagCategory.ANNEXED_TERRITORY.toWrapper()
+    )
+
+    val categoriesIndigenousTerritory: List<FlagCategoryBase> = listOf(
+        FlagCategory.INDIGENOUS_TERRITORY.toWrapper()
+    )
+    val categoriesExclusiveOfIndigenousTerritory: List<FlagCategoryBase> = listOf(
+        FlagCategory.FREE_ASSOCIATION.toWrapper(),
+        FlagCategory.AUTONOMOUS_REGION.toWrapper()
+    )
 
     val categoriesMicrostate: List<FlagCategoryBase> = listOf(FlagCategory.MICROSTATE.toWrapper())
     val categoriesInclusiveOfMicrostate: List<FlagCategoryBase> = listOf(

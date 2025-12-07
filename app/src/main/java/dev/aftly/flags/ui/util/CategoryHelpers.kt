@@ -8,8 +8,14 @@ import dev.aftly.flags.data.DataSource
 import dev.aftly.flags.data.DataSource.absenceCategoriesAddAnyMap
 import dev.aftly.flags.data.DataSource.absenceCategoriesMap
 import dev.aftly.flags.data.DataSource.categoriesAutonomousRegion
+import dev.aftly.flags.data.DataSource.categoriesCultural
+import dev.aftly.flags.data.DataSource.categoriesCulturalPairs
+import dev.aftly.flags.data.DataSource.categoriesDevolvedGovernment
 import dev.aftly.flags.data.DataSource.categoriesExclusiveOfAutonomousRegion
+import dev.aftly.flags.data.DataSource.categoriesExclusiveOfCultural
+import dev.aftly.flags.data.DataSource.categoriesExclusiveOfDevolvedGovernment
 import dev.aftly.flags.data.DataSource.categoriesExclusiveOfExecutive
+import dev.aftly.flags.data.DataSource.categoriesExclusiveOfIndigenousTerritory
 import dev.aftly.flags.data.DataSource.categoriesExclusiveOfInternational
 import dev.aftly.flags.data.DataSource.categoriesExclusiveOfLegislature
 import dev.aftly.flags.data.DataSource.categoriesExclusiveOfPolitical
@@ -17,12 +23,14 @@ import dev.aftly.flags.data.DataSource.categoriesExclusiveOfRegional
 import dev.aftly.flags.data.DataSource.categoriesExclusiveOfSovereign
 import dev.aftly.flags.data.DataSource.categoriesExecutive
 import dev.aftly.flags.data.DataSource.categoriesInclusiveOfMicrostate
+import dev.aftly.flags.data.DataSource.categoriesIndigenousTerritory
 import dev.aftly.flags.data.DataSource.categoriesInternational
 import dev.aftly.flags.data.DataSource.categoriesLegislature
 import dev.aftly.flags.data.DataSource.categoriesMicrostate
 import dev.aftly.flags.data.DataSource.categoriesMutuallyExclusive
 import dev.aftly.flags.data.DataSource.categoriesPolitical
 import dev.aftly.flags.data.DataSource.categoriesRegional
+import dev.aftly.flags.data.DataSource.categoriesRegionalPairs
 import dev.aftly.flags.data.DataSource.categoriesSovereign
 import dev.aftly.flags.data.DataSource.categoriesSovereignExceptionPairs
 import dev.aftly.flags.data.DataSource.historicalSubCategoryWhitelist
@@ -202,6 +210,7 @@ fun isCategoryExit(
         category = category,
         exclusiveOf = categoriesRegional,
         categories = categoriesExclusiveOfRegional,
+        pairExceptions = categoriesRegionalPairs,
         selectedSuperCategories = superCategories,
         selectedSubCategories = subCategories
 
@@ -228,8 +237,30 @@ fun isCategoryExit(
 
     ) || isCategoryExclusive(
         category = category,
+        exclusiveOf = categoriesCultural,
+        categories = categoriesExclusiveOfCultural,
+        pairExceptions = categoriesCulturalPairs,
+        selectedSuperCategories = superCategories,
+        selectedSubCategories = subCategories
+
+    ) || isCategoryExclusive(
+        category = category,
         exclusiveOf = categoriesPolitical,
         categories = categoriesExclusiveOfPolitical,
+        selectedSuperCategories = superCategories,
+        selectedSubCategories = subCategories
+
+    ) || isCategoryExclusive(
+        category = category,
+        exclusiveOf = categoriesDevolvedGovernment,
+        categories = categoriesExclusiveOfDevolvedGovernment,
+        selectedSuperCategories = superCategories,
+        selectedSubCategories = subCategories
+
+    ) || isCategoryExclusive(
+        category = category,
+        exclusiveOf = categoriesIndigenousTerritory,
+        categories = categoriesExclusiveOfIndigenousTerritory,
         selectedSuperCategories = superCategories,
         selectedSubCategories = subCategories
 
