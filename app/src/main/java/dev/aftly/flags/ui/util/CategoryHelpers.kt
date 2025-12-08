@@ -388,11 +388,10 @@ private fun isCategoryNotInclusive(
             val isFirstValid = pair.first in inclusiveOf
             val isFirstCategory = pair.first == category
             val isFirstSelected = pair.first in flatSelectedCategories
-
             val isSecondCategory = pair.second == category
             val isSecondSelected = pair.second in flatSelectedCategories
 
-            /* If pair exception is relevant return true to let */
+            /* If pair exception is relevant add to list */
             when {
                 isFirstValid && isFirstCategory && isSecondSelected -> add(pair)
                 isFirstValid && isSecondCategory && isFirstSelected -> add(pair)
