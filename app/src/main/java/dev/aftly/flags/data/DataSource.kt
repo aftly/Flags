@@ -72,38 +72,42 @@ data object DataSource {
         addAll(elements = FlagSuperCategory.International.enums().map { it.toWrapper() })
     }
 
-    val categoriesSovereign: List<FlagCategoryBase> = buildList {
-        add(FlagSuperCategory.Sovereign)
-        addAll(elements = FlagSuperCategory.Sovereign.enums().map { it.toWrapper() })
-    }
-    val categoriesExclusiveOfSovereign: List<FlagCategoryBase> = buildList {
-        addAll(
-            elements = listOf(
-                FlagSuperCategory.Regional,
-                FlagSuperCategory.International,
-                FlagSuperCategory.Institution,
-                FlagSuperCategory.Cultural,
-                FlagCategory.AUTONOMOUS_REGION.toWrapper(),
-                FlagCategory.DEVOLVED_GOVERNMENT.toWrapper(),
-                FlagCategory.INDIGENOUS_TERRITORY.toWrapper(),
-                FlagCategory.UNRECOGNIZED_STATE.toWrapper(),
-                FlagCategory.MARITIME.toWrapper(),
-                FlagCategory.QUASI_STATE.toWrapper(),
-                FlagCategory.MILITANT_ORGANIZATION.toWrapper(),
-                FlagCategory.TERRORIST_ORGANIZATION.toWrapper(),
+    val categoriesSovereignState: List<FlagCategoryBase> = listOf(
+        FlagSuperCategory.Sovereign,
+        FlagCategory.SOVEREIGN_STATE.toWrapper(),
+        FlagCategory.MICROSTATE.toWrapper(),
+    )
+    val categoriesInclusiveOfSovereignState: List<FlagCategoryBase> = listOf(
+        FlagSuperCategory.Sovereign,
+        FlagSuperCategory.AutonomousRegion,
+        FlagSuperCategory.Historical,
+        FlagCategory.SOVEREIGN_STATE.toWrapper(),
+        FlagCategory.FREE_ASSOCIATION.toWrapper(),
+        FlagCategory.ANNEXED_TERRITORY.toWrapper(),
+        FlagCategory.MICROSTATE.toWrapper(),
+    )
+    val categoriesSovereignStateExceptionPairs: List<Pair<FlagCategoryBase, FlagCategoryBase>> =
+        listOf(
+            Pair(
+                first = FlagSuperCategory.Sovereign,
+                second = FlagCategory.RELIGIOUS.toWrapper()
+            ),
+            Pair(
+                first = FlagSuperCategory.Sovereign,
+                second = FlagSuperCategory.Cultural
+            ),
+            Pair(
+                first = FlagCategory.MICROSTATE.toWrapper(),
+                second = FlagCategory.UNRECOGNIZED_STATE.toWrapper()
             )
         )
-        addAll(elements = FlagSuperCategory.Regional.enums().map { it.toWrapper() })
-        addAll(elements = FlagSuperCategory.International.enums().map { it.toWrapper() })
-        addAll(elements = FlagSuperCategory.Institution.allChildSupers())
-        addAll(elements = FlagSuperCategory.Institution.allEnums().map { it.toWrapper() })
-        addAll(elements = FlagSuperCategory.Cultural.enums().map { it.toWrapper() })
-    }
-    val categoriesSovereignExceptionPairs: List<Pair<FlagCategoryBase, FlagCategoryBase>> = listOf(
-        Pair(
-            first = FlagCategory.SOVEREIGN_ENTITY.toWrapper(),
-            second = FlagCategory.RELIGIOUS.toWrapper()
-        )
+
+    val categoriesSovereignEntity: List<FlagCategoryBase> = listOf(
+        FlagCategory.SOVEREIGN_ENTITY.toWrapper()
+    )
+    val categoriesInclusiveOfSovereignEntity: List<FlagCategoryBase> = listOf(
+        FlagSuperCategory.Cultural,
+        FlagCategory.RELIGIOUS.toWrapper()
     )
 
     val categoriesAutonomousRegion: List<FlagCategoryBase> = buildList {
@@ -117,7 +121,9 @@ data object DataSource {
                 FlagCategory.POLITICAL_MOVEMENT.toWrapper(),
                 FlagCategory.TRIBE.toWrapper(),
                 FlagCategory.SOCIAL.toWrapper(),
-                FlagCategory.MARITIME.toWrapper()
+                FlagCategory.MARITIME.toWrapper(),
+                FlagCategory.MILITANT_ORGANIZATION.toWrapper(),
+                FlagCategory.TERRORIST_ORGANIZATION.toWrapper()
             )
         )
         addAll(elements = FlagSuperCategory.Institution.allChildSupers())
@@ -125,8 +131,16 @@ data object DataSource {
     }
     val categoriesAutonomousRegionPairs: List<Pair<FlagCategoryBase, FlagCategoryBase>> = listOf(
         Pair(
+            first = FlagSuperCategory.AutonomousRegion,
+            second = FlagCategory.POLITICAL_MOVEMENT.toWrapper()
+        ),
+        Pair(
             first = FlagCategory.UNRECOGNIZED_STATE.toWrapper(),
             second = FlagCategory.POLITICAL_MOVEMENT.toWrapper()
+        ),
+        Pair(
+            first = FlagSuperCategory.AutonomousRegion,
+            second = FlagCategory.TRIBE.toWrapper()
         ),
         Pair(
             first = FlagCategory.AUTONOMOUS_REGION.toWrapper(),
@@ -140,6 +154,22 @@ data object DataSource {
             first = FlagCategory.UNRECOGNIZED_STATE.toWrapper(),
             second = FlagCategory.TRIBE.toWrapper()
         ),
+        Pair(
+            first = FlagSuperCategory.AutonomousRegion,
+            second = FlagCategory.MILITANT_ORGANIZATION.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.UNRECOGNIZED_STATE.toWrapper(),
+            second = FlagCategory.MILITANT_ORGANIZATION.toWrapper()
+        ),
+        Pair(
+            first = FlagSuperCategory.AutonomousRegion,
+            second = FlagCategory.TERRORIST_ORGANIZATION.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.UNRECOGNIZED_STATE.toWrapper(),
+            second = FlagCategory.TERRORIST_ORGANIZATION.toWrapper()
+        ),
     )
 
     val categoriesRegional: List<FlagCategoryBase> = buildList {
@@ -151,7 +181,6 @@ data object DataSource {
             elements = listOf(
                 FlagSuperCategory.Institution,
                 FlagCategory.MARITIME.toWrapper(),
-                FlagCategory.QUASI_STATE.toWrapper(),
                 FlagCategory.MILITANT_ORGANIZATION.toWrapper(),
                 FlagCategory.TERRORIST_ORGANIZATION.toWrapper(),
                 FlagCategory.INDIGENOUS_TERRITORY.toWrapper(),
@@ -181,8 +210,7 @@ data object DataSource {
         addAll(
             elements = listOf(
                 FlagSuperCategory.AutonomousRegion,
-                FlagSuperCategory.Cultural,
-                FlagCategory.QUASI_STATE.toWrapper()
+                FlagSuperCategory.Cultural
             )
         )
         addAll(elements = FlagSuperCategory.AutonomousRegion.enums().map { it.toWrapper() })
@@ -205,7 +233,6 @@ data object DataSource {
             elements = listOf(
                 FlagSuperCategory.Cultural,
                 FlagCategory.MARITIME.toWrapper(),
-                FlagCategory.QUASI_STATE.toWrapper(),
                 FlagCategory.MILITANT_ORGANIZATION.toWrapper(),
                 FlagCategory.TERRORIST_ORGANIZATION.toWrapper()
             )
@@ -218,10 +245,14 @@ data object DataSource {
         addAll(elements = FlagSuperCategory.Executive.enums().map { it.toWrapper() })
     }
     val categoriesExclusiveOfExecutive: List<FlagCategoryBase> = buildList {
-        add(FlagSuperCategory.Cultural)
+        addAll(
+            elements = listOf(
+                FlagSuperCategory.Cultural,
+                FlagCategory.MILITANT_ORGANIZATION.toWrapper(),
+                FlagCategory.TERRORIST_ORGANIZATION.toWrapper()
+            )
+        )
         addAll(elements = FlagSuperCategory.Cultural.enums().map { it.toWrapper() })
-        add(FlagCategory.MILITANT_ORGANIZATION.toWrapper())
-        add(FlagCategory.TERRORIST_ORGANIZATION.toWrapper())
     }
     val categoriesExecutivePairs: List<Pair<FlagCategoryBase, FlagCategoryBase>> = listOf(
         Pair(
@@ -251,6 +282,9 @@ data object DataSource {
         FlagCategory.RELIGIOUS.toWrapper(),
         FlagCategory.ETHNIC.toWrapper(),
         FlagCategory.SOCIAL.toWrapper(),
+        FlagCategory.MARITIME.toWrapper(),
+        FlagCategory.MILITANT_ORGANIZATION.toWrapper(),
+        FlagCategory.TERRORIST_ORGANIZATION.toWrapper(),
     )
     val categoriesCivilianPairs: List<Pair<FlagCategoryBase, FlagCategoryBase>> = listOf(
         Pair(
@@ -292,7 +326,31 @@ data object DataSource {
         Pair(
             first = FlagCategory.CHARITY.toWrapper(),
             second = FlagCategory.SOCIAL.toWrapper()
-        )
+        ),
+        Pair(
+            first = FlagSuperCategory.Civilian,
+            second = FlagCategory.MARITIME.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.POLITICAL_ORGANIZATION.toWrapper(),
+            second = FlagCategory.MARITIME.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.CHARITY.toWrapper(),
+            second = FlagCategory.MARITIME.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.VEXILLOLOGY.toWrapper(),
+            second = FlagCategory.MARITIME.toWrapper()
+        ),
+        Pair(
+            first = FlagSuperCategory.Civilian,
+            second = FlagCategory.TERRORIST_ORGANIZATION.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.POLITICAL_ORGANIZATION.toWrapper(),
+            second = FlagCategory.TERRORIST_ORGANIZATION.toWrapper()
+        ),
     )
 
     val categoriesCultural: List<FlagCategoryBase> = buildList {
@@ -301,7 +359,6 @@ data object DataSource {
     }
     val categoriesExclusiveOfCultural: List<FlagCategoryBase> = listOf(
         FlagCategory.MARITIME.toWrapper(),
-        FlagCategory.QUASI_STATE.toWrapper(),
         FlagCategory.MILITANT_ORGANIZATION.toWrapper(),
         FlagCategory.TERRORIST_ORGANIZATION.toWrapper()
     )
@@ -313,18 +370,6 @@ data object DataSource {
         Pair(
             first = FlagCategory.POLITICAL_MOVEMENT.toWrapper(),
             second = FlagCategory.MARITIME.toWrapper()
-        ),
-        Pair(
-            first = FlagSuperCategory.Cultural,
-            second = FlagCategory.QUASI_STATE.toWrapper()
-        ),
-        Pair(
-            first = FlagCategory.POLITICAL_MOVEMENT.toWrapper(),
-            second = FlagCategory.QUASI_STATE.toWrapper()
-        ),
-        Pair(
-            first = FlagCategory.ETHNIC.toWrapper(),
-            second = FlagCategory.QUASI_STATE.toWrapper()
         )
     )
 
@@ -354,16 +399,18 @@ data object DataSource {
         FlagCategory.AUTONOMOUS_REGION.toWrapper()
     )
 
-    val categoriesMicrostate: List<FlagCategoryBase> = listOf(FlagCategory.MICROSTATE.toWrapper())
-    val categoriesInclusiveOfMicrostate: List<FlagCategoryBase> = listOf(
-        FlagSuperCategory.Sovereign,
-        FlagCategory.SOVEREIGN_STATE.toWrapper(),
-        FlagCategory.FREE_ASSOCIATION.toWrapper(),
+    val categoriesQuasiState: List<FlagCategoryBase> = listOf(FlagCategory.QUASI_STATE.toWrapper())
+    val categoriesInclusiveOfQuasiState: List<FlagCategoryBase> = listOf(
+        FlagSuperCategory.AutonomousRegion,
+        FlagSuperCategory.Executive,
+        FlagSuperCategory.Civilian,
+        FlagSuperCategory.Cultural,
+        FlagSuperCategory.Historical,
         FlagCategory.UNRECOGNIZED_STATE.toWrapper(),
         FlagCategory.ANNEXED_TERRITORY.toWrapper(),
-        FlagCategory.QUASI_STATE.toWrapper(),
-        FlagCategory.POLITICAL_ORGANIZATION.toWrapper(),
         FlagCategory.MILITARY.toWrapper(),
+        FlagCategory.POLITICAL_ORGANIZATION.toWrapper(),
+        FlagCategory.POLITICAL_MOVEMENT.toWrapper(),
         FlagCategory.MILITANT_ORGANIZATION.toWrapper(),
         FlagCategory.TERRORIST_ORGANIZATION.toWrapper()
     )
