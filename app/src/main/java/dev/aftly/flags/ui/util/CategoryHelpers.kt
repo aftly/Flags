@@ -332,21 +332,21 @@ private fun isCategoryExclusive(
         return@let false
     }
 
-    /* Enforce switch exceptions when exclusiveOf and categories are the same */
-    val isSwitch = when {
+    /* Enforce intra-category exceptions when exclusiveOf and categories are the same */
+    val isException = when {
         exclusiveOf == categories && category is FlagCategoryWrapper -> {
-            val categorySwitchSuper = switchSubsSuperCategories.find { category.enum in it.enums() }
-            val categorySwitchSubs = categorySwitchSuper?.enums()
+            val superOfCategory = categories.filterIsInstance<FlagSuperCategory>()
+                .find { category.enum in it.enums() }
 
-            categorySwitchSubs?.any { it in selectedSubCategories } == true &&
-                    category.enum in categorySwitchSubs
+            superOfCategory in selectedSuperCategories ||
+                    superOfCategory?.enums()?.any { it in selectedSubCategories } == true
         }
         else -> false
     }
 
     return when {
-        isCategoryExclusiveOf && isAnyCategoriesSelected && !isPairException && !isSwitch -> true
-        isCategoryRelevant && isAnyExclusiveOfSelected && !isPairException && !isSwitch  -> true
+        isCategoryExclusiveOf && isAnyCategoriesSelected && !isPairException && !isException -> true
+        isCategoryRelevant && isAnyExclusiveOfSelected && !isPairException && !isException  -> true
         else -> false
     }
 }
