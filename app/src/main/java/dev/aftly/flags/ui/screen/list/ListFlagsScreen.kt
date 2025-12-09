@@ -18,8 +18,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,6 +40,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
@@ -80,6 +83,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
@@ -87,6 +91,7 @@ import androidx.compose.ui.text.lerp
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -743,21 +748,24 @@ private fun ListFlagsTopBar(
     /* For search bar size to respect navigationIcon & other */
     val focusManager = LocalFocusManager.current
     val density = LocalDensity.current
-    val configuration = LocalConfiguration.current
+    val textStyle = LocalTextStyle.current
     var navigationIconOffsetX by remember { mutableFloatStateOf(value = 0f) }
     var navigationIconWidth by remember { mutableIntStateOf(value = 0) }
     val textFieldOffset = 4.dp
-    val textFieldStartPadding = with(density) {
+    val textFieldStartPadding = with(receiver = density) {
         (navigationIconOffsetX + navigationIconWidth).toDp() + textFieldOffset
     }
+    val textFieldHeight = with(receiver = density) { 48.sp.toDp() }
+    val textFieldStyle = TextStyle(
+        fontSize = textStyle.fontSize,
+        lineHeight = textStyle.fontSize * 1.2f,
+    )
 
     /* Make top bar title visible when below search bar and when no search bar */
     val isTopBarTitle = if (scrollBehaviour.state.collapsedFraction < 0.5f) true else !isSearchBar
 
     /* Other action properties */
     val saveModeIcon = if (isSaveMode) Icons.Default.Close else Icons.Default.Save
-    val searchIconEndPadding = TextFieldDefaults.contentPaddingWithoutLabel()
-        .calculateRightPadding(layoutDirection = LocalLayoutDirection.current) - textFieldOffset
 
 
     MediumTopAppBar(
@@ -812,20 +820,20 @@ private fun ListFlagsTopBar(
                 val focusRequesterSearch = remember { FocusRequester() }
 
                 /* Focus search bar on nav back */
-                LaunchedEffect(Unit) {
+                LaunchedEffect(key1 = Unit) {
                     if (isSearchBarFocused) {
                         focusRequesterSearch.requestFocus()
                     }
                 }
                 /* Focus search bar on initial visibility */
                 if (!isSearchBarInit) {
-                    LaunchedEffect(Unit) {
+                    LaunchedEffect(key1 = Unit) {
                         focusRequesterSearch.requestFocus()
                         onIsSearchBarInitTopBar(true)
                     }
                 }
                 /* Focus search bar on menu collapse if previously focused */
-                LaunchedEffect(isMenuExpanded) {
+                LaunchedEffect(key1 = isMenuExpanded) {
                     if (isMenuExpanded) focusManager.clearFocus()
                     else if (isSearchBarFocused) focusRequesterSearch.requestFocus()
                 }
@@ -834,14 +842,16 @@ private fun ListFlagsTopBar(
                     else if (isSearchBarFocused) focusRequesterSearch.requestFocus()
                 }
 
-                Box(modifier = Modifier.weight(1f)) {
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.CenterStart,
+                ) {
                     /* Background for TextField as clipping issues when setting size directly */
                     Surface(
                         modifier = Modifier
-                            .offset(y = textFieldOffset)
                             .fillMaxWidth()
                             .padding(start = textFieldStartPadding)
-                            .height(48.dp * configuration.fontScale),
+                            .height(textFieldHeight),
                         shape = TextFieldDefaults.shape,
                         color = TextFieldDefaults.colors().focusedContainerColor
                     ) { }
@@ -856,9 +866,13 @@ private fun ListFlagsTopBar(
                                 if (it.isFocused) onFocus()
                             }
                             .focusRequester(focusRequesterSearch),
+                        textStyle = textFieldStyle,
                         singleLine = true,
                         placeholder = {
-                            Text(text = stringResource(R.string.search_bar_placeholder))
+                            Text(
+                                text = stringResource(R.string.search_bar_placeholder),
+                                style = textFieldStyle,
+                            )
                         },
                         trailingIcon = {
                             Box(
