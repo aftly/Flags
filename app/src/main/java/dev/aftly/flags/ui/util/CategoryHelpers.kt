@@ -102,6 +102,15 @@ fun getSingleCategoryPreviewTitleOrNull(
     }
 }
 
+fun isOnlySovereignState(
+    superCategories: List<FlagSuperCategory>,
+    subCategories: List<FlagCategory>,
+): Boolean = when (superCategories.size to subCategories.size) {
+    1 to 1 -> Sovereign in superCategories && SOVEREIGN_STATE in subCategories
+    0 to 1 -> SOVEREIGN_STATE in subCategories
+    else -> false
+}
+
 /* Extension functions */
 fun FlagCategory.toWrapper(): FlagCategoryWrapper = FlagCategoryWrapper(enum = this)
 

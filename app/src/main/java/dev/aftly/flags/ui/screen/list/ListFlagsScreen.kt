@@ -94,7 +94,6 @@ import androidx.navigation.NavBackStackEntry
 import dev.aftly.flags.R
 import dev.aftly.flags.model.FlagCategoryBase
 import dev.aftly.flags.model.FlagSuperCategory.All
-import dev.aftly.flags.model.FlagSuperCategory.Sovereign
 import dev.aftly.flags.model.FlagView
 import dev.aftly.flags.ui.component.FilterButtonMenu
 import dev.aftly.flags.ui.component.NoResultsFound
@@ -106,6 +105,7 @@ import dev.aftly.flags.ui.util.clickableNoHaptics
 import dev.aftly.flags.ui.util.flagDatesString
 import dev.aftly.flags.ui.util.getCardColors
 import dev.aftly.flags.ui.util.getFlagFromId
+import dev.aftly.flags.ui.util.isOnlySovereignState
 import kotlinx.coroutines.launch
 
 
@@ -222,11 +222,11 @@ private fun ListFlagsScreen(
 
     LaunchedEffect(key1 = onDrawerNavigateToList) {
         if (onDrawerNavigateToList) {
-            val currentSupers = uiState.currentSuperCategories
-            val isOnlySovereign = currentSupers.isNotEmpty() && currentSupers
-                .none { it != Sovereign } && uiState.currentSubCategories.isEmpty()
+            val superCategories = uiState.currentSuperCategories
+            val subCategories = uiState.currentSubCategories
+            val isOnlySovereignState = isOnlySovereignState(superCategories, subCategories)
 
-            if (!isOnlySovereign) onResetScreen()
+            if (!isOnlySovereignState) onResetScreen()
             else coroutineScope.launch { listState.animateScrollToItem(index = 0) }
 
             onResetDrawerNavigateToList()
