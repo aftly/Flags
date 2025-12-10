@@ -577,7 +577,7 @@ private fun GameContent(
     var imageHeightModifier by remember { mutableStateOf<Modifier>(value = Modifier) }
     var cardWidthModifier by remember { mutableStateOf<Modifier>(value = Modifier) }
     val density = LocalDensity.current
-    val contentTopPadding = Dimens.filterButtonHeight30 / 2
+    val contentTopPadding = with(receiver = density) { Dimens.filterButtonHeight30.toDp() } / 2
 
     val aspectRatioTopPadding = when (isWideScreen) {
         false -> Dimens.large24

@@ -30,6 +30,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import dev.aftly.flags.model.FlagView
@@ -59,6 +60,7 @@ fun RelatedFlagsMenuCard(
 ) {
     val listState = rememberLazyListState()
     var isExpandedDelay by remember { mutableStateOf(value = false) }
+    var menuCardOffset by remember { mutableStateOf(value = 0.dp) }
     var itemHeight by remember { mutableIntStateOf(value = 0) }
     var cardHeight by remember { mutableIntStateOf(value = 0) }
     val bottomItemOffset = cardHeight - (itemHeight * 5 / 4)
@@ -121,6 +123,7 @@ fun RelatedFlagsMenuCard(
             isOnlyButton = isOnlyButton,
             menuButtonOffset = menuButtonOffset,
             menuButtonWidth = menuButtonWidth,
+            onButtonExtraHeight = { menuCardOffset = it * 0.8f },
             onMenuExpand = onExpand,
         )
 
@@ -129,7 +132,8 @@ fun RelatedFlagsMenuCard(
             MenuCard(
                 modifier = Modifier.fillMaxWidth()
                     .padding(
-                        top = (scaffoldPadding.calculateTopPadding() - Dimens.small10)
+                        top = (scaffoldPadding
+                            .calculateTopPadding() + menuCardOffset - Dimens.small10)
                             .coerceAtLeast(minimumValue = 0.dp),
                         bottom = scaffoldPadding.calculateBottomPadding(),
                         start = Dimens.margin16,
@@ -161,6 +165,7 @@ private fun DuplicateRelatedFlagsButton(
     isOnlyButton: Boolean,
     menuButtonOffset: Offset,
     menuButtonWidth: Int,
+    onButtonExtraHeight: (Dp) -> Unit,
     onMenuExpand: () -> Unit,
 ) {
     val density = LocalDensity.current
@@ -178,6 +183,7 @@ private fun DuplicateRelatedFlagsButton(
                 isFullSize = isOnlyButton,
                 menuExpanded = visible,
                 onMenuExpand = onMenuExpand,
+                onButtonExtraHeight = onButtonExtraHeight,
             )
         }
     }

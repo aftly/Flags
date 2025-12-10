@@ -314,15 +314,15 @@ fun MenuCategoryItemUnselectable(
     buttonTitle: String? = null,
     fontWeight: FontWeight? = null,
     category: FlagCategoryBase?,
-    onSingleLineCount: (Boolean) -> Unit = {},
+    onLineCount: (Int) -> Unit = {},
     onClick: () -> Unit,
     preTextContent: @Composable (RowScope.() -> Unit)? = null,
     postTextContent: @Composable RowScope.() -> Unit = {},
 ) {
-    val boxModifier = if (isMenuButton) modifier.fillMaxSize() else modifier
-        .fillMaxWidth()
-        .padding(vertical = Dimens.menuItemVertPad)
-
+    val boxModifier = when {
+        isMenuButton -> modifier.fillMaxWidth()
+        else -> modifier.fillMaxWidth().padding(vertical = Dimens.menuItemVertPad)
+    }
     val buttonModifier =
         if (isMenuButton || !isEnabled) Modifier else Modifier.clickable(onClick = onClick)
 
@@ -350,7 +350,7 @@ fun MenuCategoryItemUnselectable(
             textAlign = TextAlign.Center,
             category = category,
             onTextWidth = { textWidth = it },
-            onSingleLineCount = onSingleLineCount,
+            onLineCount = onLineCount,
             preTextContent = {
                 if (nestLevel != 0) preTextContent?.let {
                     preTextContent()
@@ -378,14 +378,13 @@ fun MenuCategoryItemContent(
     textAlign: TextAlign? = null,
     category: FlagCategoryBase?,
     onTextWidth: (Dp) -> Unit = {},
-    onSingleLineCount: (Boolean) -> Unit = {},
+    onLineCount: (Int) -> Unit = {},
     preTextContent: (@Composable RowScope.() -> Unit)? = null,
     postTextContent: @Composable RowScope.() -> Unit = {},
 ) {
     val buttonColors = getNestedColors(nestLevel, isEnabled, isSelected, isChildSelected)
 
     val density = LocalDensity.current
-    val rowModifier = if (isMenuButton) modifier.fillMaxSize() else modifier.fillMaxWidth()
     val textPaddingModifier =
         if (isMenuButton) Modifier.padding(horizontal = 2.dp)
         else Modifier.padding(paddingValues = ButtonDefaults.TextButtonContentPadding)
@@ -401,13 +400,17 @@ fun MenuCategoryItemContent(
         )
     }
 
-    val textButtonStyle =
-        if (isMenuButton) MaterialTheme.typography.titleMedium
-        else MaterialTheme.typography.bodyMedium
+    val textButtonStyle = when {
+        isMenuButton -> MaterialTheme.typography.titleMedium.let { style ->
+            style.copy(lineHeight = style.fontSize * 1.25f)
+        }
+        else -> MaterialTheme.typography.bodyMedium
+    }
     val textButtonFontWeight = fontWeight ?: FontWeight.Medium /* When null imitate TextButton() */
 
     Row(
-        modifier = rowModifier.background(color = rowBackgroundColor),
+        modifier = modifier.fillMaxWidth()
+            .background(color = rowBackgroundColor),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -428,14 +431,9 @@ fun MenuCategoryItemContent(
             textAlign = textAlign,
             onTextLayout = when (preTextContent) {
                 null -> null
-                else -> { textLayoutResult ->
-                    with(receiver = density) { onTextWidth(textLayoutResult.size.width.toDp()) }
-
-                    if (isMenuButton && textLayoutResult.lineCount > 1) {
-                        onSingleLineCount(false)
-                    } else if (isMenuButton) {
-                        onSingleLineCount(true)
-                    }
+                else -> { textLayout ->
+                    with(receiver = density) { onTextWidth(textLayout.size.width.toDp()) }
+                    if (isMenuButton) onLineCount(textLayout.lineCount)
                 }
             },
             style = textButtonStyle,

@@ -1,7 +1,9 @@
 package dev.aftly.flags.ui.theme
 
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 
 /* To emulate verbose dimensionResource(R.dimen.padding_small) from dimens.xml */
@@ -17,10 +19,9 @@ object Dimens {
 
     val margin16: Dp = 16.dp
     val listItemHeight48: Dp = 48.dp
-    val filterButtonHeight30: Dp = 30.dp
-    val filterButtonHeightTwoLine50: Dp = 50.dp
+    val filterButtonHeight30: TextUnit = 30.sp
+    val filterButtonHeightTwoLine50: TextUnit = 60.sp
     val bottomSpacer80: Dp = 80.dp
     val iconSize24: Dp = 24.dp
     val menuItemVertPad: Dp = 4.dp
-    val textButtonHorizPad: Dp = 12.dp
 }

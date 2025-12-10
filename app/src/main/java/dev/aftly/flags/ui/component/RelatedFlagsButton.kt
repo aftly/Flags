@@ -17,13 +17,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionOnScreen
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import dev.aftly.flags.R
 import dev.aftly.flags.model.menu.FlagsMenu
@@ -40,22 +48,36 @@ fun RelatedFlagsButton(
     onMenuExpand: () -> Unit,
     onButtonPosition: (Offset) -> Unit = {},
     onButtonWidth: (Int) -> Unit = {},
+    onButtonExtraHeight: (Dp) -> Unit = {},
 ) {
+    val density = LocalDensity.current
     val buttonColors = ButtonDefaults.buttonColors(containerColor = menu.color())
     val iconSize = Dimens.iconSize24
     val iconPadding = 2.dp
     val titleStringRes = if (isFullSize) menu.title else menu.titleShort
+    var lineCount by remember { mutableIntStateOf(value = 1) }
+    val buttonHeightOneLine = with(receiver = density) { Dimens.filterButtonHeight30.toDp() }
+    val buttonHeight = when (lineCount) {
+        1 -> buttonHeightOneLine
+        else -> Dp.Unspecified
+    }
+    val buttonHeightUnspecified by remember { mutableStateOf(value = buttonHeight) }
 
     Box(
         modifier = modifier
             .onGloballyPositioned { layout ->
                 onButtonPosition(layout.positionOnScreen())
                 onButtonWidth(layout.size.width)
+                if (lineCount > 1) {
+                    val height = with(receiver = density) { layout.size.height.toDp() }
+                    val extraHeight = height - buttonHeightOneLine
+                    onButtonExtraHeight(extraHeight)
+                }
             }
     ) {
         Button(
             onClick = onMenuExpand,
-            modifier = Modifier.height(Dimens.filterButtonHeight30),
+            modifier = Modifier.height(buttonHeight),
             shape = MaterialTheme.shapes.large,
             colors = buttonColors,
             contentPadding = PaddingValues(horizontal = Dimens.medium16),
@@ -70,15 +92,18 @@ fun RelatedFlagsButton(
                     contentDescription = null,
                     modifier = Modifier
                         .size(iconSize)
-                        .padding(start = iconPadding),
+                        .padding(horizontal = iconPadding),
                     tint = buttonColors.contentColor,
                 )
 
                 Text(
-                    text = stringResource(titleStringRes),
+                    text = stringResource(id = titleStringRes),
                     modifier = Modifier.weight(1f, fill = false),
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleMedium,
+                    onTextLayout = { lineCount = it.lineCount },
+                    style = MaterialTheme.typography.titleMedium.let { style ->
+                        style.copy(lineHeight = style.fontSize * 1.2f)
+                    },
                 )
 
                 if (!menuExpanded) {

@@ -31,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -39,7 +40,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
@@ -105,11 +105,14 @@ fun FilterButtonMenu(
     )
 
     /* Button height properties */
-    val fontScale = LocalConfiguration.current.fontScale
-    val buttonHeightOneLine = Dimens.filterButtonHeight30 * fontScale
-    val buttonHeightTwoLine = Dimens.filterButtonHeightTwoLine50 * fontScale
-    var isButtonOneLine by remember { mutableStateOf(value = true) }
-    var buttonHeight by remember { mutableStateOf(value = buttonHeightOneLine) }
+    val density = LocalDensity.current
+    val buttonHeightOneLine = with(receiver = density) { Dimens.filterButtonHeight30.toDp() }
+    var lineCount by remember { mutableIntStateOf(value = 1) }
+    val buttonHeight = when (lineCount) {
+        1 -> buttonHeightOneLine
+        else -> Dp.Unspecified
+    }
+    var buttonHeightUnspecified by remember { mutableStateOf(value = buttonHeight) }
 
     /* Manage button title & exceptions */
     val buttonTitle = buildString {
@@ -117,6 +120,7 @@ fun FilterButtonMenu(
             append(stringResource(resId))
         }
     }
+    val buttonContentPadding = if (lineCount > 1) 2.dp else 0.dp
 
     var flagCountWidth by remember { mutableStateOf(value = Dimens.iconSize24) }
     val filterModeButtonPadding = Dimens.small10 + 1.dp
@@ -125,10 +129,10 @@ fun FilterButtonMenu(
     val lazyColumnContentPadding = PaddingValues(bottom = Dimens.small10)
 
     /* Button height effects */
-    LaunchedEffect(key1 = buttonHeight) {
-        when (buttonHeight) {
-            buttonHeightOneLine -> onButtonHeightChange(buttonHeightOneLine)
-            buttonHeightTwoLine -> onButtonHeightChange(buttonHeightTwoLine)
+    LaunchedEffect(key1 = lineCount) {
+        when (lineCount) {
+            1 -> onButtonHeightChange(buttonHeightOneLine)
+            else -> onButtonHeightChange(buttonHeightUnspecified)
         }
     }
 
@@ -178,33 +182,29 @@ fun FilterButtonMenu(
                 onClick = onMenuExpand,
                 modifier = Modifier
                     .padding(bottom = Dimens.small8) /* Separate Button from Menu */
-                    .height(buttonHeight),
+                    .height(buttonHeight)
+                    .onSizeChanged {
+                        buttonHeightUnspecified = with(receiver = density) { it.height.toDp() }
+                    },
                 enabled = isMenuEnabled,
                 shape = MaterialTheme.shapes.large,
                 colors = menuButtonColors,
                 contentPadding = PaddingValues(horizontal = Dimens.medium16),
             ) {
                 MenuCategoryItemUnselectable(
+                    modifier = Modifier.padding(vertical = buttonContentPadding),
                     nestLevel = menuButtonNestLevel,
                     isEnabled = true,
                     isMenuButton = true,
                     buttonTitle = buttonTitle,
                     category = null,
-                    onSingleLineCount = { isSingleLine ->
-                        if (isSingleLine) {
-                            buttonHeight = buttonHeightOneLine
-                            isButtonOneLine = true
-                        } else {
-                            buttonHeight = buttonHeightTwoLine
-                            isButtonOneLine = false
-                        }
-                    },
+                    onLineCount = { lineCount = it },
                     onClick = {}, /* Parent button handles onClick */
                     preTextContent = {
                         if (flagCount != null) {
                             FlagCounter(
                                 parentColors = menuButtonColors,
-                                isButtonOneLine = isButtonOneLine,
+                                isButtonOneLine = lineCount == 1,
                                 flagCount = flagCount,
                                 onWidth = { flagCountWidth = it },
                             )
