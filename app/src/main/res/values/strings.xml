@@ -62,6 +62,7 @@
     <string name="category_sub_ideological_orientation">Ideological Orientation</string>
     <string name="category_sovereign_state_title">Sovereign State</string>
     <string name="category_sovereign_state_string">sovereign state</string>
+    <string name="category_sovereign_state_button_title">Country</string>
     <string name="category_free_association_title">Free Association</string>
     <string name="category_free_association_string">free association</string>
     <string name="category_free_association_in_description">in free association with</string>
@@ -81,6 +82,7 @@
     <string name="category_unrecognized_state_short_string">unrecognized</string>
     <string name="category_unrecognized_state_short_string_an">n unrecognized</string>
     <string name="category_annexed_territory_title">Annexed Territory</string>
+    <string name="category_annexed_territory_title_short">Annexed</string>
     <string name="category_annexed_territory_string">annexed</string>
     <string name="category_annexed_territory_descriptor">(annexed)</string>
     <string name="category_canton_title">Canton</string>
@@ -265,7 +267,10 @@
     <string name="category_historical_string">historical</string>
     <string name="category_historical_in_description">defunct</string>
     <string name="category_historical_descriptor">(defunct)</string>
+    <string name="categories_associated_or_annexed_country">Associated or Annexed Country</string>
+    <string name="categories_associated_or_annexed_microstate">Associated or Annexed Microstate</string>
     <string name="categories_associated_country">Associated Country</string>
+    <string name="categories_associated_microstate">Associated Microstate</string>
     <string name="categories_autonomous_title">Autonomous</string>
     <string name="categories_autonomous_string">autonomous</string>
     <string name="categories_autonomous_regional">Autonomous or (Non-Sovereign) Associated Region</string>

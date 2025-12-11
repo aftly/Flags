@@ -46,16 +46,19 @@ import dev.aftly.flags.data.DataSource.switchSubsSuperCategories
 import dev.aftly.flags.data.DataSource.switchSupersSuperCategories
 import dev.aftly.flags.data.room.scorehistory.ScoreItem
 import dev.aftly.flags.model.FlagCategory
+import dev.aftly.flags.model.FlagCategory.ANNEXED_TERRITORY
 import dev.aftly.flags.model.FlagCategory.AUTONOMOUS_REGION
 import dev.aftly.flags.model.FlagCategory.CONFEDERATION
 import dev.aftly.flags.model.FlagCategory.DEVOLVED_GOVERNMENT
 import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
 import dev.aftly.flags.model.FlagCategory.HISTORICAL
+import dev.aftly.flags.model.FlagCategory.MICROSTATE
 import dev.aftly.flags.model.FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL
 import dev.aftly.flags.model.FlagCategory.ONE_PARTY
 import dev.aftly.flags.model.FlagCategory.PROVISIONAL_GOVERNMENT
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_ENTITY
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
+import dev.aftly.flags.model.FlagCategory.RELIGIOUS
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
 import dev.aftly.flags.model.FlagCategory.THEOCRATIC
 import dev.aftly.flags.model.FlagCategory.VEXILLOLOGY
@@ -445,13 +448,13 @@ fun updateCategoriesFromSuper(
 
     return if (superCategory in superCategories) {
         /* Handle removal from superCategories */
-        superCategories.remove(superCategory)
+        superCategories.remove(element = superCategory)
         true to false // isDeselect
 
     } else if (subCategories.isNotEmpty() && superCategory.subCategories.size == 1 &&
         superCategory.firstCategoryEnumOrNull() in subCategories) {
         /* Handle removal from subCategories (not mutually exclusive from above) */
-        subCategories.remove(superCategory.firstCategoryEnumOrNull())
+        subCategories.remove(element = superCategory.firstCategoryEnumOrNull())
         true to false // isDeselect
 
     } else if (isSwitchSuper != null) {
@@ -610,12 +613,16 @@ fun getCategoriesTitleIds(
                     Institution.allEnums().any { it in subCategories } ||
                     CONFEDERATION in subCategories)
 
+    val isSovereign = Sovereign in superCategoriesFiltered
     val isSovereignState = SOVEREIGN_STATE in subCategories
     val isSovereignEntity = SOVEREIGN_ENTITY in subCategories
+    val isMicrostate = MICROSTATE in subCategories
+    val isCountry = isSovereign || isSovereignState || isMicrostate
 
-    /* For string exceptions when supers or subs mean associated countries */
-    val isAssociatedCountry = (Sovereign in superCategoriesFiltered || isSovereignState) &&
-            (AutonomousRegion in superCategoriesFiltered || FREE_ASSOCIATION in subCategories)
+    val isCountryAutonomousCategories = isCountry && AutonomousRegion in superCategoriesFiltered
+    val isAssociatedCountry = isCountry && FREE_ASSOCIATION in subCategories
+
+    val isAnnexed = ANNEXED_TERRITORY in subCategories
 
     /* For string exceptions when supers mean non-sovereign autonomous and associated regions */
     val isAutonomousRegionalSupers = superCategoriesFiltered.containsAll(
@@ -659,11 +666,16 @@ fun getCategoriesTitleIds(
         strings.add(R.string.string_whitespace)
     }
 
-    if (isCultural) {
-        superCategoriesFiltered.remove(element = Cultural)
-        strings.add(Cultural.title)
-        if (superCategoriesFiltered.isNotEmpty() || politicalCategories.isNotEmpty() ||
-            remainingCategories.isNotEmpty()) {
+    if (isAnnexed) {
+        remainingCategories.remove(element = ANNEXED_TERRITORY)
+
+        val isEmpty =
+            (politicalCategories + superCategoriesFiltered + remainingCategories).isEmpty()
+
+        if (isEmpty) {
+            strings.add(ANNEXED_TERRITORY.title)
+        } else {
+            strings.add(R.string.category_annexed_territory_title_short)
             strings.add(R.string.string_whitespace)
         }
     }
@@ -671,8 +683,34 @@ fun getCategoriesTitleIds(
     culturalCategories.forEachIndexed { index, culturalCategory ->
         strings.add(culturalCategory.title)
 
+        if (culturalCategory == RELIGIOUS && isSovereign) {
+            superCategoriesFiltered.remove(element = Sovereign)
+            strings.add(R.string.string_whitespace)
+            strings.add(SOVEREIGN_ENTITY.title)
+        }
+
         if (index != culturalCategories.lastIndex) strings.add(R.string.string_ampersand)
         else strings.add(R.string.string_whitespace)
+    }
+
+    if (isCultural) {
+        superCategoriesFiltered.remove(element = Cultural)
+
+        val isEmpty =
+            (politicalCategories + superCategoriesFiltered + remainingCategories).isEmpty()
+
+        when {
+            isSovereign -> {
+                superCategoriesFiltered.remove(element = Sovereign)
+                strings.add(RELIGIOUS.title)
+                strings.add(R.string.string_whitespace)
+                strings.add(SOVEREIGN_ENTITY.title)
+            }
+            else -> {
+                strings.add(Cultural.title)
+                if (!isEmpty) strings.add(R.string.string_whitespace)
+            }
+        }
     }
 
     politicalCategories.forEachIndexed { index, politicalCategory ->
@@ -699,6 +737,7 @@ fun getCategoriesTitleIds(
             if (isNotPowerException && isNotAutonomous &&
                 isNotConfederation && !isConfederationException) {
                 when {
+                    isMicrostate -> null
                     isSovereignEntity -> strings.add(R.string.category_entity_title)
                     else -> strings.add(R.string.category_state_title)
                 }
@@ -712,12 +751,21 @@ fun getCategoriesTitleIds(
         strings.add(R.string.string_whitespace)
     }
 
-    if (isAssociatedCountry) {
-        superCategoriesFiltered.remove(element = Sovereign)
-        superCategoriesFiltered.remove(element = AutonomousRegion)
-        remainingCategories.remove(element = SOVEREIGN_STATE)
-        remainingCategories.remove(element = FREE_ASSOCIATION)
-        strings.add(R.string.categories_associated_country)
+    if (isCountryAutonomousCategories || isAssociatedCountry) {
+        superCategoriesFiltered.removeAll(elements = listOf(Sovereign, AutonomousRegion))
+        remainingCategories.removeAll(
+            elements = listOf(SOVEREIGN_STATE, FREE_ASSOCIATION, MICROSTATE)
+        )
+        when {
+            isCountryAutonomousCategories && isMicrostate -> strings.add(
+                R.string.categories_associated_or_annexed_microstate
+            )
+            isCountryAutonomousCategories -> strings.add(
+                R.string.categories_associated_or_annexed_country
+            )
+            isMicrostate -> strings.add(R.string.categories_associated_microstate)
+            else -> strings.add(R.string.categories_associated_country)
+        }
         strings.add(R.string.string_whitespace)
     }
 
@@ -741,14 +789,27 @@ fun getCategoriesTitleIds(
     }
 
     superCategoriesFiltered.forEach { superCategory ->
-        if (superCategory == Regional &&
-            (isHistorical || isCultural || isAutonomousRegion ||
-            isDevolvedRegion || culturalCategories.isNotEmpty())) {
-            strings.add(R.string.category_region_title)
-            strings.add(R.string.string_whitespace)
-        } else {
-            superCategory.categoriesMenuButton?.let { strings.add(it) }
-            strings.add(R.string.string_whitespace)
+        val isRegionException = isHistorical || isCultural || isAutonomousRegion ||
+                isDevolvedRegion || culturalCategories.isNotEmpty()
+
+        when (superCategory to true) {
+            Sovereign to isMicrostate -> null
+            Sovereign to isAnnexed -> {
+                strings.add(R.string.category_sovereign_state_button_title)
+                strings.add(R.string.string_whitespace)
+            }
+            AutonomousRegion to isMicrostate -> null
+
+            Regional to isRegionException -> {
+                strings.add(R.string.category_region_title)
+                strings.add(R.string.string_whitespace)
+            }
+            else -> {
+                superCategory.categoriesMenuButton?.let {
+                    strings.add(it)
+                    strings.add(R.string.string_whitespace)
+                }
+            }
         }
     }
 
@@ -759,10 +820,12 @@ fun getCategoriesTitleIds(
     }
 
     remainingCategories.forEach { subCategory ->
-        if (subCategory == VEXILLOLOGY) {
-            strings.add(R.string.category_vexillology_category_button_title)
-        } else {
-            strings.add(subCategory.title)
+        when (subCategory) {
+            SOVEREIGN_STATE -> if (!isMicrostate) {
+                strings.add(R.string.category_sovereign_state_button_title)
+            }
+            VEXILLOLOGY -> strings.add(R.string.category_vexillology_category_button_title)
+            else -> strings.add(subCategory.title)
         }
         strings.add(R.string.string_whitespace)
     }

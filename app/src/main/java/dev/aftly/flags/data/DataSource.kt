@@ -125,6 +125,7 @@ data object DataSource {
                 FlagSuperCategory.Institution,
                 FlagCategory.POLITICAL_MOVEMENT.toWrapper(),
                 FlagCategory.TRIBE.toWrapper(),
+                FlagCategory.ETHNIC.toWrapper(),
                 FlagCategory.SOCIAL.toWrapper(),
                 FlagCategory.MARITIME.toWrapper(),
                 FlagCategory.MILITANT_ORGANIZATION.toWrapper(),
@@ -158,6 +159,26 @@ data object DataSource {
         Pair(
             first = FlagCategory.UNRECOGNIZED_STATE.toWrapper(),
             second = FlagCategory.TRIBE.toWrapper()
+        ),
+        Pair(
+            first = FlagSuperCategory.AutonomousRegion,
+            second = FlagCategory.ETHNIC.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.AUTONOMOUS_REGION.toWrapper(),
+            second = FlagCategory.ETHNIC.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.DEVOLVED_GOVERNMENT.toWrapper(),
+            second = FlagCategory.ETHNIC.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.INDIGENOUS_TERRITORY.toWrapper(),
+            second = FlagCategory.ETHNIC.toWrapper()
+        ),
+        Pair(
+            first = FlagCategory.UNRECOGNIZED_STATE.toWrapper(),
+            second = FlagCategory.ETHNIC.toWrapper()
         ),
         Pair(
             first = FlagSuperCategory.AutonomousRegion,
