@@ -77,15 +77,20 @@ data object DataSource {
         FlagCategory.SOVEREIGN_STATE.toWrapper(),
         FlagCategory.MICROSTATE.toWrapper(),
     )
-    val categoriesInclusiveOfSovereignState: List<FlagCategoryBase> = listOf(
-        FlagSuperCategory.Sovereign,
-        FlagSuperCategory.AutonomousRegion,
-        FlagSuperCategory.Historical,
-        FlagCategory.SOVEREIGN_STATE.toWrapper(),
-        FlagCategory.FREE_ASSOCIATION.toWrapper(),
-        FlagCategory.ANNEXED_TERRITORY.toWrapper(),
-        FlagCategory.MICROSTATE.toWrapper(),
-    )
+    val categoriesInclusiveOfSovereignState: List<FlagCategoryBase> = buildList {
+        addAll(
+            elements = listOf(
+                FlagSuperCategory.Sovereign,
+                FlagSuperCategory.AutonomousRegion,
+                FlagSuperCategory.Historical,
+                FlagCategory.SOVEREIGN_STATE.toWrapper(),
+                FlagCategory.FREE_ASSOCIATION.toWrapper(),
+                FlagCategory.ANNEXED_TERRITORY.toWrapper(),
+                FlagCategory.MICROSTATE.toWrapper(),
+            )
+        )
+        addAll(elements = FlagSuperCategory.Political.allEnums().map { it.toWrapper() })
+    }
     val categoriesSovereignStateExceptionPairs: List<Pair<FlagCategoryBase, FlagCategoryBase>> =
         listOf(
             Pair(
