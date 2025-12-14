@@ -55,12 +55,16 @@ import dev.aftly.flags.model.FlagCategory.HISTORICAL
 import dev.aftly.flags.model.FlagCategory.MICROSTATE
 import dev.aftly.flags.model.FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL
 import dev.aftly.flags.model.FlagCategory.ONE_PARTY
+import dev.aftly.flags.model.FlagCategory.POLITICAL_MOVEMENT
 import dev.aftly.flags.model.FlagCategory.PROVISIONAL_GOVERNMENT
+import dev.aftly.flags.model.FlagCategory.QUASI_STATE
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_ENTITY
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
 import dev.aftly.flags.model.FlagCategory.RELIGIOUS
+import dev.aftly.flags.model.FlagCategory.TERRITORY
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
 import dev.aftly.flags.model.FlagCategory.THEOCRATIC
+import dev.aftly.flags.model.FlagCategory.UNRECOGNIZED_STATE
 import dev.aftly.flags.model.FlagCategory.VEXILLOLOGY
 import dev.aftly.flags.model.FlagCategoryBase
 import dev.aftly.flags.model.FlagCategoryWrapper
@@ -623,6 +627,8 @@ fun getCategoriesTitleIds(
     val isAssociatedCountry = isCountry && FREE_ASSOCIATION in subCategories
 
     val isAnnexed = ANNEXED_TERRITORY in subCategories
+    val isUnrecognizedState = UNRECOGNIZED_STATE in subCategories
+    val isQuasiState = QUASI_STATE in subCategories
 
     /* For string exceptions when supers mean non-sovereign autonomous and associated regions */
     val isAutonomousRegionalSupers = superCategoriesFiltered.containsAll(
@@ -642,7 +648,7 @@ fun getCategoriesTitleIds(
 
 
     /* ------------------- Category groups ------------------- */
-    val culturalCategories = subCategories.filter { it in Cultural.enums() }
+    val culturalCategories = subCategories.filter { it in Cultural.enums() }.toMutableList()
 
     /* Political categories, sorted semantically, and exceptions applied */
     val polCats = subCategories.filter { it in Political.allEnums() }
@@ -666,6 +672,12 @@ fun getCategoriesTitleIds(
         strings.add(R.string.string_whitespace)
     }
 
+    if (isQuasiState && POLITICAL_MOVEMENT in culturalCategories) {
+        culturalCategories.remove(element = POLITICAL_MOVEMENT)
+        strings.add(POLITICAL_MOVEMENT.title)
+        strings.add(R.string.string_ampersand)
+    }
+
     if (isAnnexed) {
         remainingCategories.remove(element = ANNEXED_TERRITORY)
 
@@ -678,6 +690,26 @@ fun getCategoriesTitleIds(
             strings.add(R.string.category_annexed_territory_title_short)
             strings.add(R.string.string_whitespace)
         }
+    }
+
+    if (isUnrecognizedState) {
+        remainingCategories.remove(element = UNRECOGNIZED_STATE)
+
+        val isEmpty =
+            (politicalCategories + superCategoriesFiltered + remainingCategories).isEmpty()
+
+        if (isEmpty) {
+            strings.add(UNRECOGNIZED_STATE.title)
+        } else {
+            strings.add(R.string.category_unrecognized_state_short_title)
+            strings.add(R.string.string_whitespace)
+        }
+    }
+
+    if (isQuasiState && AutonomousRegion in superCategoriesFiltered) {
+        superCategoriesFiltered.remove(element = AutonomousRegion)
+        strings.add(R.string.categories_unrecognized_or_annexed)
+        strings.add(R.string.string_whitespace)
     }
 
     culturalCategories.forEachIndexed { index, culturalCategory ->
@@ -800,6 +832,9 @@ fun getCategoriesTitleIds(
             }
             AutonomousRegion to isMicrostate -> null
 
+            Regional to isUnrecognizedState -> {
+                strings.add(TERRITORY.title)
+            }
             Regional to isRegionException -> {
                 strings.add(R.string.category_region_title)
                 strings.add(R.string.string_whitespace)

@@ -79,6 +79,7 @@
     <string name="category_unrecognized_state_title">Unrecognized State</string>
     <string name="category_unrecognized_state_string">unrecognized state</string>
     <string name="category_unrecognized_state_string_an">n unrecognized state</string>
+    <string name="category_unrecognized_state_short_title">Unrecognized</string>
     <string name="category_unrecognized_state_short_string">unrecognized</string>
     <string name="category_unrecognized_state_short_string_an">n unrecognized</string>
     <string name="category_annexed_territory_title">Annexed Territory</string>
@@ -269,6 +270,7 @@
     <string name="category_historical_descriptor">(defunct)</string>
     <string name="categories_associated_or_annexed_country">Associated or Annexed Country</string>
     <string name="categories_associated_or_annexed_microstate">Associated or Annexed Microstate</string>
+    <string name="categories_unrecognized_or_annexed">Unrecognized or Annexed</string>
     <string name="categories_associated_country">Associated Country</string>
     <string name="categories_associated_microstate">Associated Microstate</string>
     <string name="categories_autonomous_title">Autonomous</string>

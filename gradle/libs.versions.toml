@@ -1,6 +1,6 @@
 # Kotlin and KSP must match. Update together.
 [versions]
-agp = "8.13.1"
+agp = "8.13.2"
 datastorePreferences = "1.2.0"
 icu4j = "78.1"
 kotlin = "2.2.21"
