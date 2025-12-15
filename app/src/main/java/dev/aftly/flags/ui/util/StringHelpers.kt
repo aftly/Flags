@@ -66,3 +66,12 @@ fun flagDatesString(
         if (isBrackets) append(stringResource(R.string.string_close_bracket))
     }
 }
+
+fun removeLastWhitespaceCommas(resIds: MutableList<Int>) {
+    val whitespaceCommaResIds = listOf(R.string.string_whitespace, R.string.string_comma_whitespace)
+
+    if (resIds.lastOrNull() in whitespaceCommaResIds) {
+        resIds.removeLastOrNull()
+        removeLastWhitespaceCommas(resIds)
+    }
+}

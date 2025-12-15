@@ -427,6 +427,7 @@ data object DataSource {
     val categoriesQuasiState: List<FlagCategoryBase> = listOf(FlagCategory.QUASI_STATE.toWrapper())
     val categoriesInclusiveOfQuasiState: List<FlagCategoryBase> = listOf(
         FlagSuperCategory.AutonomousRegion,
+        FlagSuperCategory.Institution,
         FlagSuperCategory.Executive,
         FlagSuperCategory.Civilian,
         FlagSuperCategory.Cultural,

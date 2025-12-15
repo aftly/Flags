@@ -53,15 +53,16 @@ import dev.aftly.flags.model.FlagCategory.DEVOLVED_GOVERNMENT
 import dev.aftly.flags.model.FlagCategory.FREE_ASSOCIATION
 import dev.aftly.flags.model.FlagCategory.HISTORICAL
 import dev.aftly.flags.model.FlagCategory.MICROSTATE
+import dev.aftly.flags.model.FlagCategory.MILITARY
 import dev.aftly.flags.model.FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL
 import dev.aftly.flags.model.FlagCategory.ONE_PARTY
-import dev.aftly.flags.model.FlagCategory.POLITICAL_ORGANIZATION
 import dev.aftly.flags.model.FlagCategory.POLITICAL_MOVEMENT
+import dev.aftly.flags.model.FlagCategory.POLITICAL_ORGANIZATION
 import dev.aftly.flags.model.FlagCategory.PROVISIONAL_GOVERNMENT
 import dev.aftly.flags.model.FlagCategory.QUASI_STATE
+import dev.aftly.flags.model.FlagCategory.RELIGIOUS
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_ENTITY
 import dev.aftly.flags.model.FlagCategory.SOVEREIGN_STATE
-import dev.aftly.flags.model.FlagCategory.RELIGIOUS
 import dev.aftly.flags.model.FlagCategory.TERRITORY
 import dev.aftly.flags.model.FlagCategory.THEOCRACY
 import dev.aftly.flags.model.FlagCategory.THEOCRATIC
@@ -72,7 +73,9 @@ import dev.aftly.flags.model.FlagCategoryWrapper
 import dev.aftly.flags.model.FlagSuperCategory
 import dev.aftly.flags.model.FlagSuperCategory.All
 import dev.aftly.flags.model.FlagSuperCategory.AutonomousRegion
+import dev.aftly.flags.model.FlagSuperCategory.Civilian
 import dev.aftly.flags.model.FlagSuperCategory.Cultural
+import dev.aftly.flags.model.FlagSuperCategory.Executive
 import dev.aftly.flags.model.FlagSuperCategory.ExecutiveStructure
 import dev.aftly.flags.model.FlagSuperCategory.Historical
 import dev.aftly.flags.model.FlagSuperCategory.IdeologicalOrientation
@@ -657,7 +660,6 @@ fun getCategoriesTitleIds(
                     subCategories
                         .any { it in Regional.enums() + AUTONOMOUS_REGION + DEVOLVED_GOVERNMENT })
 
-
     /* ------------------- Category groups ------------------- */
     val culturalCategories = subCategories.filter { it in Cultural.enums() }.toMutableList()
 
@@ -675,6 +677,14 @@ fun getCategoriesTitleIds(
         subCategory in culturalCategories || subCategory in politicalCategories
     }.toMutableList()
 
+    val politicalMilitary = listOf(POLITICAL_ORGANIZATION, MILITARY)
+    val politicalMilitaryParents = listOf(Executive, Civilian)
+    val isPoliticalMilitaryParents = politicalMilitaryParents
+        .all { it in superCategoriesFiltered } || Institution in superCategoriesFiltered
+    val politicalMilitaryCategories = remainingCategories.filter { category ->
+        category in politicalMilitary && politicalMilitary.all { it in remainingCategories }
+    }
+
 
     /* -------------------------------- GET ITERATIONS -------------------------------- */
     if (isHistorical) {
@@ -685,9 +695,23 @@ fun getCategoriesTitleIds(
 
     if (isQuasiState) {
         when {
-            POLITICAL_ORGANIZATION in remainingCategories -> {
+            isPoliticalMilitaryParents || politicalMilitaryCategories.isNotEmpty() -> {
+                superCategoriesFiltered.remove(element = Institution)
+                superCategoriesFiltered.removeAll(elements = politicalMilitaryParents)
+                remainingCategories.removeAll(elements = politicalMilitary)
+                strings.add(R.string.category_political_military_organization_title)
+                strings.add(R.string.string_ampersand)
+            }
+            Civilian in superCategoriesFiltered || POLITICAL_ORGANIZATION in remainingCategories -> {
+                superCategoriesFiltered.remove(element = Civilian)
                 remainingCategories.remove(element = POLITICAL_ORGANIZATION)
                 strings.add(POLITICAL_ORGANIZATION.title)
+                strings.add(R.string.string_ampersand)
+            }
+            Executive in superCategoriesFiltered || MILITARY in remainingCategories -> {
+                superCategoriesFiltered.remove(element = Executive)
+                remainingCategories.remove(element = MILITARY)
+                strings.add(MILITARY.title)
                 strings.add(R.string.string_ampersand)
             }
             POLITICAL_MOVEMENT in culturalCategories -> {
@@ -752,8 +776,9 @@ fun getCategoriesTitleIds(
             (politicalCategories + superCategoriesFiltered + remainingCategories).isEmpty()
 
         when {
-            isSovereign -> {
+            isSovereign || isSovereignEntity -> {
                 superCategoriesFiltered.remove(element = Sovereign)
+                remainingCategories.remove(element = SOVEREIGN_ENTITY)
                 strings.add(RELIGIOUS.title)
                 strings.add(R.string.string_whitespace)
                 strings.add(SOVEREIGN_ENTITY.title)
@@ -879,16 +904,16 @@ fun getCategoriesTitleIds(
             SOVEREIGN_STATE -> if (!isMicrostate) {
                 strings.add(R.string.category_sovereign_state_button_title)
             }
+            in politicalMilitaryCategories -> if (subCategory == POLITICAL_ORGANIZATION) {
+                strings.add(R.string.category_political_military_organization_title)
+            }
             VEXILLOLOGY -> strings.add(R.string.category_vexillology_category_button_title)
             else -> strings.add(subCategory.title)
         }
         strings.add(R.string.string_whitespace)
     }
 
-    if (strings.last() == R.string.string_comma_whitespace ||
-        strings.last() == R.string.string_whitespace) {
-        strings.removeLastOrNull()
-    }
+    removeLastWhitespaceCommas(resIds = strings)
     if (isAppendFlags) strings.add(R.string.button_title_flags)
 
     return strings
