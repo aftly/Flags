@@ -424,17 +424,20 @@ private fun isCategoryNotInclusive(
 
     /* Enforce intra-category select/switch exceptions when relevant */
     val isOtherException = when {
-        category is FlagCategoryWrapper -> selectedSuperCategories.any { superCategory ->
-            val enums = superCategory.enums()
-            category.enum in enums && enums.none { it in selectedSubCategories } &&
-                    (category in inclusiveOf || category in categories)
+        category is FlagCategoryWrapper -> {
+            selectedSuperCategories.any { superCategory ->
+                val enums = superCategory.enums()
 
-        } || switchSubsSuperCategories.any { switchSuper ->
-            val enums = switchSuper.enums()
-            val enumsWrapper = enums.map { it.toWrapper() }
+                category.enum in enums && enums.none { it in selectedSubCategories } &&
+                        (category in inclusiveOf || category in categories)
 
-            category.enum in enums && flatSelectedCategories.all {
-                it == switchSuper || it in enumsWrapper
+            } || switchSubsSuperCategories.any { switchSuper ->
+                val enums = switchSuper.enums()
+                val enumsWrapper = enums.map { it.toWrapper() }
+
+                category.enum in enums && flatSelectedCategories.all {
+                    it == switchSuper || it in enumsWrapper
+                }
             }
         }
         else -> false

@@ -58,7 +58,7 @@ data object DataSource {
         FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL to FlagSuperCategory.Sovereign.enums()
     )
 
-    
+
     /* ----- For use in multi-selection in Filter Menu ----- */
     val categoriesMutuallyExclusive: List<FlagCategoryBase> = buildList {
         addAll(
