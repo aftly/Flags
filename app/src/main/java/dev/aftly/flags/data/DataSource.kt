@@ -58,6 +58,7 @@ data object DataSource {
         FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL to FlagSuperCategory.Sovereign.enums()
     )
 
+    
     /* ----- For use in multi-selection in Filter Menu ----- */
     val categoriesMutuallyExclusive: List<FlagCategoryBase> = buildList {
         addAll(
@@ -91,21 +92,20 @@ data object DataSource {
         )
         addAll(elements = FlagSuperCategory.Political.allEnums().map { it.toWrapper() })
     }
-    val categoriesSovereignStateExceptionPairs: List<Pair<FlagCategoryBase, FlagCategoryBase>> =
-        listOf(
-            Pair(
-                first = FlagSuperCategory.Sovereign,
-                second = FlagCategory.RELIGIOUS.toWrapper()
-            ),
-            Pair(
-                first = FlagSuperCategory.Sovereign,
-                second = FlagSuperCategory.Cultural
-            ),
-            Pair(
-                first = FlagCategory.MICROSTATE.toWrapper(),
-                second = FlagCategory.UNRECOGNIZED_STATE.toWrapper()
-            )
+    val categoriesSovereignStatePairs: List<Pair<FlagCategoryBase, FlagCategoryBase>> = listOf(
+        Pair(
+            first = FlagSuperCategory.Sovereign,
+            second = FlagCategory.RELIGIOUS.toWrapper()
+        ),
+        Pair(
+            first = FlagSuperCategory.Sovereign,
+            second = FlagSuperCategory.Cultural
+        ),
+        Pair(
+            first = FlagCategory.MICROSTATE.toWrapper(),
+            second = FlagCategory.UNRECOGNIZED_STATE.toWrapper()
         )
+    )
 
     val categoriesSovereignEntity: List<FlagCategoryBase> = listOf(
         FlagCategory.SOVEREIGN_ENTITY.toWrapper()
@@ -295,7 +295,6 @@ data object DataSource {
         ),
     )
 
-
     val categoriesCivilian: List<FlagCategoryBase> = buildList {
         add(FlagSuperCategory.Civilian)
         addAll(
@@ -440,6 +439,7 @@ data object DataSource {
         FlagCategory.MILITANT_ORGANIZATION.toWrapper(),
         FlagCategory.TERRORIST_ORGANIZATION.toWrapper()
     )
+
 
     val switchSupersSuperCategories = listOf(FlagSuperCategory.Institution)
     val switchSubsSuperCategories = listOf(

@@ -39,7 +39,7 @@ import dev.aftly.flags.data.DataSource.categoriesRegional
 import dev.aftly.flags.data.DataSource.categoriesRegionalPairs
 import dev.aftly.flags.data.DataSource.categoriesSovereignEntity
 import dev.aftly.flags.data.DataSource.categoriesSovereignState
-import dev.aftly.flags.data.DataSource.categoriesSovereignStateExceptionPairs
+import dev.aftly.flags.data.DataSource.categoriesSovereignStatePairs
 import dev.aftly.flags.data.DataSource.historicalSubCategoryWhitelist
 import dev.aftly.flags.data.DataSource.menuSuperCategoryList
 import dev.aftly.flags.data.DataSource.switchSubsSuperCategories
@@ -55,6 +55,7 @@ import dev.aftly.flags.model.FlagCategory.HISTORICAL
 import dev.aftly.flags.model.FlagCategory.MICROSTATE
 import dev.aftly.flags.model.FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL
 import dev.aftly.flags.model.FlagCategory.ONE_PARTY
+import dev.aftly.flags.model.FlagCategory.POLITICAL_ORGANIZATION
 import dev.aftly.flags.model.FlagCategory.POLITICAL_MOVEMENT
 import dev.aftly.flags.model.FlagCategory.PROVISIONAL_GOVERNMENT
 import dev.aftly.flags.model.FlagCategory.QUASI_STATE
@@ -218,7 +219,7 @@ fun isCategoryExit(
         category = category,
         inclusiveOf = categoriesSovereignState,
         categories = categoriesInclusiveOfSovereignState,
-        pairExceptions = categoriesSovereignStateExceptionPairs,
+        pairExceptions = categoriesSovereignStatePairs,
         selectedSuperCategories = superCategories,
         selectedSubCategories = subCategories
 
@@ -361,7 +362,7 @@ private fun isCategoryExclusive(
     }
 
     /* Enforce intra-category exceptions when exclusiveOf and categories are the same */
-    val isException = when {
+    val isOtherException = when {
         exclusiveOf == categories && category is FlagCategoryWrapper -> {
             val superOfCategory = categories.filterIsInstance<FlagSuperCategory>()
                 .find { category.enum in it.enums() }
@@ -372,9 +373,12 @@ private fun isCategoryExclusive(
         else -> false
     }
 
+    /* Aggregate exceptions */
+    val isNotException = !isPairException && !isOtherException
+
     return when {
-        isCategoryExclusiveOf && isAnyCategoriesSelected && !isPairException && !isException -> true
-        isCategoryRelevant && isAnyExclusiveOfSelected && !isPairException && !isException  -> true
+        isCategoryExclusiveOf && isAnyCategoriesSelected && isNotException -> true
+        isCategoryRelevant && isAnyExclusiveOfSelected && isNotException -> true
         else -> false
     }
 }
@@ -397,7 +401,7 @@ private fun isCategoryNotInclusive(
     val isCategoryRelevant = category in categories
 
     val isAnyInclusiveOfSelected = inclusiveOf.any { it in flatSelectedCategories }
-    val isOnlyInclusiveCategoriesSelected = flatSelectedCategories.none { it !in categories }
+    val isOnlyCategoriesSelected = flatSelectedCategories.none { it !in categories }
 
     val relevantPairExceptions = buildList {
         pairExceptions.forEach { pair ->
@@ -419,10 +423,11 @@ private fun isCategoryNotInclusive(
             !inclusiveOf.any { it in flatSelectedCategories && it !in relevantPairFirsts }
 
     /* Enforce intra-category select/switch exceptions when relevant */
-    val isException = when {
+    val isOtherException = when {
         category is FlagCategoryWrapper -> selectedSuperCategories.any { superCategory ->
             val enums = superCategory.enums()
-            category.enum in enums && enums.none { it in selectedSubCategories }
+            category.enum in enums && enums.none { it in selectedSubCategories } &&
+                    (category in inclusiveOf || category in categories)
 
         } || switchSubsSuperCategories.any { switchSuper ->
             val enums = switchSuper.enums()
@@ -435,9 +440,12 @@ private fun isCategoryNotInclusive(
         else -> false
     }
 
+    /* Aggregate exceptions */
+    val isNotException = !isPairException && !isOtherException
+
     return when {
-        isCategoryInclusiveOf && !isOnlyInclusiveCategoriesSelected && !isPairException && !isException -> true
-        isAnyInclusiveOfSelected && !isCategoryRelevant && !isPairException && !isException -> true
+        isCategoryInclusiveOf && !isOnlyCategoriesSelected && isNotException -> true
+        isAnyInclusiveOfSelected && !isCategoryRelevant && isNotException -> true
         else -> false
     }
 }
@@ -672,22 +680,23 @@ fun getCategoriesTitleIds(
         strings.add(R.string.string_whitespace)
     }
 
-    if (isQuasiState && POLITICAL_MOVEMENT in culturalCategories) {
-        culturalCategories.remove(element = POLITICAL_MOVEMENT)
-        strings.add(POLITICAL_MOVEMENT.title)
-        strings.add(R.string.string_ampersand)
-    }
+    if (isQuasiState) {
+        when {
+            POLITICAL_ORGANIZATION in remainingCategories -> {
+                remainingCategories.remove(element = POLITICAL_ORGANIZATION)
+                strings.add(POLITICAL_ORGANIZATION.title)
+                strings.add(R.string.string_ampersand)
+            }
+            POLITICAL_MOVEMENT in culturalCategories -> {
+                culturalCategories.remove(element = POLITICAL_MOVEMENT)
+                strings.add(POLITICAL_MOVEMENT.title)
+                strings.add(R.string.string_ampersand)
+            }
+        }
 
-    if (isAnnexed) {
-        remainingCategories.remove(element = ANNEXED_TERRITORY)
-
-        val isEmpty =
-            (politicalCategories + superCategoriesFiltered + remainingCategories).isEmpty()
-
-        if (isEmpty) {
-            strings.add(ANNEXED_TERRITORY.title)
-        } else {
-            strings.add(R.string.category_annexed_territory_title_short)
+        if (AutonomousRegion in superCategoriesFiltered) {
+            superCategoriesFiltered.remove(element = AutonomousRegion)
+            strings.add(R.string.categories_unrecognized_or_annexed)
             strings.add(R.string.string_whitespace)
         }
     }
@@ -706,10 +715,18 @@ fun getCategoriesTitleIds(
         }
     }
 
-    if (isQuasiState && AutonomousRegion in superCategoriesFiltered) {
-        superCategoriesFiltered.remove(element = AutonomousRegion)
-        strings.add(R.string.categories_unrecognized_or_annexed)
-        strings.add(R.string.string_whitespace)
+    if (isAnnexed) {
+        remainingCategories.remove(element = ANNEXED_TERRITORY)
+
+        val isEmpty =
+            (politicalCategories + superCategoriesFiltered + remainingCategories).isEmpty()
+
+        if (isEmpty) {
+            strings.add(ANNEXED_TERRITORY.title)
+        } else {
+            strings.add(R.string.category_annexed_territory_title_short)
+            strings.add(R.string.string_whitespace)
+        }
     }
 
     culturalCategories.forEachIndexed { index, culturalCategory ->
