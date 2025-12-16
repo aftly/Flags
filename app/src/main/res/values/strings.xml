@@ -196,6 +196,7 @@
     <string name="category_militant_organization_title">Militant Organization</string>
     <string name="category_militant_organization_string">militant organization</string>
     <string name="category_terrorist_organization_title">Terrorist Organization</string>
+    <string name="category_terrorist_organization_short_title">Terrorist</string>
     <string name="category_terrorist_organization_string">designated terrorist organization</string>
     <string name="category_indigenous_title">Indigenous</string>
     <string name="category_indigenous_string">indigenous</string>
@@ -265,6 +266,7 @@
     <string name="category_social_string">social movement</string>
     <string name="category_political_movement_title">Political Movement</string>
     <string name="category_political_movement_string">political movement</string>
+    <string name="category_political_movement_short_title">Political</string>
     <string name="category_historical_title">Historical</string>
     <string name="category_historical_string">historical</string>
     <string name="category_historical_in_description">defunct</string>
@@ -281,6 +283,7 @@
     <string name="categories_devolved_string">devolved</string>
     <string name="categories_non_self_governing_territory_string">non-self-governing territory</string>
     <string name="categories_non_self_governing_territory_descriptor">(NSGT)</string>
+    <string name="categories_political_and_religious_movement">Political &amp; Religious Movement</string>
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancel</string>
     <string name="dialog_close">Close</string>
