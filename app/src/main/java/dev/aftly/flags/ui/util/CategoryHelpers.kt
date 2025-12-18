@@ -60,6 +60,7 @@ import dev.aftly.flags.model.FlagCategory.HISTORICAL
 import dev.aftly.flags.model.FlagCategory.INDIGENOUS_TERRITORY
 import dev.aftly.flags.model.FlagCategory.MARITIME
 import dev.aftly.flags.model.FlagCategory.MICROSTATE
+import dev.aftly.flags.model.FlagCategory.MILITANT_ORGANIZATION
 import dev.aftly.flags.model.FlagCategory.MILITARY
 import dev.aftly.flags.model.FlagCategory.NOMINAL_EXTRA_CONSTITUTIONAL
 import dev.aftly.flags.model.FlagCategory.ONE_PARTY
@@ -659,6 +660,7 @@ fun getCategoriesTitleIds(
     val isAnnexed = ANNEXED_TERRITORY in subCategories
     val isUnrecognizedState = UNRECOGNIZED_STATE in subCategories
     val isQuasiState = QUASI_STATE in subCategories
+    val isMilitant = MILITANT_ORGANIZATION in subCategories
     val isTerrorist = TERRORIST_ORGANIZATION in subCategories
 
     /* For string exceptions when supers mean non-sovereign autonomous and associated regions */
@@ -755,7 +757,7 @@ fun getCategoriesTitleIds(
         }
     }
 
-    if (isUnrecognizedState && !(isTerrorist && !isQuasiState)) {
+    if (isUnrecognizedState) {
         remainingCategories.remove(element = UNRECOGNIZED_STATE)
 
         if (!isQuasiState && POLITICAL_MOVEMENT in culturalCategories) {
@@ -882,7 +884,7 @@ fun getCategoriesTitleIds(
             if (isNotPowerException && isNotAutonomous &&
                 isNotConfederation && !isConfederationException) {
                 when {
-                    isMicrostate -> null
+                    isMicrostate || isMilitant || isTerrorist -> null
                     isSovereignEntity -> strings.add(R.string.category_entity_title)
                     else -> strings.add(R.string.category_state_title)
                 }
@@ -896,18 +898,51 @@ fun getCategoriesTitleIds(
         strings.add(R.string.string_whitespace)
     }
 
-    if (isTerrorist) {
+    if (isMilitant || isTerrorist) {
+        val isUnrecognizedStateOrSuper =
+            isUnrecognizedState || AutonomousRegion in superCategoriesFiltered
+
+        superCategoriesFiltered.remove(element = AutonomousRegion)
+        remainingCategories.remove(element = MILITANT_ORGANIZATION)
         remainingCategories.remove(element = TERRORIST_ORGANIZATION)
 
-        val isFullTitle = remainingCategories.isEmpty() &&
-                (superCategoriesFiltered.isEmpty() && !isInternational)
+        val isFullTitle = superCategoriesFiltered.isEmpty() && remainingCategories.isEmpty() &&
+                !isInternational
         when {
-            isFullTitle -> {
+            isUnrecognizedStateOrSuper && isFullTitle -> {
+                if (!isUnrecognizedState) {
+                    strings.add(R.string.category_unrecognized_state_short_title)
+                    strings.add(R.string.string_whitespace)
+                }
+                if (isTerrorist) strings.add(R.string.categories_terrorist_state)
+                else strings.add(R.string.categories_militant_state)
+            }
+            isFullTitle && isMilitant && isTerrorist -> {
+                strings.add(R.string.category_militant_organization_short_title)
+                strings.add(R.string.string_whitespace)
                 strings.add(TERRORIST_ORGANIZATION.title)
                 strings.add(R.string.string_whitespace)
             }
-            else -> {
+            isFullTitle && isMilitant -> {
+                strings.add(MILITANT_ORGANIZATION.title)
+                strings.add(R.string.string_whitespace)
+            }
+            isFullTitle && isTerrorist -> {
+                strings.add(TERRORIST_ORGANIZATION.title)
+                strings.add(R.string.string_whitespace)
+            }
+            isMilitant && isTerrorist && !isQuasiState -> {
+                strings.add(R.string.category_militant_organization_short_title)
+                strings.add(R.string.string_whitespace)
                 strings.add(R.string.category_terrorist_organization_short_title)
+                strings.add(R.string.string_whitespace)
+            }
+            isTerrorist -> {
+                strings.add(R.string.category_terrorist_organization_short_title)
+                strings.add(R.string.string_whitespace)
+            }
+            isMilitant -> {
+                strings.add(R.string.category_militant_organization_short_title)
                 strings.add(R.string.string_whitespace)
             }
         }
@@ -961,8 +996,8 @@ fun getCategoriesTitleIds(
                 strings.add(R.string.string_whitespace)
             }
 
-            AutonomousRegion to isMicrostate -> null
-            AutonomousRegion to (isTerrorist || isAutonomousRegionPoliticalMovement) -> {
+            AutonomousRegion to (isMicrostate) -> null
+            AutonomousRegion to isAutonomousRegionPoliticalMovement -> {
                 strings.add(UNRECOGNIZED_STATE.title)
                 strings.add(R.string.string_whitespace)
             }

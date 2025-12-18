@@ -194,6 +194,7 @@
     <string name="category_quasi_state_title">Quasi-State</string>
     <string name="category_quasi_state_string">quasi-state</string>
     <string name="category_militant_organization_title">Militant Organization</string>
+    <string name="category_militant_organization_short_title">Militant</string>
     <string name="category_militant_organization_string">militant organization</string>
     <string name="category_terrorist_organization_title">Terrorist Organization</string>
     <string name="category_terrorist_organization_short_title">Terrorist</string>
@@ -284,6 +285,8 @@
     <string name="categories_non_self_governing_territory_string">non-self-governing territory</string>
     <string name="categories_non_self_governing_territory_descriptor">(NSGT)</string>
     <string name="categories_political_and_religious_movement">Political &amp; Religious Movement</string>
+    <string name="categories_militant_state">Militant State</string>
+    <string name="categories_terrorist_state">Terrorist State</string>
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancel</string>
     <string name="dialog_close">Close</string>
