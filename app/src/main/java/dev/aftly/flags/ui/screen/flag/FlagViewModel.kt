@@ -578,13 +578,13 @@ class FlagViewModel(
                 POLITICAL_ORGANIZATION to (MILITARY in entityCategories) -> {
                     entityCategories.remove(element = MILITARY)
                     skipCategories.add(element = MILITARY)
-                    resIds.add(R.string.category_political_military_organization_string)
+                    resIds.add(R.string.categories_political_military_organization_string)
                 }
 
                 MILITARY to (POLITICAL_ORGANIZATION in entityCategories) -> {
                     entityCategories.remove(element = POLITICAL_ORGANIZATION)
                     skipCategories.add(element = POLITICAL_ORGANIZATION)
-                    resIds.add(R.string.category_political_military_organization_string)
+                    resIds.add(R.string.categories_political_military_organization_string)
                 }
                 MILITARY to isChild -> {
                     resIds.add(R.string.category_military_child_string)

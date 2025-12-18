@@ -170,8 +170,6 @@
     <string name="category_police_string">police force</string>
     <string name="category_political_organization_title">Political Organization</string>
     <string name="category_political_organization_string">political organization</string>
-    <string name="category_political_military_organization_title">Political &amp; Military Organization</string>
-    <string name="category_political_military_organization_string">political and military organization</string>
     <string name="category_university_title">University</string>
     <string name="category_university_string">university</string>
     <string name="category_charity_title">Charity</string>
@@ -284,6 +282,8 @@
     <string name="categories_devolved_string">devolved</string>
     <string name="categories_non_self_governing_territory_string">non-self-governing territory</string>
     <string name="categories_non_self_governing_territory_descriptor">(NSGT)</string>
+    <string name="categories_political_military_organization_title">Political &amp; Military Organization</string>
+    <string name="categories_political_military_organization_string">political and military organization</string>
     <string name="categories_political_and_religious_movement">Political &amp; Religious Movement</string>
     <string name="categories_militant_state">Militant State</string>
     <string name="categories_terrorist_state">Terrorist State</string>

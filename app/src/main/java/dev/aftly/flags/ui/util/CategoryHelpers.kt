@@ -643,11 +643,6 @@ fun getCategoriesTitleIds(
 
     val isCultural = Cultural in superCategoriesFiltered
 
-    val isInternational = International in superCategoriesFiltered &&
-            (Institution.allSupers().any { it in superCategoriesFiltered } ||
-                    Institution.allEnums().any { it in subCategories } ||
-                    CONFEDERATION in subCategories)
-
     val isSovereign = Sovereign in superCategoriesFiltered
     val isSovereignState = SOVEREIGN_STATE in subCategories
     val isSovereignEntity = SOVEREIGN_ENTITY in subCategories
@@ -662,6 +657,14 @@ fun getCategoriesTitleIds(
     val isQuasiState = QUASI_STATE in subCategories
     val isMilitant = MILITANT_ORGANIZATION in subCategories
     val isTerrorist = TERRORIST_ORGANIZATION in subCategories
+
+    val isInternational = if (International !in superCategoriesFiltered) false else {
+        val isInstitution = Institution.allSupers().any { it in superCategoriesFiltered } ||
+                Institution.allEnums().any { it in subCategories }
+        val isConfederation = CONFEDERATION in subCategories
+
+        isMilitant || isTerrorist || isInstitution || isConfederation
+    }
 
     /* For string exceptions when supers mean non-sovereign autonomous and associated regions */
     val isAutonomousRegionalSupers = superCategoriesFiltered.containsAll(
@@ -728,7 +731,7 @@ fun getCategoriesTitleIds(
                 superCategoriesFiltered.remove(element = Institution)
                 superCategoriesFiltered.removeAll(elements = politicalMilitaryParents)
                 remainingCategories.removeAll(elements = politicalMilitary)
-                strings.add(R.string.category_political_military_organization_title)
+                strings.add(R.string.categories_political_military_organization_title)
                 strings.add(R.string.string_ampersand)
             }
             Civilian in superCategoriesFiltered || POLITICAL_ORGANIZATION in remainingCategories -> {
@@ -892,7 +895,7 @@ fun getCategoriesTitleIds(
         }
     }
 
-    if (isInternational || International in superCategoriesFiltered && isTerrorist) {
+    if (isInternational) {
         superCategoriesFiltered.remove(element = International)
         strings.add(International.title)
         strings.add(R.string.string_whitespace)
@@ -906,8 +909,8 @@ fun getCategoriesTitleIds(
         remainingCategories.remove(element = MILITANT_ORGANIZATION)
         remainingCategories.remove(element = TERRORIST_ORGANIZATION)
 
-        val isFullTitle = superCategoriesFiltered.isEmpty() && remainingCategories.isEmpty() &&
-                !isInternational
+        val isFullTitle = superCategoriesFiltered.isEmpty() && remainingCategories.isEmpty()
+
         when {
             isUnrecognizedStateOrSuper && isFullTitle -> {
                 if (!isUnrecognizedState) {
@@ -989,6 +992,9 @@ fun getCategoriesTitleIds(
         val isRegionException = isHistorical || isCultural || isAutonomousRegion ||
                 isDevolvedRegion || culturalCategories.isNotEmpty()
 
+        val isMilitary = MILITARY in remainingCategories
+        val isPoliticalOrg = POLITICAL_ORGANIZATION in remainingCategories
+
         when (superCategory to true) {
             Sovereign to isMicrostate -> null
             Sovereign to isAnnexed -> {
@@ -1010,8 +1016,19 @@ fun getCategoriesTitleIds(
                 strings.add(R.string.string_whitespace)
             }
 
+            Executive to isPoliticalOrg -> {
+                remainingCategories.remove(element = POLITICAL_ORGANIZATION)
+                strings.add(R.string.categories_political_military_organization_title)
+                strings.add(R.string.string_whitespace)
+            }
             Executive to isTerrorist -> {
                 strings.add(MILITARY.title)
+                strings.add(R.string.string_whitespace)
+            }
+
+            Civilian to isMilitary -> {
+                remainingCategories.remove(element = MILITARY)
+                strings.add(R.string.categories_political_military_organization_title)
                 strings.add(R.string.string_whitespace)
             }
             Civilian to isTerrorist -> {
@@ -1022,6 +1039,7 @@ fun getCategoriesTitleIds(
                 strings.add(POLITICAL_ORGANIZATION.title)
                 strings.add(R.string.string_whitespace)
             }
+
             else -> {
                 superCategory.categoriesMenuButton?.let {
                     strings.add(it)
@@ -1044,7 +1062,7 @@ fun getCategoriesTitleIds(
                 strings.add(R.string.string_whitespace)
             }
             in politicalMilitaryCategories -> if (subCategory == POLITICAL_ORGANIZATION) {
-                strings.add(R.string.category_political_military_organization_title)
+                strings.add(R.string.categories_political_military_organization_title)
                 strings.add(R.string.string_whitespace)
             }
             VEXILLOLOGY -> {
